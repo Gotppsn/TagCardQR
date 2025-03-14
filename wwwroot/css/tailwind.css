@@ -1045,10 +1045,6 @@ body {
   bottom: 0px;
 }
 
-.-left-6 {
-  left: -1.5rem;
-}
-
 .-top-8 {
   top: -2rem;
 }
@@ -1107,10 +1103,6 @@ body {
 
 .top-0 {
   top: 0px;
-}
-
-.top-1 {
-  top: 0.25rem;
 }
 
 .top-1\/2 {
@@ -2426,10 +2418,6 @@ body {
   padding-left: 0.75rem;
 }
 
-.pl-4 {
-  padding-left: 1rem;
-}
-
 .pl-9 {
   padding-left: 2.25rem;
 }
@@ -2452,6 +2440,10 @@ body {
 
 .text-center {
   text-align: center;
+}
+
+.text-right {
+  text-align: right;
 }
 
 .font-inter {

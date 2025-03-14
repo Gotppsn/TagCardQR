@@ -129,7 +129,7 @@ namespace CardTagManager.Controllers
         public IActionResult PrintAll()
         {
             var cards = _cardRepository.GetAll();
-            
+
             // Generate QR codes for all cards
             var qrCodes = new Dictionary<int, string>();
             foreach (var card in cards)
@@ -137,9 +137,9 @@ namespace CardTagManager.Controllers
                 string qrCodeData = GenerateCardQrData(card);
                 qrCodes[card.Id] = _qrCodeService.GenerateQrCodeAsBase64(qrCodeData);
             }
-            
+
             ViewBag.QrCodes = qrCodes;
-            
+
             return View(cards);
         }
 
@@ -155,10 +155,21 @@ namespace CardTagManager.Controllers
             // Generate QR code data
             string qrCodeData = GenerateCardQrData(card);
             string qrCodeImage = _qrCodeService.GenerateQrCodeAsBase64(qrCodeData);
-            
+
             ViewBag.QrCodeImage = qrCodeImage;
             ViewBag.CardName = card.Name;
-            
+
+            return View(card);
+        }
+
+        public IActionResult ScanResult(int id)
+        {
+            var card = _cardRepository.GetById(id);
+            if (card == null)
+            {
+                return NotFound();
+            }
+
             return View(card);
         }
 
@@ -179,7 +190,7 @@ namespace CardTagManager.Controllers
             {
                 cardData += $"MAINTENANCE:{card.MaintenanceInfo}\n";
             }
-            
+
             return cardData;
         }
 
@@ -194,10 +205,10 @@ namespace CardTagManager.Controllers
 
             // Generate card data content
             string cardDataContent = GenerateCardQrData(card);
-            
+
             // Create a file name
             string fileName = $"{card.Name.Replace(" ", "_")}_Info.txt";
-            
+
             // Return the data as a downloadable file
             return File(System.Text.Encoding.UTF8.GetBytes(cardDataContent), "text/plain", fileName);
         }
