@@ -6,41 +6,43 @@
 }
 
 <div class="no-print mb-6 flex justify-between items-center">
-    <a asp-action="Index" class="text-primary-600 hover:text-primary-800">
-        <i class="fas fa-arrow-left mr-1"></i> Back to Card List
+    <a asp-action="Index" class="text-primary-600 hover:text-primary-800 transition-colors flex items-center">
+        <i class="fas fa-arrow-left mr-2"></i> Back to Card List
     </a>
     <button onclick="window.print()" class="btn-primary">
-        <i class="fas fa-print mr-1"></i> Print All Cards
+        <i class="fas fa-print mr-2"></i> Print All Cards
     </button>
 </div>
 
-<div class="print-container grid grid-cols-1 gap-y-8 mb-8">
+<div class="print-container">
     @foreach (var card in Model)
     {
-        <div class="print-card" style="background-color: @card.BackgroundColor; color: @card.TextColor; page-break-after: always;">
-            <div class="card-content">
-                <div class="card-info">
-                    <h3 class="card-name" style="color: @card.AccentColor">@card.Name</h3>
-                    <p class="card-title">@card.Title</p>
-                    <p class="card-company">@card.Company</p>
-                    
-                    <div class="card-details">
-                        <p><i class="fas fa-envelope" style="color: @card.AccentColor"></i>@card.Email</p>
-                        <p><i class="fas fa-phone" style="color: @card.AccentColor"></i>@card.Phone</p>
-                        @if (!string.IsNullOrEmpty(card.Address))
-                        {
-                            <p><i class="fas fa-map-marker-alt" style="color: @card.AccentColor"></i>@card.Address</p>
-                        }
-                        @if (!string.IsNullOrEmpty(card.Website))
-                        {
-                            <p><i class="fas fa-globe" style="color: @card.AccentColor"></i>@card.Website</p>
-                        }
+        <div class="print-card-wrapper mb-12">
+            <div class="print-card" style="background-color: @card.BackgroundColor; color: @card.TextColor;">
+                <div class="card-content">
+                    <div class="card-info">
+                        <h3 class="card-name" style="color: @card.AccentColor">@card.Name</h3>
+                        <p class="card-title">@card.Title</p>
+                        <p class="card-company">@card.Company</p>
+                        
+                        <div class="card-details">
+                            <p><i class="fas fa-envelope" style="color: @card.AccentColor"></i>@card.Email</p>
+                            <p><i class="fas fa-phone" style="color: @card.AccentColor"></i>@card.Phone</p>
+                            @if (!string.IsNullOrEmpty(card.Address))
+                            {
+                                <p><i class="fas fa-map-marker-alt" style="color: @card.AccentColor"></i>@card.Address</p>
+                            }
+                            @if (!string.IsNullOrEmpty(card.Website))
+                            {
+                                <p><i class="fas fa-globe" style="color: @card.AccentColor"></i>@card.Website</p>
+                            }
+                        </div>
                     </div>
-                </div>
-                
-                <div class="card-qr">
-                    <img src="@ViewBag.QrCodes[card.Id]" alt="QR Code" />
-                    <p class="scan-text">Scan to Save Contact</p>
+                    
+                    <div class="card-qr">
+                        <img src="@ViewBag.QrCodes[card.Id]" alt="QR Code" />
+                        <p class="scan-text">Scan to Save Contact</p>
+                    </div>
                 </div>
             </div>
         </div>
