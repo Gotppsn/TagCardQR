@@ -18,11 +18,11 @@
     @foreach (var product in Model)
     {
         <div class="print-card-wrapper mb-12">
-            <div class="print-card" style="background-color: @@product.BackgroundColor; color: @product.TextColor;">
+            <div class="print-card" style="background-color: @product.BackgroundColor; color: @product.TextColor;">
                 <div class="card-content">
                     <div class="card-info">
-                        <h3 class="card-name" style="color: @product.AccentColor">@@product.ProductName</h3>
-                        <p class="card-title">@@product.Manufacturer</p>
+                        <h3 class="card-name" style="color: @product.AccentColor">@product.ProductName</h3>
+                        <p class="card-title">@product.Manufacturer</p>
                         
                         <div class="card-details">
                             <p><i class="fas fa-tag" style="color: @product.AccentColor"></i>@product.ModelNumber</p>
