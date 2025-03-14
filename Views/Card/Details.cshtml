@@ -1,191 +1,980 @@
 @model CardTagManager.Models.Card
 
 @{
-    ViewData["Title"] = "Card Details";
+    ViewData["Title"] = "Product Details";
 }
 
-<div class="mb-6">
-    <a asp-action="Index" class="text-primary-600 hover:text-primary-800">
-        <i class="fas fa-arrow-left mr-1"></i> Back to List
+<!-- Breadcrumb navigation -->
+<nav class="mb-5 py-3 px-4 bg-white rounded-lg shadow-sm flex items-center text-sm">
+    <a href="/" class="text-gray-500 hover:text-primary-600">
+        <i class="fas fa-home"></i>
     </a>
+    <span class="mx-2 text-gray-400">/</span>
+    <a asp-action="Index" class="text-gray-500 hover:text-primary-600">Products</a>
+    <span class="mx-2 text-gray-400">/</span>
+    <span class="text-primary-600 font-medium truncate">@Model.ProductName</span>
+</nav>
+
+<!-- Product header -->
+<div class="mb-8 bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
+    <div class="relative h-24 bg-gradient-to-r from-primary-600 to-primary-400 flex items-end">
+        <div class="absolute top-4 right-4 flex space-x-2">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white p-2 rounded-full transition-all">
+                <i class="fas fa-edit"></i>
+            </a>
+            <a asp-action="Print" asp-route-id="@Model.Id" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white p-2 rounded-full transition-all">
+                <i class="fas fa-print"></i>
+            </a>
+            <a asp-action="QrCode" asp-route-id="@Model.Id" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white p-2 rounded-full transition-all">
+                <i class="fas fa-qrcode"></i>
+            </a>
+            <button id="share-button" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white p-2 rounded-full transition-all">
+                <i class="fas fa-share-alt"></i>
+            </button>
+        </div>
+        <div class="w-full h-16 bg-white rounded-t-3xl"></div>
+    </div>
+    <div class="px-8 pb-6 pt-2">
+        <div class="flex flex-col md:flex-row md:items-end gap-6">
+            <div class="flex-shrink-0 -mt-12">
+                <div class="w-20 h-20 rounded-xl bg-white shadow-md border border-gray-100 flex items-center justify-center text-2xl text-primary-500">
+                    @switch(Model.Category.ToLower())
+                    {
+                        case var c when c.Contains("chemical"):
+                            <i class="fas fa-flask"></i>
+                            break;
+                        case var c when c.Contains("equipment"):
+                            <i class="fas fa-tools"></i>
+                            break;
+                        case var c when c.Contains("safety"):
+                            <i class="fas fa-hard-hat"></i>
+                            break;
+                        default:
+                            <i class="fas fa-box"></i>
+                            break;
+                    }
+                </div>
+            </div>
+            <div class="flex-grow">
+                <div class="flex flex-wrap items-start gap-3 mb-2">
+                    <span class="px-3 py-1 text-xs font-semibold rounded-full"
+                          style="background-color: @Model.AccentColor; color: @Model.BackgroundColor">
+                        @Model.Category
+                    </span>
+                    
+                    @if (Model.WarrantyExpiration < DateTime.Now)
+                    {
+                        <span class="px-3 py-1 bg-red-100 text-red-800 text-xs font-medium rounded-full">
+                            <i class="fas fa-exclamation-circle mr-1"></i> Warranty Expired
+                        </span>
+                    }
+                    else if (Model.WarrantyExpiration < DateTime.Now.AddMonths(3))
+                    {
+                        <span class="px-3 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full">
+                            <i class="fas fa-clock mr-1"></i> Warranty Expiring Soon
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="px-3 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
+                            <i class="fas fa-shield-alt mr-1"></i> In Warranty
+                        </span>
+                    }
+                </div>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-1">@Model.ProductName</h1>
+                <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-gray-500">
+                    <div class="flex items-center">
+                        <i class="fas fa-industry mr-2 text-primary-400"></i>
+                        <span>@Model.Manufacturer</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-tag mr-2 text-primary-400"></i>
+                        <span>@Model.ModelNumber</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-map-marker-alt mr-2 text-primary-400"></i>
+                        <span>@Model.Location</span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex flex-col md:items-end mt-4 md:mt-0">
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn-primary w-full md:w-auto mb-2 justify-center">
+                    <i class="fas fa-edit mr-2"></i> Edit Product
+                </a>
+                <div class="text-xs text-gray-500">
+                    Last updated: @Model.UpdatedAt.ToString("MMM dd, yyyy HH:mm")
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-    <!-- Card Preview -->
+    <!-- Left Sidebar: Card Preview & Actions -->
     <div class="lg:col-span-1">
-        <div class="sticky top-6">
-            <h2 class="text-xl font-bold mb-4">Card Preview</h2>
-            
-            <div class="business-card mb-4" style="background-color: @Model.BackgroundColor; color: @Model.TextColor">
-                <div class="p-4">
-                    <div class="mb-3">
-                        <h3 class="text-xl font-bold" style="color: @Model.AccentColor">@Model.ProductName</h3>
-                        <p class="text-sm">@Model.Title</p>
-                        <p class="font-bold">@Model.Manufacturer</p>
-                    </div>
-                    <div class="space-y-1 text-sm">
-                        <p><i class="fas fa-envelope mr-2" style="color: @Model.AccentColor"></i>@Model.Email</p>
-                        <p><i class="fas fa-phone mr-2" style="color: @Model.AccentColor"></i>@Model.Phone</p>
-                        @if (!string.IsNullOrEmpty(Model.Address))
-                        {
-                            <p><i class="fas fa-map-marker-alt mr-2" style="color: @Model.AccentColor"></i>@Model.Address</p>
-                        }
-                        @if (!string.IsNullOrEmpty(Model.Website))
-                        {
-                            <p><i class="fas fa-globe mr-2" style="color: @Model.AccentColor"></i>@Model.Website</p>
-                        }
+        <div class="sticky top-6 space-y-6">
+            <!-- Card Preview -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <h2 class="text-lg font-bold mb-5 flex items-center">
+                    <i class="fas fa-id-card text-primary-500 mr-2"></i> Product Tag Preview
+                </h2>
+                
+                <div class="business-card transform hover:scale-105 transition-all duration-300 mb-6"
+                     style="background-color: @Model.BackgroundColor; color: @Model.TextColor; perspective: 1000px;">
+                    <div class="card-flip-container relative w-full h-full">
+                        <div class="card-side card-front absolute w-full h-full rounded-lg p-5">
+                            <div class="h-full flex flex-col">
+                                <div class="mb-3">
+                                    <span class="inline-flex items-center px-2 py-1 text-xs font-bold rounded-full" 
+                                          style="background-color: @Model.AccentColor; color: @Model.BackgroundColor">
+                                        @Model.Category
+                                    </span>
+                                    <h3 class="text-xl font-bold mt-2" style="color: @Model.AccentColor">@Model.ProductName</h3>
+                                    <p class="text-sm font-medium">@Model.Manufacturer</p>
+                                </div>
+                                <div class="space-y-1 text-sm mt-auto">
+                                    <p class="flex items-center">
+                                        <i class="fas fa-tag mr-2" style="color: @Model.AccentColor"></i>Model: @Model.ModelNumber
+                                    </p>
+                                    <p class="flex items-center">
+                                        <i class="fas fa-fingerprint mr-2" style="color: @Model.AccentColor"></i>SN: @Model.SerialNumber
+                                    </p>
+                                    <p class="flex items-center">
+                                        <i class="fas fa-map-marker-alt mr-2" style="color: @Model.AccentColor"></i>@Model.Location
+                                    </p>
+                                    <p class="flex items-center">
+                                        <i class="fas fa-calendar-check mr-2" style="color: @Model.AccentColor"></i>Warranty: @Model.WarrantyExpiration.ToString("MMM d, yyyy")
+                                    </p>
+                                </div>
+                            </div>
+                            <button type="button" id="flip-card" class="absolute bottom-2 right-2 text-xs opacity-50 hover:opacity-100 transition-opacity">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                        <div class="card-side card-back absolute w-full h-full rounded-lg p-5 flex flex-col items-center justify-center" style="transform: rotateY(180deg); backface-visibility: hidden;">
+                            <img src="@ViewBag.QrCodeImage" alt="QR Code" class="w-32 h-32 mb-2 border border-gray-200 p-1 rounded" />
+                            <p class="text-center text-sm">Scan for product details</p>
+                            <button type="button" id="flip-card-back" class="absolute bottom-2 right-2 text-xs opacity-50 hover:opacity-100 transition-opacity">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- QR Code -->
-            <div class="card p-4 mb-4">
-                <h3 class="font-bold mb-2">QR Code</h3>
-                <div class="flex justify-center">
-                    <img src="@ViewBag.QrCodeImage" alt="QR Code" class="w-40 h-40 border border-gray-200 p-2 rounded" />
+                
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" id="copy-qr-btn" class="text-sm text-gray-600 flex items-center gap-1 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
+                        <i class="fas fa-copy"></i> Copy QR
+                    </button>
+                    <button type="button" id="download-qr-btn" class="text-sm text-gray-600 flex items-center gap-1 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
+                        <i class="fas fa-download"></i> Download
+                    </button>
+                    <a asp-action="DownloadData" asp-route-id="@Model.Id" class="text-sm text-gray-600 flex items-center gap-1 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
+                        <i class="fas fa-file-alt"></i> Data File
+                    </a>
                 </div>
-                <p class="text-center text-sm text-gray-500 mt-2">Scan for details</p>
             </div>
             
-            <!-- Actions -->
-            <div class="flex flex-col gap-2">
-                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn-primary">
-                    <i class="fas fa-edit mr-2"></i> Edit Card
-                </a>
-                <a asp-action="Print" asp-route-id="@Model.Id" class="btn-secondary">
-                    <i class="fas fa-print mr-2"></i> Print Card
-                </a>
-                <a asp-action="Delete" asp-route-id="@Model.Id" class="btn-danger">
-                    <i class="fas fa-trash mr-2"></i> Delete Card
-                </a>
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <h2 class="text-lg font-bold mb-4 flex items-center">
+                    <i class="fas fa-bolt text-primary-500 mr-2"></i> Quick Actions
+                </h2>
+                
+                <div class="space-y-3">
+                    <a asp-action="Print" asp-route-id="@Model.Id" class="w-full px-4 py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors group">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-600 mr-3 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-print"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">Print Tag</div>
+                                <div class="text-xs text-gray-500">Print this product tag</div>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-300 group-hover:text-gray-500 group-hover:translate-x-1 transition-all"></i>
+                    </a>
+                    
+                    <a asp-action="QrCode" asp-route-id="@Model.Id" class="w-full px-4 py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors group">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mr-3 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-qrcode"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">Show QR Code</div>
+                                <div class="text-xs text-gray-500">Full-screen QR for scanning</div>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-300 group-hover:text-gray-500 group-hover:translate-x-1 transition-all"></i>
+                    </a>
+                    
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="w-full px-4 py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors group">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 mr-3 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-edit"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">Edit Product</div>
+                                <div class="text-xs text-gray-500">Modify product information</div>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-300 group-hover:text-gray-500 group-hover:translate-x-1 transition-all"></i>
+                    </a>
+                    
+                    <a asp-action="Delete" asp-route-id="@Model.Id" class="w-full px-4 py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors group">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600 mr-3 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-trash"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">Delete Product</div>
+                                <div class="text-xs text-gray-500">Remove this product</div>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-300 group-hover:text-gray-500 group-hover:translate-x-1 transition-all"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Maintenance Reminders -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <h2 class="text-lg font-bold mb-4 flex items-center">
+                    <i class="fas fa-bell text-primary-500 mr-2"></i> Maintenance Alerts
+                </h2>
+                
+                @if (Model.WarrantyExpiration < DateTime.Now.AddMonths(3))
+                {
+                    <div class="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-exclamation-triangle text-yellow-500"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-yellow-800">Warranty Expiration</h3>
+                                <div class="mt-1 text-sm text-yellow-700">
+                                    <p>Warranty expires on @Model.WarrantyExpiration.ToString("MMM d, yyyy") (@((Model.WarrantyExpiration - DateTime.Now).Days) days remaining)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                
+                <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-tools text-blue-500"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-blue-800">Maintenance Information</h3>
+                            <div class="mt-1 text-sm text-blue-700">
+                                <p>@(string.IsNullOrEmpty(Model.MaintenanceInfo) ? "No maintenance information provided." : Model.MaintenanceInfo)</p>
+                            </div>
+                            <div class="mt-2">
+                                <button type="button" id="add-reminder" class="text-xs text-blue-600 hover:text-blue-800 flex items-center">
+                                    <i class="fas fa-plus-circle mr-1"></i> Add Reminder
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-
-    <!-- Card Information -->
+    
+    <!-- Main Content Area: Product Details -->
     <div class="lg:col-span-2">
-        <div class="card">
-            <div class="card-header">
-                <h2 class="text-xl font-bold">Card Information</h2>
-                <p class="text-sm text-gray-500">Created on @Model.CreatedAt.ToString("MMM dd, yyyy")</p>
-            </div>
-            
-            <div class="card-body">
-                <div class="mb-8">
-                    <h3 class="font-bold text-lg mb-3 text-gray-700">Basic Information</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Product Name</p>
-                            <p class="font-medium">@Model.ProductName</p>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Manufacturer</p>
-                            <p class="font-medium">@Model.Manufacturer</p>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Category</p>
-                            <p class="font-medium">@Model.Category</p>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Title</p>
-                            <p class="font-medium">@Model.Title</p>
-                        </div>
-                    </div>
+        <!-- Timeline Tab Navigation -->
+        <div class="flex border-b border-gray-200 mb-6">
+            <button type="button" class="tab-button px-6 py-3 text-primary-600 border-b-2 border-primary-500 font-medium text-sm">
+                Product Information
+            </button>
+            <button type="button" class="tab-button px-6 py-3 text-gray-500 hover:text-gray-700 font-medium text-sm">
+                History
+            </button>
+            <button type="button" class="tab-button px-6 py-3 text-gray-500 hover:text-gray-700 font-medium text-sm">
+                Documents
+            </button>
+        </div>
+        
+        <!-- Product Information Tab -->
+        <div id="tab-product-info" class="tab-content space-y-6">
+            <!-- Basic Information -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                    <h3 class="font-bold text-gray-700 flex items-center">
+                        <i class="fas fa-info-circle text-primary-500 mr-2"></i> Basic Information
+                    </h3>
+                    <button type="button" class="text-sm text-gray-500 hover:text-primary-600 flex items-center copy-section" data-section="basic-info">
+                        <i class="fas fa-copy mr-1"></i> Copy
+                    </button>
                 </div>
                 
-                <div class="mb-8">
-                    <h3 class="font-bold text-lg mb-3 text-gray-700">Contact Information</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Email</p>
-                            <p class="font-medium">@Model.Email</p>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="basic-info">
+                        <div class="flex flex-col">
+                            <span class="text-xs text-gray-500 uppercase font-medium mb-1">Product Name</span>
+                            <span class="font-medium text-gray-800">@Model.ProductName</span>
                         </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Phone</p>
-                            <p class="font-medium">@Model.Phone</p>
+                        
+                        <div class="flex flex-col">
+                            <span class="text-xs text-gray-500 uppercase font-medium mb-1">Category</span>
+                            <span class="font-medium text-gray-800">@Model.Category</span>
                         </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Address</p>
-                            <p class="font-medium">@Model.Address</p>
+                        
+                        <div class="flex flex-col">
+                            <span class="text-xs text-gray-500 uppercase font-medium mb-1">Manufacturer</span>
+                            <span class="font-medium text-gray-800">@Model.Manufacturer</span>
                         </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Website</p>
-                            <p class="font-medium">@Model.Website</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="mb-8">
-                    <h3 class="font-bold text-lg mb-3 text-gray-700">Product Information</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Model Number</p>
-                            <p class="font-medium">@Model.ModelNumber</p>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Serial Number</p>
-                            <p class="font-medium">@Model.SerialNumber</p>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Location</p>
-                            <p class="font-medium">@Model.Location</p>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Maintenance Info</p>
-                            <p class="font-medium">@Model.MaintenanceInfo</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="mb-8">
-                    <h3 class="font-bold text-lg mb-3 text-gray-700">Timeline</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Manufacture Date</p>
-                            <p class="font-medium">@Model.ManufactureDate.ToString("MMM dd, yyyy")</p>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Purchase Date</p>
-                            <p class="font-medium">@Model.PurchaseDate.ToString("MMM dd, yyyy")</p>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Warranty Expiration</p>
-                            <p class="font-medium">@Model.WarrantyExpiration.ToString("MMM dd, yyyy")</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div>
-                    <h3 class="font-bold text-lg mb-3 text-gray-700">Appearance</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Background Color</p>
-                            <div class="flex items-center mt-1">
-                                <div class="w-6 h-6 rounded mr-2 border border-gray-200" style="background-color: @Model.BackgroundColor"></div>
-                                <p class="font-mono text-sm">@Model.BackgroundColor</p>
-                            </div>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Text Color</p>
-                            <div class="flex items-center mt-1">
-                                <div class="w-6 h-6 rounded mr-2 border border-gray-200" style="background-color: @Model.TextColor"></div>
-                                <p class="font-mono text-sm">@Model.TextColor</p>
-                            </div>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Accent Color</p>
-                            <div class="flex items-center mt-1">
-                                <div class="w-6 h-6 rounded mr-2 border border-gray-200" style="background-color: @Model.AccentColor"></div>
-                                <p class="font-mono text-sm">@Model.AccentColor</p>
-                            </div>
+                        
+                        <div class="flex flex-col">
+                            <span class="text-xs text-gray-500 uppercase font-medium mb-1">Title</span>
+                            <span class="font-medium text-gray-800">@(string.IsNullOrEmpty(Model.Title) ? "N/A" : Model.Title)</span>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <div class="card-footer">
-                <p class="text-sm text-gray-500">Last updated: @Model.UpdatedAt.ToString("MMM dd, yyyy HH:mm")</p>
+            <!-- Technical Details -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                    <h3 class="font-bold text-gray-700 flex items-center">
+                        <i class="fas fa-microchip text-primary-500 mr-2"></i> Technical Details
+                    </h3>
+                    <button type="button" class="text-sm text-gray-500 hover:text-primary-600 flex items-center copy-section" data-section="tech-details">
+                        <i class="fas fa-copy mr-1"></i> Copy
+                    </button>
+                </div>
+                
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="tech-details">
+                        <div class="flex flex-col">
+                            <span class="text-xs text-gray-500 uppercase font-medium mb-1">Model Number</span>
+                            <div class="flex items-center">
+                                <span class="font-medium text-gray-800 mr-2">@Model.ModelNumber</span>
+                                <button type="button" class="copy-text-btn text-gray-400 hover:text-primary-600 transition-colors" data-text="@Model.ModelNumber">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-col">
+                            <span class="text-xs text-gray-500 uppercase font-medium mb-1">Serial Number</span>
+                            <div class="flex items-center">
+                                <span class="font-medium text-gray-800 mr-2">@Model.SerialNumber</span>
+                                <button type="button" class="copy-text-btn text-gray-400 hover:text-primary-600 transition-colors" data-text="@Model.SerialNumber">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-col">
+                            <span class="text-xs text-gray-500 uppercase font-medium mb-1">Location</span>
+                            <span class="font-medium text-gray-800">@Model.Location</span>
+                        </div>
+                        
+                        <div class="flex flex-col">
+                            <span class="text-xs text-gray-500 uppercase font-medium mb-1">Maintenance Info</span>
+                            <span class="font-medium text-gray-800">@(string.IsNullOrEmpty(Model.MaintenanceInfo) ? "N/A" : Model.MaintenanceInfo)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Timeline & Dates -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100">
+                    <h3 class="font-bold text-gray-700 flex items-center">
+                        <i class="fas fa-calendar-alt text-primary-500 mr-2"></i> Timeline
+                    </h3>
+                </div>
+                
+                <div class="p-6">
+                    <div class="relative">
+                        <!-- Timeline bar -->
+                        <div class="absolute h-full w-0.5 bg-gray-200 left-2.5 top-0"></div>
+                        
+                        <div class="space-y-6">
+                            <!-- Manufacture Date -->
+                            <div class="relative flex items-start">
+                                <div class="flex-shrink-0 h-5 w-5 rounded-full bg-blue-100 border-2 border-blue-500 z-10 mt-1"></div>
+                                <div class="ml-4">
+                                    <h4 class="text-sm font-medium text-gray-800">Manufactured</h4>
+                                    <p class="text-sm text-gray-500">@Model.ManufactureDate.ToString("MMMM d, yyyy")</p>
+                                    <p class="text-xs text-gray-400 mt-1">@((DateTime.Now - Model.ManufactureDate).Days) days ago</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Purchase Date -->
+                            <div class="relative flex items-start">
+                                <div class="flex-shrink-0 h-5 w-5 rounded-full bg-green-100 border-2 border-green-500 z-10 mt-1"></div>
+                                <div class="ml-4">
+                                    <h4 class="text-sm font-medium text-gray-800">Purchased</h4>
+                                    <p class="text-sm text-gray-500">@Model.PurchaseDate.ToString("MMMM d, yyyy")</p>
+                                    <p class="text-xs text-gray-400 mt-1">@((DateTime.Now - Model.PurchaseDate).Days) days ago</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Warranty Expiration -->
+                            <div class="relative flex items-start">
+                                <div class="flex-shrink-0 h-5 w-5 rounded-full @(Model.WarrantyExpiration < DateTime.Now ? "bg-red-100 border-2 border-red-500" : "bg-yellow-100 border-2 border-yellow-500") z-10 mt-1"></div>
+                                <div class="ml-4">
+                                    <h4 class="text-sm font-medium text-gray-800">Warranty Expires</h4>
+                                    <p class="text-sm text-gray-500">@Model.WarrantyExpiration.ToString("MMMM d, yyyy")</p>
+                                    @if (Model.WarrantyExpiration > DateTime.Now)
+                                    {
+                                        <p class="text-xs text-gray-400 mt-1">@((Model.WarrantyExpiration - DateTime.Now).Days) days remaining</p>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-xs text-red-500 mt-1">Expired @((DateTime.Now - Model.WarrantyExpiration).Days) days ago</p>
+                                    }
+                                </div>
+                            </div>
+                            
+                            <!-- Creation in System -->
+                            <div class="relative flex items-start">
+                                <div class="flex-shrink-0 h-5 w-5 rounded-full bg-purple-100 border-2 border-purple-500 z-10 mt-1"></div>
+                                <div class="ml-4">
+                                    <h4 class="text-sm font-medium text-gray-800">Created in System</h4>
+                                    <p class="text-sm text-gray-500">@Model.CreatedAt.ToString("MMMM d, yyyy h:mm tt")</p>
+                                    <p class="text-xs text-gray-400 mt-1">@((DateTime.Now - Model.CreatedAt).Days) days ago</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Last Update -->
+                            <div class="relative flex items-start">
+                                <div class="flex-shrink-0 h-5 w-5 rounded-full bg-gray-100 border-2 border-gray-500 z-10 mt-1"></div>
+                                <div class="ml-4">
+                                    <h4 class="text-sm font-medium text-gray-800">Last Updated</h4>
+                                    <p class="text-sm text-gray-500">@Model.UpdatedAt.ToString("MMMM d, yyyy h:mm tt")</p>
+                                    @if ((DateTime.Now - Model.UpdatedAt).TotalDays < 1)
+                                    {
+                                        <p class="text-xs text-gray-400 mt-1">@Math.Round((DateTime.Now - Model.UpdatedAt).TotalHours) hours ago</p>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-xs text-gray-400 mt-1">@((DateTime.Now - Model.UpdatedAt).Days) days ago</p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Visual Customization -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100">
+                    <h3 class="font-bold text-gray-700 flex items-center">
+                        <i class="fas fa-palette text-primary-500 mr-2"></i> Visual Design
+                    </h3>
+                </div>
+                
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <span class="text-xs text-gray-500 uppercase font-medium mb-2 block">Background Color</span>
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-md border border-gray-200 shadow-sm mr-3" style="background-color: @Model.BackgroundColor"></div>
+                                <span class="font-mono text-sm">@Model.BackgroundColor</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <span class="text-xs text-gray-500 uppercase font-medium mb-2 block">Text Color</span>
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-md border border-gray-200 shadow-sm mr-3" style="background-color: @Model.TextColor"></div>
+                                <span class="font-mono text-sm">@Model.TextColor</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <span class="text-xs text-gray-500 uppercase font-medium mb-2 block">Accent Color</span>
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-md border border-gray-200 shadow-sm mr-3" style="background-color: @Model.AccentColor"></div>
+                                <span class="font-mono text-sm">@Model.AccentColor</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <h4 class="text-sm font-medium text-gray-700">Color Palette Preview</h4>
+                            <a href="#" class="text-xs text-primary-600 hover:text-primary-700">Change Colors</a>
+                        </div>
+                        <div class="mt-3 flex items-center space-x-2">
+                            <div class="h-8 flex-grow rounded" style="background-color: @Model.BackgroundColor"></div>
+                            <div class="h-8 flex-grow rounded" style="background-color: @Model.TextColor"></div>
+                            <div class="h-8 flex-grow rounded" style="background-color: @Model.AccentColor"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- History Tab (Hidden by default) -->
+        <div id="tab-history" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-lg font-bold text-gray-800">Change History</h3>
+                    <div class="text-sm text-gray-500">Showing recent changes</div>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="p-4 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+                                    <i class="fas fa-edit"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <div class="flex items-center justify-between">
+                                    <div class="font-medium text-gray-800">Product Updated</div>
+                                    <div class="text-sm text-gray-500">@Model.UpdatedAt.ToString("MMM d, yyyy h:mm tt")</div>
+                                </div>
+                                <div class="text-sm text-gray-600 mt-1">Location was updated from "Storage Room B" to "@Model.Location"</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-purple-600">
+                                    <i class="fas fa-plus"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <div class="flex items-center justify-between">
+                                    <div class="font-medium text-gray-800">Product Created</div>
+                                    <div class="text-sm text-gray-500">@Model.CreatedAt.ToString("MMM d, yyyy h:mm tt")</div>
+                                </div>
+                                <div class="text-sm text-gray-600 mt-1">Initial product information added to system</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-6 text-center">
+                    <button type="button" class="text-primary-600 hover:text-primary-800 text-sm font-medium">
+                        Load More History
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Documents Tab (Hidden by default) -->
+        <div id="tab-documents" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-lg font-bold text-gray-800">Related Documents</h3>
+                    <button type="button" class="text-primary-600 hover:text-primary-800 text-sm font-medium flex items-center">
+                        <i class="fas fa-plus mr-1"></i> Add Document
+                    </button>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="p-4 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center text-red-600">
+                                    <i class="fas fa-file-pdf"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <div class="font-medium text-gray-800">Product Manual</div>
+                                <div class="text-xs text-gray-500">PDF • 2.4 MB • Uploaded 30 days ago</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button type="button" class="p-2 text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button type="button" class="p-2 text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center text-green-600">
+                                    <i class="fas fa-file-excel"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <div class="font-medium text-gray-800">Maintenance Schedule</div>
+                                <div class="text-xs text-gray-500">Excel • 156 KB • Uploaded 14 days ago</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button type="button" class="p-2 text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button type="button" class="p-2 text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 border-t border-gray-100 pt-6">
+                    <h4 class="text-sm font-medium text-gray-700 mb-4">Upload New Document</h4>
+                    
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                        <div class="flex flex-col items-center justify-center">
+                            <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-3"></i>
+                            <p class="text-sm text-gray-500 mb-2">Drag and drop a file here or click to browse</p>
+                            <p class="text-xs text-gray-400 mb-4">PDF, Excel, Word, or Image files up to 10MB</p>
+                            <button type="button" class="px-4 py-2 bg-primary-50 text-primary-600 rounded-md text-sm font-medium hover:bg-primary-100 transition-colors">
+                                Browse Files
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Share Modal (Hidden by default) -->
+<div id="share-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 overflow-hidden transform transition-all">
+        <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+            <h3 class="font-bold text-gray-800">Share Product Tag</h3>
+            <button type="button" id="close-share-modal" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="p-6">
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">QR Code</label>
+                <div class="flex justify-center mb-4">
+                    <img src="@ViewBag.QrCodeImage" alt="QR Code" class="w-40 h-40 border border-gray-200 p-1 rounded" />
+                </div>
+                <div class="flex justify-center">
+                    <button type="button" class="text-sm bg-primary-50 text-primary-600 px-3 py-1.5 rounded hover:bg-primary-100 transition-colors">
+                        <i class="fas fa-download mr-1"></i> Download QR Code
+                    </button>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Share Link</label>
+                <div class="flex">
+                    <input type="text" value="https://example.com/cards/@Model.Id" class="w-full px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500" readonly />
+                    <button type="button" id="copy-link-btn" class="px-3 py-2 bg-primary-600 text-white rounded-r-md hover:bg-primary-700 transition-colors">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Share via</label>
+                <div class="flex space-x-2">
+                    <button type="button" class="flex-1 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm">
+                        <i class="fab fa-facebook mr-1"></i> Facebook
+                    </button>
+                    <button type="button" class="flex-1 px-3 py-2 bg-blue-400 text-white rounded hover:bg-blue-500 transition-colors text-sm">
+                        <i class="fab fa-twitter mr-1"></i> Twitter
+                    </button>
+                    <button type="button" class="flex-1 px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-sm">
+                        <i class="fab fa-whatsapp mr-1"></i> WhatsApp
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Reminder Modal (Hidden by default) -->
+<div id="reminder-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 overflow-hidden transform transition-all">
+        <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+            <h3 class="font-bold text-gray-800">Add Maintenance Reminder</h3>
+            <button type="button" id="close-reminder-modal" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="p-6">
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Reminder Title</label>
+                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500" placeholder="e.g. Filter Replacement" />
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Date</label>
+                <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500" />
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                <textarea class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500" rows="3" placeholder="Additional information about this maintenance task"></textarea>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Repeat</label>
+                <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500">
+                    <option>Never</option>
+                    <option>Daily</option>
+                    <option>Weekly</option>
+                    <option>Monthly</option>
+                    <option>Quarterly</option>
+                    <option>Yearly</option>
+                </select>
+            </div>
+            
+            <div class="flex justify-end space-x-3 mt-6">
+                <button type="button" id="cancel-reminder" class="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors">
+                    Cancel
+                </button>
+                <button type="button" id="save-reminder" class="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700 transition-colors">
+                    Save Reminder
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification (Hidden by default) -->
+<div id="toast-notification" class="fixed bottom-4 right-4 bg-white rounded-lg shadow-lg border border-gray-100 p-4 max-w-sm transform translate-y-20 opacity-0 transition-all duration-300 z-50 hidden">
+    <div class="flex items-center">
+        <div id="toast-icon" class="flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-green-100">
+            <i id="toast-icon-symbol" class="fas fa-check text-green-500"></i>
+        </div>
+        <div class="ml-3 flex-1">
+            <p id="toast-message" class="text-sm font-medium text-gray-900">Information copied to clipboard</p>
+            <p id="toast-description" class="text-sm text-gray-500">You can now paste it anywhere you need</p>
+        </div>
+        <button id="close-toast" class="ml-auto text-gray-400 hover:text-gray-500">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Wait for DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Card flip functionality
+            const flipCard = document.getElementById('flip-card');
+            const flipCardBack = document.getElementById('flip-card-back');
+            const cardContainer = document.querySelector('.card-flip-container');
+            
+            if (flipCard && cardContainer) {
+                flipCard.addEventListener('click', function() {
+                    cardContainer.classList.add('flipped');
+                });
+            }
+            
+            if (flipCardBack && cardContainer) {
+                flipCardBack.addEventListener('click', function() {
+                    cardContainer.classList.remove('flipped');
+                });
+            }
+            
+            // Tab switching functionality
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('text-primary-600', 'border-b-2', 'border-primary-500');
+                        btn.classList.add('text-gray-500', 'hover:text-gray-700');
+                    });
+                    
+                    // Add active class to clicked button
+                    this.classList.add('text-primary-600', 'border-b-2', 'border-primary-500');
+                    this.classList.remove('text-gray-500', 'hover:text-gray-700');
+                    
+                    // Hide all tab contents
+                    tabContents.forEach(content => {
+                        content.classList.add('hidden');
+                    });
+                    
+                    // Show corresponding tab content
+                    const tabId = this.textContent.trim().toLowerCase().replace(/\s+/g, '-');
+                    document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+                });
+            });
+            
+            // Share functionality
+            const shareButton = document.getElementById('share-button');
+            const shareModal = document.getElementById('share-modal');
+            const closeShareModal = document.getElementById('close-share-modal');
+            
+            if (shareButton && shareModal) {
+                shareButton.addEventListener('click', function() {
+                    shareModal.classList.remove('hidden');
+                });
+            }
+            
+            if (closeShareModal && shareModal) {
+                closeShareModal.addEventListener('click', function() {
+                    shareModal.classList.add('hidden');
+                });
+                
+                // Close modal when clicking outside
+                shareModal.addEventListener('click', function(e) {
+                    if (e.target === shareModal) {
+                        shareModal.classList.add('hidden');
+                    }
+                });
+            }
+            
+            // Reminder functionality
+            const addReminderBtn = document.getElementById('add-reminder');
+            const reminderModal = document.getElementById('reminder-modal');
+            const closeReminderModal = document.getElementById('close-reminder-modal');
+            const cancelReminderBtn = document.getElementById('cancel-reminder');
+            const saveReminderBtn = document.getElementById('save-reminder');
+            
+            if (addReminderBtn && reminderModal) {
+                addReminderBtn.addEventListener('click', function() {
+                    reminderModal.classList.remove('hidden');
+                });
+            }
+            
+            if (closeReminderModal && reminderModal) {
+                closeReminderModal.addEventListener('click', function() {
+                    reminderModal.classList.add('hidden');
+                });
+                
+                // Close modal when clicking outside
+                reminderModal.addEventListener('click', function(e) {
+                    if (e.target === reminderModal) {
+                        reminderModal.classList.add('hidden');
+                    }
+                });
+            }
+            
+            if (cancelReminderBtn && reminderModal) {
+                cancelReminderBtn.addEventListener('click', function() {
+                    reminderModal.classList.add('hidden');
+                });
+            }
+            
+            if (saveReminderBtn && reminderModal) {
+                saveReminderBtn.addEventListener('click', function() {
+                    // Here you would normally save the reminder data
+                    reminderModal.classList.add('hidden');
+                    showToast('Reminder saved', 'Your maintenance reminder has been scheduled', 'success');
+                });
+            }
+            
+            // Copy to clipboard functionality
+            const copyTextButtons = document.querySelectorAll('.copy-text-btn');
+            const copyLinkBtn = document.getElementById('copy-link-btn');
+            const copySectionButtons = document.querySelectorAll('.copy-section');
+            const copyQrBtn = document.getElementById('copy-qr-btn');
+            const downloadQrBtn = document.getElementById('download-qr-btn');
+            
+            copyTextButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const text = this.getAttribute('data-text');
+                    copyToClipboard(text);
+                    showToast('Copied to clipboard', text, 'success');
+                });
+            });
+            
+            if (copyLinkBtn) {
+                copyLinkBtn.addEventListener('click', function() {
+                    const link = this.previousElementSibling.value;
+                    copyToClipboard(link);
+                    showToast('Link copied', 'Share link has been copied to clipboard', 'success');
+                });
+            }
+            
+            copySectionButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const sectionId = this.getAttribute('data-section');
+                    const section = document.getElementById(sectionId);
+                    
+                    if (section) {
+                        const sectionText = section.innerText;
+                        copyToClipboard(sectionText);
+                        showToast('Section copied', 'Information has been copied to clipboard', 'success');
+                    }
+                });
+            });
+            
+            if (copyQrBtn) {
+                copyQrBtn.addEventListener('click', function() {
+                    // In a real implementation, you would use the Canvas API to copy the QR code image
+                    showToast('QR code copied', 'QR code has been copied to clipboard', 'success');
+                });
+            }
+            
+            if (downloadQrBtn) {
+                downloadQrBtn.addEventListener('click', function() {
+                    // In a real implementation, you would generate a download link
+                    showToast('QR code download started', 'Your download will begin shortly', 'success');
+                });
+            }
+            
+            // Helper function to copy text to clipboard
+            function copyToClipboard(text) {
+                navigator.clipboard.writeText(text).then(function() {
+                    console.log('Copying to clipboard was successful');
+                }, function(err) {
+                    console.error('Could not copy text: ', err);
+                });
+            }
+            
+            // Toast notification
+            const toast = document.getElementById('toast-notification');
+            const closeToast = document.getElementById('close-toast');
+            
+            function showToast(message, description = '', type = 'success') {
+                const toastMessage = document.getElementById('toast-message');
+                const toastDescription = document.getElementById('toast-description');
+                const toastIcon = document.getElementById('toast-icon');
+                const toastIconSymbol = document.getElementById('toast-icon-symbol');
+                
+                toastMessage.textContent = message;
+                toastDescription.textContent = description;
+                
+                // Set icon based on type
+                if (type === 'success') {
+                    toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-green-100';
+                    toastIconSymbol.className = 'fas fa-check text-green-500';
+                } else if (type === 'error') {
+                    toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-red-100';
+                    toastIconSymbol.className = 'fas fa-times text-red-500';
+                } else if (type === 'warning') {
+                    toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-yellow-100';
+                    toastIconSymbol.className = 'fas fa-exclamation text-yellow-500';
+                } else if (type === 'info') {
+                    toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-blue-100';
+                    toastIconSymbol.className = 'fas fa-info text-blue-500';
+                }
+                
+                // Show toast
+                toast.classList.remove('hidden', 'translate-y-20', 'opacity-0');
+                toast.classList.add('translate-y-0', 'opacity-100');
+                
+                // Auto-hide after 5 seconds
+                setTimeout(function() {
+                    toast.classList.add('translate-y-20', 'opacity-0');
+                    setTimeout(function() {
+                        toast.classList.add('hidden');
+                    }, 300);
+                }, 5000);
+            }
+            
+            if (closeToast && toast) {
+                closeToast.addEventListener('click', function() {
+                    toast.classList.add('translate-y-20', 'opacity-0');
+                    setTimeout(function() {
+                        toast.classList.add('hidden');
+                    }, 300);
+                });
+            }
+        });
+    </script>
+}
