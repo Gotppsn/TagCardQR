@@ -16,17 +16,11 @@ namespace CardTagManager.Services
                 // Create QR code data
                 var qrCodeData = qrGenerator.CreateQrCode(textData, QRCodeGenerator.ECCLevel.Q);
                 
-                // Use QRCodeHelper instead of direct QRCode class
-                using (var qrCode = new QRCoder.QRCode(qrCodeData))
+                // Use PayloadGenerator approach which avoids QRCode class reference issues
+                using (var pngGenerator = new PngByteQRCode(qrCodeData))
                 {
-                    using (var bitmap = qrCode.GetGraphic(20))
-                    {
-                        using (var ms = new MemoryStream())
-                        {
-                            bitmap.Save(ms, ImageFormat.Png);
-                            return $"data:image/png;base64,{Convert.ToBase64String(ms.ToArray())}";
-                        }
-                    }
+                    byte[] pngBytes = pngGenerator.GetGraphic(20);
+                    return $"data:image/png;base64,{Convert.ToBase64String(pngBytes)}";
                 }
             }
         }
