@@ -1,0 +1,15 @@
+@model CardTagManager.Models.Card
+
+@{
+    ViewData["Title"] = "QR Code for " + Model.Name;
+    Layout = "_MinimalLayout";
+}
+
+<div class="text-center p-8">
+    <h1 class="text-xl font-bold mb-4">Scan to Save Contact</h1>
+    <div class="bg-white p-4 inline-block rounded-lg shadow-md">
+        <img src="@ViewBag.QrCodeImage" alt="QR Code for @Model.Name" class="mx-auto" style="width: 200px; height: 200px;" />
+    </div>
+    <p class="mt-4 font-medium">@Model.Name</p>
+    <p class="text-gray-600">@Model.Company</p>
+</div>

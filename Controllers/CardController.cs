@@ -167,5 +167,57 @@ namespace CardTagManager.Controllers
             vcard += "END:VCARD";
             return vcard;
         }
+        public IActionResult Vcf(int id)
+{
+    var card = _cardRepository.GetById(id);
+    if (card == null)
+    {
+        return NotFound();
+    }
+
+    // Generate vCard content
+    string vCardContent = GenerateVCardData(card);
+    
+    // Create a file name
+    string fileName = $"{card.Name.Replace(" ", "_")}_Contact.vcf";
+    
+    // Return the vCard as a downloadable file
+    return File(System.Text.Encoding.UTF8.GetBytes(vCardContent), "text/vcard", fileName);
+}
+
+// GET: Card/QrCode/5
+public IActionResult QrCode(int id)
+{
+    var card = _cardRepository.GetById(id);
+    if (card == null)
+    {
+        return NotFound();
+    }
+
+    // Generate QR code data
+    string qrCodeData = GenerateVCardData(card);
+    string qrCodeImage = _qrCodeService.GenerateQrCodeAsBase64(qrCodeData);
+    
+    // Strip the data URL prefix for the src attribute
+    ViewBag.QrCodeImage = qrCodeImage;
+    ViewBag.CardName = card.Name;
+    
+    return View(card);
+}
+
+// GET: Card/Tag/5?tag=value
+public IActionResult Tag(int id, string tag)
+{
+    var card = _cardRepository.GetById(id);
+    if (card == null)
+    {
+        return NotFound();
+    }
+    
+    // Here you would implement tag functionality
+    // This is a placeholder for the tag feature
+    
+    return RedirectToAction(nameof(Details), new { id });
+}
     }
 }
