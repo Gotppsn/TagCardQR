@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "pw4jPJzXVBwv81w8ozfNamOtT9R+a/BppylK4FcN6bk=",
+  "Hash": "bT510gYGlUMtIr9uLIt/v9HgKx9GT2q3MQ9T9EsCKtY=",
   "Source": "CardTagManager",
   "BasePath": "_content/CardTagManager",
   "Mode": "Default",
@@ -626,12 +626,12 @@
       "OriginalItemSpec": "C:\\Users\\panupol\\Desktop\\CardTagManager\\TagCardQR\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.css.map"
     },
     {
-      "Identity": "C:\\Users\\panupol\\Desktop\\CardTagManager\\TagCardQR\\obj\\Debug\\net9.0\\compressed\\h5phnnqx3k-dot96le5v0.gz",
+      "Identity": "C:\\Users\\panupol\\Desktop\\CardTagManager\\TagCardQR\\obj\\Debug\\net9.0\\compressed\\h5phnnqx3k-cutt8i45cd.gz",
       "SourceId": "CardTagManager",
       "SourceType": "Discovered",
       "ContentRoot": "C:\\Users\\panupol\\Desktop\\CardTagManager\\TagCardQR\\obj\\Debug\\net9.0\\compressed\\",
       "BasePath": "_content/CardTagManager",
-      "RelativePath": "js/site#[.{fingerprint=dot96le5v0}]?.js.gz",
+      "RelativePath": "js/site#[.{fingerprint=cutt8i45cd}]?.js.gz",
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Alternative",
@@ -640,8 +640,8 @@
       "RelatedAsset": "C:\\Users\\panupol\\Desktop\\CardTagManager\\TagCardQR\\wwwroot\\js\\site.js",
       "AssetTraitName": "Content-Encoding",
       "AssetTraitValue": "gzip",
-      "Fingerprint": "nelms4s4hy",
-      "Integrity": "3wFA9IHGNRpOb3m95NIJPgnrxkYF3IHtBBqP/n1W8kc=",
+      "Fingerprint": "yj8f1a96xh",
+      "Integrity": "8g1/pBnEq6L36q6OuEG9U4MH7gfrk7v86O8oNijMCZc=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "C:\\Users\\panupol\\Desktop\\CardTagManager\\TagCardQR\\wwwroot\\js\\site.js"
@@ -1025,12 +1025,12 @@
       "OriginalItemSpec": "C:\\Users\\panupol\\Desktop\\CardTagManager\\TagCardQR\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.min.js"
     },
     {
-      "Identity": "C:\\Users\\panupol\\Desktop\\CardTagManager\\TagCardQR\\obj\\Debug\\net9.0\\compressed\\pkjinzgcmq-lm5m9pcu6t.gz",
+      "Identity": "C:\\Users\\panupol\\Desktop\\CardTagManager\\TagCardQR\\obj\\Debug\\net9.0\\compressed\\pkjinzgcmq-qfy6oai294.gz",
       "SourceId": "CardTagManager",
       "SourceType": "Discovered",
       "ContentRoot": "C:\\Users\\panupol\\Desktop\\CardTagManager\\TagCardQR\\obj\\Debug\\net9.0\\compressed\\",
       "BasePath": "_content/CardTagManager",
-      "RelativePath": "css/tailwind#[.{fingerprint=lm5m9pcu6t}]?.css.gz",
+      "RelativePath": "css/tailwind#[.{fingerprint=qfy6oai294}]?.css.gz",
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Alternative",
@@ -1039,8 +1039,8 @@
       "RelatedAsset": "C:\\Users\\panupol\\Desktop\\CardTagManager\\TagCardQR\\wwwroot\\css\\tailwind.css",
       "AssetTraitName": "Content-Encoding",
       "AssetTraitValue": "gzip",
-      "Fingerprint": "ibvluti1gi",
-      "Integrity": "MpyFNBT1lbO7kzztCncXiyKYE7P17UUc9Svas2qBrTk=",
+      "Fingerprint": "2mmoce19pn",
+      "Integrity": "ely+xfIR8VpBOOUF/46P2Jsbb8kLhPMI0MchpJvDmp8=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "C:\\Users\\panupol\\Desktop\\CardTagManager\\TagCardQR\\wwwroot\\css\\tailwind.css"
@@ -1501,8 +1501,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "lm5m9pcu6t",
-      "Integrity": "/bKq7aS3df0yMTUgn2qB08cvVRuIauzIg9wMcVpXYVQ=",
+      "Fingerprint": "qfy6oai294",
+      "Integrity": "1hOrGkY76/ljtdtQjYmlhX//z7Gk4rQ7D9py3e2tRwk=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\css\\tailwind.css"
@@ -1543,8 +1543,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "dot96le5v0",
-      "Integrity": "fViZYlIhW8Qaleelr4fcIhUOaY72s6V8RCKS3mXUbYc=",
+      "Fingerprint": "cutt8i45cd",
+      "Integrity": "rLMaej2BNUPpLUKojn4Ib2bq9pDH6PRrrrbT15zypLM=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\js\\site.js"
@@ -4005,12 +4005,12 @@
     },
     {
       "Route": "css/tailwind.css",
-      "AssetFile": "C:\\Users\\panupol\\Desktop\\CardTagManager\\TagCardQR\\obj\\Debug\\net9.0\\compressed\\pkjinzgcmq-lm5m9pcu6t.gz",
+      "AssetFile": "C:\\Users\\panupol\\Desktop\\CardTagManager\\TagCardQR\\obj\\Debug\\net9.0\\compressed\\pkjinzgcmq-qfy6oai294.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000859106529"
+          "Quality": "0.000836820084"
         }
       ],
       "ResponseHeaders": [
@@ -4020,15 +4020,15 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "1163"
+          "Value": "1194"
         },
         {
           "Name": "ETag",
-          "Value": "\"MpyFNBT1lbO7kzztCncXiyKYE7P17UUc9Svas2qBrTk=\""
+          "Value": "\"ely+xfIR8VpBOOUF/46P2Jsbb8kLhPMI0MchpJvDmp8=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 14 Mar 2025 02:48:35 GMT"
+          "Value": "Fri, 14 Mar 2025 03:01:35 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4048,13 +4048,13 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"/bKq7aS3df0yMTUgn2qB08cvVRuIauzIg9wMcVpXYVQ=\""
+          "Value": "W/\"1hOrGkY76/ljtdtQjYmlhX//z7Gk4rQ7D9py3e2tRwk=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-/bKq7aS3df0yMTUgn2qB08cvVRuIauzIg9wMcVpXYVQ="
+          "Value": "sha256-1hOrGkY76/ljtdtQjYmlhX//z7Gk4rQ7D9py3e2tRwk="
         }
       ]
     },
@@ -4069,7 +4069,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "4017"
+          "Value": "3386"
         },
         {
           "Name": "Content-Type",
@@ -4077,11 +4077,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"/bKq7aS3df0yMTUgn2qB08cvVRuIauzIg9wMcVpXYVQ=\""
+          "Value": "\"1hOrGkY76/ljtdtQjYmlhX//z7Gk4rQ7D9py3e2tRwk=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 14 Mar 2025 02:48:35 GMT"
+          "Value": "Fri, 14 Mar 2025 03:01:35 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4091,13 +4091,13 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-/bKq7aS3df0yMTUgn2qB08cvVRuIauzIg9wMcVpXYVQ="
+          "Value": "sha256-1hOrGkY76/ljtdtQjYmlhX//z7Gk4rQ7D9py3e2tRwk="
         }
       ]
     },
     {
       "Route": "css/tailwind.css.gz",
-      "AssetFile": "C:\\Users\\panupol\\Desktop\\CardTagManager\\TagCardQR\\obj\\Debug\\net9.0\\compressed\\pkjinzgcmq-lm5m9pcu6t.gz",
+      "AssetFile": "C:\\Users\\panupol\\Desktop\\CardTagManager\\TagCardQR\\obj\\Debug\\net9.0\\compressed\\pkjinzgcmq-qfy6oai294.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -4106,7 +4106,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "1163"
+          "Value": "1194"
         },
         {
           "Name": "Content-Type",
@@ -4114,11 +4114,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"MpyFNBT1lbO7kzztCncXiyKYE7P17UUc9Svas2qBrTk=\""
+          "Value": "\"ely+xfIR8VpBOOUF/46P2Jsbb8kLhPMI0MchpJvDmp8=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 14 Mar 2025 02:48:35 GMT"
+          "Value": "Fri, 14 Mar 2025 03:01:35 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4136,18 +4136,18 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-MpyFNBT1lbO7kzztCncXiyKYE7P17UUc9Svas2qBrTk="
+          "Value": "sha256-ely+xfIR8VpBOOUF/46P2Jsbb8kLhPMI0MchpJvDmp8="
         }
       ]
     },
     {
-      "Route": "css/tailwind.lm5m9pcu6t.css",
-      "AssetFile": "C:\\Users\\panupol\\Desktop\\CardTagManager\\TagCardQR\\obj\\Debug\\net9.0\\compressed\\pkjinzgcmq-lm5m9pcu6t.gz",
+      "Route": "css/tailwind.qfy6oai294.css",
+      "AssetFile": "C:\\Users\\panupol\\Desktop\\CardTagManager\\TagCardQR\\obj\\Debug\\net9.0\\compressed\\pkjinzgcmq-qfy6oai294.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000859106529"
+          "Quality": "0.000836820084"
         }
       ],
       "ResponseHeaders": [
@@ -4157,15 +4157,15 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "1163"
+          "Value": "1194"
         },
         {
           "Name": "ETag",
-          "Value": "\"MpyFNBT1lbO7kzztCncXiyKYE7P17UUc9Svas2qBrTk=\""
+          "Value": "\"ely+xfIR8VpBOOUF/46P2Jsbb8kLhPMI0MchpJvDmp8=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 14 Mar 2025 02:48:35 GMT"
+          "Value": "Fri, 14 Mar 2025 03:01:35 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4185,13 +4185,13 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"/bKq7aS3df0yMTUgn2qB08cvVRuIauzIg9wMcVpXYVQ=\""
+          "Value": "W/\"1hOrGkY76/ljtdtQjYmlhX//z7Gk4rQ7D9py3e2tRwk=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "lm5m9pcu6t"
+          "Value": "qfy6oai294"
         },
         {
           "Name": "label",
@@ -4199,12 +4199,12 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-/bKq7aS3df0yMTUgn2qB08cvVRuIauzIg9wMcVpXYVQ="
+          "Value": "sha256-1hOrGkY76/ljtdtQjYmlhX//z7Gk4rQ7D9py3e2tRwk="
         }
       ]
     },
     {
-      "Route": "css/tailwind.lm5m9pcu6t.css",
+      "Route": "css/tailwind.qfy6oai294.css",
       "AssetFile": "C:\\Users\\panupol\\Desktop\\CardTagManager\\TagCardQR\\wwwroot\\css\\tailwind.css",
       "Selectors": [],
       "ResponseHeaders": [
@@ -4214,7 +4214,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "4017"
+          "Value": "3386"
         },
         {
           "Name": "Content-Type",
@@ -4222,11 +4222,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"/bKq7aS3df0yMTUgn2qB08cvVRuIauzIg9wMcVpXYVQ=\""
+          "Value": "\"1hOrGkY76/ljtdtQjYmlhX//z7Gk4rQ7D9py3e2tRwk=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 14 Mar 2025 02:48:35 GMT"
+          "Value": "Fri, 14 Mar 2025 03:01:35 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4236,7 +4236,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "lm5m9pcu6t"
+          "Value": "qfy6oai294"
         },
         {
           "Name": "label",
@@ -4244,13 +4244,13 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-/bKq7aS3df0yMTUgn2qB08cvVRuIauzIg9wMcVpXYVQ="
+          "Value": "sha256-1hOrGkY76/ljtdtQjYmlhX//z7Gk4rQ7D9py3e2tRwk="
         }
       ]
     },
     {
-      "Route": "css/tailwind.lm5m9pcu6t.css.gz",
-      "AssetFile": "C:\\Users\\panupol\\Desktop\\CardTagManager\\TagCardQR\\obj\\Debug\\net9.0\\compressed\\pkjinzgcmq-lm5m9pcu6t.gz",
+      "Route": "css/tailwind.qfy6oai294.css.gz",
+      "AssetFile": "C:\\Users\\panupol\\Desktop\\CardTagManager\\TagCardQR\\obj\\Debug\\net9.0\\compressed\\pkjinzgcmq-qfy6oai294.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -4259,7 +4259,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "1163"
+          "Value": "1194"
         },
         {
           "Name": "Content-Type",
@@ -4267,11 +4267,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"MpyFNBT1lbO7kzztCncXiyKYE7P17UUc9Svas2qBrTk=\""
+          "Value": "\"ely+xfIR8VpBOOUF/46P2Jsbb8kLhPMI0MchpJvDmp8=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 14 Mar 2025 02:48:35 GMT"
+          "Value": "Fri, 14 Mar 2025 03:01:35 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4289,7 +4289,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "lm5m9pcu6t"
+          "Value": "qfy6oai294"
         },
         {
           "Name": "label",
@@ -4297,7 +4297,7 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-MpyFNBT1lbO7kzztCncXiyKYE7P17UUc9Svas2qBrTk="
+          "Value": "sha256-ely+xfIR8VpBOOUF/46P2Jsbb8kLhPMI0MchpJvDmp8="
         }
       ]
     },
@@ -4600,13 +4600,13 @@
       ]
     },
     {
-      "Route": "js/site.dot96le5v0.js",
-      "AssetFile": "C:\\Users\\panupol\\Desktop\\CardTagManager\\TagCardQR\\obj\\Debug\\net9.0\\compressed\\h5phnnqx3k-dot96le5v0.gz",
+      "Route": "js/site.cutt8i45cd.js",
+      "AssetFile": "C:\\Users\\panupol\\Desktop\\CardTagManager\\TagCardQR\\obj\\Debug\\net9.0\\compressed\\h5phnnqx3k-cutt8i45cd.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000452693526"
+          "Quality": "0.000426621160"
         }
       ],
       "ResponseHeaders": [
@@ -4616,15 +4616,15 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "2208"
+          "Value": "2343"
         },
         {
           "Name": "ETag",
-          "Value": "\"3wFA9IHGNRpOb3m95NIJPgnrxkYF3IHtBBqP/n1W8kc=\""
+          "Value": "\"8g1/pBnEq6L36q6OuEG9U4MH7gfrk7v86O8oNijMCZc=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 14 Mar 2025 02:36:24 GMT"
+          "Value": "Fri, 14 Mar 2025 03:02:02 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4644,13 +4644,13 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"fViZYlIhW8Qaleelr4fcIhUOaY72s6V8RCKS3mXUbYc=\""
+          "Value": "W/\"rLMaej2BNUPpLUKojn4Ib2bq9pDH6PRrrrbT15zypLM=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "dot96le5v0"
+          "Value": "cutt8i45cd"
         },
         {
           "Name": "label",
@@ -4658,12 +4658,12 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-fViZYlIhW8Qaleelr4fcIhUOaY72s6V8RCKS3mXUbYc="
+          "Value": "sha256-rLMaej2BNUPpLUKojn4Ib2bq9pDH6PRrrrbT15zypLM="
         }
       ]
     },
     {
-      "Route": "js/site.dot96le5v0.js",
+      "Route": "js/site.cutt8i45cd.js",
       "AssetFile": "C:\\Users\\panupol\\Desktop\\CardTagManager\\TagCardQR\\wwwroot\\js\\site.js",
       "Selectors": [],
       "ResponseHeaders": [
@@ -4673,7 +4673,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "8232"
+          "Value": "8631"
         },
         {
           "Name": "Content-Type",
@@ -4681,11 +4681,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"fViZYlIhW8Qaleelr4fcIhUOaY72s6V8RCKS3mXUbYc=\""
+          "Value": "\"rLMaej2BNUPpLUKojn4Ib2bq9pDH6PRrrrbT15zypLM=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 14 Mar 2025 02:36:24 GMT"
+          "Value": "Fri, 14 Mar 2025 03:02:02 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4695,7 +4695,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "dot96le5v0"
+          "Value": "cutt8i45cd"
         },
         {
           "Name": "label",
@@ -4703,13 +4703,13 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-fViZYlIhW8Qaleelr4fcIhUOaY72s6V8RCKS3mXUbYc="
+          "Value": "sha256-rLMaej2BNUPpLUKojn4Ib2bq9pDH6PRrrrbT15zypLM="
         }
       ]
     },
     {
-      "Route": "js/site.dot96le5v0.js.gz",
-      "AssetFile": "C:\\Users\\panupol\\Desktop\\CardTagManager\\TagCardQR\\obj\\Debug\\net9.0\\compressed\\h5phnnqx3k-dot96le5v0.gz",
+      "Route": "js/site.cutt8i45cd.js.gz",
+      "AssetFile": "C:\\Users\\panupol\\Desktop\\CardTagManager\\TagCardQR\\obj\\Debug\\net9.0\\compressed\\h5phnnqx3k-cutt8i45cd.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -4718,7 +4718,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "2208"
+          "Value": "2343"
         },
         {
           "Name": "Content-Type",
@@ -4726,11 +4726,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"3wFA9IHGNRpOb3m95NIJPgnrxkYF3IHtBBqP/n1W8kc=\""
+          "Value": "\"8g1/pBnEq6L36q6OuEG9U4MH7gfrk7v86O8oNijMCZc=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 14 Mar 2025 02:36:24 GMT"
+          "Value": "Fri, 14 Mar 2025 03:02:02 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4748,7 +4748,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "dot96le5v0"
+          "Value": "cutt8i45cd"
         },
         {
           "Name": "label",
@@ -4756,18 +4756,18 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-3wFA9IHGNRpOb3m95NIJPgnrxkYF3IHtBBqP/n1W8kc="
+          "Value": "sha256-8g1/pBnEq6L36q6OuEG9U4MH7gfrk7v86O8oNijMCZc="
         }
       ]
     },
     {
       "Route": "js/site.js",
-      "AssetFile": "C:\\Users\\panupol\\Desktop\\CardTagManager\\TagCardQR\\obj\\Debug\\net9.0\\compressed\\h5phnnqx3k-dot96le5v0.gz",
+      "AssetFile": "C:\\Users\\panupol\\Desktop\\CardTagManager\\TagCardQR\\obj\\Debug\\net9.0\\compressed\\h5phnnqx3k-cutt8i45cd.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000452693526"
+          "Quality": "0.000426621160"
         }
       ],
       "ResponseHeaders": [
@@ -4777,15 +4777,15 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "2208"
+          "Value": "2343"
         },
         {
           "Name": "ETag",
-          "Value": "\"3wFA9IHGNRpOb3m95NIJPgnrxkYF3IHtBBqP/n1W8kc=\""
+          "Value": "\"8g1/pBnEq6L36q6OuEG9U4MH7gfrk7v86O8oNijMCZc=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 14 Mar 2025 02:36:24 GMT"
+          "Value": "Fri, 14 Mar 2025 03:02:02 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4805,13 +4805,13 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"fViZYlIhW8Qaleelr4fcIhUOaY72s6V8RCKS3mXUbYc=\""
+          "Value": "W/\"rLMaej2BNUPpLUKojn4Ib2bq9pDH6PRrrrbT15zypLM=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-fViZYlIhW8Qaleelr4fcIhUOaY72s6V8RCKS3mXUbYc="
+          "Value": "sha256-rLMaej2BNUPpLUKojn4Ib2bq9pDH6PRrrrbT15zypLM="
         }
       ]
     },
@@ -4826,7 +4826,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "8232"
+          "Value": "8631"
         },
         {
           "Name": "Content-Type",
@@ -4834,11 +4834,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"fViZYlIhW8Qaleelr4fcIhUOaY72s6V8RCKS3mXUbYc=\""
+          "Value": "\"rLMaej2BNUPpLUKojn4Ib2bq9pDH6PRrrrbT15zypLM=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 14 Mar 2025 02:36:24 GMT"
+          "Value": "Fri, 14 Mar 2025 03:02:02 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4848,13 +4848,13 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-fViZYlIhW8Qaleelr4fcIhUOaY72s6V8RCKS3mXUbYc="
+          "Value": "sha256-rLMaej2BNUPpLUKojn4Ib2bq9pDH6PRrrrbT15zypLM="
         }
       ]
     },
     {
       "Route": "js/site.js.gz",
-      "AssetFile": "C:\\Users\\panupol\\Desktop\\CardTagManager\\TagCardQR\\obj\\Debug\\net9.0\\compressed\\h5phnnqx3k-dot96le5v0.gz",
+      "AssetFile": "C:\\Users\\panupol\\Desktop\\CardTagManager\\TagCardQR\\obj\\Debug\\net9.0\\compressed\\h5phnnqx3k-cutt8i45cd.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -4863,7 +4863,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "2208"
+          "Value": "2343"
         },
         {
           "Name": "Content-Type",
@@ -4871,11 +4871,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"3wFA9IHGNRpOb3m95NIJPgnrxkYF3IHtBBqP/n1W8kc=\""
+          "Value": "\"8g1/pBnEq6L36q6OuEG9U4MH7gfrk7v86O8oNijMCZc=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 14 Mar 2025 02:36:24 GMT"
+          "Value": "Fri, 14 Mar 2025 03:02:02 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4893,7 +4893,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-3wFA9IHGNRpOb3m95NIJPgnrxkYF3IHtBBqP/n1W8kc="
+          "Value": "sha256-8g1/pBnEq6L36q6OuEG9U4MH7gfrk7v86O8oNijMCZc="
         }
       ]
     },

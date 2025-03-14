@@ -205,3 +205,13 @@ document.addEventListener('DOMContentLoaded', function() {
         colorSection.appendChild(presetContainer);
     }
 });
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Forcing cache refresh of CSS');
+    const link = document.querySelector('link[href*="tailwind.css"]');
+    if (link) {
+        const newHref = link.href.includes('?') 
+            ? link.href.split('?')[0] + '?v=' + Date.now() 
+            : link.href + '?v=' + Date.now();
+        link.href = newHref;
+    }
+});
