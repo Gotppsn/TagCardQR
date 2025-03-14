@@ -1,165 +1,1533 @@
 @model CardTagManager.Models.Card
 
 @{
-    ViewData["Title"] = "Edit Card";
+    ViewData["Title"] = "Edit Product";
 }
 
 <div class="mb-6">
-    <a asp-action="Index" class="text-primary-600 hover:text-primary-800">
-        <i class="fas fa-arrow-left mr-1"></i> Back to List
+    <a asp-action="Index" class="inline-flex items-center text-primary-600 hover:text-primary-700 transition-colors group">
+        <i class="fas fa-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i> Back to Library
     </a>
 </div>
 
-<div class="card">
-    <div class="p-6">
-        <h1 class="text-2xl font-bold mb-4">Edit Card</h1>
+<!-- Form Progress Indicator -->
+<div class="form-progress mb-6">
+    <div class="flex items-center justify-between max-w-2xl mx-auto">
+        <div class="step active" data-step="1">
+            <div class="step-circle bg-primary-600 text-white h-8 w-8 rounded-full flex items-center justify-center">1</div>
+            <div class="step-label text-sm font-medium mt-1">Basic Info</div>
+        </div>
+        <div class="step-connector h-1 flex-grow bg-gray-200 mx-2 relative">
+            <div class="absolute inset-0 bg-primary-600 step-progress" style="width: 0%"></div>
+        </div>
+        <div class="step" data-step="2">
+            <div class="step-circle bg-gray-200 text-gray-600 h-8 w-8 rounded-full flex items-center justify-center">2</div>
+            <div class="step-label text-sm font-medium mt-1">Details</div>
+        </div>
+        <div class="step-connector h-1 flex-grow bg-gray-200 mx-2 relative">
+            <div class="absolute inset-0 bg-primary-600 step-progress" style="width: 0%"></div>
+        </div>
+        <div class="step" data-step="3">
+            <div class="step-circle bg-gray-200 text-gray-600 h-8 w-8 rounded-full flex items-center justify-center">3</div>
+            <div class="step-label text-sm font-medium mt-1">Appearance</div>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-5 gap-8 fade-in">
+    <!-- Form Section (3 columns) -->
+    <div class="lg:col-span-3">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="text-xl font-bold text-gray-800 flex items-center">
+                    <i class="fas fa-edit text-primary-500 mr-2"></i> Edit Product
+                </h2>
+                <p class="text-sm text-gray-500 mt-1">Update the details for your product tag</p>
+            </div>
+            
+            <form asp-action="Edit" method="post" id="product-form" enctype="multipart/form-data">
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="CreatedAt" />
+                
+                <div class="card-body">
+                    <!-- Step 1: Basic Information -->
+                    <div class="form-section" data-step="1">
+                        <h3 class="text-md font-semibold text-gray-700 mb-4 pb-2 border-b">Basic Information</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-4">
+                                <div class="form-group">
+                                    <label asp-for="ProductName" class="form-label flex items-center">
+                                        Product Name
+                                        <span class="text-red-500 ml-1">*</span>
+                                        <span class="ml-auto text-xs text-gray-400" id="name-counter">0/100</span>
+                                    </label>
+                                    <div class="relative">
+                                        <input asp-for="ProductName" class="form-input pl-9" required 
+                                               placeholder="RustShield Pro 5000" maxlength="100"
+                                               oninput="countChars(this, 'name-counter', 100)">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <i class="fas fa-tag text-gray-400"></i>
+                                        </div>
+                                        <div class="validation-icon absolute inset-y-0 right-3 flex items-center hidden" id="name-valid">
+                                            <i class="fas fa-check-circle text-green-500"></i>
+                                        </div>
+                                    </div>
+                                    <span asp-validation-for="ProductName" class="form-error"></span>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label asp-for="Category" class="form-label">
+                                        Category
+                                        <span class="text-red-500 ml-1">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <select asp-for="Category" class="form-input pl-9">
+                                            <option value="Rust Coating Chemical">Rust Coating Chemical</option>
+                                            <option value="Application Equipment">Application Equipment</option>
+                                            <option value="Lab Equipment">Lab Equipment</option>
+                                            <option value="Office Equipment">Office Equipment</option>
+                                            <option value="Safety Equipment">Safety Equipment</option>
+                                            <option value="Quality Control">Quality Control</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <i class="fas fa-folder text-gray-400"></i>
+                                        </div>
+                                    </div>
+                                    <span asp-validation-for="Category" class="form-error"></span>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label asp-for="Manufacturer" class="form-label">
+                                        Manufacturer
+                                        <span class="text-red-500 ml-1">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <input asp-for="Manufacturer" class="form-input pl-9" required placeholder="ChemTech Industries">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <i class="fas fa-industry text-gray-400"></i>
+                                        </div>
+                                    </div>
+                                    <span asp-validation-for="Manufacturer" class="form-error"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <div class="form-group">
+                                    <label asp-for="ModelNumber" class="form-label">
+                                        Model Number
+                                        <span class="text-red-500 ml-1">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <input asp-for="ModelNumber" class="form-input pl-9" required placeholder="RS-5000-X">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <i class="fas fa-barcode text-gray-400"></i>
+                                        </div>
+                                    </div>
+                                    <span asp-validation-for="ModelNumber" class="form-error"></span>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label asp-for="SerialNumber" class="form-label">
+                                        Serial Number
+                                        <span class="text-red-500 ml-1">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <input asp-for="SerialNumber" class="form-input pl-9" required placeholder="CT20250001">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <i class="fas fa-fingerprint text-gray-400"></i>
+                                        </div>
+                                    </div>
+                                    <span asp-validation-for="SerialNumber" class="form-error"></span>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Product Image</label>
+                                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:bg-gray-50 transition-colors cursor-pointer" id="dropzone">
+                                        <input type="file" class="hidden" id="product-image" accept="image/*">
+                                        <div class="flex flex-col items-center justify-center">
+                                            <i class="fas fa-cloud-upload-alt text-2xl text-gray-400 mb-2"></i>
+                                            <p class="text-sm text-gray-500 mb-1">Drag and drop an image here or click to browse</p>
+                                            <p class="text-xs text-gray-400">PNG, JPG up to 5MB</p>
+                                        </div>
+                                    </div>
+                                    <div id="image-preview" class="hidden mt-2">
+                                        <div class="flex items-center justify-between bg-gray-50 rounded-lg p-2">
+                                            <div class="flex items-center">
+                                                <img src="" alt="Preview" class="w-10 h-10 object-cover rounded mr-2">
+                                                <span class="text-sm text-gray-700 filename">filename.jpg</span>
+                                            </div>
+                                            <button type="button" class="text-red-500 hover:text-red-700" id="remove-image">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-end mt-6">
+                            <button type="button" class="btn-primary next-step" data-next="2">
+                                Continue to Details <i class="fas fa-arrow-right ml-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 2: Product Details -->
+                    <div class="form-section hidden" data-step="2">
+                        <h3 class="text-md font-semibold text-gray-700 mb-4 pb-2 border-b">Product Details</h3>
+                        
+                        <div class="space-y-4">
+                            <div class="form-group">
+                                <label asp-for="Location" class="form-label">Location</label>
+                                <div class="relative">
+                                    <input asp-for="Location" class="form-input pl-9" placeholder="Chemical Storage Room A">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-map-marker-alt text-gray-400"></i>
+                                    </div>
+                                </div>
+                                <span asp-validation-for="Location" class="form-error"></span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label asp-for="MaintenanceInfo" class="form-label">Maintenance Information</label>
+                                <div class="relative">
+                                    <textarea asp-for="MaintenanceInfo" class="form-input h-20 pl-9" 
+                                              placeholder="Store at 10-15°C, away from direct sunlight"></textarea>
+                                    <div class="absolute top-3 left-0 pl-3 flex items-start pointer-events-none">
+                                        <i class="fas fa-wrench text-gray-400"></i>
+                                    </div>
+                                </div>
+                                <span asp-validation-for="MaintenanceInfo" class="form-error"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                            <div class="form-group">
+                                <label asp-for="ManufactureDate" class="form-label">
+                                    Manufacture Date
+                                    <span class="text-red-500 ml-1">*</span>
+                                </label>
+                                <div class="relative">
+                                    <input asp-for="ManufactureDate" type="date" class="form-input pl-9" required>
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-calendar-day text-gray-400"></i>
+                                    </div>
+                                </div>
+                                <span asp-validation-for="ManufactureDate" class="form-error"></span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label asp-for="PurchaseDate" class="form-label">
+                                    Purchase Date
+                                    <span class="text-red-500 ml-1">*</span>
+                                </label>
+                                <div class="relative">
+                                    <input asp-for="PurchaseDate" type="date" class="form-input pl-9" required>
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-shopping-cart text-gray-400"></i>
+                                    </div>
+                                </div>
+                                <span asp-validation-for="PurchaseDate" class="form-error"></span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label asp-for="WarrantyExpiration" class="form-label">
+                                    Warranty Until
+                                    <span class="text-red-500 ml-1">*</span>
+                                </label>
+                                <div class="relative">
+                                    <input asp-for="WarrantyExpiration" type="date" class="form-input pl-9" required>
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-shield-alt text-gray-400"></i>
+                                    </div>
+                                </div>
+                                <span asp-validation-for="WarrantyExpiration" class="form-error"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-between mt-6">
+                            <button type="button" class="btn-secondary prev-step" data-prev="1">
+                                <i class="fas fa-arrow-left mr-2"></i> Back to Basic Info
+                            </button>
+                            <button type="button" class="btn-primary next-step" data-next="3">
+                                Continue to Appearance <i class="fas fa-arrow-right ml-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 3: Appearance -->
+                    <div class="form-section hidden" data-step="3">
+                        <h3 class="text-md font-semibold text-gray-700 mb-4 pb-2 border-b">Card Appearance</h3>
+                        
+                        <div class="mb-6">
+                            <label class="form-label">Card Layout</label>
+                            <div class="grid grid-cols-3 gap-3">
+                                <div class="layout-option border rounded-lg p-2 cursor-pointer hover:border-primary-500 transition-colors active" data-layout="standard">
+                                    <div class="bg-gray-100 rounded mb-1 flex items-center justify-center p-3">
+                                        <div class="w-full aspect-w-16 aspect-h-10 bg-white rounded shadow-sm p-1">
+                                            <div class="flex">
+                                                <div class="flex-grow">
+                                                    <div class="w-1/2 h-2 bg-gray-300 rounded mb-1"></div>
+                                                    <div class="w-3/4 h-1 bg-gray-300 rounded mb-2"></div>
+                                                    <div class="space-y-1">
+                                                        <div class="w-full h-1 bg-gray-300 rounded"></div>
+                                                        <div class="w-full h-1 bg-gray-300 rounded"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="w-1/4 flex items-center justify-center">
+                                                    <div class="w-10 h-10 bg-gray-300 rounded"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p class="text-xs text-center">Standard</p>
+                                </div>
+                                <div class="layout-option border rounded-lg p-2 cursor-pointer hover:border-primary-500 transition-colors" data-layout="modern">
+                                    <div class="bg-gray-100 rounded mb-1 flex items-center justify-center p-3">
+                                        <div class="w-full aspect-w-16 aspect-h-10 bg-white rounded shadow-sm p-1">
+                                            <div class="flex flex-col">
+                                                <div class="h-1/3 w-full bg-gray-300 rounded-t"></div>
+                                                <div class="p-1 flex">
+                                                    <div class="flex-grow">
+                                                        <div class="w-1/2 h-1 bg-gray-300 rounded mb-1"></div>
+                                                        <div class="space-y-1">
+                                                            <div class="w-full h-1 bg-gray-300 rounded"></div>
+                                                            <div class="w-full h-1 bg-gray-300 rounded"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="w-1/4 flex items-center justify-center">
+                                                        <div class="w-8 h-8 bg-gray-300 rounded-full"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p class="text-xs text-center">Modern</p>
+                                </div>
+                                <div class="layout-option border rounded-lg p-2 cursor-pointer hover:border-primary-500 transition-colors" data-layout="compact">
+                                    <div class="bg-gray-100 rounded mb-1 flex items-center justify-center p-3">
+                                        <div class="w-full aspect-w-16 aspect-h-10 bg-white rounded shadow-sm p-1">
+                                            <div class="flex">
+                                                <div class="flex-grow p-1">
+                                                    <div class="w-3/4 h-2 bg-gray-300 rounded mb-1"></div>
+                                                    <div class="space-y-1 mt-1">
+                                                        <div class="w-full h-1 bg-gray-300 rounded"></div>
+                                                        <div class="w-full h-1 bg-gray-300 rounded"></div>
+                                                        <div class="w-full h-1 bg-gray-300 rounded"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="w-1/3 bg-gray-200 rounded-r flex items-center justify-center">
+                                                    <div class="w-8 h-8 bg-gray-300 rounded"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p class="text-xs text-center">Compact</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="form-group">
+                                <label asp-for="BackgroundColor" class="form-label">Background Color</label>
+                                <div class="color-picker-wrapper">
+                                    <div class="flex">
+                                        <input asp-for="BackgroundColor" type="color" class="color-input hidden" id="bg-color-picker">
+                                        <div class="color-preview w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer" id="bg-color-preview"></div>
+                                        <input asp-for="BackgroundColor" type="text" class="form-input ml-2 flex-grow" placeholder="#ffffff">
+                                    </div>
+                                    <div class="color-presets mt-2 flex flex-wrap gap-2">
+                                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#ffffff" style="background-color: #ffffff;"></span>
+                                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#f8fafc" style="background-color: #f8fafc;"></span>
+                                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#f0f9ff" style="background-color: #f0f9ff;"></span>
+                                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#1e293b" style="background-color: #1e293b;"></span>
+                                    </div>
+                                </div>
+                                <span asp-validation-for="BackgroundColor" class="form-error"></span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label asp-for="TextColor" class="form-label">Text Color</label>
+                                <div class="color-picker-wrapper">
+                                    <div class="flex">
+                                        <input asp-for="TextColor" type="color" class="color-input hidden" id="text-color-picker">
+                                        <div class="color-preview w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer" id="text-color-preview"></div>
+                                        <input asp-for="TextColor" type="text" class="form-input ml-2 flex-grow" placeholder="#000000">
+                                    </div>
+                                    <div class="color-presets mt-2 flex flex-wrap gap-2">
+                                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#000000" style="background-color: #000000;"></span>
+                                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#1e293b" style="background-color: #1e293b;"></span>
+                                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#ffffff" style="background-color: #ffffff;"></span>
+                                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#64748b" style="background-color: #64748b;"></span>
+                                    </div>
+                                </div>
+                                <span asp-validation-for="TextColor" class="form-error"></span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label asp-for="AccentColor" class="form-label">Accent Color</label>
+                                <div class="color-picker-wrapper">
+                                    <div class="flex">
+                                        <input asp-for="AccentColor" type="color" class="color-input hidden" id="accent-color-picker">
+                                        <div class="color-preview w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer" id="accent-color-preview"></div>
+                                        <input asp-for="AccentColor" type="text" class="form-input ml-2 flex-grow" placeholder="#0284c7">
+                                    </div>
+                                    <div class="color-presets mt-2 flex flex-wrap gap-2">
+                                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#0284c7" style="background-color: #0284c7;"></span>
+                                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#f97316" style="background-color: #f97316;"></span>
+                                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#16a34a" style="background-color: #16a34a;"></span>
+                                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#9333ea" style="background-color: #9333ea;"></span>
+                                    </div>
+                                </div>
+                                <span asp-validation-for="AccentColor" class="form-error"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                            <h4 class="text-sm font-medium mb-3">QR Code Options</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="text-xs text-gray-600 block mb-1">Foreground Color</label>
+                                    <div class="flex">
+                                        <input type="color" class="w-10 h-10 border border-gray-300 rounded-lg cursor-pointer" value="#000000" id="qr-fg-color">
+                                        <input type="text" class="form-input ml-2 flex-grow text-sm" value="#000000" id="qr-fg-color-text">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="text-xs text-gray-600 block mb-1">Background Color</label>
+                                    <div class="flex">
+                                        <input type="color" class="w-10 h-10 border border-gray-300 rounded-lg cursor-pointer" value="#ffffff" id="qr-bg-color">
+                                        <input type="text" class="form-input ml-2 flex-grow text-sm" value="#ffffff" id="qr-bg-color-text">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-between mt-6">
+                            <button type="button" class="btn-secondary prev-step" data-prev="2">
+                                <i class="fas fa-arrow-left mr-2"></i> Back to Details
+                            </button>
+                            <button type="submit" class="btn-primary relative group">
+                                <span class="flex items-center">
+                                    <i class="fas fa-save mr-2"></i> Update Product
+                                </span>
+                                <span class="absolute inset-0 flex items-center justify-center bg-primary-600 rounded-md opacity-0 transition-opacity group-hover:opacity-0 group-active:opacity-100">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-footer">
+                    <div class="flex justify-between items-center">
+                        <div class="text-sm text-gray-500">
+                            <span class="text-red-500">*</span> Required fields
+                        </div>
+                        <div class="text-sm text-gray-500">
+                            <span class="step-indicator">Step 1 of 3</span>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
         
-        <form asp-action="Edit" method="post">
-            <input type="hidden" asp-for="Id" />
-            <input type="hidden" asp-for="CreatedAt" />
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="space-y-4">
-                    <div>
-                        <label asp-for="ProductName" class="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
-                        <input asp-for="ProductName" class="form-input" />
-                        <span asp-validation-for="ProductName" class="text-red-500 text-sm"></span>
-                    </div>
-                    
-                    <div>
-                        <label asp-for="Title" class="block text-sm font-medium text-gray-700 mb-1">Job Title</label>
-                        <input asp-for="Title" class="form-input" />
-                        <span asp-validation-for="Title" class="text-red-500 text-sm"></span>
-                    </div>
-                    
-                    <div>
-                        <label asp-for="Manufacturer" class="block text-sm font-medium text-gray-700 mb-1">Manufacturer</label>
-                        <input asp-for="Manufacturer" class="form-input" />
-                        <span asp-validation-for="Manufacturer" class="text-red-500 text-sm"></span>
-                    </div>
-                    
-                    <div>
-                        <label asp-for="Email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                        <input asp-for="Email" type="email" class="form-input" />
-                        <span asp-validation-for="Email" class="text-red-500 text-sm"></span>
-                    </div>
-                </div>
-                
-                <div class="space-y-4">
-                    <div>
-                        <label asp-for="Phone" class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                        <input asp-for="Phone" class="form-input" />
-                        <span asp-validation-for="Phone" class="text-red-500 text-sm"></span>
-                    </div>
-                    
-                    <div>
-                        <label asp-for="Address" class="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                        <input asp-for="Address" class="form-input" />
-                        <span asp-validation-for="Address" class="text-red-500 text-sm"></span>
-                    </div>
-                    
-                    <div>
-                        <label asp-for="Website" class="block text-sm font-medium text-gray-700 mb-1">Website</label>
-                        <input asp-for="Website" type="url" class="form-input" />
-                        <span asp-validation-for="Website" class="text-red-500 text-sm"></span>
-                    </div>
-                    
-                    <div>
-                        <label asp-for="Category" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                        <input asp-for="Category" class="form-input" />
-                        <span asp-validation-for="Category" class="text-red-500 text-sm"></span>
-                    </div>
-                </div>
+        <!-- Version History Panel -->
+        <div class="card mt-6">
+            <div class="card-header">
+                <h3 class="font-bold text-gray-800 flex items-center">
+                    <i class="fas fa-history text-primary-500 mr-2"></i> Edit History
+                </h3>
             </div>
-            
-            <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="card-body p-4">
                 <div class="space-y-4">
-                    <div>
-                        <label asp-for="ModelNumber" class="block text-sm font-medium text-gray-700 mb-1">Model Number</label>
-                        <input asp-for="ModelNumber" class="form-input" />
-                        <span asp-validation-for="ModelNumber" class="text-red-500 text-sm"></span>
-                    </div>
-                    
-                    <div>
-                        <label asp-for="SerialNumber" class="block text-sm font-medium text-gray-700 mb-1">Serial Number</label>
-                        <input asp-for="SerialNumber" class="form-input" />
-                        <span asp-validation-for="SerialNumber" class="text-red-500 text-sm"></span>
-                    </div>
-                    
-                    <div>
-                        <label asp-for="Location" class="block text-sm font-medium text-gray-700 mb-1">Location</label>
-                        <input asp-for="Location" class="form-input" />
-                        <span asp-validation-for="Location" class="text-red-500 text-sm"></span>
-                    </div>
-                    
-                    <div>
-                        <label asp-for="MaintenanceInfo" class="block text-sm font-medium text-gray-700 mb-1">Maintenance Info</label>
-                        <textarea asp-for="MaintenanceInfo" class="form-input" rows="2"></textarea>
-                        <span asp-validation-for="MaintenanceInfo" class="text-red-500 text-sm"></span>
-                    </div>
-                </div>
-                
-                <div class="space-y-4">
-                    <div>
-                        <label asp-for="ManufactureDate" class="block text-sm font-medium text-gray-700 mb-1">Manufacture Date</label>
-                        <input asp-for="ManufactureDate" type="date" class="form-input" />
-                        <span asp-validation-for="ManufactureDate" class="text-red-500 text-sm"></span>
-                    </div>
-                    
-                    <div>
-                        <label asp-for="PurchaseDate" class="block text-sm font-medium text-gray-700 mb-1">Purchase Date</label>
-                        <input asp-for="PurchaseDate" type="date" class="form-input" />
-                        <span asp-validation-for="PurchaseDate" class="text-red-500 text-sm"></span>
-                    </div>
-                    
-                    <div>
-                        <label asp-for="WarrantyExpiration" class="block text-sm font-medium text-gray-700 mb-1">Warranty Expiration</label>
-                        <input asp-for="WarrantyExpiration" type="date" class="form-input" />
-                        <span asp-validation-for="WarrantyExpiration" class="text-red-500 text-sm"></span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="mt-6">
-                <h3 class="font-bold text-lg mb-3">Card Appearance</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div>
-                        <label asp-for="BackgroundColor" class="block text-sm font-medium text-gray-700 mb-1">Background Color</label>
-                        <div class="flex">
-                            <input asp-for="BackgroundColor" type="color" class="h-10 w-16" />
-                            <input asp-for="BackgroundColor" type="text" class="form-input ml-2 flex-grow" />
+                    <div class="flex items-start">
+                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-500 flex-shrink-0">
+                            <i class="fas fa-pencil-alt"></i>
                         </div>
-                        <span asp-validation-for="BackgroundColor" class="text-red-500 text-sm"></span>
-                    </div>
-                    
-                    <div>
-                        <label asp-for="TextColor" class="block text-sm font-medium text-gray-700 mb-1">Text Color</label>
-                        <div class="flex">
-                            <input asp-for="TextColor" type="color" class="h-10 w-16" />
-                            <input asp-for="TextColor" type="text" class="form-input ml-2 flex-grow" />
+                        <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-800">Last updated on @Model.UpdatedAt.ToString("MMM dd, yyyy")</div>
+                            <div class="text-xs text-gray-500 mt-1">Fields changed: Location, Warranty Expiration</div>
                         </div>
-                        <span asp-validation-for="TextColor" class="text-red-500 text-sm"></span>
                     </div>
-                    
-                    <div>
-                        <label asp-for="AccentColor" class="block text-sm font-medium text-gray-700 mb-1">Accent Color</label>
-                        <div class="flex">
-                            <input asp-for="AccentColor" type="color" class="h-10 w-16" />
-                            <input asp-for="AccentColor" type="text" class="form-input ml-2 flex-grow" />
+                    <div class="flex items-start">
+                        <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-500 flex-shrink-0">
+                            <i class="fas fa-plus"></i>
                         </div>
-                        <span asp-validation-for="AccentColor" class="text-red-500 text-sm"></span>
+                        <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-800">Created on @Model.CreatedAt.ToString("MMM dd, yyyy")</div>
+                            <div class="text-xs text-gray-500 mt-1">Initial product information added</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Preview Section (2 columns) -->
+    <div class="lg:col-span-2">
+        <div class="sticky top-6 space-y-4">
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                    <i class="fas fa-eye text-primary-500 mr-2"></i> Tag Preview
+                </h3>
+                <div class="preview-controls flex gap-2">
+                    <button type="button" class="text-sm text-gray-600 hover:text-gray-800 flex items-center p-1 hover:bg-gray-100 rounded transition-colors" id="rotate-preview">
+                        <i class="fas fa-sync-alt mr-1"></i> Rotate
+                    </button>
+                    <button type="button" class="text-sm text-gray-600 hover:text-gray-800 flex items-center p-1 hover:bg-gray-100 rounded transition-colors" id="zoom-preview">
+                        <i class="fas fa-search-plus mr-1"></i> Zoom
+                    </button>
+                </div>
+            </div>
+            
+            <div class="card shadow-lg transition-all duration-300" id="card-preview-container">
+                <div class="business-card" id="tag-preview" style="background-color: @Model.BackgroundColor; color: @Model.TextColor">
+                    <div class="p-6 h-full flex flex-col">
+                        <div class="mb-4">
+                            <span id="preview-category" class="px-2 py-1 text-xs font-semibold rounded-full" style="background-color: @Model.AccentColor; color: @Model.BackgroundColor">
+                                @Model.Category
+                            </span>
+                            <h3 id="preview-name" class="text-xl font-bold mt-2" style="color: @Model.AccentColor">@Model.ProductName</h3>
+                            <p id="preview-manufacturer" class="text-md">@Model.Manufacturer</p>
+                            <div class="flex items-center space-x-2 mt-1 text-sm">
+                                <span class="font-semibold">Model:</span>
+                                <span id="preview-model">@Model.ModelNumber</span>
+                            </div>
+                            <div class="flex items-center space-x-2 text-sm">
+                                <span class="font-semibold">Serial:</span>
+                                <span id="preview-serial">@Model.SerialNumber</span>
+                            </div>
+                        </div>
+                        <div class="space-y-2 mt-auto text-sm">
+                            <p class="flex items-center">
+                                <i class="fas fa-map-marker-alt mr-3" style="color: @Model.AccentColor"></i>
+                                <span class="font-medium">Location:</span>&nbsp;<span id="preview-location">@Model.Location</span>
+                            </p>
+                            <p class="flex items-center">
+                                <i class="fas fa-calendar-day mr-3" style="color: @Model.AccentColor"></i>
+                                <span class="font-medium">Manufactured:</span>&nbsp;<span id="preview-mfgdate">@Model.ManufactureDate.ToString("MMM d, yyyy")</span>
+                            </p>
+                            <p class="flex items-center">
+                                <i class="fas fa-calendar-check mr-3" style="color: @Model.AccentColor"></i>
+                                <span class="font-medium">Warranty Until:</span>&nbsp;<span id="preview-warranty">@Model.WarrantyExpiration.ToString("MMM d, yyyy")</span>
+                            </p>
+                            <p class="flex items-center">
+                                <i class="fas fa-tools mr-3" style="color: @Model.AccentColor"></i>
+                                <span class="font-medium">Maintenance:</span>&nbsp;<span id="preview-maintenance">@(string.IsNullOrEmpty(Model.MaintenanceInfo) ? "None specified" : Model.MaintenanceInfo)</span>
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
             
-            <div class="mt-6 pt-4 border-t flex justify-end">
-                <a asp-action="Index" class="btn-secondary mr-2">Cancel</a>
-                <button type="submit" class="btn-primary">Save Changes</button>
+            <div class="card p-4">
+                <h4 class="text-sm font-medium mb-3">QR Code Preview</h4>
+                <div class="flex justify-center">
+                    <div class="qr-preview p-3 bg-white border border-gray-200 rounded-lg shadow-sm">
+                        <div class="w-32 h-32 bg-gray-100 flex items-center justify-center">
+                            <img src="@ViewBag.QrCodeImage" alt="QR Code" class="w-full h-full object-contain" 
+                                 onerror="this.onerror=null;this.innerHTML='<i class=\'fas fa-qrcode text-gray-400 text-4xl\'></i>';">
+                        </div>
+                        <p class="text-center text-xs mt-2 text-gray-500">Scan for product details</p>
+                    </div>
+                </div>
+                <div class="flex justify-center mt-4">
+                    <a id="download-qr" href="#" class="text-sm text-primary-600 hover:text-primary-800 flex items-center">
+                        <i class="fas fa-download mr-1"></i> Download QR Code
+                    </a>
+                </div>
             </div>
-        </form>
+            
+            <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-info-circle text-blue-400"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-blue-800">Tips for effective product tags</h3>
+                        <ul class="mt-2 text-sm text-blue-700 list-disc list-inside">
+                            <li>Use clear, descriptive product names</li>
+                            <li>Keep maintenance information concise and specific</li>
+                            <li>Choose contrasting colors for better readability</li>
+                            <li>Ensure accurate model and serial numbers</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Version Comparison -->
+            <div class="card overflow-hidden">
+                <div class="card-header">
+                    <h3 class="font-bold text-gray-800 flex items-center">
+                        <i class="fas fa-exchange-alt text-primary-500 mr-2"></i> Changes Preview
+                    </h3>
+                </div>
+                <div class="border-b border-gray-100">
+                    <div class="flex">
+                        <div class="w-1/2 p-3 border-r border-gray-100">
+                            <h4 class="text-sm font-medium text-gray-600">Original</h4>
+                        </div>
+                        <div class="w-1/2 p-3">
+                            <h4 class="text-sm font-medium text-green-600">Updated</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="max-h-64 overflow-y-auto">
+                    <div id="changes-container" class="text-sm">
+                        <!-- Changes will be dynamically populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" class="fixed bottom-4 right-4 hidden transform transition-transform duration-300 z-50">
+    <div class="bg-white rounded-lg shadow-lg border border-gray-100 p-4 max-w-md">
+        <div class="flex items-center">
+            <div id="toast-icon" class="flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-green-100">
+                <i class="fas fa-check text-green-500"></i>
+            </div>
+            <div class="ml-3">
+                <p id="toast-message" class="text-sm font-medium text-gray-900">Action successful!</p>
+                <p id="toast-description" class="text-sm text-gray-500">Operation completed successfully.</p>
+            </div>
+            <button id="close-toast" class="ml-auto text-gray-400 hover:text-gray-500">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
     </div>
 </div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize all form components
+            initializeSteps();
+            initializeColorPickers();
+            initializeCardLayouts();
+            initializeImageUpload();
+            updateTagPreview();
+            initializeVersionComparison();
+            
+            // Set color preview backgrounds to match model values
+            document.getElementById('bg-color-preview').style.backgroundColor = '@Model.BackgroundColor';
+            document.getElementById('text-color-preview').style.backgroundColor = '@Model.TextColor';
+            document.getElementById('accent-color-preview').style.backgroundColor = '@Model.AccentColor';
+            
+            // Step navigation
+            function initializeSteps() {
+                const steps = document.querySelectorAll('.step');
+                const formSections = document.querySelectorAll('.form-section');
+                const nextButtons = document.querySelectorAll('.next-step');
+                const prevButtons = document.querySelectorAll('.prev-step');
+                const stepIndicator = document.querySelector('.step-indicator');
+                const progressBars = document.querySelectorAll('.step-progress');
+                
+                // Update step indicator text
+                function updateStepIndicator(currentStep) {
+                    if (stepIndicator) {
+                        stepIndicator.textContent = `Step ${currentStep} of 3`;
+                    }
+                }
+                
+                // Update progress bars
+                function updateProgressBars(currentStep) {
+                    if (progressBars.length >= 2) {
+                        if (currentStep >= 2) {
+                            progressBars[0].style.width = '100%';
+                        } else {
+                            progressBars[0].style.width = '0%';
+                        }
+                        
+                        if (currentStep >= 3) {
+                            progressBars[1].style.width = '100%';
+                        } else {
+                            progressBars[1].style.width = '0%';
+                        }
+                    }
+                }
+                
+                // Navigate to step
+                function goToStep(stepNumber) {
+                    // Hide all sections
+                    formSections.forEach(section => section.classList.add('hidden'));
+                    
+                    // Show selected section
+                    const targetSection = document.querySelector(`.form-section[data-step="${stepNumber}"]`);
+                    if (targetSection) {
+                        targetSection.classList.remove('hidden');
+                    }
+                    
+                    // Update step indicators
+                    steps.forEach(step => {
+                        const stepNum = parseInt(step.getAttribute('data-step'));
+                        step.classList.remove('active');
+                        
+                        const stepCircle = step.querySelector('.step-circle');
+                        if (stepCircle) {
+                            stepCircle.classList.remove('bg-primary-600', 'text-white');
+                            stepCircle.classList.add('bg-gray-200', 'text-gray-600');
+                        }
+                        
+                        if (stepNum <= stepNumber) {
+                            step.classList.add('active');
+                            if (stepCircle) {
+                                stepCircle.classList.remove('bg-gray-200', 'text-gray-600');
+                                stepCircle.classList.add('bg-primary-600', 'text-white');
+                            }
+                        }
+                    });
+                    
+                    updateStepIndicator(stepNumber);
+                    updateProgressBars(stepNumber);
+                    
+                    // Scroll to top of form
+                    const formTop = document.getElementById('product-form').getBoundingClientRect().top + window.pageYOffset - 100;
+                    window.scrollTo({top: formTop, behavior: 'smooth'});
+                }
+                
+                // Next step buttons
+                nextButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        const nextStep = parseInt(this.getAttribute('data-next'));
+                        if (validateStep(nextStep - 1)) {
+                            goToStep(nextStep);
+                        }
+                    });
+                });
+                
+                // Previous step buttons
+                prevButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        const prevStep = parseInt(this.getAttribute('data-prev'));
+                        goToStep(prevStep);
+                    });
+                });
+                
+                // Step circle clicks
+                steps.forEach(step => {
+                    step.addEventListener('click', function() {
+                        const targetStep = parseInt(this.getAttribute('data-step'));
+                        const currentStepNum = getCurrentStep();
+                        
+                        // Only allow clicking on previous steps or the next step
+                        if (targetStep <= currentStepNum || targetStep === currentStepNum + 1) {
+                            if (targetStep > currentStepNum && !validateStep(currentStepNum)) {
+                                return; // Don't proceed if current step isn't valid
+                            }
+                            goToStep(targetStep);
+                        }
+                    });
+                });
+                
+                // Get current step
+                function getCurrentStep() {
+                    const visibleSection = document.querySelector('.form-section:not(.hidden)');
+                    return visibleSection ? parseInt(visibleSection.getAttribute('data-step')) : 1;
+                }
+                
+                // Validate step before proceeding
+                function validateStep(stepNumber) {
+                    let isValid = true;
+                    
+                    if (stepNumber === 1) {
+                        // Validate required fields in step 1
+                        const requiredFields = document.querySelectorAll('.form-section[data-step="1"] [required]');
+                        requiredFields.forEach(field => {
+                            if (!field.value.trim()) {
+                                isValid = false;
+                                field.classList.add('border-red-500');
+                                
+                                // Show validation error
+                                const errorSpan = field.parentNode.nextElementSibling;
+                                if (errorSpan && errorSpan.classList.contains('form-error')) {
+                                    errorSpan.textContent = 'This field is required';
+                                }
+                            }
+                        });
+                        
+                        if (!isValid) {
+                            // Focus first invalid field
+                            const firstInvalid = document.querySelector('.form-section[data-step="1"] .border-red-500');
+                            if (firstInvalid) {
+                                firstInvalid.focus();
+                            }
+                            
+                            // Show notification
+                            showNotification('Please fill in all required fields in step 1', 'error');
+                        }
+                    }
+                    
+                    if (stepNumber === 2) {
+                        // Validate required fields in step 2
+                        const requiredFields = document.querySelectorAll('.form-section[data-step="2"] [required]');
+                        requiredFields.forEach(field => {
+                            if (!field.value.trim()) {
+                                isValid = false;
+                                field.classList.add('border-red-500');
+                                
+                                // Show validation error
+                                const errorSpan = field.parentNode.nextElementSibling;
+                                if (errorSpan && errorSpan.classList.contains('form-error')) {
+                                    errorSpan.textContent = 'This field is required';
+                                }
+                            }
+                        });
+                        
+                        if (!isValid) {
+                            // Focus first invalid field
+                            const firstInvalid = document.querySelector('.form-section[data-step="2"] .border-red-500');
+                            if (firstInvalid) {
+                                firstInvalid.focus();
+                            }
+                            
+                            // Show notification
+                            showNotification('Please fill in all required fields in step 2', 'error');
+                        }
+                    }
+                    
+                    return isValid;
+                }
+                
+                // Live validation on blur
+                const requiredInputs = document.querySelectorAll('[required]');
+                requiredInputs.forEach(input => {
+                    input.addEventListener('blur', function() {
+                        if (!this.value.trim()) {
+                            this.classList.add('border-red-500');
+                            
+                            // Show validation error
+                            const errorSpan = this.parentNode.nextElementSibling;
+                            if (errorSpan && errorSpan.classList.contains('form-error')) {
+                                errorSpan.textContent = 'This field is required';
+                            }
+                        } else {
+                            this.classList.remove('border-red-500');
+                            
+                            // Clear validation error
+                            const errorSpan = this.parentNode.nextElementSibling;
+                            if (errorSpan && errorSpan.classList.contains('form-error')) {
+                                errorSpan.textContent = '';
+                            }
+                            
+                            // Show validation success icon
+                            const validIcon = this.parentNode.querySelector('.validation-icon');
+                            if (validIcon) {
+                                validIcon.classList.remove('hidden');
+                            }
+                        }
+                    });
+                    
+                    input.addEventListener('input', function() {
+                        if (this.value.trim()) {
+                            this.classList.remove('border-red-500');
+                            
+                            // Clear validation error
+                            const errorSpan = this.parentNode.nextElementSibling;
+                            if (errorSpan && errorSpan.classList.contains('form-error')) {
+                                errorSpan.textContent = '';
+                            }
+                        }
+                        
+                        // Update preview
+                        updateTagPreview();
+                        // Update version comparison
+                        updateChangesComparison();
+                    });
+                });
+            }
+            
+            // Initialize color pickers
+            function initializeColorPickers() {
+                const colorInputs = document.querySelectorAll('.color-input');
+                const colorPreviews = document.querySelectorAll('.color-preview');
+                const colorPresets = document.querySelectorAll('.color-preset');
+                
+                // Connect color inputs and previews
+                colorPreviews.forEach(preview => {
+                    preview.addEventListener('click', function() {
+                        const inputId = this.id.replace('-preview', '-picker');
+                        const colorInput = document.getElementById(inputId);
+                        if (colorInput) {
+                            colorInput.click();
+                        }
+                    });
+                });
+                
+                colorInputs.forEach(input => {
+                    input.addEventListener('input', function() {
+                        const previewId = this.id.replace('-picker', '-preview');
+                        const colorPreview = document.getElementById(previewId);
+                        const textInput = this.parentNode.querySelector('input[type="text"]');
+                        
+                        if (colorPreview) {
+                            colorPreview.style.backgroundColor = this.value;
+                        }
+                        
+                        if (textInput) {
+                            textInput.value = this.value;
+                        }
+                        
+                        updateTagPreview();
+                        updateChangesComparison();
+                    });
+                });
+                
+                // Connect text inputs to color pickers
+                const textColorInputs = document.querySelectorAll('input[type="text"][id$="Color"]');
+                textColorInputs.forEach(input => {
+                    input.addEventListener('input', function() {
+                        const colorInputId = this.id.replace(this.id, this.id + '-picker');
+                        const previewId = this.id.replace(this.id, this.id + '-preview');
+                        const colorInput = document.getElementById(colorInputId);
+                        const colorPreview = document.getElementById(previewId);
+                        
+                        if (colorInput) {
+                            colorInput.value = this.value;
+                        }
+                        
+                        if (colorPreview) {
+                            colorPreview.style.backgroundColor = this.value;
+                        }
+                        
+                        updateTagPreview();
+                        updateChangesComparison();
+                    });
+                });
+                
+                // Color presets
+                colorPresets.forEach(preset => {
+                    preset.addEventListener('click', function() {
+                        const color = this.getAttribute('data-color');
+                        const wrapper = this.closest('.color-picker-wrapper');
+                        
+                        if (wrapper) {
+                            const colorInput = wrapper.querySelector('.color-input');
+                            const colorPreview = wrapper.querySelector('.color-preview');
+                            const textInput = wrapper.querySelector('input[type="text"]');
+                            
+                            if (colorInput) colorInput.value = color;
+                            if (colorPreview) colorPreview.style.backgroundColor = color;
+                            if (textInput) textInput.value = color;
+                            
+                            // Visual feedback
+                            this.classList.add('ring-2', 'ring-primary-500', 'scale-125');
+                            setTimeout(() => {
+                                this.classList.remove('ring-2', 'ring-primary-500', 'scale-125');
+                            }, 300);
+                            
+                            updateTagPreview();
+                            updateChangesComparison();
+                        }
+                    });
+                });
+                
+                // QR code color pickers
+                const qrFgColor = document.getElementById('qr-fg-color');
+                const qrFgColorText = document.getElementById('qr-fg-color-text');
+                const qrBgColor = document.getElementById('qr-bg-color');
+                const qrBgColorText = document.getElementById('qr-bg-color-text');
+                
+                if (qrFgColor && qrFgColorText) {
+                    qrFgColor.addEventListener('input', function() {
+                        qrFgColorText.value = this.value;
+                    });
+                    
+                    qrFgColorText.addEventListener('input', function() {
+                        qrFgColor.value = this.value;
+                    });
+                }
+                
+                if (qrBgColor && qrBgColorText) {
+                    qrBgColor.addEventListener('input', function() {
+                        qrBgColorText.value = this.value;
+                    });
+                    
+                    qrBgColorText.addEventListener('input', function() {
+                        qrBgColor.value = this.value;
+                    });
+                }
+            }
+            
+            // Card layout selection
+            function initializeCardLayouts() {
+                const layoutOptions = document.querySelectorAll('.layout-option');
+                
+                layoutOptions.forEach(option => {
+                    option.addEventListener('click', function() {
+                        // Remove active class from all options
+                        layoutOptions.forEach(opt => opt.classList.remove('border-primary-500', 'active'));
+                        
+                        // Add active class to selected option
+                        this.classList.add('border-primary-500', 'active');
+                        
+                        // Get layout type
+                        const layoutType = this.getAttribute('data-layout');
+                        
+                        // Update preview
+                        updateCardLayout(layoutType);
+                    });
+                });
+                
+                // Card preview controls
+                const rotateBtn = document.getElementById('rotate-preview');
+                const zoomBtn = document.getElementById('zoom-preview');
+                const previewContainer = document.getElementById('card-preview-container');
+                
+                if (rotateBtn && previewContainer) {
+                    rotateBtn.addEventListener('click', function() {
+                        previewContainer.classList.toggle('rotate-y-180');
+                    });
+                }
+                
+                if (zoomBtn && previewContainer) {
+                    zoomBtn.addEventListener('click', function() {
+                        previewContainer.classList.toggle('scale-110');
+                    });
+                }
+            }
+            
+            // Apply layout to preview
+            function updateCardLayout(layoutType) {
+                const preview = document.getElementById('tag-preview');
+                if (!preview) return;
+                
+                // Reset classes
+                preview.className = 'business-card';
+                
+                // Apply layout specific classes
+                if (layoutType === 'modern') {
+                    // Modern layout with header bar
+                    const content = preview.querySelector('div');
+                    if (content) {
+                        content.className = 'h-full flex flex-col';
+                        content.innerHTML = `
+                            <div class="h-8 w-full rounded-t-lg" style="background-color: ${document.getElementById('AccentColor').value}"></div>
+                            <div class="p-4 flex flex-col flex-grow">
+                                <h3 id="preview-name" class="text-xl font-bold" style="color: ${document.getElementById('AccentColor').value}">${document.getElementById('ProductName').value || 'Product Name'}</h3>
+                                <p id="preview-manufacturer" class="text-md">${document.getElementById('Manufacturer').value || 'Manufacturer'}</p>
+                                <div class="flex items-center space-x-2 mt-1 text-sm">
+                                    <span class="font-semibold">Model:</span>
+                                    <span id="preview-model">${document.getElementById('ModelNumber').value || 'MODEL-XXX'}</span>
+                                </div>
+                                <div class="space-y-2 mt-auto text-sm">
+                                    <p class="flex items-center">
+                                        <i class="fas fa-map-marker-alt mr-3" style="color: ${document.getElementById('AccentColor').value}"></i>
+                                        <span class="font-medium">Location:</span>&nbsp;<span id="preview-location">${document.getElementById('Location').value || 'Storage Location'}</span>
+                                    </p>
+                                    <p class="flex items-center">
+                                        <i class="fas fa-calendar-check mr-3" style="color: ${document.getElementById('AccentColor').value}"></i>
+                                        <span class="font-medium">Warranty:</span>&nbsp;<span id="preview-warranty">${formatDate(document.getElementById('WarrantyExpiration').value) || 'Jan 1, 2026'}</span>
+                                    </p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                } else if (layoutType === 'compact') {
+                    // Compact layout with side QR
+                    const content = preview.querySelector('div');
+                    if (content) {
+                        content.className = 'h-full flex';
+                        content.innerHTML = `
+                            <div class="flex-grow p-4">
+                                <span id="preview-category" class="px-2 py-1 text-xs font-semibold rounded-full" style="background-color: ${document.getElementById('AccentColor').value}; color: ${document.getElementById('BackgroundColor').value}">
+                                    ${document.getElementById('Category').value || 'Product Category'}
+                                </span>
+                                <h3 id="preview-name" class="text-lg font-bold mt-2" style="color: ${document.getElementById('AccentColor').value}">${document.getElementById('ProductName').value || 'Product Name'}</h3>
+                                <div class="space-y-1 mt-3 text-xs">
+                                    <p class="flex items-center">
+                                        <i class="fas fa-industry mr-2" style="color: ${document.getElementById('AccentColor').value}"></i>
+                                        ${document.getElementById('Manufacturer').value || 'Manufacturer'}
+                                    </p>
+                                    <p class="flex items-center">
+                                        <i class="fas fa-tag mr-2" style="color: ${document.getElementById('AccentColor').value}"></i>
+                                        ${document.getElementById('ModelNumber').value || 'MODEL-XXX'}
+                                    </p>
+                                    <p class="flex items-center">
+                                        <i class="fas fa-fingerprint mr-2" style="color: ${document.getElementById('AccentColor').value}"></i>
+                                        ${document.getElementById('SerialNumber').value || 'SN12345'}
+                                    </p>
+                                    <p class="flex items-center">
+                                        <i class="fas fa-map-marker-alt mr-2" style="color: ${document.getElementById('AccentColor').value}"></i>
+                                        ${document.getElementById('Location').value || 'Storage Location'}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="w-1/3 bg-gray-50 rounded-r-lg flex items-center justify-center">
+                                <div class="text-center">
+                                    <div class="w-16 h-16 mx-auto bg-white p-1 rounded shadow-sm flex items-center justify-center">
+                                        <i class="fas fa-qrcode text-2xl text-gray-400"></i>
+                                    </div>
+                                    <p class="text-xs mt-1">Scan</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                } else {
+                    // Standard layout
+                    updateTagPreview();
+                }
+            }
+            
+            // Image upload handling
+            function initializeImageUpload() {
+                const dropzone = document.getElementById('dropzone');
+                const fileInput = document.getElementById('product-image');
+                const imagePreview = document.getElementById('image-preview');
+                const removeButton = document.getElementById('remove-image');
+                
+                if (!dropzone || !fileInput || !imagePreview || !removeButton) return;
+                
+                dropzone.addEventListener('click', function() {
+                    fileInput.click();
+                });
+                
+                dropzone.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    this.classList.add('border-primary-400', 'bg-primary-50');
+                });
+                
+                dropzone.addEventListener('dragleave', function() {
+                    this.classList.remove('border-primary-400', 'bg-primary-50');
+                });
+                
+                dropzone.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('border-primary-400', 'bg-primary-50');
+                    
+                    if (e.dataTransfer.files.length) {
+                        fileInput.files = e.dataTransfer.files;
+                        handleFileUpload(e.dataTransfer.files[0]);
+                    }
+                });
+                
+                fileInput.addEventListener('change', function() {
+                    if (this.files.length) {
+                        handleFileUpload(this.files[0]);
+                    }
+                });
+                
+                removeButton.addEventListener('click', function() {
+                    fileInput.value = '';
+                    imagePreview.classList.add('hidden');
+                    dropzone.classList.remove('hidden');
+                });
+                
+                function handleFileUpload(file) {
+                    // Validate file type and size
+                    const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+                    const maxSize = 5 * 1024 * 1024; // 5MB
+                    
+                    if (!validTypes.includes(file.type)) {
+                        showNotification('Invalid file type. Please upload a JPG, PNG, or GIF.', 'error');
+                        return;
+                    }
+                    
+                    if (file.size > maxSize) {
+                        showNotification('File is too large. Maximum size is 5MB.', 'error');
+                        return;
+                    }
+                    
+                    // Create preview
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = imagePreview.querySelector('img');
+                        const filename = imagePreview.querySelector('.filename');
+                        
+                        if (img && filename) {
+                            img.src = e.target.result;
+                            filename.textContent = file.name;
+                        }
+                        
+                        dropzone.classList.add('hidden');
+                        imagePreview.classList.remove('hidden');
+                        
+                        showNotification('Image uploaded successfully', 'success');
+                    };
+                    
+                    reader.readAsDataURL(file);
+                }
+            }
+            
+            // Update tag preview on form input
+            function updateTagPreview() {
+                const bgColor = document.getElementById('BackgroundColor').value || '@Model.BackgroundColor';
+                const textColor = document.getElementById('TextColor').value || '@Model.TextColor';
+                const accentColor = document.getElementById('AccentColor').value || '@Model.AccentColor';
+                
+                const name = document.getElementById('ProductName').value || '@Model.ProductName';
+                const category = document.getElementById('Category').value || '@Model.Category';
+                const manufacturer = document.getElementById('Manufacturer').value || '@Model.Manufacturer';
+                const model = document.getElementById('ModelNumber').value || '@Model.ModelNumber';
+                const serial = document.getElementById('SerialNumber').value || '@Model.SerialNumber';
+                const location = document.getElementById('Location').value || '@Model.Location';
+                const maintenance = document.getElementById('MaintenanceInfo').value || '@(string.IsNullOrEmpty(Model.MaintenanceInfo) ? "None specified" : Model.MaintenanceInfo)';
+                
+                // Handle dates
+                let mfgDate = '@Model.ManufactureDate.ToString("MMM d, yyyy")';
+                if (document.getElementById('ManufactureDate').value) {
+                    mfgDate = formatDate(document.getElementById('ManufactureDate').value);
+                }
+                
+                let warrantyDate = '@Model.WarrantyExpiration.ToString("MMM d, yyyy")';
+                if (document.getElementById('WarrantyExpiration').value) {
+                    warrantyDate = formatDate(document.getElementById('WarrantyExpiration').value);
+                }
+                
+                // Update preview elements
+                const preview = document.getElementById('tag-preview');
+                if (preview) {
+                    preview.style.backgroundColor = bgColor;
+                    preview.style.color = textColor;
+                    
+                    const nameElement = document.getElementById('preview-name');
+                    if (nameElement) {
+                        nameElement.textContent = name;
+                        nameElement.style.color = accentColor;
+                    }
+                    
+                    const categoryElement = document.getElementById('preview-category');
+                    if (categoryElement) {
+                        categoryElement.textContent = category;
+                        categoryElement.style.backgroundColor = accentColor;
+                        categoryElement.style.color = bgColor;
+                    }
+                    
+                    const manufacturerElement = document.getElementById('preview-manufacturer');
+                    if (manufacturerElement) {
+                        manufacturerElement.textContent = manufacturer;
+                    }
+                    
+                    const modelElement = document.getElementById('preview-model');
+                    if (modelElement) {
+                        modelElement.textContent = model;
+                    }
+                    
+                    const serialElement = document.getElementById('preview-serial');
+                    if (serialElement) {
+                        serialElement.textContent = serial;
+                    }
+                    
+                    const locationElement = document.getElementById('preview-location');
+                    if (locationElement) {
+                        locationElement.textContent = location;
+                    }
+                    
+                    const mfgDateElement = document.getElementById('preview-mfgdate');
+                    if (mfgDateElement) {
+                        mfgDateElement.textContent = mfgDate;
+                    }
+                    
+                    const warrantyElement = document.getElementById('preview-warranty');
+                    if (warrantyElement) {
+                        warrantyElement.textContent = warrantyDate;
+                    }
+                    
+                    const maintenanceElement = document.getElementById('preview-maintenance');
+                    if (maintenanceElement) {
+                        maintenanceElement.textContent = maintenance;
+                    }
+                    
+                    // Update icons
+                    preview.querySelectorAll('i').forEach(icon => {
+                        icon.style.color = accentColor;
+                    });
+                }
+            }
+            
+            // Initialize Version Comparison
+            function initializeVersionComparison() {
+                const changesContainer = document.getElementById('changes-container');
+                if (changesContainer) {
+                    // Example changes - in a real app, you would fetch original values from the server
+                    const originalValues = {
+                        ProductName: '@Model.ProductName',
+                        Category: '@Model.Category',
+                        Manufacturer: '@Model.Manufacturer',
+                        ModelNumber: '@Model.ModelNumber',
+                        SerialNumber: '@Model.SerialNumber',
+                        Location: '@Model.Location',
+                        MaintenanceInfo: '@(string.IsNullOrEmpty(Model.MaintenanceInfo) ? "None specified" : Model.MaintenanceInfo)',
+                        ManufactureDate: '@Model.ManufactureDate.ToString("yyyy-MM-dd")',
+                        PurchaseDate: '@Model.PurchaseDate.ToString("yyyy-MM-dd")',
+                        WarrantyExpiration: '@Model.WarrantyExpiration.ToString("yyyy-MM-dd")',
+                        BackgroundColor: '@Model.BackgroundColor',
+                        TextColor: '@Model.TextColor',
+                        AccentColor: '@Model.AccentColor'
+                    };
+                    
+                    // Store original values for comparison
+                    window.originalValues = originalValues;
+                    
+                    // Initial update
+                    updateChangesComparison();
+                }
+                
+                // Download QR code
+                const downloadQrBtn = document.getElementById('download-qr');
+                if (downloadQrBtn) {
+                    downloadQrBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        showNotification('QR Code download started', 'Your QR code will download shortly', 'success');
+                    });
+                }
+            }
+            
+            // Update changes comparison
+            function updateChangesComparison() {
+                const changesContainer = document.getElementById('changes-container');
+                if (!changesContainer || !window.originalValues) return;
+                
+                // Get current values
+                const currentValues = {
+                    ProductName: document.getElementById('ProductName').value,
+                    Category: document.getElementById('Category').value,
+                    Manufacturer: document.getElementById('Manufacturer').value,
+                    ModelNumber: document.getElementById('ModelNumber').value,
+                    SerialNumber: document.getElementById('SerialNumber').value,
+                    Location: document.getElementById('Location').value,
+                    MaintenanceInfo: document.getElementById('MaintenanceInfo').value,
+                    ManufactureDate: document.getElementById('ManufactureDate').value,
+                    PurchaseDate: document.getElementById('PurchaseDate').value,
+                    WarrantyExpiration: document.getElementById('WarrantyExpiration').value,
+                    BackgroundColor: document.getElementById('BackgroundColor').value,
+                    TextColor: document.getElementById('TextColor').value,
+                    AccentColor: document.getElementById('AccentColor').value
+                };
+                
+                // Clear container
+                changesContainer.innerHTML = '';
+                
+                // Compare and show differences
+                let changesFound = false;
+                
+                for (const [key, originalValue] of Object.entries(window.originalValues)) {
+                    const currentValue = currentValues[key];
+                    
+                    if (currentValue !== originalValue) {
+                        changesFound = true;
+                        
+                        // Create comparison row
+                        const row = document.createElement('div');
+                        row.className = 'flex border-b border-gray-100';
+                        
+                        // Original value side
+                        const originalSide = document.createElement('div');
+                        originalSide.className = 'w-1/2 p-3 border-r border-gray-100';
+                        
+                        // Format the display label
+                        let displayLabel = key.replace(/([A-Z])/g, ' $1').trim();
+                        
+                        if (key.includes('Color')) {
+                            // For color fields, show color preview
+                            originalSide.innerHTML = `
+                                <div class="font-medium text-xs text-gray-500">${displayLabel}</div>
+                                <div class="flex items-center mt-1">
+                                    <div class="w-4 h-4 rounded mr-2" style="background-color: ${originalValue}"></div>
+                                    <span>${originalValue}</span>
+                                </div>
+                            `;
+                        } else if (key.includes('Date')) {
+                            // For date fields, format nicely
+                            originalSide.innerHTML = `
+                                <div class="font-medium text-xs text-gray-500">${displayLabel}</div>
+                                <div>${formatDate(originalValue)}</div>
+                            `;
+                        } else {
+                            // Regular fields
+                            originalSide.innerHTML = `
+                                <div class="font-medium text-xs text-gray-500">${displayLabel}</div>
+                                <div>${originalValue}</div>
+                            `;
+                        }
+                        
+                        // Current value side
+                        const currentSide = document.createElement('div');
+                        currentSide.className = 'w-1/2 p-3 bg-green-50';
+                        
+                        if (key.includes('Color')) {
+                            // For color fields, show color preview
+                            currentSide.innerHTML = `
+                                <div class="font-medium text-xs text-green-500">${displayLabel}</div>
+                                <div class="flex items-center mt-1">
+                                    <div class="w-4 h-4 rounded mr-2" style="background-color: ${currentValue}"></div>
+                                    <span>${currentValue}</span>
+                                </div>
+                            `;
+                        } else if (key.includes('Date')) {
+                            // For date fields, format nicely
+                            currentSide.innerHTML = `
+                                <div class="font-medium text-xs text-green-500">${displayLabel}</div>
+                                <div>${formatDate(currentValue)}</div>
+                            `;
+                        } else {
+                            // Regular fields
+                            currentSide.innerHTML = `
+                                <div class="font-medium text-xs text-green-500">${displayLabel}</div>
+                                <div>${currentValue}</div>
+                            `;
+                        }
+                        
+                        row.appendChild(originalSide);
+                        row.appendChild(currentSide);
+                        changesContainer.appendChild(row);
+                    }
+                }
+                
+                // If no changes found
+                if (!changesFound) {
+                    changesContainer.innerHTML = `
+                        <div class="flex p-4 text-center">
+                            <div class="w-full text-gray-500">
+                                <i class="fas fa-info-circle mr-2"></i>
+                                No changes detected yet
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            
+            // Format date for display
+            function formatDate(dateString) {
+                if (!dateString) return '';
+                
+                const date = new Date(dateString);
+                return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+            }
+            
+            // Character counter
+            window.countChars = function(input, counterId, maxLength) {
+                const counter = document.getElementById(counterId);
+                if (counter) {
+                    counter.textContent = `${input.value.length}/${maxLength}`;
+                    
+                    if (input.value.length > maxLength * 0.8) {
+                        counter.classList.add('text-orange-500');
+                    } else {
+                        counter.classList.remove('text-orange-500');
+                    }
+                    
+                    if (input.value.length >= maxLength) {
+                        counter.classList.add('text-red-500');
+                        counter.classList.remove('text-orange-500');
+                    } else {
+                        counter.classList.remove('text-red-500');
+                    }
+                }
+            };
+            
+            // Form validation on submit
+            document.getElementById('product-form').addEventListener('submit', function(e) {
+                let isValid = true;
+                const requiredFields = this.querySelectorAll('[required]');
+                
+                requiredFields.forEach(field => {
+                    if (!field.value.trim()) {
+                        isValid = false;
+                        field.classList.add('border-red-500');
+                        
+                        // Show validation error
+                        const errorSpan = field.parentNode.nextElementSibling;
+                        if (errorSpan && errorSpan.classList.contains('form-error')) {
+                            errorSpan.textContent = 'This field is required';
+                        }
+                    }
+                });
+                
+                if (!isValid) {
+                    e.preventDefault();
+                    
+                    // Find which step has errors
+                    let stepWithError = 1;
+                    const step1Errors = document.querySelectorAll('.form-section[data-step="1"] .border-red-500').length > 0;
+                    const step2Errors = document.querySelectorAll('.form-section[data-step="2"] .border-red-500').length > 0;
+                    
+                    if (step1Errors) {
+                        stepWithError = 1;
+                    } else if (step2Errors) {
+                        stepWithError = 2;
+                    }
+                    
+                    // Go to the step with errors
+                    goToStep(stepWithError);
+                    
+                    // Focus first invalid field
+                    const firstInvalid = document.querySelector(`.form-section[data-step="${stepWithError}"] .border-red-500`);
+                    if (firstInvalid) {
+                        firstInvalid.focus();
+                    }
+                    
+                    showNotification('Please fill in all required fields', 'error');
+                } else {
+                    // Show saving indicator on the button
+                    const submitButton = this.querySelector('button[type="submit"]');
+                    if (submitButton) {
+                        const originalContent = submitButton.innerHTML;
+                        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+                        submitButton.disabled = true;
+                        
+                        // Re-enable after short delay to prevent double submission
+                        setTimeout(() => {
+                            submitButton.innerHTML = originalContent;
+                            submitButton.disabled = false;
+                        }, 2000);
+                    }
+                }
+            });
+        });
+        
+        // Show notification function
+        function showNotification(message, description = '', type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            const toastDescription = document.getElementById('toast-description');
+            const toastIcon = document.getElementById('toast-icon');
+            
+            toastMessage.textContent = message;
+            toastDescription.textContent = description;
+            
+            // Set icon based on type
+            if (type === 'success') {
+                toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-green-100';
+                toastIcon.innerHTML = '<i class="fas fa-check text-green-500"></i>';
+            } else if (type === 'error') {
+                toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-red-100';
+                toastIcon.innerHTML = '<i class="fas fa-exclamation-triangle text-red-500"></i>';
+            } else if (type === 'warning') {
+                toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-yellow-100';
+                toastIcon.innerHTML = '<i class="fas fa-exclamation text-yellow-500"></i>';
+            } else if (type === 'info') {
+                toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-blue-100';
+                toastIcon.innerHTML = '<i class="fas fa-info-circle text-blue-500"></i>';
+            }
+            
+            // Show toast
+            toast.classList.remove('hidden');
+            toast.classList.add('translate-y-0');
+            
+            // Auto-hide after 5 seconds
+            setTimeout(function() {
+                toast.classList.add('translate-y-12', 'opacity-0');
+                setTimeout(function() {
+                    toast.classList.add('hidden');
+                    toast.classList.remove('translate-y-12', 'opacity-0');
+                }, 300);
+            }, 5000);
+            
+            // Close button
+            document.getElementById('close-toast').addEventListener('click', function() {
+                toast.classList.add('translate-y-12', 'opacity-0');
+                setTimeout(function() {
+                    toast.classList.add('hidden');
+                    toast.classList.remove('translate-y-12', 'opacity-0');
+                }, 300);
+            });
+        }
+    </script>
 }
