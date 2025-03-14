@@ -9,26 +9,46 @@
     <a asp-action="Index" class="text-primary-600 hover:text-primary-800 transition-colors flex items-center">
         <i class="fas fa-arrow-left mr-2"></i> Back to Product List
     </a>
-    <button onclick="window.print()" class="btn-primary">
-        <i class="fas fa-print mr-2"></i> Print All Products
-    </button>
+    <div class="flex space-x-4">
+        <button onclick="window.print()" class="btn-primary px-5 py-2 rounded-lg shadow-md">
+            <i class="fas fa-print mr-2"></i> Print All Products
+        </button>
+        <span class="text-gray-500 flex items-center">
+            <i class="fas fa-info-circle mr-2"></i> Will print on A4 paper, 2 cards per row
+        </span>
+    </div>
 </div>
 
-<div class="print-container">
+<!-- A4 Preview header - only shows in browser -->
+<div class="no-print mb-4">
+    <h2 class="text-xl font-bold text-gray-700">A4 Print Preview</h2>
+    <p class="text-sm text-gray-500">This shows how cards will be arranged on A4 paper. Each group of cards represents one page.</p>
+</div>
+
+<!-- A4 print container -->
+<div class="a4-print-container">
+    @{
+        int cardCount = 0;
+        int cardsPerPage = 8; // 2 columns × 4 rows
+    }
+    
     @foreach (var product in Model)
     {
-        <div class="print-card-wrapper mb-12">
+        <div class="print-card-wrapper">
             <div class="print-card" style="background-color: @product.BackgroundColor; color: @product.TextColor;">
                 <div class="card-content">
                     <div class="card-info">
-                        <h3 class="card-name" style="color: @product.AccentColor">@product.ProductName</h3>
+                        <span class="category-badge" style="background-color: @product.AccentColor; color: @product.BackgroundColor">
+                            @product.Category
+                        </span>
+                        <h3 class="card-name mt-1" style="color: @product.AccentColor">@product.ProductName</h3>
                         <p class="card-title">@product.Manufacturer</p>
                         
                         <div class="card-details">
-                            <p><i class="fas fa-tag" style="color: @product.AccentColor"></i>@product.ModelNumber</p>
-                            <p><i class="fas fa-fingerprint" style="color: @product.AccentColor"></i>@product.SerialNumber</p>
-                            <p><i class="fas fa-map-marker-alt" style="color: @product.AccentColor"></i>@product.Location</p>
-                            <p><i class="fas fa-calendar-check" style="color: @product.AccentColor"></i>Warranty: @product.WarrantyExpiration.ToString("MM/dd/yyyy")</p>
+                            <p><i class="fas fa-tag" style="color: @product.AccentColor"></i><span>@product.ModelNumber</span></p>
+                            <p><i class="fas fa-fingerprint" style="color: @product.AccentColor"></i><span>SN: @product.SerialNumber</span></p>
+                            <p><i class="fas fa-map-marker-alt" style="color: @product.AccentColor"></i><span>@product.Location</span></p>
+                            <p><i class="fas fa-calendar-check" style="color: @product.AccentColor"></i><span>Warranty: @product.WarrantyExpiration.ToString("MM/dd/yyyy")</span></p>
                         </div>
                     </div>
                     
@@ -39,5 +59,23 @@
                 </div>
             </div>
         </div>
+        
+        cardCount++;
+        
+        // Add visual page breaks in the preview (these don't affect actual printing)
+        if (cardCount % cardsPerPage == 0 && cardCount < Model.Count())
+        {
+            <div class="no-print col-span-2 my-8 border-b border-dashed border-gray-300 relative">
+                <span class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gray-100 px-4 py-1 text-xs text-gray-500 rounded-full">
+                    Page Break
+                </span>
+            </div>
+        }
     }
+</div>
+
+<!-- Screen-only visualization of the A4 page -->
+<div class="no-print mt-8 text-center text-gray-500 text-sm">
+    <p>Showing @Model.Count() cards across @Math.Ceiling((double)Model.Count() / cardsPerPage) pages</p>
+    <p class="mt-2">Click the Print button above to print on A4 paper</p>
 </div>

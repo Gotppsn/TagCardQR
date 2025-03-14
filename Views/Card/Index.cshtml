@@ -1,91 +1,274 @@
 ﻿@model IEnumerable<CardTagManager.Models.Card>
 
 @{
-    ViewData["Title"] = "Card Library";
+    ViewData["Title"] = "Product Library";
 }
 
-<div class="mb-8">
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-800 mb-2">Product Tag Library</h1>
-            <p class="text-gray-500">Manage your products and equipment with QR codes for easy tracking</p>
-        </div>
-        
-        <a asp-action="Create" class="btn-primary self-start md:self-auto">
-            <i class="fas fa-plus"></i> Add New Product
-        </a>
-    </div>
-    
-    <div class="bg-white shadow-sm rounded-xl p-4 mb-6">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div class="search-container w-full md:w-72">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" id="product-search" placeholder="Search products..." class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" />
-            </div>
-            
-            <div class="flex items-center gap-3">
-                <div class="inline-flex rounded-lg shadow-sm bg-gray-100 p-1">
-                    <button id="all-products-btn" class="px-4 py-2 rounded-lg bg-white shadow-sm text-blue-600 font-medium transition-all">
-                        <i class="fas fa-layer-group mr-2"></i> All Products
-                    </button>
-                    <button id="equipment-btn" class="px-4 py-2 rounded-lg text-gray-500 hover:text-gray-700 transition-all">
-                        <i class="fas fa-tools mr-2"></i> Equipment
-                    </button>
-                    <button id="chemicals-btn" class="px-4 py-2 rounded-lg text-gray-500 hover:text-gray-700 transition-all">
-                        <i class="fas fa-flask mr-2"></i> Chemicals
-                    </button>
+<!-- Dashboard Stats Section -->
+<div class="bg-white rounded-xl shadow-md p-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="stats-card bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
+            <div class="flex items-center">
+                <div class="bg-blue-500 text-white p-3 rounded-lg shadow-md">
+                    <i class="fas fa-layer-group"></i>
                 </div>
-                
-                <a asp-action="PrintAll" class="btn-secondary">
-                    <i class="fas fa-print"></i> Print All
-                </a>
+                <div class="ml-4">
+                    <p class="text-sm text-gray-500 font-medium">Total Products</p>
+                    <p class="text-2xl font-bold text-gray-800">@Model.Count()</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-card bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg border border-green-200">
+            <div class="flex items-center">
+                <div class="bg-green-500 text-white p-3 rounded-lg shadow-md">
+                    <i class="fas fa-tools"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm text-gray-500 font-medium">Equipment</p>
+                    <p class="text-2xl font-bold text-gray-800">@Model.Count(p => p.Category.ToLower().Contains("equipment"))</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-card bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-lg border border-purple-200">
+            <div class="flex items-center">
+                <div class="bg-purple-500 text-white p-3 rounded-lg shadow-md">
+                    <i class="fas fa-flask"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm text-gray-500 font-medium">Chemicals</p>
+                    <p class="text-2xl font-bold text-gray-800">@Model.Count(p => p.Category.ToLower().Contains("chemical"))</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-card bg-gradient-to-r from-red-50 to-red-100 p-4 rounded-lg border border-red-200">
+            <div class="flex items-center">
+                <div class="bg-red-500 text-white p-3 rounded-lg shadow-md">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm text-gray-500 font-medium">Warranty Expiring</p>
+                    <p class="text-2xl font-bold text-gray-800">@Model.Count(p => p.WarrantyExpiration < DateTime.Now.AddMonths(1))</p>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Header Section with Quick Actions -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+    <div class="space-y-2">
+        <h1 class="text-3xl font-bold text-gray-900">Product Tag Library</h1>
+        <p class="text-gray-500">Manage your inventory with QR-enabled product tags</p>
+    </div>
+    
+    <div class="flex flex-wrap gap-3">
+        <a asp-action="Create" class="btn-primary shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all">
+            <i class="fas fa-plus-circle mr-2"></i> Add New Product
+        </a>
+        <div class="relative group">
+            <button id="actions-menu-btn" class="btn-secondary">
+                <i class="fas fa-ellipsis-h mr-2"></i> More Actions
+            </button>
+            <div id="actions-dropdown" class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl z-10 hidden group-focus-within:block transform origin-top-right transition-all border border-gray-100">
+                <div class="py-1">
+                    <a asp-action="PrintAll" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50">
+                        <i class="fas fa-print w-5 mr-2 text-gray-500"></i> Print All Tags
+                    </a>
+                    <a href="#" id="export-csv-btn" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50">
+                        <i class="fas fa-file-csv w-5 mr-2 text-gray-500"></i> Export to CSV
+                    </a>
+                    <a href="#" id="batch-edit-btn" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50">
+                        <i class="fas fa-edit w-5 mr-2 text-gray-500"></i> Batch Edit
+                    </a>
+                    <hr class="my-1 border-gray-100">
+                    <a href="#" id="settings-btn" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50">
+                        <i class="fas fa-cog w-5 mr-2 text-gray-500"></i> Settings
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Advanced Search & Filters -->
+<div class="bg-white rounded-xl shadow-md overflow-hidden mb-8 transition-all hover:shadow-lg">
+    <div class="p-4 border-b border-gray-100 flex justify-between items-center">
+        <h2 class="font-bold text-gray-700 flex items-center">
+            <i class="fas fa-search text-primary-500 mr-2"></i> Find Products
+        </h2>
+        <button id="advanced-search-toggle" class="text-sm text-primary-600 hover:text-primary-800 flex items-center">
+            Advanced Filters <i class="fas fa-chevron-down ml-1 transition-transform" id="toggle-icon"></i>
+        </button>
+    </div>
+    
+    <!-- Basic Search -->
+    <div class="p-4">
+        <div class="relative">
+            <input type="text" id="product-search" placeholder="Search by name, model, serial number, or location..." 
+                   class="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all" />
+            <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                <i class="fas fa-search"></i>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Advanced Search Panel (Hidden by Default) -->
+    <div id="advanced-search-panel" class="p-4 bg-gray-50 border-t border-gray-100 hidden">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                <select id="category-filter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors">
+                    <option value="">All Categories</option>
+                    <option value="coating">Coating Chemicals</option>
+                    <option value="equipment">Equipment</option>
+                    <option value="lab">Lab Equipment</option>
+                    <option value="safety">Safety Equipment</option>
+                </select>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                <select id="location-filter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors">
+                    <option value="">All Locations</option>
+                    <option value="chemical">Chemical Storage</option>
+                    <option value="building">Building 2</option>
+                    <option value="lab">Laboratory</option>
+                    <option value="office">Office</option>
+                </select>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Warranty Status</label>
+                <select id="warranty-filter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors">
+                    <option value="">All Status</option>
+                    <option value="active">Active Warranty</option>
+                    <option value="expiring">Expiring Soon (30 days)</option>
+                    <option value="expired">Expired</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="mt-4 flex justify-end">
+            <button id="clear-filters" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 mr-2">
+                Clear Filters
+            </button>
+            <button id="apply-filters" class="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700">
+                Apply Filters
+            </button>
+        </div>
+    </div>
+    
+    <!-- Quick Filters -->
+    <div class="p-4 border-t border-gray-100 flex flex-wrap items-center gap-2">
+        <span class="text-sm font-medium text-gray-500">Quick Filters:</span>
+        
+        <button id="all-products-btn" class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-sm font-medium hover:bg-blue-200 transition-colors">
+            All Products
+        </button>
+        <button id="equipment-btn" class="px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors">
+            Equipment
+        </button>
+        <button id="chemicals-btn" class="px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors">
+            Chemicals
+        </button>
+        <button id="recent-btn" class="px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors">
+            Recently Updated
+        </button>
+        <button id="expiring-btn" class="px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors">
+            Warranty Expiring
+        </button>
+    </div>
+</div>
+
+<!-- View Toggle -->
+<div class="flex justify-end mb-4">
+    <div class="inline-flex rounded-md shadow-sm">
+        <button id="grid-view-btn" class="px-3 py-2 bg-primary-600 text-white rounded-l-md hover:bg-primary-700 transition-colors">
+            <i class="fas fa-th-large"></i>
+        </button>
+        <button id="list-view-btn" class="px-3 py-2 bg-white text-gray-700 rounded-r-md hover:bg-gray-50 transition-colors border border-gray-200">
+            <i class="fas fa-list"></i>
+        </button>
+    </div>
+</div>
+
+<!-- Empty State -->
 @if (!Model.Any())
 {
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center fade-in">
-        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-50 text-blue-500 mb-4">
-            <i class="fas fa-box-open text-2xl"></i>
+    <div class="bg-white rounded-xl shadow-md p-8 text-center fade-in">
+        <div class="mx-auto w-20 h-20 rounded-full bg-primary-50 text-primary-500 flex items-center justify-center mb-4">
+            <i class="fas fa-box-open text-3xl"></i>
         </div>
-        <h3 class="text-lg font-semibold text-gray-800 mb-2">No products found</h3>
+        <h3 class="text-xl font-semibold text-gray-800 mb-2">No products found</h3>
         <p class="text-gray-500 mb-6 max-w-md mx-auto">Get started by adding your first product. You can add details and customize its product tag.</p>
-        <a asp-action="Create" class="btn-primary inline-flex">
-            <i class="fas fa-plus mr-2"></i> Add First Product
+        <a asp-action="Create" class="btn-primary inline-flex shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all">
+            <i class="fas fa-plus-circle mr-2"></i> Add First Product
         </a>
     </div>
 }
 else
 {
-    <div id="products-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 fade-in">
+    <!-- Products Grid View (Default) -->
+    <div id="grid-view" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 fade-in">
         @foreach (var product in Model)
         {
-            <div class="product-item group" data-updated="@product.UpdatedAt.ToString("yyyy-MM-dd")" data-category="@product.Category.ToLower()">
-                <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 h-full">
-                    <div class="p-6" style="background-color: @product.BackgroundColor; color: @product.TextColor;">
-                        <div class="flex justify-between items-start mb-3">
+            <div class="product-item group" data-updated="@product.UpdatedAt.ToString("yyyy-MM-dd")" data-category="@product.Category.ToLower()" data-warranty="@(product.WarrantyExpiration < DateTime.Now ? "expired" : (product.WarrantyExpiration < DateTime.Now.AddMonths(1) ? "expiring" : "active"))">
+                <div class="h-full bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 transform hover:-translate-y-1">
+                    <!-- Warranty Status Indicator -->
+                    @if (product.WarrantyExpiration < DateTime.Now)
+                    {
+                        <div class="absolute top-0 right-0 mt-2 mr-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                            Warranty Expired
+                        </div>
+                    }
+                    else if (product.WarrantyExpiration < DateTime.Now.AddMonths(1))
+                    {
+                        <div class="absolute top-0 right-0 mt-2 mr-2 bg-yellow-500 text-white text-xs px-2 py-1 rounded-full">
+                            Warranty Expiring Soon
+                        </div>
+                    }
+                    
+                    <!-- Card Header with Category Badge and Product Name -->
+                    <div class="p-6 relative" style="background-color: @product.BackgroundColor; color: @product.TextColor;">
+                        <div class="flex justify-between items-start">
                             <div>
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full" style="background-color: @product.AccentColor; color: @product.BackgroundColor">
+                                <span class="inline-flex items-center px-3 py-1 text-xs font-bold rounded-full" 
+                                      style="background-color: @product.AccentColor; color: @product.BackgroundColor">
                                     @product.Category
                                 </span>
-                                <h3 class="text-xl font-bold mt-2" style="color: @product.AccentColor">@product.ProductName</h3>
+                                <h3 class="text-xl font-bold mt-2 mb-1" style="color: @product.AccentColor">@product.ProductName</h3>
+                                <p class="flex items-center font-semibold text-sm mb-4">
+                                    <i class="fas fa-industry mr-2" style="color: @product.AccentColor"></i>
+                                    @product.Manufacturer
+                                </p>
                             </div>
-                            <div class="flex">
-                                <a asp-action="Edit" asp-route-id="@product.Id" class="p-2 rounded-full hover:bg-white hover:bg-opacity-20 transition-colors" title="Edit Product">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a asp-action="Print" asp-route-id="@product.Id" class="p-2 rounded-full hover:bg-white hover:bg-opacity-20 transition-colors" title="Print Tag">
-                                    <i class="fas fa-print"></i>
-                                </a>
+                            
+                            <!-- Quick Actions Menu -->
+                            <div class="dropdown relative">
+                                <button class="p-2 rounded-full hover:bg-white hover:bg-opacity-20 transition-colors">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div class="dropdown-menu hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border border-gray-100 group-hover:block">
+                                    <a asp-action="Edit" asp-route-id="@product.Id" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                        <i class="fas fa-edit mr-2"></i> Edit
+                                    </a>
+                                    <a asp-action="Print" asp-route-id="@product.Id" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                        <i class="fas fa-print mr-2"></i> Print Tag
+                                    </a>
+                                    <a asp-action="QrCode" asp-route-id="@product.Id" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                        <i class="fas fa-qrcode mr-2"></i> Show QR Code
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@product.Id" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                                        <i class="fas fa-trash-alt mr-2"></i> Delete
+                                    </a>
+                                </div>
                             </div>
                         </div>
                         
-                        <p class="font-semibold mb-4">
-                            <i class="fas fa-industry mr-2" style="color: @product.AccentColor"></i>@product.Manufacturer
-                        </p>
-                        
+                        <!-- Product Details -->
                         <div class="space-y-2 text-sm">
                             <p class="flex items-center">
                                 <i class="fas fa-tag mr-3 w-5 text-center" style="color: @product.AccentColor"></i>
@@ -106,22 +289,99 @@ else
                         </div>
                     </div>
                     
+                    <!-- Card Footer with Update Time and View Details Button -->
                     <div class="p-4 flex items-center justify-between bg-gray-50 border-t border-gray-100">
                         <span class="text-xs text-gray-500 flex items-center">
                             <i class="far fa-clock mr-2"></i> 
-                            Updated @((DateTime.Now - product.UpdatedAt).TotalDays < 1 ? "today" : product.UpdatedAt.ToString("MMM d"))
+                            @if ((DateTime.Now - product.UpdatedAt).TotalHours < 24)
+                            {
+                                <span class="font-medium text-primary-600">Updated today</span>
+                            }
+                            else
+                            {
+                                <span>Updated @product.UpdatedAt.ToString("MMM d")</span>
+                            }
                         </span>
                         
-                        <div class="flex items-center space-x-1">
-                            <a asp-action="Details" asp-route-id="@product.Id" class="p-2 rounded-full text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors" title="View Details">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                            <a asp-action="QrCode" asp-route-id="@product.Id" class="p-2 rounded-full text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors" title="QR Code">
-                                <i class="fas fa-qrcode"></i>
-                            </a>
-                            <a asp-action="Delete" asp-route-id="@product.Id" class="p-2 rounded-full text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors" title="Delete Product">
-                                <i class="fas fa-trash-alt"></i>
-                            </a>
+                        <a asp-action="Details" asp-route-id="@product.Id" class="px-3 py-1 bg-primary-50 text-primary-600 rounded-md hover:bg-primary-100 transition-colors text-sm font-medium">
+                            View Details <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    
+    <!-- Products List View (Hidden by Default) -->
+    <div id="list-view" class="hidden space-y-4">
+        @foreach (var product in Model)
+        {
+            <div class="product-item" data-updated="@product.UpdatedAt.ToString("yyyy-MM-dd")" data-category="@product.Category.ToLower()" data-warranty="@(product.WarrantyExpiration < DateTime.Now ? "expired" : (product.WarrantyExpiration < DateTime.Now.AddMonths(1) ? "expiring" : "active"))">
+                <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 overflow-hidden">
+                    <div class="flex flex-col md:flex-row">
+                        <!-- Colored sidebar with category -->
+                        <div class="w-full md:w-2 flex-shrink-0" style="background-color: @product.AccentColor"></div>
+                        
+                        <!-- Main content -->
+                        <div class="p-4 flex-grow">
+                            <div class="flex flex-col md:flex-row md:items-center justify-between">
+                                <div>
+                                    <div class="flex items-center mb-2">
+                                        <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full" 
+                                            style="background-color: @product.AccentColor; color: @product.BackgroundColor">
+                                            @product.Category
+                                        </span>
+                                        
+                                        @if (product.WarrantyExpiration < DateTime.Now)
+                                        {
+                                            <span class="ml-2 bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded-full">
+                                                Warranty Expired
+                                            </span>
+                                        }
+                                        else if (product.WarrantyExpiration < DateTime.Now.AddMonths(1))
+                                        {
+                                            <span class="ml-2 bg-yellow-100 text-yellow-800 text-xs px-2 py-0.5 rounded-full">
+                                                Warranty Expiring Soon
+                                            </span>
+                                        }
+                                    </div>
+                                    
+                                    <h3 class="text-lg font-bold" style="color: @product.AccentColor">@product.ProductName</h3>
+                                    <p class="text-sm text-gray-600">@product.Manufacturer • Model: @product.ModelNumber • SN: @product.SerialNumber</p>
+                                </div>
+                                
+                                <div class="flex items-center space-x-2 mt-4 md:mt-0">
+                                    <a asp-action="Details" asp-route-id="@product.Id" class="px-3 py-1 bg-primary-50 text-primary-600 rounded-md hover:bg-primary-100 text-sm">
+                                        <i class="fas fa-eye mr-1"></i> View
+                                    </a>
+                                    <a asp-action="Edit" asp-route-id="@product.Id" class="px-3 py-1 bg-gray-50 text-gray-600 rounded-md hover:bg-gray-100 text-sm">
+                                        <i class="fas fa-edit mr-1"></i> Edit
+                                    </a>
+                                    <a asp-action="Print" asp-route-id="@product.Id" class="px-3 py-1 bg-gray-50 text-gray-600 rounded-md hover:bg-gray-100 text-sm">
+                                        <i class="fas fa-print mr-1"></i> Print
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-3 flex flex-wrap items-center text-sm text-gray-500">
+                                <span class="mr-4 flex items-center">
+                                    <i class="fas fa-map-marker-alt mr-1" style="color: @product.AccentColor"></i> @product.Location
+                                </span>
+                                <span class="mr-4 flex items-center">
+                                    <i class="fas fa-calendar-check mr-1" style="color: @product.AccentColor"></i> Warranty: @product.WarrantyExpiration.ToString("MMM d, yyyy")
+                                </span>
+                                <span class="flex items-center">
+                                    <i class="far fa-clock mr-1" style="color: @product.AccentColor"></i> 
+                                    @if ((DateTime.Now - product.UpdatedAt).TotalHours < 24)
+                                    {
+                                        <span class="font-medium text-primary-600">Updated today</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Updated @product.UpdatedAt.ToString("MMM d")</span>
+                                    }
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -130,21 +390,102 @@ else
     </div>
 }
 
+<!-- Toast Notification -->
+<div id="toast" class="fixed bottom-4 right-4 hidden transform transition-transform duration-300 z-50">
+    <div class="bg-white rounded-lg shadow-lg border border-gray-100 p-4 max-w-md">
+        <div class="flex items-center">
+            <div id="toast-icon" class="flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-green-100">
+                <i class="fas fa-check text-green-500"></i>
+            </div>
+            <div class="ml-3">
+                <p id="toast-message" class="text-sm font-medium text-gray-900">Action successful!</p>
+                <p id="toast-description" class="text-sm text-gray-500">Operation completed successfully.</p>
+            </div>
+            <button id="close-toast" class="ml-auto text-gray-400 hover:text-gray-500">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Advanced search toggle
+        const advancedToggle = document.getElementById('advanced-search-toggle');
+        const advancedPanel = document.getElementById('advanced-search-panel');
+        const toggleIcon = document.getElementById('toggle-icon');
+        
+        if (advancedToggle && advancedPanel) {
+            advancedToggle.addEventListener('click', function() {
+                advancedPanel.classList.toggle('hidden');
+                toggleIcon.classList.toggle('rotate-180');
+            });
+        }
+        
+        // View toggle (Grid/List)
+        const gridViewBtn = document.getElementById('grid-view-btn');
+        const listViewBtn = document.getElementById('list-view-btn');
+        const gridView = document.getElementById('grid-view');
+        const listView = document.getElementById('list-view');
+        
+        if (gridViewBtn && listViewBtn && gridView && listView) {
+            gridViewBtn.addEventListener('click', function() {
+                gridView.classList.remove('hidden');
+                listView.classList.add('hidden');
+                gridViewBtn.classList.remove('bg-white', 'text-gray-700');
+                gridViewBtn.classList.add('bg-primary-600', 'text-white');
+                listViewBtn.classList.remove('bg-primary-600', 'text-white');
+                listViewBtn.classList.add('bg-white', 'text-gray-700');
+                
+                // Show toast notification
+                showToast('Grid view activated', 'Your products are now displayed in a grid layout.');
+            });
+            
+            listViewBtn.addEventListener('click', function() {
+                gridView.classList.add('hidden');
+                listView.classList.remove('hidden');
+                listViewBtn.classList.remove('bg-white', 'text-gray-700');
+                listViewBtn.classList.add('bg-primary-600', 'text-white');
+                gridViewBtn.classList.remove('bg-primary-600', 'text-white');
+                gridViewBtn.classList.add('bg-white', 'text-gray-700');
+                
+                // Show toast notification
+                showToast('List view activated', 'Your products are now displayed in a list layout.');
+            });
+        }
+        
+        // More Actions dropdown
+        const actionsBtn = document.getElementById('actions-menu-btn');
+        const actionsDropdown = document.getElementById('actions-dropdown');
+        
+        if (actionsBtn && actionsDropdown) {
+            actionsBtn.addEventListener('click', function() {
+                actionsDropdown.classList.toggle('hidden');
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!actionsBtn.contains(event.target) && !actionsDropdown.contains(event.target)) {
+                    actionsDropdown.classList.add('hidden');
+                }
+            });
+        }
+        
         // Product search functionality
         const searchInput = document.getElementById('product-search');
         if (searchInput) {
             searchInput.addEventListener('input', function() {
                 const searchTerm = this.value.toLowerCase().trim();
                 const products = document.querySelectorAll('.product-item');
+                let visibleCount = 0;
                 
                 products.forEach(product => {
                     const productText = product.textContent.toLowerCase();
                     if (searchTerm === '' || productText.includes(searchTerm)) {
                         product.style.display = '';
                         product.classList.add('fade-in');
+                        visibleCount++;
                     } else {
                         product.style.display = 'none';
                         product.classList.remove('fade-in');
@@ -152,55 +493,66 @@ else
                 });
                 
                 // Check if we have visible products
-                updateNoResultsMessage(searchTerm);
+                updateNoResultsMessage(searchTerm, visibleCount);
             });
         }
         
-        // Filter buttons
-        const allProductsBtn = document.getElementById('all-products-btn');
-        const equipmentBtn = document.getElementById('equipment-btn');
-        const chemicalsBtn = document.getElementById('chemicals-btn');
+        // Quick filter buttons with active state
+        const filterButtons = [
+            document.getElementById('all-products-btn'),
+            document.getElementById('equipment-btn'),
+            document.getElementById('chemicals-btn'),
+            document.getElementById('recent-btn'),
+            document.getElementById('expiring-btn')
+        ];
         
-        if (allProductsBtn && equipmentBtn && chemicalsBtn) {
-            allProductsBtn.addEventListener('click', function() {
-                setActiveFilterButton(allProductsBtn);
-                filterProducts('all');
-            });
-            
-            equipmentBtn.addEventListener('click', function() {
-                setActiveFilterButton(equipmentBtn);
-                filterProducts('equipment');
-            });
-            
-            chemicalsBtn.addEventListener('click', function() {
-                setActiveFilterButton(chemicalsBtn);
-                filterProducts('chemical');
-            });
-        }
+        filterButtons.forEach(button => {
+            if (button) {
+                button.addEventListener('click', function() {
+                    // Update active button styling
+                    filterButtons.forEach(btn => {
+                        if (btn) {
+                            btn.classList.remove('bg-blue-100', 'text-blue-700');
+                            btn.classList.add('bg-gray-100', 'text-gray-700');
+                        }
+                    });
+                    this.classList.remove('bg-gray-100', 'text-gray-700');
+                    this.classList.add('bg-blue-100', 'text-blue-700');
+                    
+                    // Apply filter
+                    const filterType = this.id.replace('-btn', '');
+                    applyQuickFilter(filterType);
+                });
+            }
+        });
         
-        function setActiveFilterButton(activeBtn) {
-            [allProductsBtn, equipmentBtn, chemicalsBtn].forEach(btn => {
-                btn.classList.remove('bg-white', 'shadow-sm', 'text-blue-600', 'font-medium');
-                btn.classList.add('text-gray-500');
-            });
-            
-            activeBtn.classList.add('bg-white', 'shadow-sm', 'text-blue-600', 'font-medium');
-            activeBtn.classList.remove('text-gray-500');
-        }
-        
-        function filterProducts(filterType) {
+        // Function to apply quick filters
+        function applyQuickFilter(filterType) {
             const products = document.querySelectorAll('.product-item');
-            let foundProducts = false;
+            let visibleCount = 0;
             
             products.forEach(product => {
-                const category = product.getAttribute('data-category').toLowerCase();
+                let show = false;
                 
-                if (filterType === 'all' || 
-                   (filterType === 'equipment' && category.includes('equipment')) || 
-                   (filterType === 'chemical' && category.includes('chemical'))) {
+                if (filterType === 'all-products') {
+                    show = true;
+                } else if (filterType === 'equipment' && product.getAttribute('data-category').includes('equipment')) {
+                    show = true;
+                } else if (filterType === 'chemicals' && product.getAttribute('data-category').includes('chemical')) {
+                    show = true;
+                } else if (filterType === 'recent') {
+                    const updateDate = new Date(product.getAttribute('data-updated'));
+                    const sevenDaysAgo = new Date();
+                    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                    show = updateDate >= sevenDaysAgo;
+                } else if (filterType === 'expiring') {
+                    show = product.getAttribute('data-warranty') === 'expiring' || product.getAttribute('data-warranty') === 'expired';
+                }
+                
+                if (show) {
                     product.style.display = '';
                     product.classList.add('fade-in');
-                    foundProducts = true;
+                    visibleCount++;
                 } else {
                     product.style.display = 'none';
                     product.classList.remove('fade-in');
@@ -208,84 +560,168 @@ else
             });
             
             // Show message if no products match filter
-            if (!foundProducts) {
-                showNoProductsForFilterMessage(filterType);
-            } else {
-                removeNoProductsMessage();
-            }
+            updateNoResultsMessage('', visibleCount, filterType);
+            
+            // Show toast notification
+            showToast('Filter applied', `Showing ${visibleCount} products matching your filter.`);
         }
         
-        function updateNoResultsMessage(searchTerm) {
-            const visibleProducts = [...document.querySelectorAll('.product-item')].filter(
-                product => product.style.display !== 'none'
-            );
-            const noResultsElem = document.getElementById('no-search-results');
+        // Toast notification
+        function showToast(message, description = '', type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            const toastDescription = document.getElementById('toast-description');
+            const toastIcon = document.getElementById('toast-icon');
             
-            if (visibleProducts.length === 0 && searchTerm !== '' && !noResultsElem) {
-                const container = document.getElementById('products-container');
-                const noResults = document.createElement('div');
-                noResults.id = 'no-search-results';
-                noResults.className = 'col-span-full py-10 px-6 text-center bg-white rounded-xl shadow-sm border border-gray-100 fade-in';
-                noResults.innerHTML = `
-                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-50 text-gray-400 mb-4">
-                        <i class="fas fa-search text-2xl"></i>
-                    </div>
-                    <h3 class="text-lg font-semibold text-gray-800 mb-2">No results found</h3>
-                    <p class="text-gray-500">No products match your search for "${searchTerm}"</p>
-                `;
-                container.appendChild(noResults);
-            } else if ((visibleProducts.length > 0 || searchTerm === '') && noResultsElem) {
-                noResultsElem.remove();
-            }
-        }
-        
-        function showNoProductsForFilterMessage(filterType) {
-            removeNoProductsMessage();
+            toastMessage.textContent = message;
+            toastDescription.textContent = description;
             
-            const container = document.getElementById('products-container');
-            const noProducts = document.createElement('div');
-            noProducts.id = 'no-filter-results';
-            noProducts.className = 'col-span-full py-10 px-6 text-center bg-white rounded-xl shadow-sm border border-gray-100 fade-in';
-            
-            let filterName = 'matching this filter';
-            let iconClass = 'fa-filter';
-            
-            if (filterType === 'equipment') {
-                filterName = 'equipment';
-                iconClass = 'fa-tools';
-            } else if (filterType === 'chemical') {
-                filterName = 'chemicals';
-                iconClass = 'fa-flask';
+            // Set icon based on type
+            if (type === 'success') {
+                toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-green-100';
+                toastIcon.innerHTML = '<i class="fas fa-check text-green-500"></i>';
+            } else if (type === 'error') {
+                toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-red-100';
+                toastIcon.innerHTML = '<i class="fas fa-times text-red-500"></i>';
+            } else if (type === 'warning') {
+                toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-yellow-100';
+                toastIcon.innerHTML = '<i class="fas fa-exclamation text-yellow-500"></i>';
+            } else if (type === 'info') {
+                toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-blue-100';
+                toastIcon.innerHTML = '<i class="fas fa-info text-blue-500"></i>';
             }
             
-            noProducts.innerHTML = `
-                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-50 text-blue-400 mb-4">
-                    <i class="fas ${iconClass} text-2xl"></i>
-                </div>
-                <h3 class="text-lg font-semibold text-gray-800 mb-2">No ${filterName} found</h3>
-                <p class="text-gray-500">Try a different filter or add new products in this category</p>
-                <div class="mt-4">
-                    <a href="@Url.Action("Create")" class="btn-primary inline-flex mt-2">
-                        <i class="fas fa-plus mr-2"></i> Add New Product
-                    </a>
-                </div>
-            `;
-            container.appendChild(noProducts);
+            // Show toast
+            toast.classList.remove('hidden');
+            toast.classList.add('translate-y-0');
+            
+            // Auto-hide after 5 seconds
+            setTimeout(function() {
+                toast.classList.add('translate-y-12', 'opacity-0');
+                setTimeout(function() {
+                    toast.classList.add('hidden');
+                    toast.classList.remove('translate-y-12', 'opacity-0');
+                }, 300);
+            }, 5000);
+            
+            // Close button
+            document.getElementById('close-toast').addEventListener('click', function() {
+                toast.classList.add('translate-y-12', 'opacity-0');
+                setTimeout(function() {
+                    toast.classList.add('hidden');
+                    toast.classList.remove('translate-y-12', 'opacity-0');
+                }, 300);
+            });
         }
         
-        function removeNoProductsMessage() {
-            const noProductsElem = document.getElementById('no-filter-results');
-            if (noProductsElem) {
-                noProductsElem.remove();
-            }
+        // Update no results message
+        function updateNoResultsMessage(searchTerm, visibleCount, filterType = null) {
+            const gridContainer = document.getElementById('grid-view');
+            const listContainer = document.getElementById('list-view');
+            const containers = [gridContainer, listContainer];
+            
+            containers.forEach(container => {
+                if (container) {
+                    const existingMessage = container.querySelector('.no-results-message');
+                    
+                    if (visibleCount === 0) {
+                        if (existingMessage) {
+                            existingMessage.remove();
+                        }
+                        
+                        const noResults = document.createElement('div');
+                        noResults.className = 'no-results-message col-span-full py-10 px-6 text-center bg-white rounded-xl shadow-sm border border-gray-100 fade-in';
+                        
+                        let iconClass = 'fa-search';
+                        let title = 'No results found';
+                        let message = searchTerm ? `No products match your search for "${searchTerm}"` : 'No products match your filters';
+                        
+                        if (filterType) {
+                            if (filterType === 'equipment') {
+                                iconClass = 'fa-tools';
+                                title = 'No equipment found';
+                                message = 'No products in the equipment category';
+                            } else if (filterType === 'chemicals') {
+                                iconClass = 'fa-flask';
+                                title = 'No chemicals found';
+                                message = 'No products in the chemicals category';
+                            } else if (filterType === 'recent') {
+                                iconClass = 'fa-clock';
+                                title = 'No recent updates';
+                                message = 'No products have been updated in the last 7 days';
+                            } else if (filterType === 'expiring') {
+                                iconClass = 'fa-calendar-times';
+                                title = 'No expiring warranties';
+                                message = 'No products have warranties expiring soon';
+                            }
+                        }
+                        
+                        noResults.innerHTML = `
+                            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-50 text-gray-400 mb-4">
+                                <i class="fas ${iconClass} text-2xl"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">${title}</h3>
+                            <p class="text-gray-500 mb-4">${message}</p>
+                            <div class="flex justify-center gap-3">
+                                <button id="clear-filters-btn" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                                    Clear Filters
+                                </button>
+                                <a href="@Url.Action("Create")" class="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700">
+                                    <i class="fas fa-plus-circle mr-2"></i> Add New Product
+                                </a>
+                            </div>
+                        `;
+                        
+                        container.appendChild(noResults);
+                        
+                        // Add clear filters functionality
+                        const clearFiltersBtn = container.querySelector('#clear-filters-btn');
+                        if (clearFiltersBtn) {
+                            clearFiltersBtn.addEventListener('click', function() {
+                                // Reset search input
+                                if (searchInput) {
+                                    searchInput.value = '';
+                                }
+                                
+                                // Reset active filter button
+                                if (filterButtons[0]) {
+                                    filterButtons.forEach(btn => {
+                                        if (btn) {
+                                            btn.classList.remove('bg-blue-100', 'text-blue-700');
+                                            btn.classList.add('bg-gray-100', 'text-gray-700');
+                                        }
+                                    });
+                                    filterButtons[0].classList.remove('bg-gray-100', 'text-gray-700');
+                                    filterButtons[0].classList.add('bg-blue-100', 'text-blue-700');
+                                }
+                                
+                                // Show all products
+                                const products = document.querySelectorAll('.product-item');
+                                products.forEach(product => {
+                                    product.style.display = '';
+                                    product.classList.add('fade-in');
+                                });
+                                
+                                // Remove no results message
+                                noResults.remove();
+                                
+                                // Show toast
+                                showToast('Filters cleared', 'Showing all products.', 'info');
+                            });
+                        }
+                    } else if (existingMessage) {
+                        existingMessage.remove();
+                    }
+                }
+            });
         }
         
-        // Make product cards clickable for navigation
+        // Make entire product card clickable
         const productItems = document.querySelectorAll('.product-item');
         productItems.forEach(product => {
             product.addEventListener('click', function(e) {
-                // Only navigate if the click wasn't on an action button
-                if (!e.target.closest('a')) {
+                // Only navigate if click wasn't on a button or link
+                if (!e.target.closest('a, button, .dropdown, .dropdown-menu')) {
                     const viewLink = this.querySelector('a[asp-action="Details"]');
                     if (viewLink) {
                         window.location.href = viewLink.getAttribute('href');
@@ -293,6 +729,95 @@ else
                 }
             });
         });
+        
+        // Initialize advanced filter functionality
+        const applyFiltersBtn = document.getElementById('apply-filters');
+        const clearFiltersBtn = document.getElementById('clear-filters');
+        
+        if (applyFiltersBtn) {
+            applyFiltersBtn.addEventListener('click', function() {
+                // Get filter values
+                const categoryFilter = document.getElementById('category-filter').value;
+                const locationFilter = document.getElementById('location-filter').value;
+                const warrantyFilter = document.getElementById('warranty-filter').value;
+                
+                // Apply filters
+                const products = document.querySelectorAll('.product-item');
+                let visibleCount = 0;
+                
+                products.forEach(product => {
+                    const category = product.getAttribute('data-category').toLowerCase();
+                    const location = product.querySelector('[class*="fa-map-marker"]')?.nextSibling.textContent.toLowerCase() || '';
+                    const warranty = product.getAttribute('data-warranty');
+                    
+                    const matchesCategory = !categoryFilter || category.includes(categoryFilter.toLowerCase());
+                    const matchesLocation = !locationFilter || location.includes(locationFilter.toLowerCase());
+                    const matchesWarranty = !warrantyFilter || warranty === warrantyFilter;
+                    
+                    if (matchesCategory && matchesLocation && matchesWarranty) {
+                        product.style.display = '';
+                        product.classList.add('fade-in');
+                        visibleCount++;
+                    } else {
+                        product.style.display = 'none';
+                        product.classList.remove('fade-in');
+                    }
+                });
+                
+                // Update no results message
+                updateNoResultsMessage('', visibleCount, 'advanced');
+                
+                // Reset active filter buttons
+                filterButtons.forEach(btn => {
+                    if (btn) {
+                        btn.classList.remove('bg-blue-100', 'text-blue-700');
+                        btn.classList.add('bg-gray-100', 'text-gray-700');
+                    }
+                });
+                
+                // Show toast
+                showToast('Advanced filters applied', `Showing ${visibleCount} products matching your criteria.`, 'info');
+                
+                // Hide advanced panel
+                advancedPanel.classList.add('hidden');
+                toggleIcon.classList.remove('rotate-180');
+            });
+        }
+        
+        if (clearFiltersBtn) {
+            clearFiltersBtn.addEventListener('click', function() {
+                // Reset filter selects
+                document.getElementById('category-filter').value = '';
+                document.getElementById('location-filter').value = '';
+                document.getElementById('warranty-filter').value = '';
+                
+                // Show all products
+                const products = document.querySelectorAll('.product-item');
+                products.forEach(product => {
+                    product.style.display = '';
+                    product.classList.add('fade-in');
+                });
+                
+                // Reset active filter button
+                if (filterButtons[0]) {
+                    filterButtons.forEach(btn => {
+                        if (btn) {
+                            btn.classList.remove('bg-blue-100', 'text-blue-700');
+                            btn.classList.add('bg-gray-100', 'text-gray-700');
+                        }
+                    });
+                    filterButtons[0].classList.remove('bg-gray-100', 'text-gray-700');
+                    filterButtons[0].classList.add('bg-blue-100', 'text-blue-700');
+                }
+                
+                // Remove no results message
+                const noResultsMessages = document.querySelectorAll('.no-results-message');
+                noResultsMessages.forEach(message => message.remove());
+                
+                // Show toast
+                showToast('Filters cleared', 'Showing all products.', 'info');
+            });
+        }
     });
 </script>
 }

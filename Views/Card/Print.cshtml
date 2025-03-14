@@ -9,7 +9,7 @@
     <div class="print-card" style="background-color: @Model.BackgroundColor; color: @Model.TextColor">
         <div class="card-content">
             <div class="card-info">
-                <span class="px-2 py-1 text-xs font-semibold rounded-full" style="background-color: @Model.AccentColor; color: @Model.BackgroundColor">
+                <span class="category-badge" style="background-color: @Model.AccentColor; color: @Model.BackgroundColor">
                     @Model.Category
                 </span>
                 <h3 class="card-name mt-1" style="color: @Model.AccentColor">@Model.ProductName</h3>
@@ -20,13 +20,13 @@
                 </div>
                 
                 <div class="card-details">
-                    <p><i class="fas fa-fingerprint" style="color: @Model.AccentColor"></i>SN: @Model.SerialNumber</p>
-                    <p><i class="fas fa-map-marker-alt" style="color: @Model.AccentColor"></i>@Model.Location</p>
-                    <p><i class="fas fa-calendar-day" style="color: @Model.AccentColor"></i>Mfg: @Model.ManufactureDate.ToString("MM/dd/yyyy")</p>
-                    <p><i class="fas fa-shield-alt" style="color: @Model.AccentColor"></i>Warranty: @Model.WarrantyExpiration.ToString("MM/dd/yyyy")</p>
+                    <p><i class="fas fa-fingerprint" style="color: @Model.AccentColor"></i><span>SN: @Model.SerialNumber</span></p>
+                    <p><i class="fas fa-map-marker-alt" style="color: @Model.AccentColor"></i><span>@Model.Location</span></p>
+                    <p><i class="fas fa-calendar-day" style="color: @Model.AccentColor"></i><span>Mfg: @Model.ManufactureDate.ToString("MM/dd/yyyy")</span></p>
+                    <p><i class="fas fa-shield-alt" style="color: @Model.AccentColor"></i><span>Warranty: @Model.WarrantyExpiration.ToString("MM/dd/yyyy")</span></p>
                     @if (!string.IsNullOrEmpty(Model.MaintenanceInfo))
                     {
-                        <p><i class="fas fa-tools" style="color: @Model.AccentColor"></i>@Model.MaintenanceInfo</p>
+                        <p><i class="fas fa-tools" style="color: @Model.AccentColor"></i><span>@(Model.MaintenanceInfo.Length > 40 ? Model.MaintenanceInfo.Substring(0, 37) + "..." : Model.MaintenanceInfo)</span></p>
                     }
                 </div>
             </div>
@@ -39,11 +39,11 @@
     </div>
 </div>
 
-<div class="no-print flex justify-center mb-4">
-    <button onclick="window.print()" class="btn-primary mr-2">
+<div class="no-print flex justify-center mb-4 mt-6">
+    <button onclick="window.print()" class="btn-primary mr-2 px-5 py-2 rounded-lg shadow-md">
         <i class="fas fa-print mr-1"></i> Print Tag
     </button>
-    <a asp-action="Details" asp-route-id="@Model.Id" class="btn-secondary">
+    <a asp-action="Details" asp-route-id="@Model.Id" class="btn-secondary px-5 py-2 rounded-lg shadow-md">
         <i class="fas fa-arrow-left mr-1"></i> Back to Details
     </a>
 </div>
