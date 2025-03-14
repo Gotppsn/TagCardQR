@@ -1,47 +1,40 @@
-@model IEnumerable<CardTagManager.Models.Card>
+@model IEnumerable<ProductTagManager.Models.Product>
 
 @{
-    ViewData["Title"] = "Print All Cards";
+    ViewData["Title"] = "Print All Products";
     Layout = "_PrintLayout";
 }
 
 <div class="no-print mb-6 flex justify-between items-center">
     <a asp-action="Index" class="text-primary-600 hover:text-primary-800 transition-colors flex items-center">
-        <i class="fas fa-arrow-left mr-2"></i> Back to Card List
+        <i class="fas fa-arrow-left mr-2"></i> Back to Product List
     </a>
     <button onclick="window.print()" class="btn-primary">
-        <i class="fas fa-print mr-2"></i> Print All Cards
+        <i class="fas fa-print mr-2"></i> Print All Products
     </button>
 </div>
 
 <div class="print-container">
-    @foreach (var card in Model)
+    @foreach (var product in Model)
     {
         <div class="print-card-wrapper mb-12">
-            <div class="print-card" style="background-color: @card.BackgroundColor; color: @card.TextColor;">
+            <div class="print-card" style="background-color: @product.BackgroundColor; color: @product.TextColor;">
                 <div class="card-content">
                     <div class="card-info">
-                        <h3 class="card-name" style="color: @card.AccentColor">@card.Name</h3>
-                        <p class="card-title">@card.Title</p>
-                        <p class="card-company">@card.Company</p>
+                        <h3 class="card-name" style="color: @product.AccentColor">@product.ProductName</h3>
+                        <p class="card-title">@product.Manufacturer</p>
                         
                         <div class="card-details">
-                            <p><i class="fas fa-envelope" style="color: @card.AccentColor"></i>@card.Email</p>
-                            <p><i class="fas fa-phone" style="color: @card.AccentColor"></i>@card.Phone</p>
-                            @if (!string.IsNullOrEmpty(card.Address))
-                            {
-                                <p><i class="fas fa-map-marker-alt" style="color: @card.AccentColor"></i>@card.Address</p>
-                            }
-                            @if (!string.IsNullOrEmpty(card.Website))
-                            {
-                                <p><i class="fas fa-globe" style="color: @card.AccentColor"></i>@card.Website</p>
-                            }
+                            <p><i class="fas fa-tag" style="color: @product.AccentColor"></i>@product.ModelNumber</p>
+                            <p><i class="fas fa-fingerprint" style="color: @product.AccentColor"></i>@product.SerialNumber</p>
+                            <p><i class="fas fa-map-marker-alt" style="color: @product.AccentColor"></i>@product.Location</p>
+                            <p><i class="fas fa-calendar-check" style="color: @product.AccentColor"></i>Warranty: @product.WarrantyExpiration.ToString("MM/dd/yyyy")</p>
                         </div>
                     </div>
                     
                     <div class="card-qr">
-                        <img src="@ViewBag.QrCodes[card.Id]" alt="QR Code" />
-                        <p class="scan-text">Scan to Save Contact</p>
+                        <img src="@ViewBag.QrCodes[product.Id]" alt="QR Code" />
+                        <p class="scan-text">Scan for Details</p>
                     </div>
                 </div>
             </div>

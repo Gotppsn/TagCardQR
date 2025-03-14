@@ -1,3 +1,4 @@
+// Models/ErrorViewModel.cs
 namespace CardTagManager.Models;
 
 public class ErrorViewModel

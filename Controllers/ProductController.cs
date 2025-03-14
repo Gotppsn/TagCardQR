@@ -11,9 +11,6 @@ namespace ProductTagManager.Controllers
         private readonly ProductRepository _productRepository;
         private readonly QrCodeService _qrCodeService;
 
-        /// <summary>
-        /// Constructor with dependency injection for product repository and QR code service
-        /// </summary>
         public ProductController(ProductRepository productRepository, QrCodeService qrCodeService)
         {
             _productRepository = productRepository;
