@@ -1,3 +1,6 @@
+@{
+    // This Razor directive block is required for layouts
+}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,7 +11,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     
     <style>
-        @media print {
+        /* CSS Media query for printing */
+        @* Use the CSS comment for media query to avoid Razor conflicts *@
+        /* Media query for print settings */
+        @@media print {
             body {
                 margin: 0;
                 padding: 0;
@@ -21,7 +27,7 @@
                 margin: 0;
                 padding: 0;
             }
-            @page {
+            @@page {
                 size: 3.5in 2in; /* Business card standard size */
                 margin: 0;
             }

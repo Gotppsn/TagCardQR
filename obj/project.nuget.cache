@@ -1,10 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "zKf7S2CrI44=",
+  "dgSpecHash": "46J9cyfVaCw=",
   "success": true,
-  "projectFilePath": "C:\\Users\\panupol\\Desktop\\CardTagManager\\CardTagManager.csproj",
+  "projectFilePath": "C:\\Users\\panupol\\Desktop\\CardTagManager\\TagCardQR\\CardTagManager.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\panupol\\.nuget\\packages\\qrcoder\\1.6.0\\qrcoder.1.6.0.nupkg.sha512"
+    "C:\\Users\\panupol\\.nuget\\packages\\microsoft.win32.systemevents\\8.0.0\\microsoft.win32.systemevents.8.0.0.nupkg.sha512",
+    "C:\\Users\\panupol\\.nuget\\packages\\qrcoder\\1.4.3\\qrcoder.1.4.3.nupkg.sha512",
+    "C:\\Users\\panupol\\.nuget\\packages\\system.drawing.common\\8.0.0\\system.drawing.common.8.0.0.nupkg.sha512"
   ],
   "logs": []
 }

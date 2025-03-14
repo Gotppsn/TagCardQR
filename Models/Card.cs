@@ -9,29 +9,29 @@ namespace CardTagManager.Models
         
         [Required]
         [StringLength(100)]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         
         [Required]
         [StringLength(100)]
-        public string Title { get; set; }
+        public string Title { get; set; } = string.Empty;
         
         [Required]
         [StringLength(100)]
-        public string Company { get; set; }
+        public string Company { get; set; } = string.Empty;
         
         [Required]
         [EmailAddress]
-        public string Email { get; set; }
+        public string Email { get; set; } = string.Empty;
         
         [Required]
         [Phone]
-        public string Phone { get; set; }
+        public string Phone { get; set; } = string.Empty;
         
         [StringLength(255)]
-        public string Address { get; set; }
+        public string Address { get; set; } = string.Empty;
         
         [Url]
-        public string Website { get; set; }
+        public string Website { get; set; } = string.Empty;
         
         public string BackgroundColor { get; set; } = "#ffffff";
         

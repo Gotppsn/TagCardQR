@@ -1,16 +1,16 @@
 {
   "name": "cardtagmanager",
   "version": "1.0.0",
-  "description": "",
+  "description": "Business card manager with QR code generation",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build:css": "tailwindcss -i ./wwwroot/css/tailwind-input.css -o ./wwwroot/css/tailwind.css",
+    "watch:css": "tailwindcss -i ./wwwroot/css/tailwind-input.css -o ./wwwroot/css/tailwind.css --watch"
   },
-  "keywords": [],
+  "keywords": ["business cards", "qr code", "card manager"],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
   "devDependencies": {
-    "tailwindcss": "^4.0.14"
+    "tailwindcss": "^3.3.3"
   }
 }
