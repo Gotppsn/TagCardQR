@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "description": "Business card manager with QR code generation",
   "main": "index.js",
-  "scripts": {
-    "build:css": "node simplified-build.js",
-    "watch:css": "npx tailwindcss -i ./wwwroot/css/tailwind-input.css -o ./wwwroot/css/tailwind.css --watch"
-  },
+"scripts": {
+  "build:css": "node tailwind-build.js",
+  "watch:css": "npx tailwindcss -i ./wwwroot/css/tailwind-input.css -o ./wwwroot/css/tailwind.css --watch"
+},
   "keywords": [
     "business cards",
     "qr code",

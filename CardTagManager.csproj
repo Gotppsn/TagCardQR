@@ -11,5 +11,8 @@
     <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
     <PackageReference Include="ZXing.Net" Version="0.16.10" />
   </ItemGroup>
+  <Target Name="BuildTailwindCSS" BeforeTargets="Build">
+  <Exec Command="npm run build:css" />
+</Target>
 
 </Project>
