@@ -5,8 +5,8 @@
 }
 
 <div class="mb-6">
-    <a asp-action="Index" class="text-primary-600 hover:text-primary-800 flex items-center">
-        <i class="fas fa-arrow-left mr-1"></i> Back to Library
+    <a asp-action="Index" class="text-primary-600 hover:text-primary-800 flex items-center group">
+        <i class="fas fa-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i> Back to Library
     </a>
 </div>
 
@@ -43,10 +43,10 @@
                     <div class="card-side card-back" style="background-color: @Model.BackgroundColor; color: @Model.TextColor">
                         <div class="h-full flex items-center justify-center p-4">
                             <div class="text-center">
-                                <div class="mb-2">
-                                    <img src="@ViewBag.QrCodeImage" alt="QR Code" class="mx-auto h-40 w-40" />
+                                <div class="mb-4">
+                                    <img src="@ViewBag.QrCodeImage" alt="QR Code" class="mx-auto h-40 w-40 rounded-lg shadow-md" />
                                 </div>
-                                <p class="text-sm" style="color: @Model.AccentColor">Scan to Save Contact</p>
+                                <p class="text-sm font-medium" style="color: @Model.AccentColor">Scan to Save Contact</p>
                                 <p class="text-xs mt-2 text-gray-600">@Model.Company</p>
                             </div>
                         </div>
@@ -56,7 +56,7 @@
             
             <div class="mt-4 flex justify-center">
                 <button class="flip-card-btn btn-secondary">
-                    <i class="fas fa-sync-alt mr-1"></i> Flip Card
+                    <i class="fas fa-sync-alt mr-1"></i> Show QR Code
                 </button>
             </div>
         </div>
@@ -76,40 +76,52 @@
                     </div>
                     <div class="grid grid-cols-3 gap-4 items-center border-b pb-3">
                         <dt class="text-gray-600 font-medium">Created:</dt>
-                        <dd class="col-span-2">@Model.CreatedAt.ToString("MMMM d, yyyy") at @Model.CreatedAt.ToString("h:mm tt")</dd>
+                        <dd class="col-span-2">
+                            <span class="flex items-center">
+                                <i class="far fa-calendar-alt mr-2 text-primary-500"></i>
+                                @Model.CreatedAt.ToString("MMMM d, yyyy") at @Model.CreatedAt.ToString("h:mm tt")
+                            </span>
+                        </dd>
                     </div>
                     <div class="grid grid-cols-3 gap-4 items-center border-b pb-3">
                         <dt class="text-gray-600 font-medium">Last Updated:</dt>
-                        <dd class="col-span-2">@Model.UpdatedAt.ToString("MMMM d, yyyy") at @Model.UpdatedAt.ToString("h:mm tt")</dd>
+                        <dd class="col-span-2">
+                            <span class="flex items-center">
+                                <i class="far fa-clock mr-2 text-primary-500"></i>
+                                @Model.UpdatedAt.ToString("MMMM d, yyyy") at @Model.UpdatedAt.ToString("h:mm tt")
+                            </span>
+                        </dd>
                     </div>
                 </dl>
                 
-                <h4 class="text-lg font-medium mt-6 mb-3">Color Scheme</h4>
+                <h4 class="text-lg font-medium mt-6 mb-3 flex items-center">
+                    <i class="fas fa-palette mr-2 text-primary-600"></i> Color Scheme
+                </h4>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div class="bg-white rounded-lg border p-3 text-center">
-                        <div class="w-full h-12 rounded mb-2" style="background-color: @Model.BackgroundColor"></div>
+                        <div class="w-full h-12 rounded mb-2 shadow-inner" style="background-color: @Model.BackgroundColor"></div>
                         <p class="text-sm font-medium">Background</p>
-                        <p class="text-xs text-gray-500">@Model.BackgroundColor</p>
+                        <p class="text-xs text-gray-500 font-mono">@Model.BackgroundColor</p>
                     </div>
                     <div class="bg-white rounded-lg border p-3 text-center">
-                        <div class="w-full h-12 rounded mb-2" style="background-color: @Model.TextColor"></div>
+                        <div class="w-full h-12 rounded mb-2 shadow-inner" style="background-color: @Model.TextColor"></div>
                         <p class="text-sm font-medium">Text</p>
-                        <p class="text-xs text-gray-500">@Model.TextColor</p>
+                        <p class="text-xs text-gray-500 font-mono">@Model.TextColor</p>
                     </div>
                     <div class="bg-white rounded-lg border p-3 text-center">
-                        <div class="w-full h-12 rounded mb-2" style="background-color: @Model.AccentColor"></div>
+                        <div class="w-full h-12 rounded mb-2 shadow-inner" style="background-color: @Model.AccentColor"></div>
                         <p class="text-sm font-medium">Accent</p>
-                        <p class="text-xs text-gray-500">@Model.AccentColor</p>
+                        <p class="text-xs text-gray-500 font-mono">@Model.AccentColor</p>
                     </div>
                 </div>
             </div>
             
-            <div class="p-4 bg-gray-50 flex gap-2 justify-end">
-                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn-secondary flex items-center">
-                    <i class="fas fa-edit mr-1"></i> Edit
+            <div class="p-4 bg-gray-50 flex gap-3 justify-end">
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn-secondary">
+                    <i class="fas fa-edit"></i> Edit
                 </a>
-                <a asp-action="Print" asp-route-id="@Model.Id" class="btn-primary print-button flex items-center" onclick="return printCard()">
-                    <i class="fas fa-print mr-1"></i> Print
+                <a asp-action="Print" asp-route-id="@Model.Id" class="btn-primary print-button">
+                    <i class="fas fa-print"></i> Print
                 </a>
             </div>
         </div>
@@ -122,23 +134,23 @@
                 </h3>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <a href="mailto:?subject=Contact Card for @Model.Name&body=Please find the contact details for @Model.Name:%0D%0A%0D%0AName: @Model.Name%0D%0ATitle: @Model.Title%0D%0ACompany: @Model.Company%0D%0AEmail: @Model.Email%0D%0APhone: @Model.Phone" 
-                       class="text-center p-3 rounded-lg border hover:bg-gray-50 transition-colors">
-                        <i class="fas fa-envelope text-2xl text-primary-600 mb-2"></i>
-                        <p class="text-sm">Email</p>
+                       class="text-center p-4 rounded-lg border hover:bg-gray-50 transition-colors group">
+                        <i class="fas fa-envelope text-2xl text-primary-600 mb-3 group-hover:scale-110 transition-transform"></i>
+                        <p class="text-sm font-medium">Email</p>
                     </a>
-                    <button onclick="navigator.clipboard.writeText('Name: @Model.Name\nTitle: @Model.Title\nCompany: @Model.Company\nEmail: @Model.Email\nPhone: @Model.Phone'); alert('Contact information copied!');" 
-                            class="text-center p-3 rounded-lg border hover:bg-gray-50 transition-colors">
-                        <i class="fas fa-copy text-2xl text-primary-600 mb-2"></i>
-                        <p class="text-sm">Copy Info</p>
+                    <button onclick="copyContactInfo(); return false;" 
+                            class="text-center p-4 rounded-lg border hover:bg-gray-50 transition-colors group">
+                        <i class="fas fa-copy text-2xl text-primary-600 mb-3 group-hover:scale-110 transition-transform"></i>
+                        <p class="text-sm font-medium">Copy Info</p>
                     </button>
-                    <a asp-action="Vcf" asp-route-id="@Model.Id" class="text-center p-3 rounded-lg border hover:bg-gray-50 transition-colors">
-                        <i class="fas fa-address-card text-2xl text-primary-600 mb-2"></i>
-                        <p class="text-sm">Download VCF</p>
+                    <a asp-action="Vcf" asp-route-id="@Model.Id" class="text-center p-4 rounded-lg border hover:bg-gray-50 transition-colors group">
+                        <i class="fas fa-address-card text-2xl text-primary-600 mb-3 group-hover:scale-110 transition-transform"></i>
+                        <p class="text-sm font-medium">Download VCF</p>
                     </a>
-                    <a href="#" onclick="window.open('@Url.Action("QrCode", "Card", new { id = Model.Id })', 'QR Code', 'width=300,height=300'); return false;" 
-                       class="text-center p-3 rounded-lg border hover:bg-gray-50 transition-colors">
-                        <i class="fas fa-qrcode text-2xl text-primary-600 mb-2"></i>
-                        <p class="text-sm">View QR</p>
+                    <a href="#" onclick="openQrCodePopup(); return false;" 
+                       class="text-center p-4 rounded-lg border hover:bg-gray-50 transition-colors group">
+                        <i class="fas fa-qrcode text-2xl text-primary-600 mb-3 group-hover:scale-110 transition-transform"></i>
+                        <p class="text-sm font-medium">View QR</p>
                     </a>
                 </div>
             </div>
@@ -148,15 +160,31 @@
 
 @section Scripts {
 <script>
-    // Initialize flip card functionality
-    document.addEventListener('DOMContentLoaded', function() {
-        const flipButton = document.querySelector('.flip-card-btn');
-        if (flipButton) {
-            flipButton.addEventListener('click', function() {
-                const container = document.querySelector('.card-flip-container');
-                container.classList.toggle('flipped');
-            });
-        }
-    });
+    function copyContactInfo() {
+        const contactInfo = `Name: @Model.Name
+Title: @Model.Title
+Company: @Model.Company
+Email: @Model.Email
+Phone: @Model.Phone
+@if (!string.IsNullOrEmpty(Model.Address))
+{
+@:Address: @Model.Address
+}
+@if (!string.IsNullOrEmpty(Model.Website))
+{
+@:Website: @Model.Website
+}`;
+
+        navigator.clipboard.writeText(contactInfo).then(() => {
+            showNotification('Contact information copied to clipboard!');
+        }, () => {
+            showNotification('Failed to copy contact information', 'error');
+        });
+    }
+    
+    function openQrCodePopup() {
+        window.open('@Url.Action("QrCode", "Card", new { id = Model.Id })', 'QR Code', 'width=320,height=380'); 
+        return false;
+    }
 </script>
 }

@@ -5,7 +5,7 @@
     Layout = "_PrintLayout";
 }
 
-<div class="print-container mb-8">
+<div class="print-container mb-4">
     <div class="print-card" style="background-color: @Model.BackgroundColor; color: @Model.TextColor">
         <div class="card-content">
             <div class="card-info">
@@ -35,11 +35,11 @@
     </div>
 </div>
 
-<div class="no-print flex justify-center mb-6">
-    <button onclick="window.print()" class="btn-primary">
-        <i class="fas fa-print mr-2"></i> Print Card
+<div class="no-print flex justify-center mb-4">
+    <button onclick="window.print()" class="btn-primary mr-2">
+        <i class="fas fa-print mr-1"></i> Print Card
     </button>
-    <a asp-action="Details" asp-route-id="@Model.Id" class="btn-secondary ml-2">
-        <i class="fas fa-arrow-left mr-2"></i> Back to Details
+    <a asp-action="Details" asp-route-id="@Model.Id" class="btn-secondary">
+        <i class="fas fa-arrow-left mr-1"></i> Back to Details
     </a>
 </div>

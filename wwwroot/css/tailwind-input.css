@@ -5,24 +5,44 @@
 /* Custom components */
 @layer components {
   .card {
-    @apply bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg;
+    @apply bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg border border-gray-100;
   }
   
   .btn-primary {
-    @apply px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors;
+    @apply px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors flex items-center justify-center gap-2 shadow-sm;
   }
   
   .btn-secondary {
-    @apply px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors;
+    @apply px-4 py-2 bg-gray-100 text-gray-800 rounded-md hover:bg-gray-200 transition-colors flex items-center justify-center gap-2 border border-gray-200;
+  }
+  
+  .btn-danger {
+    @apply px-4 py-2 bg-red-50 text-red-600 rounded-md hover:bg-red-100 transition-colors flex items-center justify-center gap-2 border border-red-200;
   }
   
   .form-input {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500;
+    @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors;
   }
   
-  /* Business Card Styles */
+  .form-label {
+    @apply block text-sm font-medium text-gray-700 mb-1;
+  }
+  
+  .form-group {
+    @apply mb-4;
+  }
+  
+  .form-error {
+    @apply mt-1 text-sm text-red-600;
+  }
+  
+  /* Card display styles */
+  .card-container {
+    @apply w-full max-w-md mx-auto;
+  }
+  
   .business-card {
-    @apply bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 border border-gray-100;
+    @apply bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-500 border border-gray-100;
     aspect-ratio: 1.6 / 1;
     transform-style: preserve-3d;
     perspective: 1000px;
@@ -36,7 +56,7 @@
   .card-flip-container {
     @apply relative w-full h-full;
     transform-style: preserve-3d;
-    transition: transform 0.8s;
+    transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
   
   .card-flip-container.flipped {
@@ -44,42 +64,61 @@
   }
   
   .card-side {
-    @apply absolute w-full h-full backface-visibility-hidden;
+    @apply absolute w-full h-full backface-visibility-hidden rounded-lg;
     backface-visibility: hidden;
+  }
+  
+  .card-front {
+    @apply bg-white;
+    z-index: 1;
   }
   
   .card-back {
     transform: rotateY(180deg);
   }
   
+  /* QR Code styles */
   .qr-highlight {
     @apply rounded-lg p-2 transition-all duration-300;
   }
   
   .qr-highlight:hover {
-    @apply bg-gray-50;
+    @apply bg-gray-50 scale-105;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
   }
   
+  /* Card action buttons */
   .card-action-button {
     @apply flex items-center justify-center p-2 rounded-full transition-all duration-300;
   }
   
   .card-action-button:hover {
-    @apply bg-gray-100;
+    @apply bg-gray-100 scale-110;
   }
   
+  /* Color picker styling */
   .color-picker-group {
     @apply flex items-center space-x-2 mb-2;
   }
   
   .color-preview {
-    @apply w-6 h-6 rounded-full border border-gray-300 cursor-pointer;
+    @apply w-8 h-8 rounded-full border border-gray-300 cursor-pointer transition-all duration-300;
   }
   
+  .color-preview:hover {
+    @apply scale-110 shadow-md;
+  }
+  
+  /* Tags styling */
   .card-tag {
-    @apply inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 mr-2 mb-2;
+    @apply inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-50 text-primary-700 mr-2 mb-2 transition-all duration-300;
   }
   
+  .card-tag:hover {
+    @apply bg-primary-100;
+  }
+  
+  /* Animations */
   .animation-pulse {
     animation: pulse 2s infinite;
   }
@@ -101,12 +140,18 @@
     }
   }
   
+  /* Loading animation */
+  .loading-spinner {
+    @apply animate-spin h-5 w-5 text-white;
+  }
+  
   /* Print-specific styles */
   .print-card {
     width: 3.5in;
     height: 2in;
     margin: 0 auto;
     @apply shadow-md overflow-hidden flex flex-col;
+    page-break-inside: avoid;
   }
   
   .card-content {
@@ -146,10 +191,10 @@
   }
   
   .scan-text {
-    @apply text-xs mt-1 text-center;
+    @apply text-xs mt-1 text-center transition-all duration-300;
   }
   
-  /* Update animation */
+  /* Card preview animation */
   .update-animation {
     animation: highlight 1s ease-in-out;
   }
@@ -164,6 +209,76 @@
     100% {
       box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
     }
+  }
+  
+  /* Fade in animation */
+  .fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Shimmer effect for loading states */
+  .shimmer {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+  
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+  
+  /* Tooltip styling */
+  .tooltip {
+    @apply relative inline-block;
+  }
+  
+  .tooltip .tooltip-text {
+    @apply invisible absolute z-10 p-2 bg-gray-800 text-white text-xs rounded-md opacity-0 transition-all duration-300 w-32 text-center;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .tooltip:hover .tooltip-text {
+    @apply visible opacity-100;
+  }
+  
+  /* Enhanced card grid */
+  .card-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+  }
+  
+  .card-grid-item {
+    @apply transition-all duration-300 hover:scale-105;
+  }
+  
+  /* Dashboard stats */
+  .stat-card {
+    @apply bg-white rounded-lg shadow-md p-4 flex flex-col;
+  }
+  
+  .stat-value {
+    @apply text-2xl font-bold text-primary-600;
+  }
+  
+  .stat-label {
+    @apply text-sm text-gray-600;
   }
 }
 
@@ -188,4 +303,26 @@
     size: 3.5in 2in;
     margin: 0;
   }
+  
+  .print-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+
+/* Dark mode support */
+.dark .card {
+  @apply bg-gray-800 border-gray-700;
+}
+
+.dark .btn-secondary {
+  @apply bg-gray-700 text-gray-200 border-gray-600 hover:bg-gray-600;
+}
+
+.dark .form-input {
+  @apply bg-gray-700 border-gray-600 text-white;
+}
+
+.dark .form-label {
+  @apply text-gray-300;
 }

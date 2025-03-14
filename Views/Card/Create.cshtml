@@ -4,129 +4,176 @@
     ViewData["Title"] = "Create New Card";
 }
 
-<div class="mb-6">
-    <a asp-action="Index" class="text-primary-600 hover:text-primary-800">
+<div class="mb-4">
+    <a asp-action="Index" class="text-blue-600 hover:text-blue-800 flex items-center">
         <i class="fas fa-arrow-left mr-1"></i> Back to List
     </a>
 </div>
 
-<div class="card">
-    <div class="p-6">
-        <h1 class="text-2xl font-bold mb-4">Create New Card</h1>
-        
-        <form asp-action="Create" method="post">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="space-y-4">
-                    <div>
-                        <label asp-for="Name" class="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                        <input asp-for="Name" class="form-input" />
-                        <span asp-validation-for="Name" class="text-red-500 text-sm"></span>
-                    </div>
-                    
-                    <div>
-                        <label asp-for="Title" class="block text-sm font-medium text-gray-700 mb-1">Job Title</label>
-                        <input asp-for="Title" class="form-input" />
-                        <span asp-validation-for="Title" class="text-red-500 text-sm"></span>
-                    </div>
-                    
-                    <div>
-                        <label asp-for="Company" class="block text-sm font-medium text-gray-700 mb-1">Company</label>
-                        <input asp-for="Company" class="form-input" />
-                        <span asp-validation-for="Company" class="text-red-500 text-sm"></span>
-                    </div>
-                    
-                    <div>
-                        <label asp-for="Email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                        <input asp-for="Email" type="email" class="form-input" />
-                        <span asp-validation-for="Email" class="text-red-500 text-sm"></span>
-                    </div>
+<div class="bg-white border border-gray-200 rounded p-4">
+    <h2 class="text-xl font-semibold mb-4">Create New Card</h2>
+    
+    <form asp-action="Create" method="post">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label">Name</label>
+                    <input asp-for="Name" class="form-input" required />
+                    <span asp-validation-for="Name" class="text-red-500 text-sm"></span>
                 </div>
                 
-                <div class="space-y-4">
-                    <div>
-                        <label asp-for="Phone" class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                        <input asp-for="Phone" class="form-input" />
-                        <span asp-validation-for="Phone" class="text-red-500 text-sm"></span>
-                    </div>
-                    
-                    <div>
-                        <label asp-for="Address" class="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                        <input asp-for="Address" class="form-input" />
-                        <span asp-validation-for="Address" class="text-red-500 text-sm"></span>
-                    </div>
-                    
-                    <div>
-                        <label asp-for="Website" class="block text-sm font-medium text-gray-700 mb-1">Website</label>
-                        <input asp-for="Website" type="url" class="form-input" />
-                        <span asp-validation-for="Website" class="text-red-500 text-sm"></span>
-                    </div>
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label">Job Title</label>
+                    <input asp-for="Title" class="form-input" required />
+                    <span asp-validation-for="Title" class="text-red-500 text-sm"></span>
+                </div>
+                
+                <div class="mb-3">
+                    <label asp-for="Company" class="form-label">Company</label>
+                    <input asp-for="Company" class="form-input" required />
+                    <span asp-validation-for="Company" class="text-red-500 text-sm"></span>
+                </div>
+                
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label">Email</label>
+                    <input asp-for="Email" type="email" class="form-input" required />
+                    <span asp-validation-for="Email" class="text-red-500 text-sm"></span>
                 </div>
             </div>
             
-            <div class="mt-6">
-                <h3 class="font-bold text-lg mb-3">Card Appearance</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div>
-                        <label asp-for="BackgroundColor" class="block text-sm font-medium text-gray-700 mb-1">Background Color</label>
-                        <div class="flex">
-                            <input asp-for="BackgroundColor" type="color" class="h-10 w-16" />
-                            <input asp-for="BackgroundColor" type="text" class="form-input ml-2 flex-grow" />
-                        </div>
-                        <span asp-validation-for="BackgroundColor" class="text-red-500 text-sm"></span>
-                    </div>
-                    
-                    <div>
-                        <label asp-for="TextColor" class="block text-sm font-medium text-gray-700 mb-1">Text Color</label>
-                        <div class="flex">
-                            <input asp-for="TextColor" type="color" class="h-10 w-16" />
-                            <input asp-for="TextColor" type="text" class="form-input ml-2 flex-grow" />
-                        </div>
-                        <span asp-validation-for="TextColor" class="text-red-500 text-sm"></span>
-                    </div>
-                    
-                    <div>
-                        <label asp-for="AccentColor" class="block text-sm font-medium text-gray-700 mb-1">Accent Color</label>
-                        <div class="flex">
-                            <input asp-for="AccentColor" type="color" class="h-10 w-16" />
-                            <input asp-for="AccentColor" type="text" class="form-input ml-2 flex-grow" />
-                        </div>
-                        <span asp-validation-for="AccentColor" class="text-red-500 text-sm"></span>
-                    </div>
+            <div>
+                <div class="mb-3">
+                    <label asp-for="Phone" class="form-label">Phone</label>
+                    <input asp-for="Phone" class="form-input" required />
+                    <span asp-validation-for="Phone" class="text-red-500 text-sm"></span>
+                </div>
+                
+                <div class="mb-3">
+                    <label asp-for="Address" class="form-label">Address</label>
+                    <input asp-for="Address" class="form-input" />
+                    <span asp-validation-for="Address" class="text-red-500 text-sm"></span>
+                </div>
+                
+                <div class="mb-3">
+                    <label asp-for="Website" class="form-label">Website</label>
+                    <input asp-for="Website" type="url" class="form-input" />
+                    <span asp-validation-for="Website" class="text-red-500 text-sm"></span>
                 </div>
             </div>
-            
-            <div class="mt-6 pt-4 border-t flex justify-end">
-                <a asp-action="Index" class="btn-secondary mr-2">Cancel</a>
-                <button type="submit" class="btn-primary">Create Card</button>
+        </div>
+        
+        <div class="mt-4">
+            <h3 class="font-medium mb-3">Card Appearance</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="mb-3">
+                    <label asp-for="BackgroundColor" class="form-label">Background Color</label>
+                    <div class="flex">
+                        <input asp-for="BackgroundColor" type="color" class="h-10 w-12" />
+                        <input asp-for="BackgroundColor" type="text" class="form-input ml-2 flex-grow" />
+                    </div>
+                    <span asp-validation-for="BackgroundColor" class="text-red-500 text-sm"></span>
+                </div>
+                
+                <div class="mb-3">
+                    <label asp-for="TextColor" class="form-label">Text Color</label>
+                    <div class="flex">
+                        <input asp-for="TextColor" type="color" class="h-10 w-12" />
+                        <input asp-for="TextColor" type="text" class="form-input ml-2 flex-grow" />
+                    </div>
+                    <span asp-validation-for="TextColor" class="text-red-500 text-sm"></span>
+                </div>
+                
+                <div class="mb-3">
+                    <label asp-for="AccentColor" class="form-label">Accent Color</label>
+                    <div class="flex">
+                        <input asp-for="AccentColor" type="color" class="h-10 w-12" />
+                        <input asp-for="AccentColor" type="text" class="form-input ml-2 flex-grow" />
+                    </div>
+                    <span asp-validation-for="AccentColor" class="text-red-500 text-sm"></span>
+                </div>
             </div>
-        </form>
-    </div>
+        </div>
+        
+        <div class="mt-4 pt-4 border-t flex justify-end">
+            <a asp-action="Index" class="btn-secondary mr-2">Cancel</a>
+            <button type="submit" class="btn-primary">Create Card</button>
+        </div>
+    </form>
 </div>
 
-<div class="mt-6">
-    <div class="card p-6">
-        <h3 class="font-bold text-lg mb-3">Card Preview</h3>
-        <div id="card-preview" class="border rounded-lg p-6 max-w-md mx-auto" style="background-color: #ffffff; color: #000000">
-            <div class="mb-4">
-                <h3 id="preview-name" class="text-2xl font-bold" style="color: #0284c7">Your Name</h3>
-                <p id="preview-title" class="text-lg">Your Title</p>
-                <p id="preview-company" class="text-xl font-bold">Your Company</p>
-            </div>
-            <div class="space-y-2">
-                <p><i class="fas fa-envelope mr-2" style="color: #0284c7"></i><span id="preview-email">your.email@example.com</span></p>
-                <p><i class="fas fa-phone mr-2" style="color: #0284c7"></i><span id="preview-phone">+1 (555) 123-4567</span></p>
-                <p><i class="fas fa-map-marker-alt mr-2" style="color: #0284c7"></i>Your Address</p>
-                <p><i class="fas fa-globe mr-2" style="color: #0284c7"></i><span id="preview-website">www.example.com</span></p>
-            </div>
+<div class="mt-4 bg-white border border-gray-200 rounded p-4">
+    <h3 class="font-medium mb-3">Card Preview</h3>
+    <div id="card-preview" class="border rounded p-4 mx-auto" style="background-color: #ffffff; color: #000000">
+        <div class="mb-3">
+            <h3 id="preview-name" class="text-lg font-bold" style="color: #0284c7">Your Name</h3>
+            <p id="preview-title" class="text-sm">Your Title</p>
+            <p id="preview-company" class="font-bold">Your Company</p>
         </div>
-        <div class="mt-4 text-center">
-            <button id="preview-card" type="button" class="btn-secondary">
-                <i class="fas fa-eye mr-1"></i> Update Preview
-            </button>
+        <div class="space-y-1 text-sm">
+            <p><i class="fas fa-envelope mr-2" style="color: #0284c7"></i><span id="preview-email">your.email@example.com</span></p>
+            <p><i class="fas fa-phone mr-2" style="color: #0284c7"></i><span id="preview-phone">+1 (555) 123-4567</span></p>
+            <p><i class="fas fa-map-marker-alt mr-2" style="color: #0284c7"></i>Your Address</p>
+            <p><i class="fas fa-globe mr-2" style="color: #0284c7"></i><span id="preview-website">www.example.com</span></p>
         </div>
+    </div>
+    <div class="mt-3 text-center">
+        <button id="preview-card" type="button" class="btn-secondary">
+            <i class="fas fa-eye mr-1"></i> Update Preview
+        </button>
     </div>
 </div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const previewButton = document.getElementById('preview-card');
+            if (previewButton) {
+                previewButton.addEventListener('click', updateCardPreview);
+                // Initialize preview
+                updateCardPreview();
+            }
+            
+            // Update preview on color change
+            const colorInputs = document.querySelectorAll('input[type="color"]');
+            colorInputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    const textInput = this.nextElementSibling;
+                    if (textInput) {
+                        textInput.value = this.value;
+                    }
+                    updateCardPreview();
+                });
+            });
+        });
+        
+        function updateCardPreview() {
+            const name = document.getElementById('Name')?.value || 'Your Name';
+            const title = document.getElementById('Title')?.value || 'Your Title';
+            const company = document.getElementById('Company')?.value || 'Your Company';
+            const email = document.getElementById('Email')?.value || 'your.email@example.com';
+            const phone = document.getElementById('Phone')?.value || '+1 (555) 123-4567';
+            const bgColor = document.getElementById('BackgroundColor')?.value;
+            const textColor = document.getElementById('TextColor')?.value;
+            const accentColor = document.getElementById('AccentColor')?.value;
+            
+            const preview = document.getElementById('card-preview');
+            if (preview) {
+                preview.style.backgroundColor = bgColor;
+                preview.style.color = textColor;
+                
+                document.getElementById('preview-name').textContent = name;
+                document.getElementById('preview-name').style.color = accentColor;
+                document.getElementById('preview-title').textContent = title;
+                document.getElementById('preview-company').textContent = company;
+                document.getElementById('preview-email').textContent = email;
+                document.getElementById('preview-phone').textContent = phone;
+                
+                const icons = preview.querySelectorAll('i');
+                icons.forEach(icon => {
+                    icon.style.color = accentColor;
+                });
+            }
+        }
+    </script>
 }

@@ -9,6 +9,7 @@
     <title>@ViewData["Title"] - Card Tag Manager</title>
     <link rel="stylesheet" href="~/css/tailwind.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
     
     <style>
         /* CSS Media query for printing */
@@ -41,6 +42,7 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            font-family: 'Inter', sans-serif;
         }
         
         .card-content {
@@ -61,17 +63,21 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            margin-left: 0.1in;
         }
         
         .card-qr img {
             width: 0.8in;
             height: 0.8in;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
         }
         
         .scan-text {
             font-size: 6pt;
             margin-top: 0.1in;
             text-align: center;
+            font-weight: 500;
         }
         
         .card-name {
@@ -110,8 +116,8 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen p-6">
-    <main>
+<body class="bg-gray-100 min-h-screen p-6 font-sans text-gray-800">
+    <main class="container mx-auto max-w-4xl fade-in">
         @RenderBody()
     </main>
 
