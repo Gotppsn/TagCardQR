@@ -1,0 +1,111 @@
+@model CardTagManager.Models.Card
+
+@{
+    ViewData["Title"] = "Edit Card";
+}
+
+<div class="mb-6">
+    <a asp-action="Index" class="text-primary-600 hover:text-primary-800">
+        <i class="fas fa-arrow-left mr-1"></i> Back to List
+    </a>
+</div>
+
+<div class="card">
+    <div class="p-6">
+        <h1 class="text-2xl font-bold mb-4">Edit Card</h1>
+        
+        <form asp-action="Edit" method="post">
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="CreatedAt" />
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <div>
+                        <label asp-for="Name" class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                        <input asp-for="Name" class="form-input" />
+                        <span asp-validation-for="Name" class="text-red-500 text-sm"></span>
+                    </div>
+                    
+                    <div>
+                        <label asp-for="Title" class="block text-sm font-medium text-gray-700 mb-1">Job Title</label>
+                        <input asp-for="Title" class="form-input" />
+                        <span asp-validation-for="Title" class="text-red-500 text-sm"></span>
+                    </div>
+                    
+                    <div>
+                        <label asp-for="Company" class="block text-sm font-medium text-gray-700 mb-1">Company</label>
+                        <input asp-for="Company" class="form-input" />
+                        <span asp-validation-for="Company" class="text-red-500 text-sm"></span>
+                    </div>
+                    
+                    <div>
+                        <label asp-for="Email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <input asp-for="Email" type="email" class="form-input" />
+                        <span asp-validation-for="Email" class="text-red-500 text-sm"></span>
+                    </div>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label asp-for="Phone" class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                        <input asp-for="Phone" class="form-input" />
+                        <span asp-validation-for="Phone" class="text-red-500 text-sm"></span>
+                    </div>
+                    
+                    <div>
+                        <label asp-for="Address" class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                        <input asp-for="Address" class="form-input" />
+                        <span asp-validation-for="Address" class="text-red-500 text-sm"></span>
+                    </div>
+                    
+                    <div>
+                        <label asp-for="Website" class="block text-sm font-medium text-gray-700 mb-1">Website</label>
+                        <input asp-for="Website" type="url" class="form-input" />
+                        <span asp-validation-for="Website" class="text-red-500 text-sm"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-6">
+                <h3 class="font-bold text-lg mb-3">Card Appearance</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label asp-for="BackgroundColor" class="block text-sm font-medium text-gray-700 mb-1">Background Color</label>
+                        <div class="flex">
+                            <input asp-for="BackgroundColor" type="color" class="h-10 w-16" />
+                            <input asp-for="BackgroundColor" type="text" class="form-input ml-2 flex-grow" />
+                        </div>
+                        <span asp-validation-for="BackgroundColor" class="text-red-500 text-sm"></span>
+                    </div>
+                    
+                    <div>
+                        <label asp-for="TextColor" class="block text-sm font-medium text-gray-700 mb-1">Text Color</label>
+                        <div class="flex">
+                            <input asp-for="TextColor" type="color" class="h-10 w-16" />
+                            <input asp-for="TextColor" type="text" class="form-input ml-2 flex-grow" />
+                        </div>
+                        <span asp-validation-for="TextColor" class="text-red-500 text-sm"></span>
+                    </div>
+                    
+                    <div>
+                        <label asp-for="AccentColor" class="block text-sm font-medium text-gray-700 mb-1">Accent Color</label>
+                        <div class="flex">
+                            <input asp-for="AccentColor" type="color" class="h-10 w-16" />
+                            <input asp-for="AccentColor" type="text" class="form-input ml-2 flex-grow" />
+                        </div>
+                        <span asp-validation-for="AccentColor" class="text-red-500 text-sm"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-6 pt-4 border-t flex justify-end">
+                <a asp-action="Index" class="btn-secondary mr-2">Cancel</a>
+                <button type="submit" class="btn-primary">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

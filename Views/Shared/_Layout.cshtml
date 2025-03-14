@@ -1,0 +1,53 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Card Tag Manager</title>
+    <link rel="stylesheet" href="~/css/tailwind.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+    <header class="bg-primary-600 text-white shadow-md">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a class="text-xl font-bold flex items-center" asp-controller="Card" asp-action="Index">
+                <i class="fas fa-id-card mr-2"></i>
+                Card Tag Manager
+            </a>
+            <nav>
+                <ul class="flex space-x-4">
+                    <li>
+                        <a class="hover:text-primary-200 transition-colors" asp-controller="Card" asp-action="Index">
+                            <i class="fas fa-list mr-1"></i> All Cards
+                        </a>
+                    </li>
+                    <li>
+                        <a class="hover:text-primary-200 transition-colors" asp-controller="Card" asp-action="Create">
+                            <i class="fas fa-plus mr-1"></i> New Card
+                        </a>
+                    </li>
+                    <li>
+                        <a class="hover:text-primary-200 transition-colors" asp-controller="Card" asp-action="PrintAll">
+                            <i class="fas fa-print mr-1"></i> Print All
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 py-6">
+        @RenderBody()
+    </main>
+
+    <footer class="bg-gray-100 border-t">
+        <div class="container mx-auto px-4 py-4 text-center text-gray-600">
+            <p>&copy; @DateTime.Now.Year - Card Tag Manager</p>
+        </div>
+    </footer>
+
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

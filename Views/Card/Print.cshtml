@@ -1,0 +1,45 @@
+@model CardTagManager.Models.Card
+
+@{
+    ViewData["Title"] = "Print Card";
+    Layout = "_PrintLayout";
+}
+
+<div class="print-container mb-8">
+    <div class="print-card" style="background-color: @Model.BackgroundColor; color: @Model.TextColor">
+        <div class="card-content">
+            <div class="card-info">
+                <h3 class="card-name" style="color: @Model.AccentColor">@Model.Name</h3>
+                <p class="card-title">@Model.Title</p>
+                <p class="card-company">@Model.Company</p>
+                
+                <div class="card-details">
+                    <p><i class="fas fa-envelope" style="color: @Model.AccentColor"></i>@Model.Email</p>
+                    <p><i class="fas fa-phone" style="color: @Model.AccentColor"></i>@Model.Phone</p>
+                    @if (!string.IsNullOrEmpty(Model.Address))
+                    {
+                        <p><i class="fas fa-map-marker-alt" style="color: @Model.AccentColor"></i>@Model.Address</p>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.Website))
+                    {
+                        <p><i class="fas fa-globe" style="color: @Model.AccentColor"></i>@Model.Website</p>
+                    }
+                </div>
+            </div>
+            
+            <div class="card-qr">
+                <img src="@ViewBag.QrCodeImage" alt="QR Code" />
+                <p class="scan-text">Scan to Save Contact</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="no-print flex justify-center mb-6">
+    <button onclick="window.print()" class="btn-primary">
+        <i class="fas fa-print mr-2"></i> Print Card
+    </button>
+    <a asp-action="Details" asp-route-id="@Model.Id" class="btn-secondary ml-2">
+        <i class="fas fa-arrow-left mr-2"></i> Back to Details
+    </a>
+</div>
