@@ -1,49 +1,622 @@
 @model CardTagManager.Models.Card
 
 @{
-    ViewData["Title"] = "Print Card";
+    ViewData["Title"] = "Print Product Tag";
     Layout = "_PrintLayout";
 }
 
-<div class="print-container mb-4">
-    <div class="print-card" style="background-color: @Model.BackgroundColor; color: @Model.TextColor">
-        <div class="card-content">
-            <div class="card-info">
-                <span class="category-badge" style="background-color: @Model.AccentColor; color: @Model.BackgroundColor">
-                    @Model.Category
-                </span>
-                <h3 class="card-name mt-1" style="color: @Model.AccentColor">@Model.ProductName</h3>
-                <p class="card-title">@Model.Manufacturer</p>
-                <div class="flex items-center space-x-2 text-sm">
-                    <span class="font-medium">Model:</span>
-                    <span>@Model.ModelNumber</span>
+<div class="mb-6 no-print">
+    <nav class="flex" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li class="inline-flex items-center">
+                <a href="/" class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-primary-600">
+                    <i class="fas fa-home mr-2"></i>
+                    Home
+                </a>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <i class="fas fa-chevron-right text-gray-400 mx-2 text-xs"></i>
+                    <a asp-action="Index" class="text-sm font-medium text-gray-500 hover:text-primary-600">Products</a>
+                </div>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <i class="fas fa-chevron-right text-gray-400 mx-2 text-xs"></i>
+                    <a asp-action="Details" asp-route-id="@Model.Id" class="text-sm font-medium text-gray-500 hover:text-primary-600">@Model.ProductName</a>
+                </div>
+            </li>
+            <li aria-current="page">
+                <div class="flex items-center">
+                    <i class="fas fa-chevron-right text-gray-400 mx-2 text-xs"></i>
+                    <span class="text-sm font-medium text-primary-600">Print Tag</span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8 no-print">
+    <!-- Print Options Panel -->
+    <div class="lg:col-span-1">
+        <div class="card">
+            <div class="card-header flex items-center bg-gradient-to-r from-primary-600 to-primary-500 text-white">
+                <i class="fas fa-sliders-h text-xl mr-3"></i>
+                <h2 class="text-lg font-semibold">Print Options</h2>
+            </div>
+            <div class="card-body space-y-5">
+                <!-- Size Options -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Tag Size</label>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div class="size-option border border-gray-300 rounded-lg p-3 cursor-pointer hover:border-primary-500 transition-all active" data-size="standard">
+                            <div class="aspect-w-7 aspect-h-4 flex items-center justify-center bg-gray-50 rounded mb-2">
+                                <div class="text-sm text-gray-500">3.5 × 2 in</div>
+                            </div>
+                            <p class="text-xs text-center font-medium">Standard</p>
+                        </div>
+                        <div class="size-option border border-gray-300 rounded-lg p-3 cursor-pointer hover:border-primary-500 transition-all" data-size="large">
+                            <div class="aspect-w-7 aspect-h-4 flex items-center justify-center bg-gray-50 rounded mb-2">
+                                <div class="text-sm text-gray-500">4 × 2.5 in</div>
+                            </div>
+                            <p class="text-xs text-center font-medium">Large</p>
+                        </div>
+                        <div class="size-option border border-gray-300 rounded-lg p-3 cursor-pointer hover:border-primary-500 transition-all" data-size="custom">
+                            <div class="aspect-w-7 aspect-h-4 flex items-center justify-center bg-gray-50 rounded mb-2">
+                                <div class="text-sm text-gray-500">Custom</div>
+                            </div>
+                            <p class="text-xs text-center font-medium">Custom</p>
+                        </div>
+                    </div>
                 </div>
                 
-                <div class="card-details">
-                    <p><i class="fas fa-fingerprint" style="color: @Model.AccentColor"></i><span>SN: @Model.SerialNumber</span></p>
-                    <p><i class="fas fa-map-marker-alt" style="color: @Model.AccentColor"></i><span>@Model.Location</span></p>
-                    <p><i class="fas fa-calendar-day" style="color: @Model.AccentColor"></i><span>Mfg: @Model.ManufactureDate.ToString("MM/dd/yyyy")</span></p>
-                    <p><i class="fas fa-shield-alt" style="color: @Model.AccentColor"></i><span>Warranty: @Model.WarrantyExpiration.ToString("MM/dd/yyyy")</span></p>
-                    @if (!string.IsNullOrEmpty(Model.MaintenanceInfo))
-                    {
-                        <p><i class="fas fa-tools" style="color: @Model.AccentColor"></i><span>@(Model.MaintenanceInfo.Length > 40 ? Model.MaintenanceInfo.Substring(0, 37) + "..." : Model.MaintenanceInfo)</span></p>
-                    }
+                <!-- Custom Size (Initially Hidden) -->
+                <div id="custom-size-controls" class="hidden p-4 rounded-lg bg-gray-50 mb-4">
+                    <h3 class="text-sm font-medium text-gray-700 mb-2">Custom Dimensions</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">Width (inches)</label>
+                            <input type="number" value="3.5" min="2" max="8.5" step="0.1" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">Height (inches)</label>
+                            <input type="number" value="2" min="1" max="11" step="0.1" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orientation -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Orientation</label>
+                    <div class="flex space-x-4">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="radio" name="orientation" value="landscape" class="hidden" checked>
+                            <div class="w-10 h-8 border border-gray-300 rounded flex items-center justify-center mr-2 orientation-selector" data-orientation="landscape">
+                                <i class="fas fa-credit-card text-gray-400"></i>
+                            </div>
+                            <span class="text-sm">Landscape</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="radio" name="orientation" value="portrait" class="hidden">
+                            <div class="w-8 h-10 border border-gray-300 rounded flex items-center justify-center mr-2 orientation-selector" data-orientation="portrait">
+                                <i class="fas fa-credit-card text-gray-400 transform rotate-90"></i>
+                            </div>
+                            <span class="text-sm">Portrait</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Content Options -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Content Options</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked>
+                            <span class="ml-2 text-sm text-gray-700">Show QR Code</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked>
+                            <span class="ml-2 text-sm text-gray-700">Show Maintenance Info</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked>
+                            <span class="ml-2 text-sm text-gray-700">Show Warranty Date</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked>
+                            <span class="ml-2 text-sm text-gray-700">Show Category</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Print Multiple Copies -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Number of Copies</label>
+                    <div class="flex items-center">
+                        <button type="button" id="decrease-copies" class="px-3 py-2 border border-gray-300 rounded-l-md bg-gray-50 text-gray-500 hover:bg-gray-100">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <input type="number" id="copies-count" min="1" max="100" value="1" class="w-16 text-center py-2 border-t border-b border-gray-300 text-gray-700">
+                        <button type="button" id="increase-copies" class="px-3 py-2 border border-gray-300 rounded-r-md bg-gray-50 text-gray-500 hover:bg-gray-100">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-gray-200">
+                    <button id="apply-options" class="w-full btn-primary py-3 uppercase text-sm font-medium tracking-wider">
+                        <i class="fas fa-check mr-2"></i> Apply Settings
+                    </button>
                 </div>
             </div>
-            
-            <div class="card-qr">
-                <img src="@ViewBag.QrCodeImage" alt="QR Code" />
-                <p class="scan-text">Scan for Product Info</p>
+        </div>
+
+        <!-- Print Button -->
+        <div class="mt-4">
+            <button onclick="window.print()" class="w-full btn-primary py-4 text-center flex items-center justify-center group bg-primary-600 hover:bg-primary-700 transition-all">
+                <i class="fas fa-print text-xl mr-3 group-hover:animate-bounce"></i>
+                <span class="text-lg font-bold">Print Tag</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Preview Section -->
+    <div class="lg:col-span-2">
+        <div class="card">
+            <div class="card-header bg-gray-50">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-lg font-semibold text-gray-800 flex items-center">
+                        <i class="fas fa-eye text-primary-500 mr-2"></i> Print Preview
+                    </h2>
+                    <div class="flex space-x-2">
+                        <button type="button" id="toggle-dark-mode" class="p-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                        <button type="button" id="zoom-in" class="p-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors">
+                            <i class="fas fa-search-plus"></i>
+                        </button>
+                        <button type="button" id="zoom-out" class="p-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors">
+                            <i class="fas fa-search-minus"></i>
+                        </button>
+                        <button type="button" id="rotate-preview" class="p-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="p-8 flex items-center justify-center bg-gray-100 min-h-[400px]" id="preview-container">
+                <div id="zoom-container" class="transform transition-transform duration-300" style="transform: scale(1);">
+                    <!-- Preview Card -->
+                    <div class="print-container transition-all duration-300">
+                        <div class="print-card card-shadow" id="tag-preview" style="background-color: @Model.BackgroundColor; color: @Model.TextColor">
+                            <div class="card-content">
+                                <div class="card-info">
+                                    <span class="category-badge" style="background-color: @Model.AccentColor; color: @Model.BackgroundColor">
+                                        @Model.Category
+                                    </span>
+                                    <h3 class="card-name mt-1" style="color: @Model.AccentColor">@Model.ProductName</h3>
+                                    <p class="card-title">@Model.Manufacturer</p>
+                                    <div class="flex items-center space-x-2 text-sm">
+                                        <span class="font-medium">Model:</span>
+                                        <span>@Model.ModelNumber</span>
+                                    </div>
+                                    
+                                    <div class="card-details">
+                                        <p><i class="fas fa-fingerprint" style="color: @Model.AccentColor"></i><span>SN: @Model.SerialNumber</span></p>
+                                        <p><i class="fas fa-map-marker-alt" style="color: @Model.AccentColor"></i><span>@Model.Location</span></p>
+                                        <p><i class="fas fa-calendar-day" style="color: @Model.AccentColor"></i><span>Mfg: @Model.ManufactureDate.ToString("MM/dd/yyyy")</span></p>
+                                        <p class="warranty-info"><i class="fas fa-shield-alt" style="color: @Model.AccentColor"></i><span>Warranty: @Model.WarrantyExpiration.ToString("MM/dd/yyyy")</span></p>
+                                        @if (!string.IsNullOrEmpty(Model.MaintenanceInfo))
+                                        {
+                                            <p class="maintenance-info"><i class="fas fa-tools" style="color: @Model.AccentColor"></i><span>@(Model.MaintenanceInfo.Length > 40 ? Model.MaintenanceInfo.Substring(0, 37) + "..." : Model.MaintenanceInfo)</span></p>
+                                        }
+                                    </div>
+                                </div>
+                                
+                                <div class="card-qr">
+                                    <img src="@ViewBag.QrCodeImage" alt="QR Code" class="qr-code-image" />
+                                    <p class="scan-text">Scan for Product Info</p>
+                                </div>
+                            </div>
+
+                            <!-- Card Glow Effect (only visible in preview) -->
+                            <div class="card-glow no-print absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 rounded-lg opacity-0 hover:opacity-100 transition-opacity pointer-events-none"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer flex justify-between items-center">
+                <div class="text-xs text-gray-500">
+                    <span id="zoom-level">Zoom: 100%</span> • <span id="orientation-label">Landscape</span> • Standard Size
+                </div>
+                <div class="flex space-x-3">
+                    <a asp-action="Details" asp-route-id="@Model.Id" class="text-sm text-gray-500 hover:text-primary-600 flex items-center">
+                        <i class="fas fa-arrow-left mr-1"></i> Back to Details
+                    </a>
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="text-sm text-gray-500 hover:text-primary-600 flex items-center">
+                        <i class="fas fa-edit mr-1"></i> Edit Product
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Multiple Copies Preview (when copies > 1) -->
+        <div id="copies-preview" class="hidden mt-6 card overflow-hidden">
+            <div class="card-header bg-gray-50">
+                <h3 class="font-medium text-gray-700">Multiple Copies Layout</h3>
+            </div>
+            <div class="p-4 bg-gray-100">
+                <div class="grid grid-cols-2 gap-4" id="copies-grid">
+                    <!-- Copies will be generated here by JavaScript -->
+                </div>
+            </div>
+            <div class="card-footer bg-gray-50 text-xs text-gray-500">
+                Sheet layout preview - actual print may vary depending on your printer settings
             </div>
         </div>
     </div>
 </div>
 
-<div class="no-print flex justify-center mb-4 mt-6">
-    <button onclick="window.print()" class="btn-primary mr-2 px-5 py-2 rounded-lg shadow-md">
-        <i class="fas fa-print mr-1"></i> Print Tag
-    </button>
-    <a asp-action="Details" asp-route-id="@Model.Id" class="btn-secondary px-5 py-2 rounded-lg shadow-md">
-        <i class="fas fa-arrow-left mr-1"></i> Back to Details
-    </a>
+<!-- A4 Print Layout (Only displayed during printing) -->
+<div class="print-only hidden">
+    <div id="print-copies-container" class="print-sheet">
+        <!-- Print copies will be generated here by JavaScript -->
+    </div>
 </div>
+
+@section Scripts {
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Variables
+        let zoomLevel = 1;
+        let isRotated = false;
+        let isDarkMode = false;
+        let currentOrientation = 'landscape';
+        let currentSize = 'standard';
+        let copies = 1;
+        
+        // Elements
+        const zoomIn = document.getElementById('zoom-in');
+        const zoomOut = document.getElementById('zoom-out');
+        const rotatePreview = document.getElementById('rotate-preview');
+        const toggleDarkMode = document.getElementById('toggle-dark-mode');
+        const zoomContainer = document.getElementById('zoom-container');
+        const zoomLevelDisplay = document.getElementById('zoom-level');
+        const previewContainer = document.getElementById('preview-container');
+        const printCard = document.querySelector('.print-card');
+        const tagPreview = document.getElementById('tag-preview');
+        const orientationLabel = document.getElementById('orientation-label');
+        const copiesInput = document.getElementById('copies-count');
+        const increaseBtn = document.getElementById('increase-copies');
+        const decreaseBtn = document.getElementById('decrease-copies');
+        const copiesPreview = document.getElementById('copies-preview');
+        const copiesGrid = document.getElementById('copies-grid');
+        const printCopiesContainer = document.getElementById('print-copies-container');
+        const orientationSelectors = document.querySelectorAll('.orientation-selector');
+        const sizeOptions = document.querySelectorAll('.size-option');
+        const customSizeControls = document.getElementById('custom-size-controls');
+        const applyOptionsBtn = document.getElementById('apply-options');
+        
+        // Zoom functionality
+        zoomIn.addEventListener('click', function() {
+            if (zoomLevel < 1.5) {
+                zoomLevel += 0.1;
+                updateZoom();
+            }
+        });
+        
+        zoomOut.addEventListener('click', function() {
+            if (zoomLevel > 0.5) {
+                zoomLevel -= 0.1;
+                updateZoom();
+            }
+        });
+        
+        function updateZoom() {
+            zoomContainer.style.transform = `scale(${zoomLevel})`;
+            zoomLevelDisplay.textContent = `Zoom: ${Math.round(zoomLevel * 100)}%`;
+        }
+        
+        // Rotate functionality
+        rotatePreview.addEventListener('click', function() {
+            isRotated = !isRotated;
+            if (isRotated) {
+                tagPreview.classList.add('rotate-90');
+                tagPreview.classList.add('transition-transform');
+                tagPreview.classList.add('duration-300');
+            } else {
+                tagPreview.classList.remove('rotate-90');
+            }
+        });
+        
+        // Dark mode toggle
+        toggleDarkMode.addEventListener('click', function() {
+            isDarkMode = !isDarkMode;
+            if (isDarkMode) {
+                previewContainer.classList.add('bg-gray-800');
+                this.innerHTML = '<i class="fas fa-sun"></i>';
+                this.classList.add('text-yellow-500');
+                this.classList.remove('text-gray-700');
+            } else {
+                previewContainer.classList.remove('bg-gray-800');
+                this.innerHTML = '<i class="fas fa-moon"></i>';
+                this.classList.remove('text-yellow-500');
+                this.classList.add('text-gray-700');
+            }
+        });
+        
+        // Orientation selectors
+        orientationSelectors.forEach(selector => {
+            selector.addEventListener('click', function() {
+                // Get the radio button and check it
+                const radio = this.closest('label').querySelector('input[type="radio"]');
+                radio.checked = true;
+                
+                // Update visual state
+                orientationSelectors.forEach(s => {
+                    s.classList.remove('bg-primary-50', 'border-primary-500');
+                    s.classList.add('border-gray-300');
+                });
+                
+                this.classList.add('bg-primary-50', 'border-primary-500');
+                this.classList.remove('border-gray-300');
+                
+                // Update orientation variable
+                currentOrientation = this.getAttribute('data-orientation');
+                orientationLabel.textContent = currentOrientation.charAt(0).toUpperCase() + currentOrientation.slice(1);
+                
+                // Update preview
+                if (currentOrientation === 'portrait') {
+                    printCard.classList.add('portrait-mode');
+                } else {
+                    printCard.classList.remove('portrait-mode');
+                }
+            });
+        });
+        
+        // Size options
+        sizeOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                // Update visual state
+                sizeOptions.forEach(o => {
+                    o.classList.remove('border-primary-500');
+                    o.classList.add('border-gray-300');
+                });
+                
+                this.classList.add('border-primary-500');
+                this.classList.remove('border-gray-300');
+                
+                // Update size variable
+                currentSize = this.getAttribute('data-size');
+                
+                // Show/hide custom size controls
+                if (currentSize === 'custom') {
+                    customSizeControls.classList.remove('hidden');
+                } else {
+                    customSizeControls.classList.add('hidden');
+                }
+                
+                // Update preview
+                updateCardSize(currentSize);
+            });
+        });
+        
+        function updateCardSize(size) {
+            // Reset classes
+            printCard.classList.remove('size-standard', 'size-large', 'size-custom');
+            
+            // Apply appropriate size class
+            printCard.classList.add(`size-${size}`);
+            
+            // If custom, get dimensions from inputs
+            if (size === 'custom') {
+                const widthInput = customSizeControls.querySelector('input[type="number"]:first-child');
+                const heightInput = customSizeControls.querySelector('input[type="number"]:last-child');
+                
+                if (widthInput && heightInput) {
+                    const width = widthInput.value;
+                    const height = heightInput.value;
+                    printCard.style.width = `${width}in`;
+                    printCard.style.height = `${height}in`;
+                }
+            } else {
+                printCard.style.width = '';
+                printCard.style.height = '';
+            }
+        }
+        
+        // Copies functionality
+        increaseBtn.addEventListener('click', function() {
+            if (copies < 100) {
+                copies++;
+                copiesInput.value = copies;
+                updateCopiesPreview();
+            }
+        });
+        
+        decreaseBtn.addEventListener('click', function() {
+            if (copies > 1) {
+                copies--;
+                copiesInput.value = copies;
+                updateCopiesPreview();
+            }
+        });
+        
+        copiesInput.addEventListener('change', function() {
+            copies = parseInt(this.value) || 1;
+            if (copies < 1) copies = 1;
+            if (copies > 100) copies = 100;
+            this.value = copies;
+            updateCopiesPreview();
+        });
+        
+        function updateCopiesPreview() {
+            // Show/hide copies preview
+            if (copies > 1) {
+                copiesPreview.classList.remove('hidden');
+                
+                // Clear existing copies
+                copiesGrid.innerHTML = '';
+                printCopiesContainer.innerHTML = '';
+                
+                // Generate preview copies
+                for (let i = 0; i < Math.min(copies, 8); i++) {
+                    const copyEl = document.createElement('div');
+                    copyEl.className = 'w-full aspect-w-16 aspect-h-10 p-2 bg-white rounded border border-gray-200';
+                    copyEl.innerHTML = `
+                        <div class="flex items-center justify-center text-center text-xs p-2 bg-gray-50 rounded">
+                            <span>Copy ${i + 1}</span>
+                        </div>
+                    `;
+                    copiesGrid.appendChild(copyEl);
+                }
+                
+                // If more than 8 copies, add indicator
+                if (copies > 8) {
+                    const moreEl = document.createElement('div');
+                    moreEl.className = 'w-full aspect-w-16 aspect-h-10 p-2 bg-white rounded border border-gray-200 flex items-center justify-center';
+                    moreEl.innerHTML = `
+                        <div class="text-center text-xs p-2">
+                            <span>+${copies - 8} more</span>
+                        </div>
+                    `;
+                    copiesGrid.appendChild(moreEl);
+                }
+                
+                // Generate actual print copies
+                for (let i = 0; i < copies; i++) {
+                    const printCopy = document.querySelector('.print-card').cloneNode(true);
+                    printCopy.classList.add('print-copy');
+                    printCopiesContainer.appendChild(printCopy);
+                }
+            } else {
+                copiesPreview.classList.add('hidden');
+            }
+        }
+        
+        // Apply options button
+        applyOptionsBtn.addEventListener('click', function() {
+            // Apply all settings at once
+            updateCardSize(currentSize);
+            
+            // Handle content toggles
+            const showQR = document.querySelector('input[type="checkbox"]:nth-of-type(1)').checked;
+            const showMaintenance = document.querySelector('input[type="checkbox"]:nth-of-type(2)').checked;
+            const showWarranty = document.querySelector('input[type="checkbox"]:nth-of-type(3)').checked;
+            const showCategory = document.querySelector('input[type="checkbox"]:nth-of-type(4)').checked;
+            
+            // Toggle visibility based on checkboxes
+            const qrCode = document.querySelector('.card-qr');
+            const maintenanceInfo = document.querySelector('.maintenance-info');
+            const warrantyInfo = document.querySelector('.warranty-info');
+            const categoryBadge = document.querySelector('.category-badge');
+            
+            if (qrCode) qrCode.style.display = showQR ? '' : 'none';
+            if (maintenanceInfo) maintenanceInfo.style.display = showMaintenance ? '' : 'none';
+            if (warrantyInfo) warrantyInfo.style.display = showWarranty ? '' : 'none';
+            if (categoryBadge) categoryBadge.style.display = showCategory ? '' : 'none';
+            
+            // Show success feedback
+            this.innerHTML = '<i class="fas fa-check-circle mr-2"></i> Settings Applied';
+            this.classList.add('bg-green-600');
+            this.classList.remove('bg-primary-600');
+            
+            setTimeout(() => {
+                this.innerHTML = '<i class="fas fa-check mr-2"></i> Apply Settings';
+                this.classList.remove('bg-green-600');
+                this.classList.add('bg-primary-600');
+            }, 2000);
+        });
+        
+        // Initialize custom styles
+        const styleElement = document.createElement('style');
+        styleElement.textContent = `
+            /* Card shadow with subtle depth effect */
+            .card-shadow {
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+            
+            .card-shadow:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            }
+            
+            /* Size classes */
+            .size-standard {
+                width: 3.5in;
+                height: 2in;
+            }
+            
+            .size-large {
+                width: 4in;
+                height: 2.5in;
+            }
+            
+            /* Portrait orientation */
+            .portrait-mode {
+                width: 2in !important;
+                height: 3.5in !important;
+            }
+            
+            .portrait-mode .card-content {
+                flex-direction: column;
+            }
+            
+            .portrait-mode .card-info {
+                width: 100%;
+            }
+            
+            .portrait-mode .card-qr {
+                width: 100%;
+                margin-left: 0;
+                margin-top: 0.5in;
+            }
+            
+            /* Print-specific styles */
+            @@media print {
+                .print-only {
+                    display: block !important;
+                }
+                
+                .print-sheet {
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 0.5cm;
+                    width: 100%;
+                }
+                
+                .print-copy {
+                    margin: 0;
+                    page-break-inside: avoid;
+                }
+                
+                /* Reset hover effects and shadows */
+                .card-shadow, .card-shadow:hover {
+                    transform: none;
+                    box-shadow: none;
+                }
+                
+                /* Hide preview-only elements */
+                .card-glow {
+                    display: none;
+                }
+            }
+            
+            /* Animation */
+            @@keyframes bounce {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-5px); }
+            }
+            
+            .group:hover .group-hover\\:animate-bounce {
+                animation: bounce 0.5s ease infinite;
+            }
+        `;
+        document.head.appendChild(styleElement);
+        
+        // Initialize preview with any default settings
+        updateCopiesPreview();
+    });
+</script>
+}
