@@ -6,45 +6,118 @@
     <title>@ViewData["Title"] - Card Tag Manager</title>
     <link rel="stylesheet" href="~/css/tailwind.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
 </head>
-<body class="bg-white min-h-screen flex flex-col">
-    <header class="bg-white border-b border-gray-200 py-4">
+<body class="bg-gray-50 min-h-screen flex flex-col font-inter">
+    <header class="bg-white border-b border-gray-200 py-4 shadow-sm">
         <div class="container mx-auto px-4">
-            <div class="flex justify-center">
-                <h1 class="text-xl font-semibold text-purple-700 flex items-center">
-                    <i class="fas fa-id-card mr-2"></i> Card Tag Manager
-                </h1>
+            <div class="flex justify-between items-center">
+                <a href="/" class="text-xl font-bold text-primary-600 flex items-center">
+                    <i class="fas fa-id-card text-2xl mr-2"></i> Card Tag Manager
+                </a>
+                <nav class="hidden md:flex space-x-6">
+                    <a asp-controller="Card" asp-action="Index" class="nav-link">
+                        <i class="fas fa-layer-group mr-1"></i> All Cards
+                    </a>
+                    <a asp-controller="Card" asp-action="Create" class="nav-link">
+                        <i class="fas fa-plus-circle mr-1"></i> New Card
+                    </a>
+                    <a asp-controller="Card" asp-action="PrintAll" class="nav-link">
+                        <i class="fas fa-print mr-1"></i> Print All
+                    </a>
+                </nav>
+                <button class="md:hidden text-gray-600 focus:outline-none" id="mobile-menu-button">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
             </div>
         </div>
     </header>
 
-    <nav class="bg-white border-b border-gray-200 py-2">
-        <div class="container mx-auto px-4">
-            <div class="flex justify-center space-x-4">
-                <a asp-controller="Card" asp-action="Index" class="flex items-center text-gray-700 hover:text-purple-600">
-                    <i class="fas fa-list mr-1"></i> All Cards
+    <div class="mobile-menu hidden md:hidden bg-white border-b border-gray-200 shadow-md">
+        <div class="container mx-auto px-4 py-2">
+            <nav class="flex flex-col space-y-3 py-3">
+                <a asp-controller="Card" asp-action="Index" class="mobile-nav-link">
+                    <i class="fas fa-layer-group mr-2 w-5 text-center"></i> All Cards
                 </a>
-                <a asp-controller="Card" asp-action="Create" class="flex items-center text-gray-700 hover:text-purple-600">
-                    <i class="fas fa-plus mr-1"></i> New Card
+                <a asp-controller="Card" asp-action="Create" class="mobile-nav-link">
+                    <i class="fas fa-plus-circle mr-2 w-5 text-center"></i> New Card
                 </a>
-                <a asp-controller="Card" asp-action="PrintAll" class="flex items-center text-gray-700 hover:text-purple-600">
-                    <i class="fas fa-print mr-1"></i> Print All
+                <a asp-controller="Card" asp-action="PrintAll" class="mobile-nav-link">
+                    <i class="fas fa-print mr-2 w-5 text-center"></i> Print All
                 </a>
-            </div>
+            </nav>
         </div>
-    </nav>
+    </div>
 
-    <main class="flex-grow container mx-auto px-4 py-6">
+    <main class="flex-grow container mx-auto px-4 py-6 md:py-8">
         @RenderBody()
     </main>
 
-    <footer class="bg-white border-t border-gray-200 py-2">
+    <footer class="bg-white border-t border-gray-200 py-4 mt-auto">
         <div class="container mx-auto px-4 text-center text-gray-500 text-sm">
             <p>&copy; @DateTime.Now.Year - Card Tag Manager</p>
         </div>
     </footer>
 
+    <!-- Notification toast -->
+    <div id="notification-toast" class="fixed bottom-4 right-4 bg-white shadow-lg rounded-lg p-4 transform translate-y-20 opacity-0 transition-all duration-300 z-50 max-w-sm">
+        <div class="flex items-center">
+            <div id="notification-icon" class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full mr-3">
+                <i id="notification-icon-symbol" class="fas fa-check"></i>
+            </div>
+            <div class="flex-grow">
+                <p id="notification-message" class="font-medium"></p>
+            </div>
+            <button onclick="hideNotification()" class="ml-2 text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const mobileMenu = document.querySelector('.mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        });
+        
+        // Notification system
+        function showNotification(message, type = 'success') {
+            const toast = document.getElementById('notification-toast');
+            const icon = document.getElementById('notification-icon');
+            const iconSymbol = document.getElementById('notification-icon-symbol');
+            const messageEl = document.getElementById('notification-message');
+            
+            // Set message
+            messageEl.textContent = message;
+            
+            // Set type
+            if (type === 'success') {
+                icon.className = 'flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full mr-3 bg-green-100 text-green-500';
+                iconSymbol.className = 'fas fa-check';
+            } else if (type === 'error') {
+                icon.className = 'flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full mr-3 bg-red-100 text-red-500';
+                iconSymbol.className = 'fas fa-times';
+            } else if (type === 'info') {
+                icon.className = 'flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full mr-3 bg-blue-100 text-blue-500';
+                iconSymbol.className = 'fas fa-info';
+            }
+            
+            // Show toast
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            
+            // Hide after 3 seconds
+            setTimeout(hideNotification, 3000);
+        }
+        
+        function hideNotification() {
+            const toast = document.getElementById('notification-toast');
+            toast.classList.remove('translate-y-0', 'opacity-100');
+            toast.classList.add('translate-y-20', 'opacity-0');
+        }
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

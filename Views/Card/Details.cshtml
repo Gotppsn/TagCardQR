@@ -5,17 +5,21 @@
 }
 
 <div class="mb-6">
-    <a asp-action="Index" class="text-primary-600 hover:text-primary-800 flex items-center group">
+    <a asp-action="Index" class="inline-flex items-center text-primary-600 hover:text-primary-700 transition-colors group">
         <i class="fas fa-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i> Back to Library
     </a>
 </div>
 
-<div class="flex flex-col lg:flex-row gap-8">
-    <!-- Card Display Section -->
-    <div class="lg:w-1/2">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 fade-in">
+    <!-- Card Preview Section -->
+    <div>
+        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+            <i class="fas fa-id-card text-primary-500 mr-2"></i> Card Preview
+        </h2>
+        
         <div class="card-container">
-            <div class="business-card">
-                <div class="card-flip-container">
+            <div class="business-card shadow-xl">
+                <div class="card-flip-container" id="card-flip">
                     <!-- Card Front -->
                     <div class="card-side card-front" style="background-color: @Model.BackgroundColor; color: @Model.TextColor">
                         <div class="p-6 h-full flex flex-col">
@@ -55,102 +59,144 @@
             </div>
             
             <div class="mt-4 flex justify-center">
-                <button class="flip-card-btn btn-secondary">
-                    <i class="fas fa-sync-alt mr-1"></i> Show QR Code
+                <button id="flip-card-btn" class="btn-secondary">
+                    <i class="fas fa-sync-alt"></i> <span id="flip-text">Show QR Code</span>
                 </button>
             </div>
+        </div>
+        
+        <div class="mt-6 flex flex-wrap gap-3 justify-center">
+            <a asp-action="Print" asp-route-id="@Model.Id" class="btn-primary">
+                <i class="fas fa-print"></i> Print Card
+            </a>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn-secondary">
+                <i class="fas fa-edit"></i> Edit Card
+            </a>
+            <a asp-action="Vcf" asp-route-id="@Model.Id" class="btn-secondary">
+                <i class="fas fa-address-card"></i> Download vCard
+            </a>
         </div>
     </div>
     
     <!-- Card Details Section -->
-    <div class="lg:w-1/2">
+    <div>
+        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+            <i class="fas fa-info-circle text-primary-500 mr-2"></i> Card Details
+        </h2>
+        
         <div class="card">
-            <div class="p-6">
-                <h3 class="text-xl font-bold mb-4 flex items-center">
-                    <i class="fas fa-info-circle mr-2 text-primary-600"></i> Card Details
-                </h3>
-                <dl class="space-y-4">
-                    <div class="grid grid-cols-3 gap-4 items-center border-b pb-3">
-                        <dt class="text-gray-600 font-medium">ID:</dt>
-                        <dd class="col-span-2">@Model.Id</dd>
+            <div class="card-body">
+                <h3 class="font-semibold text-gray-700 mb-2">Contact Information</h3>
+                <div class="space-y-4 mb-6">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center">
+                            <i class="fas fa-user text-primary-600"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-gray-900">@Model.Name</p>
+                            <p class="text-sm text-gray-500">@Model.Title</p>
+                        </div>
                     </div>
-                    <div class="grid grid-cols-3 gap-4 items-center border-b pb-3">
-                        <dt class="text-gray-600 font-medium">Created:</dt>
-                        <dd class="col-span-2">
-                            <span class="flex items-center">
-                                <i class="far fa-calendar-alt mr-2 text-primary-500"></i>
-                                @Model.CreatedAt.ToString("MMMM d, yyyy") at @Model.CreatedAt.ToString("h:mm tt")
-                            </span>
-                        </dd>
+                    
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center">
+                            <i class="fas fa-building text-primary-600"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-gray-900">@Model.Company</p>
+                            @if (!string.IsNullOrEmpty(Model.Address))
+                            {
+                                <p class="text-sm text-gray-500">@Model.Address</p>
+                            }
+                        </div>
                     </div>
-                    <div class="grid grid-cols-3 gap-4 items-center border-b pb-3">
-                        <dt class="text-gray-600 font-medium">Last Updated:</dt>
-                        <dd class="col-span-2">
-                            <span class="flex items-center">
-                                <i class="far fa-clock mr-2 text-primary-500"></i>
-                                @Model.UpdatedAt.ToString("MMMM d, yyyy") at @Model.UpdatedAt.ToString("h:mm tt")
-                            </span>
-                        </dd>
+                    
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center">
+                            <i class="fas fa-envelope text-primary-600"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-gray-900">@Model.Email</p>
+                            <button onclick="copyToClipboard('@Model.Email')" class="text-sm text-primary-600 hover:text-primary-700">
+                                <i class="fas fa-copy mr-1"></i> Copy
+                            </button>
+                        </div>
                     </div>
-                </dl>
+                    
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center">
+                            <i class="fas fa-phone text-primary-600"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-gray-900">@Model.Phone</p>
+                            <button onclick="copyToClipboard('@Model.Phone')" class="text-sm text-primary-600 hover:text-primary-700">
+                                <i class="fas fa-copy mr-1"></i> Copy
+                            </button>
+                        </div>
+                    </div>
+                    
+                    @if (!string.IsNullOrEmpty(Model.Website))
+                    {
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center">
+                                <i class="fas fa-globe text-primary-600"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-gray-900">@Model.Website</p>
+                                <a href="@Model.Website" target="_blank" class="text-sm text-primary-600 hover:text-primary-700">
+                                    <i class="fas fa-external-link-alt mr-1"></i> Visit
+                                </a>
+                            </div>
+                        </div>
+                    }
+                </div>
                 
-                <h4 class="text-lg font-medium mt-6 mb-3 flex items-center">
-                    <i class="fas fa-palette mr-2 text-primary-600"></i> Color Scheme
-                </h4>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <h3 class="font-semibold text-gray-700 mb-2">Card Design</h3>
+                <div class="grid grid-cols-3 gap-3 mb-6">
                     <div class="bg-white rounded-lg border p-3 text-center">
                         <div class="w-full h-12 rounded mb-2 shadow-inner" style="background-color: @Model.BackgroundColor"></div>
-                        <p class="text-sm font-medium">Background</p>
-                        <p class="text-xs text-gray-500 font-mono">@Model.BackgroundColor</p>
+                        <p class="text-xs font-medium">Background</p>
+                        <p class="text-xs font-mono text-gray-500">@Model.BackgroundColor</p>
                     </div>
+                    
                     <div class="bg-white rounded-lg border p-3 text-center">
                         <div class="w-full h-12 rounded mb-2 shadow-inner" style="background-color: @Model.TextColor"></div>
-                        <p class="text-sm font-medium">Text</p>
-                        <p class="text-xs text-gray-500 font-mono">@Model.TextColor</p>
+                        <p class="text-xs font-medium">Text</p>
+                        <p class="text-xs font-mono text-gray-500">@Model.TextColor</p>
                     </div>
+                    
                     <div class="bg-white rounded-lg border p-3 text-center">
                         <div class="w-full h-12 rounded mb-2 shadow-inner" style="background-color: @Model.AccentColor"></div>
-                        <p class="text-sm font-medium">Accent</p>
-                        <p class="text-xs text-gray-500 font-mono">@Model.AccentColor</p>
+                        <p class="text-xs font-medium">Accent</p>
+                        <p class="text-xs font-mono text-gray-500">@Model.AccentColor</p>
                     </div>
                 </div>
-            </div>
-            
-            <div class="p-4 bg-gray-50 flex gap-3 justify-end">
-                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn-secondary">
-                    <i class="fas fa-edit"></i> Edit
-                </a>
-                <a asp-action="Print" asp-route-id="@Model.Id" class="btn-primary print-button">
-                    <i class="fas fa-print"></i> Print
-                </a>
-            </div>
-        </div>
-        
-        <!-- Contact Options -->
-        <div class="mt-6 card">
-            <div class="p-6">
-                <h3 class="text-xl font-bold mb-4 flex items-center">
-                    <i class="fas fa-share-alt mr-2 text-primary-600"></i> Share Options
-                </h3>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <a href="mailto:?subject=Contact Card for @Model.Name&body=Please find the contact details for @Model.Name:%0D%0A%0D%0AName: @Model.Name%0D%0ATitle: @Model.Title%0D%0ACompany: @Model.Company%0D%0AEmail: @Model.Email%0D%0APhone: @Model.Phone" 
-                       class="text-center p-4 rounded-lg border hover:bg-gray-50 transition-colors group">
-                        <i class="fas fa-envelope text-2xl text-primary-600 mb-3 group-hover:scale-110 transition-transform"></i>
-                        <p class="text-sm font-medium">Email</p>
-                    </a>
-                    <button onclick="copyContactInfo(); return false;" 
-                            class="text-center p-4 rounded-lg border hover:bg-gray-50 transition-colors group">
-                        <i class="fas fa-copy text-2xl text-primary-600 mb-3 group-hover:scale-110 transition-transform"></i>
-                        <p class="text-sm font-medium">Copy Info</p>
+                
+                <h3 class="font-semibold text-gray-700 mb-2">Card Information</h3>
+                <div class="space-y-2 text-sm mb-4">
+                    <div class="flex justify-between py-2 border-b border-gray-100">
+                        <span class="text-gray-500">Created On</span>
+                        <span class="font-medium">@Model.CreatedAt.ToString("MMM d, yyyy 'at' h:mm tt")</span>
+                    </div>
+                    <div class="flex justify-between py-2 border-b border-gray-100">
+                        <span class="text-gray-500">Last Updated</span>
+                        <span class="font-medium">@Model.UpdatedAt.ToString("MMM d, yyyy 'at' h:mm tt")</span>
+                    </div>
+                    <div class="flex justify-between py-2 border-b border-gray-100">
+                        <span class="text-gray-500">Card ID</span>
+                        <span class="font-medium">#@Model.Id</span>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col sm:flex-row sm:justify-end gap-3 mt-6">
+                    <button onclick="showQrCode()" class="btn-secondary">
+                        <i class="fas fa-qrcode"></i> View QR Code
                     </button>
-                    <a asp-action="Vcf" asp-route-id="@Model.Id" class="text-center p-4 rounded-lg border hover:bg-gray-50 transition-colors group">
-                        <i class="fas fa-address-card text-2xl text-primary-600 mb-3 group-hover:scale-110 transition-transform"></i>
-                        <p class="text-sm font-medium">Download VCF</p>
-                    </a>
-                    <a href="#" onclick="openQrCodePopup(); return false;" 
-                       class="text-center p-4 rounded-lg border hover:bg-gray-50 transition-colors group">
-                        <i class="fas fa-qrcode text-2xl text-primary-600 mb-3 group-hover:scale-110 transition-transform"></i>
-                        <p class="text-sm font-medium">View QR</p>
+                    <button onclick="copyContactInfo()" class="btn-secondary">
+                        <i class="fas fa-copy"></i> Copy All Info
+                    </button>
+                    <a asp-action="Delete" asp-route-id="@Model.Id" class="btn-danger">
+                        <i class="fas fa-trash-alt"></i> Delete Card
                     </a>
                 </div>
             </div>
@@ -158,8 +204,53 @@
     </div>
 </div>
 
+<!-- QR Code Modal -->
+<div id="qr-modal" class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 hidden fade-in">
+    <div class="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full mx-4">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold text-gray-900">QR Code</h3>
+            <button onclick="hideQrCode()" class="text-gray-400 hover:text-gray-500">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="text-center">
+            <img src="@ViewBag.QrCodeImage" alt="QR Code" class="h-64 w-64 mx-auto rounded-lg shadow-md" />
+            <p class="mt-4 text-sm text-gray-500">Scan this QR code to add @Model.Name to your contacts</p>
+        </div>
+        <div class="mt-6 flex justify-center">
+            <a asp-action="QrCode" asp-route-id="@Model.Id" target="_blank" class="btn-primary">
+                <i class="fas fa-external-link-alt"></i> Open in New Window
+            </a>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Card flip functionality
+        const flipBtn = document.getElementById('flip-card-btn');
+        const cardFlip = document.getElementById('card-flip');
+        const flipText = document.getElementById('flip-text');
+        
+        flipBtn.addEventListener('click', function() {
+            cardFlip.classList.toggle('flipped');
+            if (cardFlip.classList.contains('flipped')) {
+                flipText.textContent = 'Show Front';
+            } else {
+                flipText.textContent = 'Show QR Code';
+            }
+        });
+    });
+    
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            showNotification('Copied to clipboard');
+        }, () => {
+            showNotification('Failed to copy', 'error');
+        });
+    }
+    
     function copyContactInfo() {
         const contactInfo = `Name: @Model.Name
 Title: @Model.Title
@@ -176,15 +267,29 @@ Phone: @Model.Phone
 }`;
 
         navigator.clipboard.writeText(contactInfo).then(() => {
-            showNotification('Contact information copied to clipboard!');
+            showNotification('Contact information copied to clipboard');
         }, () => {
             showNotification('Failed to copy contact information', 'error');
         });
     }
     
-    function openQrCodePopup() {
-        window.open('@Url.Action("QrCode", "Card", new { id = Model.Id })', 'QR Code', 'width=320,height=380'); 
-        return false;
+    function showQrCode() {
+        const modal = document.getElementById('qr-modal');
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
     }
+    
+    function hideQrCode() {
+        const modal = document.getElementById('qr-modal');
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+    
+    // Close modal when clicking outside
+    document.getElementById('qr-modal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            hideQrCode();
+        }
+    });
 </script>
 }
