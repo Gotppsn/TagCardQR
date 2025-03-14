@@ -21,9 +21,9 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="space-y-4">
                     <div>
-                        <label asp-for="Name" class="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                        <input asp-for="Name" class="form-input" />
-                        <span asp-validation-for="Name" class="text-red-500 text-sm"></span>
+                        <label asp-for="ProductName" class="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
+                        <input asp-for="ProductName" class="form-input" />
+                        <span asp-validation-for="ProductName" class="text-red-500 text-sm"></span>
                     </div>
                     
                     <div>
@@ -33,9 +33,9 @@
                     </div>
                     
                     <div>
-                        <label asp-for="Company" class="block text-sm font-medium text-gray-700 mb-1">Company</label>
-                        <input asp-for="Company" class="form-input" />
-                        <span asp-validation-for="Company" class="text-red-500 text-sm"></span>
+                        <label asp-for="Manufacturer" class="block text-sm font-medium text-gray-700 mb-1">Manufacturer</label>
+                        <input asp-for="Manufacturer" class="form-input" />
+                        <span asp-validation-for="Manufacturer" class="text-red-500 text-sm"></span>
                     </div>
                     
                     <div>
@@ -62,6 +62,60 @@
                         <label asp-for="Website" class="block text-sm font-medium text-gray-700 mb-1">Website</label>
                         <input asp-for="Website" type="url" class="form-input" />
                         <span asp-validation-for="Website" class="text-red-500 text-sm"></span>
+                    </div>
+                    
+                    <div>
+                        <label asp-for="Category" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                        <input asp-for="Category" class="form-input" />
+                        <span asp-validation-for="Category" class="text-red-500 text-sm"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <div>
+                        <label asp-for="ModelNumber" class="block text-sm font-medium text-gray-700 mb-1">Model Number</label>
+                        <input asp-for="ModelNumber" class="form-input" />
+                        <span asp-validation-for="ModelNumber" class="text-red-500 text-sm"></span>
+                    </div>
+                    
+                    <div>
+                        <label asp-for="SerialNumber" class="block text-sm font-medium text-gray-700 mb-1">Serial Number</label>
+                        <input asp-for="SerialNumber" class="form-input" />
+                        <span asp-validation-for="SerialNumber" class="text-red-500 text-sm"></span>
+                    </div>
+                    
+                    <div>
+                        <label asp-for="Location" class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                        <input asp-for="Location" class="form-input" />
+                        <span asp-validation-for="Location" class="text-red-500 text-sm"></span>
+                    </div>
+                    
+                    <div>
+                        <label asp-for="MaintenanceInfo" class="block text-sm font-medium text-gray-700 mb-1">Maintenance Info</label>
+                        <textarea asp-for="MaintenanceInfo" class="form-input" rows="2"></textarea>
+                        <span asp-validation-for="MaintenanceInfo" class="text-red-500 text-sm"></span>
+                    </div>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label asp-for="ManufactureDate" class="block text-sm font-medium text-gray-700 mb-1">Manufacture Date</label>
+                        <input asp-for="ManufactureDate" type="date" class="form-input" />
+                        <span asp-validation-for="ManufactureDate" class="text-red-500 text-sm"></span>
+                    </div>
+                    
+                    <div>
+                        <label asp-for="PurchaseDate" class="block text-sm font-medium text-gray-700 mb-1">Purchase Date</label>
+                        <input asp-for="PurchaseDate" type="date" class="form-input" />
+                        <span asp-validation-for="PurchaseDate" class="text-red-500 text-sm"></span>
+                    </div>
+                    
+                    <div>
+                        <label asp-for="WarrantyExpiration" class="block text-sm font-medium text-gray-700 mb-1">Warranty Expiration</label>
+                        <input asp-for="WarrantyExpiration" type="date" class="form-input" />
+                        <span asp-validation-for="WarrantyExpiration" class="text-red-500 text-sm"></span>
                     </div>
                 </div>
             </div>

@@ -1,3 +1,4 @@
+// Path: Models/Card.cs
 using System;
 using System.ComponentModel.DataAnnotations;
 
@@ -7,24 +8,55 @@ namespace CardTagManager.Models
     {
         public int Id { get; set; }
         
+        // Renamed to match view expectations
         [Required]
         [StringLength(100)]
-        [Display(Name = "Name")]
-        public string Name { get; set; } = string.Empty;
+        [Display(Name = "Product Name")]
+        public string ProductName { get; set; } = string.Empty;
+        
+        // Original property as fallback for compatibility
+        public string Name { 
+            get => ProductName; 
+            set => ProductName = value; 
+        }
+        
+        // Contact info properties
+        [Display(Name = "Job Title")]
+        public string Title { get; set; } = string.Empty;
+        
+        [Display(Name = "Email Address")]
+        [EmailAddress]
+        public string Email { get; set; } = string.Empty;
+        
+        [Display(Name = "Phone Number")]
+        public string Phone { get; set; } = string.Empty;
+        
+        [Display(Name = "Address")]
+        public string Address { get; set; } = string.Empty;
+        
+        [Display(Name = "Website")]
+        [Url]
+        public string Website { get; set; } = string.Empty;
+        
+        // Renamed to match view expectations
+        [Required]
+        [StringLength(100)]
+        [Display(Name = "Manufacturer")]
+        public string Manufacturer { get; set; } = string.Empty;
+        
+        // Original property as fallback for compatibility
+        public string Company { 
+            get => Manufacturer; 
+            set => Manufacturer = value; 
+        }
         
         [Required]
         [StringLength(100)]
         public string Category { get; set; } = string.Empty;
         
-        [Required]
-        [StringLength(100)]
-        public string Company { get; set; } = string.Empty;
-        
-        [Required]
         [Display(Name = "Model Number")]
         public string ModelNumber { get; set; } = string.Empty;
         
-        [Required]
         [Display(Name = "Serial Number")]
         public string SerialNumber { get; set; } = string.Empty;
         

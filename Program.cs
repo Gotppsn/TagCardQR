@@ -1,3 +1,4 @@
+// Path: Program.cs
 using CardTagManager.Services;
 
 var builder = WebApplication.CreateBuilder(args);

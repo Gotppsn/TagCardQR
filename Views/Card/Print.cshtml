@@ -1,19 +1,19 @@
-@model ProductTagManager.Models.Product
+@model CardTagManager.Models.Card
 
 @{
-    ViewData["Title"] = "Print Product Tag";
+    ViewData["Title"] = "Print Card";
     Layout = "_PrintLayout";
 }
 
 <div class="print-container mb-4">
-    <div class="print-card" style="background-color: @Model.BackgroundColor; color: @Model.TextColor">
+    <div class="print-card" style="background-color: @@Model.BackgroundColor; color: @@Model.TextColor">
         <div class="card-content">
             <div class="card-info">
                 <span class="px-2 py-1 text-xs font-semibold rounded-full" style="background-color: @Model.AccentColor; color: @Model.BackgroundColor">
                     @Model.Category
                 </span>
-                <h3 class="card-name mt-1" style="color: @Model.AccentColor">@Model.ProductName</h3>
-                <p class="card-title">@Model.Manufacturer</p>
+                <h3 class="card-name mt-1" style="color: @Model.AccentColor">@@Model.ProductName</h3>
+                <p class="card-title">@@Model.Manufacturer</p>
                 <div class="flex items-center space-x-2 text-sm">
                     <span class="font-medium">Model:</span>
                     <span>@Model.ModelNumber</span>
