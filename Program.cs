@@ -1,10 +1,10 @@
-using ProductTagManager.Services;
+using CardTagManager.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
 builder.Services.AddControllersWithViews();
-builder.Services.AddSingleton<ProductRepository>();
+builder.Services.AddSingleton<CardRepository>();
 builder.Services.AddSingleton<QrCodeService>();
 
 var app = builder.Build();
@@ -23,6 +23,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Product}/{action=Index}/{id?}");
+    pattern: "{controller=Card}/{action=Index}/{id?}");
 
 app.Run();

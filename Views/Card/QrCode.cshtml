@@ -1,16 +1,16 @@
-@model ProductTagManager.Models.Product
+@model CardTagManager.Models.Card
 
 @{
-    ViewData["Title"] = "QR Code for " + Model.ProductName;
+    ViewData["Title"] = "QR Code for " + Model.Name;
     Layout = "_MinimalLayout";
 }
 
 <div class="text-center p-8">
     <h1 class="text-xl font-bold mb-4">Scan for Product Information</h1>
     <div class="bg-white p-4 inline-block rounded-lg shadow-md">
-        <img src="@ViewBag.QrCodeImage" alt="QR Code for @Model.ProductName" class="mx-auto" style="width: 300px; height: 300px;" />
+        <img src="@ViewBag.QrCodeImage" alt="QR Code for @Model.Name" class="mx-auto" style="width: 300px; height: 300px;" />
     </div>
-    <p class="mt-4 font-medium">@Model.ProductName</p>
-    <p class="text-gray-600">@Model.Manufacturer</p>
+    <p class="mt-4 font-medium">@Model.Name</p>
+    <p class="text-gray-600">@Model.Company</p>
     <p class="text-gray-500 text-sm mt-2">Model: @Model.ModelNumber | Serial: @Model.SerialNumber</p>
 </div>

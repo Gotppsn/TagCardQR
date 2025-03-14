@@ -9,7 +9,7 @@ namespace CardTagManager.Services
     {
         private static List<Card> _cards = new List<Card>
         {
-            // Sample chemical product
+            // Sample card
             new Card
             {
                 Id = 1,
@@ -45,44 +45,6 @@ namespace CardTagManager.Services
                 BackgroundColor = "#f8f9fa",
                 TextColor = "#212529",
                 AccentColor = "#6610f2"
-            },
-            
-            // Sample industrial printer
-            new Card
-            {
-                Id = 3,
-                Name = "Industrial Label Printer",
-                Category = "Office Equipment",
-                Company = "TechPrint Solutions",
-                ModelNumber = "TP-4500",
-                SerialNumber = "TPS2025003",
-                Location = "Office 203",
-                MaintenanceInfo = "Replace toner cartridge when prompted",
-                ManufactureDate = new DateTime(2024, 10, 5),
-                PurchaseDate = new DateTime(2024, 10, 20),
-                WarrantyExpiration = new DateTime(2026, 10, 20),
-                BackgroundColor = "#f0fdf4",
-                TextColor = "#166534",
-                AccentColor = "#16a34a"
-            },
-            
-            // Sample testing equipment
-            new Card
-            {
-                Id = 4,
-                Name = "Viscosity Tester",
-                Category = "Lab Equipment",
-                Company = "LabTech Instruments",
-                ModelNumber = "VT-200",
-                SerialNumber = "LT2024054",
-                Location = "Quality Control Lab",
-                MaintenanceInfo = "Calibrate monthly using standard solution",
-                ManufactureDate = new DateTime(2024, 9, 15),
-                PurchaseDate = new DateTime(2024, 9, 30),
-                WarrantyExpiration = new DateTime(2026, 9, 30),
-                BackgroundColor = "#eff6ff",
-                TextColor = "#1e40af",
-                AccentColor = "#3b82f6"
             }
         };
 

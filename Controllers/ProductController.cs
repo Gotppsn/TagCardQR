@@ -1,33 +1,33 @@
 using Microsoft.AspNetCore.Mvc;
-using ProductTagManager.Models;
-using ProductTagManager.Services;
+using CardTagManager.Models;
+using CardTagManager.Services;
 using System;
 using System.Collections.Generic;
 
-namespace ProductTagManager.Controllers
+namespace CardTagManager.Controllers
 {
     public class ProductController : Controller
     {
-        private readonly ProductRepository _productRepository;
+        private readonly CardRepository _cardRepository;
         private readonly QrCodeService _qrCodeService;
 
-        public ProductController(ProductRepository productRepository, QrCodeService qrCodeService)
+        public ProductController(CardRepository cardRepository, QrCodeService qrCodeService)
         {
-            _productRepository = productRepository;
+            _cardRepository = cardRepository;
             _qrCodeService = qrCodeService;
         }
 
         // GET: Product - Main product listing page
         public IActionResult Index()
         {
-            var products = _productRepository.GetAll();
+            var products = _cardRepository.GetAll();
             return View(products);
         }
 
         // GET: Product/Details/5 - Shows detailed product information
         public IActionResult Details(int id)
         {
-            var product = _productRepository.GetById(id);
+            var product = _cardRepository.GetById(id);
             if (product == null)
             {
                 return NotFound();
@@ -49,11 +49,11 @@ namespace ProductTagManager.Controllers
         // POST: Product/Create - Handles form submission for new product
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Product product)
+        public IActionResult Create(Card product)
         {
             if (ModelState.IsValid)
             {
-                _productRepository.Add(product);
+                _cardRepository.Add(product);
                 return RedirectToAction(nameof(Index));
             }
             return View(product);
@@ -62,7 +62,7 @@ namespace ProductTagManager.Controllers
         // GET: Product/Edit/5 - Shows product editing form
         public IActionResult Edit(int id)
         {
-            var product = _productRepository.GetById(id);
+            var product = _cardRepository.GetById(id);
             if (product == null)
             {
                 return NotFound();
@@ -73,7 +73,7 @@ namespace ProductTagManager.Controllers
         // POST: Product/Edit/5 - Handles form submission for product updates
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, Product product)
+        public IActionResult Edit(int id, Card product)
         {
             if (id != product.Id)
             {
@@ -82,7 +82,7 @@ namespace ProductTagManager.Controllers
 
             if (ModelState.IsValid)
             {
-                _productRepository.Update(product);
+                _cardRepository.Update(product);
                 return RedirectToAction(nameof(Index));
             }
             return View(product);
@@ -91,7 +91,7 @@ namespace ProductTagManager.Controllers
         // GET: Product/Delete/5 - Shows deletion confirmation
         public IActionResult Delete(int id)
         {
-            var product = _productRepository.GetById(id);
+            var product = _cardRepository.GetById(id);
             if (product == null)
             {
                 return NotFound();
@@ -105,14 +105,14 @@ namespace ProductTagManager.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
-            _productRepository.Delete(id);
+            _cardRepository.Delete(id);
             return RedirectToAction(nameof(Index));
         }
 
         // GET: Product/Print/5 - Generates printable product tag
         public IActionResult Print(int id)
         {
-            var product = _productRepository.GetById(id);
+            var product = _cardRepository.GetById(id);
             if (product == null)
             {
                 return NotFound();
@@ -128,7 +128,7 @@ namespace ProductTagManager.Controllers
         // GET: Product/PrintAll - Print all product tags
         public IActionResult PrintAll()
         {
-            var products = _productRepository.GetAll();
+            var products = _cardRepository.GetAll();
             
             // Generate QR codes for all products
             var qrCodes = new Dictionary<int, string>();
@@ -146,7 +146,7 @@ namespace ProductTagManager.Controllers
         // GET: Product/QrCode/5 - Dedicated QR code display for scanning
         public IActionResult QrCode(int id)
         {
-            var product = _productRepository.GetById(id);
+            var product = _cardRepository.GetById(id);
             if (product == null)
             {
                 return NotFound();
@@ -157,17 +157,17 @@ namespace ProductTagManager.Controllers
             string qrCodeImage = _qrCodeService.GenerateQrCodeAsBase64(qrCodeData);
             
             ViewBag.QrCodeImage = qrCodeImage;
-            ViewBag.ProductName = product.ProductName;
+            ViewBag.ProductName = product.Name;
             
             return View(product);
         }
 
         // Helper method to generate product data for QR code
-        private string GenerateProductQrData(Product product)
+        private string GenerateProductQrData(Card product)
         {
-            string productData = $"PRODUCT:{product.ProductName}\n" +
+            string productData = $"PRODUCT:{product.Name}\n" +
                                $"CATEGORY:{product.Category}\n" +
-                               $"MANUFACTURER:{product.Manufacturer}\n" +
+                               $"MANUFACTURER:{product.Company}\n" +
                                $"MODEL:{product.ModelNumber}\n" +
                                $"SERIAL:{product.SerialNumber}\n" +
                                $"LOCATION:{product.Location}\n" +
@@ -186,7 +186,7 @@ namespace ProductTagManager.Controllers
         // Generate downloadable product data file
         public IActionResult DownloadData(int id)
         {
-            var product = _productRepository.GetById(id);
+            var product = _cardRepository.GetById(id);
             if (product == null)
             {
                 return NotFound();
@@ -196,7 +196,7 @@ namespace ProductTagManager.Controllers
             string productDataContent = GenerateProductQrData(product);
             
             // Create a file name
-            string fileName = $"{product.ProductName.Replace(" ", "_")}_Info.txt";
+            string fileName = $"{product.Name.Replace(" ", "_")}_Info.txt";
             
             // Return the data as a downloadable file
             return File(System.Text.Encoding.UTF8.GetBytes(productDataContent), "text/plain", fileName);

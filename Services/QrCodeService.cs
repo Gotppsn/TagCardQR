@@ -4,7 +4,7 @@ using QRCoder;
 using System.Drawing;
 using System.Drawing.Imaging;
 
-namespace ProductTagManager.Services
+namespace CardTagManager.Services
 {
     public class QrCodeService
     {

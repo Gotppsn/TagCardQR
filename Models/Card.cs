@@ -9,7 +9,7 @@ namespace CardTagManager.Models
         
         [Required]
         [StringLength(100)]
-        [Display(Name = "Product Name")]
+        [Display(Name = "Name")]
         public string Name { get; set; } = string.Empty;
         
         [Required]
