@@ -1,18 +1,18 @@
-﻿@model IEnumerable<CardTagManager.Models.Card>
+﻿@model IEnumerable<ProductTagManager.Models.Product>
 
 @{
-    ViewData["Title"] = "Card Library";
+    ViewData["Title"] = "Product Library";
 }
 
 <div class="mb-8">
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-            <h1 class="text-2xl font-bold text-gray-800 mb-2">Your Card Library</h1>
-            <p class="text-gray-500">Manage your business cards and generate QR codes for easy sharing</p>
+            <h1 class="text-2xl font-bold text-gray-800 mb-2">Product Tag Library</h1>
+            <p class="text-gray-500">Manage your products and equipment with QR codes for easy tracking</p>
         </div>
         
         <a asp-action="Create" class="btn-primary self-start md:self-auto">
-            <i class="fas fa-plus"></i> Add New Card
+            <i class="fas fa-plus"></i> Add New Product
         </a>
     </div>
     
@@ -20,16 +20,19 @@
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div class="search-container w-full md:w-72">
                 <i class="fas fa-search search-icon"></i>
-                <input type="text" id="card-search" placeholder="Search cards..." class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" />
+                <input type="text" id="product-search" placeholder="Search products..." class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" />
             </div>
             
             <div class="flex items-center gap-3">
                 <div class="inline-flex rounded-lg shadow-sm bg-gray-100 p-1">
-                    <button id="all-cards-btn" class="px-4 py-2 rounded-lg bg-white shadow-sm text-blue-600 font-medium transition-all">
-                        <i class="fas fa-layer-group mr-2"></i> All Cards
+                    <button id="all-products-btn" class="px-4 py-2 rounded-lg bg-white shadow-sm text-blue-600 font-medium transition-all">
+                        <i class="fas fa-layer-group mr-2"></i> All Products
                     </button>
-                    <button id="recently-updated-btn" class="px-4 py-2 rounded-lg text-gray-500 hover:text-gray-700 transition-all">
-                        <i class="fas fa-clock mr-2"></i> Recent
+                    <button id="equipment-btn" class="px-4 py-2 rounded-lg text-gray-500 hover:text-gray-700 transition-all">
+                        <i class="fas fa-tools mr-2"></i> Equipment
+                    </button>
+                    <button id="chemicals-btn" class="px-4 py-2 rounded-lg text-gray-500 hover:text-gray-700 transition-all">
+                        <i class="fas fa-flask mr-2"></i> Chemicals
                     </button>
                 </div>
                 
@@ -45,71 +48,78 @@
 {
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center fade-in">
         <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-50 text-blue-500 mb-4">
-            <i class="fas fa-id-card text-2xl"></i>
+            <i class="fas fa-box-open text-2xl"></i>
         </div>
-        <h3 class="text-lg font-semibold text-gray-800 mb-2">No cards found</h3>
-        <p class="text-gray-500 mb-6 max-w-md mx-auto">Get started by creating your first business card. You can add contact details and customize its appearance.</p>
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">No products found</h3>
+        <p class="text-gray-500 mb-6 max-w-md mx-auto">Get started by adding your first product. You can add details and customize its product tag.</p>
         <a asp-action="Create" class="btn-primary inline-flex">
-            <i class="fas fa-plus mr-2"></i> Create First Card
+            <i class="fas fa-plus mr-2"></i> Add First Product
         </a>
     </div>
 }
 else
 {
-    <div id="cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 fade-in">
-        @foreach (var card in Model)
+    <div id="products-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 fade-in">
+        @foreach (var product in Model)
         {
-            <div class="card-item group" data-updated="@card.UpdatedAt.ToString("yyyy-MM-dd")">
+            <div class="product-item group" data-updated="@product.UpdatedAt.ToString("yyyy-MM-dd")" data-category="@product.Category.ToLower()">
                 <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 h-full">
-                    <div class="p-6" style="background-color: @card.BackgroundColor; color: @card.TextColor;">
+                    <div class="p-6" style="background-color: @product.BackgroundColor; color: @product.TextColor;">
                         <div class="flex justify-between items-start mb-3">
                             <div>
-                                <h3 class="text-xl font-bold mb-1" style="color: @card.AccentColor">@card.Name</h3>
-                                <p class="text-sm opacity-90">@card.Title</p>
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full" style="background-color: @product.AccentColor; color: @product.BackgroundColor">
+                                    @product.Category
+                                </span>
+                                <h3 class="text-xl font-bold mt-2" style="color: @product.AccentColor">@product.ProductName</h3>
                             </div>
                             <div class="flex">
-                                <a asp-action="Edit" asp-route-id="@card.Id" class="p-2 rounded-full hover:bg-white hover:bg-opacity-20 transition-colors" title="Edit Card">
+                                <a asp-action="Edit" asp-route-id="@product.Id" class="p-2 rounded-full hover:bg-white hover:bg-opacity-20 transition-colors" title="Edit Product">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <a asp-action="Print" asp-route-id="@card.Id" class="p-2 rounded-full hover:bg-white hover:bg-opacity-20 transition-colors" title="Print Card">
+                                <a asp-action="Print" asp-route-id="@product.Id" class="p-2 rounded-full hover:bg-white hover:bg-opacity-20 transition-colors" title="Print Tag">
                                     <i class="fas fa-print"></i>
                                 </a>
                             </div>
                         </div>
                         
-                        <p class="font-semibold text-lg mb-4">@card.Company</p>
+                        <p class="font-semibold mb-4">
+                            <i class="fas fa-industry mr-2" style="color: @product.AccentColor"></i>@product.Manufacturer
+                        </p>
                         
-                        <div class="space-y-2">
-                            <p class="flex items-center text-sm">
-                                <i class="fas fa-envelope mr-3 w-5 text-center" style="color: @card.AccentColor"></i>@card.Email
+                        <div class="space-y-2 text-sm">
+                            <p class="flex items-center">
+                                <i class="fas fa-tag mr-3 w-5 text-center" style="color: @product.AccentColor"></i>
+                                <span class="font-medium">Model:</span>&nbsp;@product.ModelNumber
                             </p>
-                            <p class="flex items-center text-sm">
-                                <i class="fas fa-phone mr-3 w-5 text-center" style="color: @card.AccentColor"></i>@card.Phone
+                            <p class="flex items-center">
+                                <i class="fas fa-fingerprint mr-3 w-5 text-center" style="color: @product.AccentColor"></i>
+                                <span class="font-medium">Serial:</span>&nbsp;@product.SerialNumber
                             </p>
-                            @if (!string.IsNullOrEmpty(card.Address))
-                            {
-                                <p class="flex items-center text-sm">
-                                    <i class="fas fa-map-marker-alt mr-3 w-5 text-center" style="color: @card.AccentColor"></i>
-                                    <span class="truncate">@card.Address</span>
-                                </p>
-                            }
+                            <p class="flex items-center">
+                                <i class="fas fa-map-marker-alt mr-3 w-5 text-center" style="color: @product.AccentColor"></i>
+                                <span class="font-medium">Location:</span>&nbsp;@product.Location
+                            </p>
+                            <p class="flex items-center">
+                                <i class="fas fa-calendar-check mr-3 w-5 text-center" style="color: @product.AccentColor"></i>
+                                <span class="font-medium">Warranty:</span>&nbsp;@product.WarrantyExpiration.ToString("MMM d, yyyy")
+                            </p>
                         </div>
                     </div>
                     
                     <div class="p-4 flex items-center justify-between bg-gray-50 border-t border-gray-100">
                         <span class="text-xs text-gray-500 flex items-center">
                             <i class="far fa-clock mr-2"></i> 
-                            Updated @((DateTime.Now - card.UpdatedAt).TotalDays < 1 ? "today" : card.UpdatedAt.ToString("MMM d"))
+                            Updated @((DateTime.Now - product.UpdatedAt).TotalDays < 1 ? "today" : product.UpdatedAt.ToString("MMM d"))
                         </span>
                         
                         <div class="flex items-center space-x-1">
-                            <a asp-action="Details" asp-route-id="@card.Id" class="p-2 rounded-full text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors" title="View Details">
+                            <a asp-action="Details" asp-route-id="@product.Id" class="p-2 rounded-full text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors" title="View Details">
                                 <i class="fas fa-eye"></i>
                             </a>
-                            <a asp-action="QrCode" asp-route-id="@card.Id" class="p-2 rounded-full text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors" title="QR Code">
+                            <a asp-action="QrCode" asp-route-id="@product.Id" class="p-2 rounded-full text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors" title="QR Code">
                                 <i class="fas fa-qrcode"></i>
                             </a>
-                            <a asp-action="Delete" asp-route-id="@card.Id" class="p-2 rounded-full text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors" title="Delete Card">
+                            <a asp-action="Delete" asp-route-id="@product.Id" class="p-2 rounded-full text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors" title="Delete Product">
                                 <i class="fas fa-trash-alt"></i>
                             </a>
                         </div>
@@ -123,121 +133,157 @@ else
 @section Scripts {
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Card search functionality
-        const searchInput = document.getElementById('card-search');
+        // Product search functionality
+        const searchInput = document.getElementById('product-search');
         if (searchInput) {
             searchInput.addEventListener('input', function() {
                 const searchTerm = this.value.toLowerCase().trim();
-                const cards = document.querySelectorAll('.card-item');
+                const products = document.querySelectorAll('.product-item');
                 
-                cards.forEach(card => {
-                    const cardText = card.textContent.toLowerCase();
-                    if (searchTerm === '' || cardText.includes(searchTerm)) {
-                        card.style.display = '';
-                        card.classList.add('fade-in');
+                products.forEach(product => {
+                    const productText = product.textContent.toLowerCase();
+                    if (searchTerm === '' || productText.includes(searchTerm)) {
+                        product.style.display = '';
+                        product.classList.add('fade-in');
                     } else {
-                        card.style.display = 'none';
-                        card.classList.remove('fade-in');
+                        product.style.display = 'none';
+                        product.classList.remove('fade-in');
                     }
                 });
                 
-                // Check if we have visible cards
-                const visibleCards = [...document.querySelectorAll('.card-item')].filter(card => card.style.display !== 'none');
-                const noResultsElem = document.getElementById('no-search-results');
-                
-                if (visibleCards.length === 0 && searchTerm !== '' && !noResultsElem) {
-                    const container = document.getElementById('cards-container');
-                    const noResults = document.createElement('div');
-                    noResults.id = 'no-search-results';
-                    noResults.className = 'col-span-full py-10 px-6 text-center bg-white rounded-xl shadow-sm border border-gray-100 fade-in';
-                    noResults.innerHTML = `
-                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-50 text-gray-400 mb-4">
-                            <i class="fas fa-search text-2xl"></i>
-                        </div>
-                        <h3 class="text-lg font-semibold text-gray-800 mb-2">No results found</h3>
-                        <p class="text-gray-500">No cards match your search for "${searchTerm}"</p>
-                    `;
-                    container.appendChild(noResults);
-                } else if ((visibleCards.length > 0 || searchTerm === '') && noResultsElem) {
-                    noResultsElem.remove();
-                }
+                // Check if we have visible products
+                updateNoResultsMessage(searchTerm);
             });
         }
         
         // Filter buttons
-        const allCardsBtn = document.getElementById('all-cards-btn');
-        const recentlyUpdatedBtn = document.getElementById('recently-updated-btn');
+        const allProductsBtn = document.getElementById('all-products-btn');
+        const equipmentBtn = document.getElementById('equipment-btn');
+        const chemicalsBtn = document.getElementById('chemicals-btn');
         
-        if (allCardsBtn && recentlyUpdatedBtn) {
-            allCardsBtn.addEventListener('click', function() {
-                allCardsBtn.classList.add('bg-white', 'shadow-sm', 'text-blue-600', 'font-medium');
-                recentlyUpdatedBtn.classList.remove('bg-white', 'shadow-sm', 'text-blue-600', 'font-medium');
-                recentlyUpdatedBtn.classList.add('text-gray-500');
-                
-                const cards = document.querySelectorAll('.card-item');
-                cards.forEach(card => {
-                    card.style.display = '';
-                    card.classList.add('fade-in');
-                });
-                
-                // Remove any "no results" message
-                const noRecentElem = document.getElementById('no-recent-cards');
-                if (noRecentElem) {
-                    noRecentElem.remove();
-                }
+        if (allProductsBtn && equipmentBtn && chemicalsBtn) {
+            allProductsBtn.addEventListener('click', function() {
+                setActiveFilterButton(allProductsBtn);
+                filterProducts('all');
             });
             
-            recentlyUpdatedBtn.addEventListener('click', function() {
-                recentlyUpdatedBtn.classList.add('bg-white', 'shadow-sm', 'text-blue-600', 'font-medium');
-                allCardsBtn.classList.remove('bg-white', 'shadow-sm', 'text-blue-600', 'font-medium');
-                allCardsBtn.classList.add('text-gray-500');
-                
-                const cards = document.querySelectorAll('.card-item');
-                const today = new Date();
-                const oneWeekAgo = new Date();
-                oneWeekAgo.setDate(today.getDate() - 7);
-                
-                let foundRecent = false;
-                
-                cards.forEach(card => {
-                    const updatedDate = new Date(card.getAttribute('data-updated'));
-                    
-                    if (updatedDate >= oneWeekAgo) {
-                        card.style.display = '';
-                        card.classList.add('fade-in');
-                        foundRecent = true;
-                    } else {
-                        card.style.display = 'none';
-                        card.classList.remove('fade-in');
-                    }
-                });
-                
-                // Show message if no recent cards
-                const noRecentElem = document.getElementById('no-recent-cards');
-                
-                if (!foundRecent && !noRecentElem) {
-                    const container = document.getElementById('cards-container');
-                    const noRecent = document.createElement('div');
-                    noRecent.id = 'no-recent-cards';
-                    noRecent.className = 'col-span-full py-10 px-6 text-center bg-white rounded-xl shadow-sm border border-gray-100 fade-in';
-                    noRecent.innerHTML = `
-                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-50 text-blue-400 mb-4">
-                            <i class="fas fa-calendar-alt text-2xl"></i>
-                        </div>
-                        <h3 class="text-lg font-semibold text-gray-800 mb-2">No recent cards</h3>
-                        <p class="text-gray-500">No cards have been updated in the last 7 days</p>
-                    `;
-                    container.appendChild(noRecent);
-                } else if (foundRecent && noRecentElem) {
-                    noRecentElem.remove();
-                }
+            equipmentBtn.addEventListener('click', function() {
+                setActiveFilterButton(equipmentBtn);
+                filterProducts('equipment');
+            });
+            
+            chemicalsBtn.addEventListener('click', function() {
+                setActiveFilterButton(chemicalsBtn);
+                filterProducts('chemical');
             });
         }
         
-        // Optional: Add click event to card-item for navigation
-        const cardItems = document.querySelectorAll('.card-item');
-        cardItems.forEach(card => {
-            card.addEventListener('click', function(e) {
+        function setActiveFilterButton(activeBtn) {
+            [allProductsBtn, equipmentBtn, chemicalsBtn].forEach(btn => {
+                btn.classList.remove('bg-white', 'shadow-sm', 'text-blue-600', 'font-medium');
+                btn.classList.add('text-gray-500');
+            });
+            
+            activeBtn.classList.add('bg-white', 'shadow-sm', 'text-blue-600', 'font-medium');
+            activeBtn.classList.remove('text-gray-500');
+        }
+        
+        function filterProducts(filterType) {
+            const products = document.querySelectorAll('.product-item');
+            let foundProducts = false;
+            
+            products.forEach(product => {
+                const category = product.getAttribute('data-category').toLowerCase();
+                
+                if (filterType === 'all' || 
+                   (filterType === 'equipment' && category.includes('equipment')) || 
+                   (filterType === 'chemical' && category.includes('chemical'))) {
+                    product.style.display = '';
+                    product.classList.add('fade-in');
+                    foundProducts = true;
+                } else {
+                    product.style.display = 'none';
+                    product.classList.remove('fade-in');
+                }
+            });
+            
+            // Show message if no products match filter
+            if (!foundProducts) {
+                showNoProductsForFilterMessage(filterType);
+            } else {
+                removeNoProductsMessage();
+            }
+        }
+        
+        function updateNoResultsMessage(searchTerm) {
+            const visibleProducts = [...document.querySelectorAll('.product-item')].filter(
+                product => product.style.display !== 'none'
+            );
+            const noResultsElem = document.getElementById('no-search-results');
+            
+            if (visibleProducts.length === 0 && searchTerm !== '' && !noResultsElem) {
+                const container = document.getElementById('products-container');
+                const noResults = document.createElement('div');
+                noResults.id = 'no-search-results';
+                noResults.className = 'col-span-full py-10 px-6 text-center bg-white rounded-xl shadow-sm border border-gray-100 fade-in';
+                noResults.innerHTML = `
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-50 text-gray-400 mb-4">
+                        <i class="fas fa-search text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">No results found</h3>
+                    <p class="text-gray-500">No products match your search for "${searchTerm}"</p>
+                `;
+                container.appendChild(noResults);
+            } else if ((visibleProducts.length > 0 || searchTerm === '') && noResultsElem) {
+                noResultsElem.remove();
+            }
+        }
+        
+        function showNoProductsForFilterMessage(filterType) {
+            removeNoProductsMessage();
+            
+            const container = document.getElementById('products-container');
+            const noProducts = document.createElement('div');
+            noProducts.id = 'no-filter-results';
+            noProducts.className = 'col-span-full py-10 px-6 text-center bg-white rounded-xl shadow-sm border border-gray-100 fade-in';
+            
+            let filterName = 'matching this filter';
+            let iconClass = 'fa-filter';
+            
+            if (filterType === 'equipment') {
+                filterName = 'equipment';
+                iconClass = 'fa-tools';
+            } else if (filterType === 'chemical') {
+                filterName = 'chemicals';
+                iconClass = 'fa-flask';
+            }
+            
+            noProducts.innerHTML = `
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-50 text-blue-400 mb-4">
+                    <i class="fas ${iconClass} text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">No ${filterName} found</h3>
+                <p class="text-gray-500">Try a different filter or add new products in this category</p>
+                <div class="mt-4">
+                    <a href="@Url.Action("Create")" class="btn-primary inline-flex mt-2">
+                        <i class="fas fa-plus mr-2"></i> Add New Product
+                    </a>
+                </div>
+            `;
+            container.appendChild(noProducts);
+        }
+        
+        function removeNoProductsMessage() {
+            const noProductsElem = document.getElementById('no-filter-results');
+            if (noProductsElem) {
+                noProductsElem.remove();
+            }
+        }
+        
+        // Make product cards clickable for navigation
+        const productItems = document.querySelectorAll('.product-item');
+        productItems.forEach(product => {
+            product.addEventListener('click', function(e) {
                 // Only navigate if the click wasn't on an action button
                 if (!e.target.closest('a')) {
                     const viewLink = this.querySelector('a[asp-action="Details"]');

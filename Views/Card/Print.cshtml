@@ -1,7 +1,7 @@
-@model CardTagManager.Models.Card
+@model ProductTagManager.Models.Product
 
 @{
-    ViewData["Title"] = "Print Card";
+    ViewData["Title"] = "Print Product Tag";
     Layout = "_PrintLayout";
 }
 
@@ -9,27 +9,31 @@
     <div class="print-card" style="background-color: @Model.BackgroundColor; color: @Model.TextColor">
         <div class="card-content">
             <div class="card-info">
-                <h3 class="card-name" style="color: @Model.AccentColor">@Model.Name</h3>
-                <p class="card-title">@Model.Title</p>
-                <p class="card-company">@Model.Company</p>
+                <span class="px-2 py-1 text-xs font-semibold rounded-full" style="background-color: @Model.AccentColor; color: @Model.BackgroundColor">
+                    @Model.Category
+                </span>
+                <h3 class="card-name mt-1" style="color: @Model.AccentColor">@Model.ProductName</h3>
+                <p class="card-title">@Model.Manufacturer</p>
+                <div class="flex items-center space-x-2 text-sm">
+                    <span class="font-medium">Model:</span>
+                    <span>@Model.ModelNumber</span>
+                </div>
                 
                 <div class="card-details">
-                    <p><i class="fas fa-envelope" style="color: @Model.AccentColor"></i>@Model.Email</p>
-                    <p><i class="fas fa-phone" style="color: @Model.AccentColor"></i>@Model.Phone</p>
-                    @if (!string.IsNullOrEmpty(Model.Address))
+                    <p><i class="fas fa-fingerprint" style="color: @Model.AccentColor"></i>SN: @Model.SerialNumber</p>
+                    <p><i class="fas fa-map-marker-alt" style="color: @Model.AccentColor"></i>@Model.Location</p>
+                    <p><i class="fas fa-calendar-day" style="color: @Model.AccentColor"></i>Mfg: @Model.ManufactureDate.ToString("MM/dd/yyyy")</p>
+                    <p><i class="fas fa-shield-alt" style="color: @Model.AccentColor"></i>Warranty: @Model.WarrantyExpiration.ToString("MM/dd/yyyy")</p>
+                    @if (!string.IsNullOrEmpty(Model.MaintenanceInfo))
                     {
-                        <p><i class="fas fa-map-marker-alt" style="color: @Model.AccentColor"></i>@Model.Address</p>
-                    }
-                    @if (!string.IsNullOrEmpty(Model.Website))
-                    {
-                        <p><i class="fas fa-globe" style="color: @Model.AccentColor"></i>@Model.Website</p>
+                        <p><i class="fas fa-tools" style="color: @Model.AccentColor"></i>@Model.MaintenanceInfo</p>
                     }
                 </div>
             </div>
             
             <div class="card-qr">
                 <img src="@ViewBag.QrCodeImage" alt="QR Code" />
-                <p class="scan-text">Scan to Save Contact</p>
+                <p class="scan-text">Scan for Product Info</p>
             </div>
         </div>
     </div>
@@ -37,7 +41,7 @@
 
 <div class="no-print flex justify-center mb-4">
     <button onclick="window.print()" class="btn-primary mr-2">
-        <i class="fas fa-print mr-1"></i> Print Card
+        <i class="fas fa-print mr-1"></i> Print Tag
     </button>
     <a asp-action="Details" asp-route-id="@Model.Id" class="btn-secondary">
         <i class="fas fa-arrow-left mr-1"></i> Back to Details

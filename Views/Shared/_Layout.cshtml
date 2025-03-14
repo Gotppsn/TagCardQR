@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Card Tag Manager</title>
+    <title>@ViewData["Title"] - Product Tag Manager</title>
     <link rel="stylesheet" href="~/css/tailwind.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
@@ -63,25 +63,25 @@
             <div class="flex justify-between items-center">
                 <a href="/" class="flex items-center gap-2 group">
                     <div class="w-10 h-10 rounded-lg bg-blue-600 text-white flex items-center justify-center shadow-md group-hover:shadow-lg transition-all duration-300">
-                        <i class="fas fa-id-card text-xl"></i>
+                        <i class="fas fa-box-open text-xl"></i>
                     </div>
-                    <span class="text-xl font-bold brand-gradient">Card Tag Manager</span>
+                    <span class="text-xl font-bold brand-gradient">Product Tag Manager</span>
                 </a>
                 
                 <nav class="hidden md:flex items-center space-x-2">
-                    <a asp-controller="Card" asp-action="Index" class="nav-item">
-                        <i class="fas fa-layer-group mr-2"></i> All Cards
+                    <a asp-controller="Product" asp-action="Index" class="nav-item">
+                        <i class="fas fa-layer-group mr-2"></i> All Products
                     </a>
-                    <a asp-controller="Card" asp-action="Create" class="nav-item">
-                        <i class="fas fa-plus-circle mr-2"></i> New Card
+                    <a asp-controller="Product" asp-action="Create" class="nav-item">
+                        <i class="fas fa-plus-circle mr-2"></i> New Product
                     </a>
-                    <a asp-controller="Card" asp-action="PrintAll" class="nav-item">
+                    <a asp-controller="Product" asp-action="PrintAll" class="nav-item">
                         <i class="fas fa-print mr-2"></i> Print All
                     </a>
                     <div class="ml-4">
-                        <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-sm hover:shadow flex items-center transition-all duration-200">
-                            <i class="fas fa-plus mr-2"></i> Create Card
-                        </button>
+                        <a asp-controller="Product" asp-action="Create" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-sm hover:shadow flex items-center transition-all duration-200">
+                            <i class="fas fa-plus mr-2"></i> Add Product
+                        </a>
                     </div>
                 </nav>
                 
@@ -95,19 +95,19 @@
     <div class="mobile-menu hidden md:hidden bg-white border-b border-gray-200 shadow-md">
         <div class="container mx-auto px-4 py-3">
             <nav class="flex flex-col space-y-2 py-2">
-                <a asp-controller="Card" asp-action="Index" class="nav-item">
-                    <i class="fas fa-layer-group mr-2 w-5 text-center"></i> All Cards
+                <a asp-controller="Product" asp-action="Index" class="nav-item">
+                    <i class="fas fa-layer-group mr-2 w-5 text-center"></i> All Products
                 </a>
-                <a asp-controller="Card" asp-action="Create" class="nav-item">
-                    <i class="fas fa-plus-circle mr-2 w-5 text-center"></i> New Card
+                <a asp-controller="Product" asp-action="Create" class="nav-item">
+                    <i class="fas fa-plus-circle mr-2 w-5 text-center"></i> New Product
                 </a>
-                <a asp-controller="Card" asp-action="PrintAll" class="nav-item">
+                <a asp-controller="Product" asp-action="PrintAll" class="nav-item">
                     <i class="fas fa-print mr-2 w-5 text-center"></i> Print All
                 </a>
                 <div class="pt-2 mt-2 border-t border-gray-100">
-                    <button class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-sm hover:shadow flex items-center justify-center transition-all duration-200">
-                        <i class="fas fa-plus mr-2"></i> Create New Card
-                    </button>
+                    <a asp-controller="Product" asp-action="Create" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-sm hover:shadow flex items-center justify-center transition-all duration-200">
+                        <i class="fas fa-plus mr-2"></i> Add New Product
+                    </a>
                 </div>
             </nav>
         </div>
@@ -121,20 +121,14 @@
         <div class="container mx-auto px-4">
             <div class="flex flex-col md:flex-row justify-between items-center">
                 <div class="flex items-center mb-4 md:mb-0">
-                    <span class="font-semibold text-gray-700">Card Tag Manager</span>
+                    <span class="font-semibold text-gray-700">ChemTech Product Tag Manager</span>
                     <span class="mx-2 text-gray-300">|</span>
-                    <span class="text-gray-500 text-sm">&copy; @DateTime.Now.Year All rights reserved</span>
+                    <span class="text-gray-500 text-sm">&copy; @DateTime.Now.Year ChemTech Industries</span>
                 </div>
                 <div class="flex space-x-4">
-                    <a href="#" class="text-gray-400 hover:text-blue-600 transition-colors">
-                        <i class="fab fa-github"></i>
-                    </a>
-                    <a href="#" class="text-gray-400 hover:text-blue-600 transition-colors">
-                        <i class="fab fa-twitter"></i>
-                    </a>
-                    <a href="#" class="text-gray-400 hover:text-blue-600 transition-colors">
-                        <i class="fas fa-envelope"></i>
-                    </a>
+                    <span class="text-gray-500">
+                        <i class="fas fa-question-circle mr-1"></i> Need help? Contact IT Support
+                    </span>
                 </div>
             </div>
         </div>

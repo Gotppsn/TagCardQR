@@ -4,7 +4,7 @@ using QRCoder;
 using System.Drawing;
 using System.Drawing.Imaging;
 
-namespace CardTagManager.Services
+namespace ProductTagManager.Services
 {
     public class QrCodeService
     {
@@ -16,7 +16,7 @@ namespace CardTagManager.Services
                 // Create QR code data
                 var qrCodeData = qrGenerator.CreateQrCode(textData, QRCodeGenerator.ECCLevel.Q);
                 
-                // Use PayloadGenerator approach which avoids QRCode class reference issues
+                // Use PngByteQRCode for better compatibility
                 using (var pngGenerator = new PngByteQRCode(qrCodeData))
                 {
                     byte[] pngBytes = pngGenerator.GetGraphic(20);
