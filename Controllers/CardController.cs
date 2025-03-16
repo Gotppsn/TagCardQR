@@ -162,15 +162,13 @@ namespace CardTagManager.Controllers
             return View(card);
         }
 
-        public IActionResult ScanResult(int id)
+        public IActionResult ScanResult()
         {
-            var card = _cardRepository.GetById(id);
-            if (card == null)
-            {
-                return NotFound();
-            }
-
-            return View(card);
+            // Retrieve scan results from repository or service
+            // For demo purposes using empty list
+            var scanResults = new List<ScanResultViewModel>();
+            
+            return View(scanResults);
         }
 
         // Helper method to generate card data for QR code

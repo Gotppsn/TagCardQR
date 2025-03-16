@@ -1,0 +1,487 @@
+@model CardTagManager.Models.Card
+
+@{
+    ViewData["Title"] = "Product Information";
+    Layout = "_Layout";  // Using your existing layout
+}
+
+<div class="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 flex flex-col">
+    <!-- Header Banner -->
+    <div class="bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                        <i class="fas fa-tag text-white"></i>
+                    </div>
+                    <h1 class="text-xl font-bold">Product Information</h1>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button id="share-btn" class="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors">
+                        <i class="fas fa-share-alt"></i>
+                    </button>
+                    <a href="@Url.Action("Print", new { id = Model.Id })" target="_blank" class="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors">
+                        <i class="fas fa-print"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-6 flex-grow">
+        <!-- Product Card -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-6 transform transition-transform hover:scale-[1.01]">
+            <!-- Product Status Indicator -->
+            @if (Model.WarrantyExpiration < DateTime.Now)
+            {
+                <div class="bg-red-500 text-white text-sm py-1 px-4 text-center font-medium">
+                    <i class="fas fa-exclamation-triangle mr-1"></i> Warranty Expired
+                </div>
+            }
+            else if (Model.WarrantyExpiration < DateTime.Now.AddMonths(3))
+            {
+                <div class="bg-yellow-500 text-white text-sm py-1 px-4 text-center font-medium">
+                    <i class="fas fa-clock mr-1"></i> Warranty Expiring Soon
+                </div>
+            }
+            else
+            {
+                <div class="bg-green-500 text-white text-sm py-1 px-4 text-center font-medium">
+                    <i class="fas fa-shield-alt mr-1"></i> In Warranty
+                </div>
+            }
+
+            <!-- Product Header -->
+            <div class="p-6" style="background-color: @Model.BackgroundColor; color: @Model.TextColor;">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" 
+                              style="background-color: @Model.AccentColor; color: @Model.BackgroundColor">
+                            @Model.Category
+                        </span>
+                        <h2 class="text-2xl font-bold mt-2 mb-1" style="color: @Model.AccentColor">@Model.ProductName</h2>
+                        <p class="text-lg">@Model.Manufacturer</p>
+                    </div>
+                    <div class="bg-white/10 p-2 rounded-lg">
+                        <img src="/api/placeholder/80/80" alt="Product image" class="rounded" />
+                    </div>
+                </div>
+                
+                <div class="mt-4 space-y-2">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm opacity-70">Model Number</p>
+                            <p class="font-medium flex items-center">
+                                <i class="fas fa-tag mr-2" style="color: @Model.AccentColor"></i>
+                                @Model.ModelNumber
+                            </p>
+                        </div>
+                        <div>
+                            <p class="text-sm opacity-70">Serial Number</p>
+                            <p class="font-medium flex items-center">
+                                <i class="fas fa-fingerprint mr-2" style="color: @Model.AccentColor"></i>
+                                @Model.SerialNumber
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <p class="text-sm opacity-70">Location</p>
+                        <p class="font-medium flex items-center">
+                            <i class="fas fa-map-marker-alt mr-2" style="color: @Model.AccentColor"></i>
+                            @Model.Location
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Warranty Timeline -->
+            <div class="p-4 border-b border-gray-100">
+                <div class="relative">
+                    <div class="h-1 bg-gray-200 rounded-full">
+                        @{
+                            var totalDays = (Model.WarrantyExpiration - Model.PurchaseDate).TotalDays;
+                            var elapsedDays = (DateTime.Now - Model.PurchaseDate).TotalDays;
+                            var elapsedPercent = Math.Min(100, Math.Max(0, (elapsedDays / totalDays) * 100));
+                            
+                            string progressClass = elapsedPercent < 70 ? "bg-green-500" : 
+                                                 elapsedPercent < 90 ? "bg-yellow-500" : "bg-red-500";
+                        }
+                        <div class="absolute left-0 top-0 h-1 @progressClass rounded-full" style="width: @elapsedPercent%"></div>
+                    </div>
+                    <div class="flex justify-between mt-2 text-xs text-gray-500">
+                        <div>
+                            <div class="mb-1">Purchase</div>
+                            <div class="font-medium text-gray-700">@Model.PurchaseDate.ToString("MMM d, yyyy")</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="mb-1">Today</div>
+                            <div class="font-medium text-gray-700">@DateTime.Now.ToString("MMM d, yyyy")</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="mb-1">Warranty End</div>
+                            <div class="font-medium @(Model.WarrantyExpiration < DateTime.Now ? "text-red-600" : "text-gray-700")">
+                                @Model.WarrantyExpiration.ToString("MMM d, yyyy")
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Details Section -->
+            <div class="p-6 border-t border-gray-100">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Product Details</h3>
+                
+                <div class="grid grid-cols-2 gap-x-4 gap-y-6">
+                    <div>
+                        <p class="text-sm text-gray-500">Manufacture Date</p>
+                        <p class="font-medium text-gray-800">@Model.ManufactureDate.ToString("MMM d, yyyy")</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Purchase Date</p>
+                        <p class="font-medium text-gray-800">@Model.PurchaseDate.ToString("MMM d, yyyy")</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Warranty Until</p>
+                        <p class="font-medium text-gray-800 @(Model.WarrantyExpiration < DateTime.Now ? "text-red-600" : "")">
+                            @Model.WarrantyExpiration.ToString("MMM d, yyyy")
+                            @if (Model.WarrantyExpiration > DateTime.Now)
+                            {
+                                <span class="text-xs text-gray-500">(@((Model.WarrantyExpiration - DateTime.Now).Days) days left)</span>
+                            }
+                            else
+                            {
+                                <span class="text-xs text-red-500">(@Math.Abs((Model.WarrantyExpiration - DateTime.Now).Days) days ago)</span>
+                            }
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Last Updated</p>
+                        <p class="font-medium text-gray-800">@Model.UpdatedAt.ToString("MMM d, yyyy")</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Maintenance Information -->
+            @if (!string.IsNullOrEmpty(Model.MaintenanceInfo))
+            {
+                <div class="px-6 py-4 bg-blue-50 border-t border-blue-100">
+                    <div class="flex">
+                        <div class="flex-shrink-0 mr-4">
+                            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                <i class="fas fa-wrench text-blue-500"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-md font-medium text-blue-800">Maintenance Information</h4>
+                            <p class="mt-1 text-sm text-blue-700">@Model.MaintenanceInfo</p>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <a href="#report-issue" class="flex items-center justify-center bg-white rounded-lg p-4 shadow-md hover:shadow-lg transition-shadow">
+                <i class="fas fa-exclamation-circle text-orange-500 mr-3"></i>
+                <span class="font-medium">Report Issue</span>
+            </a>
+            <a href="#contact-support" class="flex items-center justify-center bg-white rounded-lg p-4 shadow-md hover:shadow-lg transition-shadow">
+                <i class="fas fa-headset text-primary-500 mr-3"></i>
+                <span class="font-medium">Contact Support</span>
+            </a>
+        </div>
+
+        <!-- Maintenance History -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+            <div class="px-6 py-4 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
+                <h3 class="font-semibold text-gray-800">Maintenance History</h3>
+                <button class="text-primary-600 text-sm font-medium">View All</button>
+            </div>
+            <!-- Sample history items -->
+            <div class="p-4">
+                <div class="text-center py-4">
+                    <div class="w-12 h-12 mx-auto rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-2">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <p class="text-gray-500 text-sm">No maintenance history available</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Documentation & Resources -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+            <div class="px-6 py-4 bg-gray-50 border-b border-gray-100">
+                <h3 class="font-semibold text-gray-800">Documentation & Resources</h3>
+            </div>
+            <div class="p-6 space-y-4">
+                <a href="#" class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 flex items-center justify-center bg-red-100 rounded-lg">
+                            <i class="fas fa-file-pdf text-red-500"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="font-medium">Product Manual</p>
+                            <p class="text-xs text-gray-500">PDF • 2.4 MB</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-download text-gray-400"></i>
+                </a>
+                
+                <a href="#" class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 flex items-center justify-center bg-blue-100 rounded-lg">
+                            <i class="fas fa-file-alt text-blue-500"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="font-medium">Safety Data Sheet</p>
+                            <p class="text-xs text-gray-500">PDF • 1.2 MB</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-download text-gray-400"></i>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Related Products -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+            <div class="px-6 py-4 bg-gray-50 border-b border-gray-100">
+                <h3 class="font-semibold text-gray-800">Related Products</h3>
+            </div>
+            <div class="p-4">
+                <div class="flex overflow-x-auto pb-2 space-x-4">
+                    @for (int i = 0; i < 3; i++)
+                    {
+                        <div class="flex-shrink-0 w-56 bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition-colors">
+                            <div class="w-full h-32 bg-white rounded flex items-center justify-center mb-2">
+                                <img src="/api/placeholder/80/80" alt="Related product" class="h-16 w-16" />
+                            </div>
+                            <h4 class="font-medium text-sm truncate">Related Product @(i+1)</h4>
+                            <p class="text-xs text-gray-500">@Model.Category</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-4">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="text-center md:text-left mb-4 md:mb-0">
+                    <img src="/api/placeholder/120/30" alt="Company logo" class="h-8 mx-auto md:mx-0" />
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-home"></i>
+                    </a>
+                    <a href="#" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-envelope"></i>
+                    </a>
+                    <a href="#" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-phone"></i>
+                    </a>
+                    <a href="#" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-question-circle"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Report Issue Modal (Hidden by default) -->
+    <div id="report-issue-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 transform transition-all">
+            <div class="flex justify-between items-center p-5 border-b">
+                <h3 class="text-lg font-semibold">Report an Issue</h3>
+                <button id="close-report-modal" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-5">
+                <form>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Issue Type</label>
+                        <select class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                            <option>Device Malfunction</option>
+                            <option>Maintenance Required</option>
+                            <option>Damage Report</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <textarea rows="4" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
+                                  placeholder="Please describe the issue in detail..."></textarea>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Your Contact Information</label>
+                        <input type="text" class="w-full border border-gray-300 rounded-md px-3 py-2 mb-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
+                               placeholder="Name">
+                        <input type="email" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
+                               placeholder="Email">
+                    </div>
+                    <div class="mt-6 flex justify-end">
+                        <button type="button" id="cancel-report" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-md mr-2 hover:bg-gray-200">
+                            Cancel
+                        </button>
+                        <button type="submit" class="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700">
+                            Submit Report
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification (Hidden by default) -->
+    <div id="toast-notification" class="fixed bottom-4 right-4 bg-white rounded-lg shadow-lg border border-gray-100 p-4 max-w-sm transform translate-y-20 opacity-0 transition-all duration-300 z-50 hidden">
+        <div class="flex items-center">
+            <div id="toast-icon" class="flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-green-100">
+                <i id="toast-icon-symbol" class="fas fa-check text-green-500"></i>
+            </div>
+            <div class="ml-3 flex-1">
+                <p id="toast-message" class="text-sm font-medium text-gray-900">Information copied to clipboard</p>
+                <p id="toast-description" class="text-sm text-gray-500">You can now paste it anywhere you need</p>
+            </div>
+            <button id="close-toast" class="ml-auto text-gray-400 hover:text-gray-500">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Share functionality
+        const shareBtn = document.getElementById('share-btn');
+        
+        if (shareBtn) {
+            shareBtn.addEventListener('click', function() {
+                if (navigator.share) {
+                    navigator.share({
+                        title: '@Model.ProductName',
+                        text: 'Product information for @Model.ProductName (@Model.ModelNumber)',
+                        url: window.location.href
+                    })
+                    .then(() => showToast('Shared successfully!', 'success'))
+                    .catch(error => console.error('Error sharing:', error));
+                } else {
+                    // Clipboard fallback
+                    navigator.clipboard.writeText(window.location.href)
+                        .then(() => showToast('Link copied to clipboard!', 'success'))
+                        .catch(() => showToast('Failed to copy link', 'error'));
+                }
+            });
+        }
+        
+        // Report Issue Modal
+        const reportIssueLink = document.querySelector('a[href="#report-issue"]');
+        const reportIssueModal = document.getElementById('report-issue-modal');
+        const closeReportModal = document.getElementById('close-report-modal');
+        const cancelReport = document.getElementById('cancel-report');
+        
+        if (reportIssueLink && reportIssueModal) {
+            reportIssueLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                reportIssueModal.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+            });
+        }
+        
+        if (closeReportModal) {
+            closeReportModal.addEventListener('click', closeModal);
+        }
+        
+        if (cancelReport) {
+            cancelReport.addEventListener('click', closeModal);
+        }
+        
+        function closeModal() {
+            reportIssueModal.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        }
+        
+        // Close modal when clicking outside
+        if (reportIssueModal) {
+            reportIssueModal.addEventListener('click', function(e) {
+                if (e.target === reportIssueModal) {
+                    closeModal();
+                }
+            });
+        }
+        
+        // Toast notification system
+        window.showToast = function(message, type = 'info', description = '') {
+            const toast = document.getElementById('toast-notification');
+            const toastMessage = document.getElementById('toast-message');
+            const toastDescription = document.getElementById('toast-description');
+            const toastIcon = document.getElementById('toast-icon');
+            const toastIconSymbol = document.getElementById('toast-icon-symbol');
+            
+            if (!toast || !toastMessage || !toastDescription || !toastIcon || !toastIconSymbol) return;
+            
+            toastMessage.textContent = message;
+            toastDescription.textContent = description;
+            
+            // Set icon based on type
+            if (type === 'success') {
+                toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-green-100';
+                toastIconSymbol.className = 'fas fa-check text-green-500';
+            } else if (type === 'error') {
+                toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-red-100';
+                toastIconSymbol.className = 'fas fa-times text-red-500';
+            } else if (type === 'warning') {
+                toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-yellow-100';
+                toastIconSymbol.className = 'fas fa-exclamation text-yellow-500';
+            } else {
+                toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-blue-100';
+                toastIconSymbol.className = 'fas fa-info text-blue-500';
+            }
+            
+            // Show toast
+            toast.classList.remove('hidden', 'translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            
+            // Auto-hide after 5 seconds
+            setTimeout(function() {
+                toast.classList.add('translate-y-20', 'opacity-0');
+                setTimeout(function() {
+                    toast.classList.add('hidden');
+                }, 300);
+            }, 5000);
+            
+            // Close on click
+            const closeToast = document.getElementById('close-toast');
+            if (closeToast) {
+                closeToast.addEventListener('click', function() {
+                    toast.classList.add('translate-y-20', 'opacity-0');
+                    setTimeout(function() {
+                        toast.classList.add('hidden');
+                    }, 300);
+                });
+            }
+        }
+        
+        // Add "Copy to clipboard" functionality for product details
+        const infoItems = document.querySelectorAll('.font-medium:not(button):not(h3):not(h4)');
+        infoItems.forEach(item => {
+            if (item.textContent.trim()) {
+                item.classList.add('cursor-pointer', 'hover:text-primary-600', 'transition-colors');
+                item.title = "Click to copy";
+                
+                item.addEventListener('click', function() {
+                    const text = this.innerText;
+                    navigator.clipboard.writeText(text).then(function() {
+                        showToast('Copied to clipboard', 'success', text);
+                    });
+                });
+            }
+        });
+    });
+</script>
+}
