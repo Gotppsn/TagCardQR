@@ -6,81 +6,130 @@
 }
 
 <div class="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 flex flex-col">
-    <!-- Header Banner -->
-    <div class="bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-lg">
-        <div class="container mx-auto px-4 py-4">
+    <!-- Header Banner with Blur Effect -->
+    <div class="bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-xl relative overflow-hidden">
+        <div class="absolute inset-0 bg-black opacity-10 z-0"></div>
+        <div class="container mx-auto px-4 py-6 relative z-10">
             <div class="flex justify-between items-center">
-                <div class="flex items-center space-x-2">
-                    <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                        <i class="fas fa-qrcode text-white"></i>
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center shadow-lg backdrop-blur-sm">
+                        <i class="fas fa-qrcode text-white text-xl"></i>
                     </div>
-                    <h1 class="text-xl font-bold">Scan Results</h1>
+                    <div>
+                        <h1 class="text-2xl font-bold">Scan Results</h1>
+                        <p class="text-sm text-white/80">Track product tag scanning activity</p>
+                    </div>
                 </div>
                 <div class="flex items-center space-x-3">
-                    <a asp-action="Index" class="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors">
+                    <span class="hidden md:inline-block px-3 py-1 bg-white/20 rounded-full text-sm">
+                        Last refresh: @DateTime.Now.ToString("HH:mm:ss")
+                    </span>
+                    <button id="refresh-btn" class="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors" title="Refresh Data">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <a asp-action="Index" class="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors" title="Back to Products">
                         <i class="fas fa-home"></i>
                     </a>
-                    <button id="export-btn" class="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors">
-                        <i class="fas fa-download"></i>
-                    </button>
+                    <div class="relative">
+                        <button id="export-menu-btn" class="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors" title="Export Options">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <div id="export-menu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl z-20 border border-gray-100 transform origin-top-right transition-all scale-95">
+                            <div class="py-1">
+                                <button id="export-csv" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                    <i class="fas fa-file-csv mr-2 text-green-500"></i> Export as CSV
+                                </button>
+                                <button id="export-pdf" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                    <i class="fas fa-file-pdf mr-2 text-red-500"></i> Export as PDF
+                                </button>
+                                <button id="export-excel" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                    <i class="fas fa-file-excel mr-2 text-green-600"></i> Export as Excel
+                                </button>
+                                <hr class="my-1 border-gray-100">
+                                <button id="print-results" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                    <i class="fas fa-print mr-2 text-blue-500"></i> Print Results
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Main Content -->
+    <!-- Main Content with Shadow Effect -->
     <div class="container mx-auto px-4 py-6 flex-grow">
-        <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+        <!-- Live Stats Cards with Animated Counters -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white rounded-xl shadow-md p-4 border-l-4 border-blue-500 transform transition-all hover:shadow-lg hover:scale-[1.01]">
                 <div class="flex items-center">
-                    <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mr-4">
+                    <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mr-4 shadow-inner">
                         <i class="fas fa-qrcode text-xl"></i>
                     </div>
                     <div>
-                        <p class="text-gray-500 text-sm">Total Scans</p>
-                        <p class="text-2xl font-bold">@Model.Count()</p>
+                        <p class="text-gray-500 text-sm font-medium uppercase tracking-wider">Total Scans</p>
+                        <p class="text-2xl font-bold" id="total-scans-counter">
+                            <span class="animate-counter" data-count="@Model.Count()">0</span>
+                        </p>
                     </div>
                 </div>
             </div>
             
-            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+            <div class="bg-white rounded-xl shadow-md p-4 border-l-4 border-green-500 transform transition-all hover:shadow-lg hover:scale-[1.01]">
                 <div class="flex items-center">
-                    <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-green-600 mr-4">
+                    <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-green-600 mr-4 shadow-inner">
                         <i class="fas fa-calendar-day text-xl"></i>
                     </div>
                     <div>
-                        <p class="text-gray-500 text-sm">Today's Scans</p>
-                        <p class="text-2xl font-bold">@Model.Count(s => s.ScanTime.Date == DateTime.Today)</p>
+                        <p class="text-gray-500 text-sm font-medium uppercase tracking-wider">Today's Scans</p>
+                        <p class="text-2xl font-bold" id="today-scans-counter">
+                            <span class="animate-counter" data-count="@Model.Count(s => s.ScanTime.Date == DateTime.Today)">0</span>
+                        </p>
                     </div>
                 </div>
             </div>
             
-            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+            <div class="bg-white rounded-xl shadow-md p-4 border-l-4 border-purple-500 transform transition-all hover:shadow-lg hover:scale-[1.01]">
                 <div class="flex items-center">
-                    <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 mr-4">
+                    <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 mr-4 shadow-inner">
                         <i class="fas fa-map-marker-alt text-xl"></i>
                     </div>
                     <div>
-                        <p class="text-gray-500 text-sm">Unique Locations</p>
-                        <p class="text-2xl font-bold">@Model.Select(s => s.Location).Distinct().Count()</p>
+                        <p class="text-gray-500 text-sm font-medium uppercase tracking-wider">Locations</p>
+                        <p class="text-2xl font-bold" id="locations-counter">
+                            <span class="animate-counter" data-count="@Model.Select(s => s.Location).Distinct().Count()">0</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-md p-4 border-l-4 border-yellow-500 transform transition-all hover:shadow-lg hover:scale-[1.01]">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600 mr-4 shadow-inner">
+                        <i class="fas fa-percentage text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium uppercase tracking-wider">Success Rate</p>
+                        <p class="text-2xl font-bold" id="success-rate-counter">
+                            <span class="animate-counter" data-count="@(Model.Any() ? Math.Round((double)Model.Count(s => s.ScanResult == "Success") / Model.Count() * 100) : 0)">0</span>%
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Search & Filter Bar -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
-            <div class="p-4 border-b border-gray-100 flex justify-between items-center">
+        <!-- Advanced Search with Collapsible Panel -->
+        <div class="bg-white rounded-xl shadow-md border border-gray-100 mb-6 overflow-hidden">
+            <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
                 <h2 class="font-bold text-gray-700 flex items-center">
                     <i class="fas fa-filter text-primary-500 mr-2"></i> Filter Scan Results
                 </h2>
                 <div class="flex items-center space-x-2">
-                    <button id="date-filter-btn" class="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 flex items-center">
-                        <i class="fas fa-calendar-alt mr-1"></i> Date
+                    <button id="date-filter-btn" class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 flex items-center hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-calendar-alt mr-2"></i> Date Range
                     </button>
-                    <button id="location-filter-btn" class="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 flex items-center">
-                        <i class="fas fa-map-marker-alt mr-1"></i> Location
+                    <button id="advanced-filter-btn" class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 flex items-center hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-sliders-h mr-2"></i> Advanced
                     </button>
                 </div>
             </div>
@@ -92,111 +141,443 @@
                     <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
                         <i class="fas fa-search"></i>
                     </div>
+                    <button id="clear-search" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 hidden">
+                        <i class="fas fa-times-circle"></i>
+                    </button>
                 </div>
             </div>
+            
+            <!-- Advanced Filter Panel (hidden by default) -->
+            <div id="advanced-filter-panel" class="hidden border-t border-gray-100 p-4 bg-gray-50">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
+                        <div class="flex space-x-2">
+                            <div class="relative flex-grow">
+                                <input type="date" id="date-from" class="w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg text-sm" placeholder="From">
+                                <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </div>
+                            </div>
+                            <div class="relative flex-grow">
+                                <input type="date" id="date-to" class="w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg text-sm" placeholder="To">
+                                <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Scan Results</label>
+                        <div class="relative">
+                            <select id="result-filter" class="w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg appearance-none text-sm">
+                                <option value="">All Results</option>
+                                <option value="Success">Success</option>
+                                <option value="Failed">Failed</option>
+                                <option value="Partial">Partial</option>
+                            </select>
+                            <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                        <div class="relative">
+                            <select id="location-filter" class="w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg appearance-none text-sm">
+                                <option value="">All Locations</option>
+                                @foreach (var location in Model.Select(s => s.Location).Distinct())
+                                {
+                                    <option value="@location">@location</option>
+                                }
+                            </select>
+                            <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end mt-4 space-x-3">
+                    <button id="reset-filters" class="px-4 py-2 text-sm border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+                        Reset Filters
+                    </button>
+                    <button id="apply-filters" class="px-4 py-2 text-sm bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
+                        Apply Filters
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Active Filters (shown when filters are applied) -->
+            <div id="active-filters" class="hidden px-4 py-2 border-t border-gray-100 bg-blue-50">
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="text-xs font-medium text-blue-700">Active Filters:</span>
+                    <div id="filter-tags" class="flex flex-wrap gap-2">
+                        <!-- Filter tags will be inserted here by JavaScript -->
+                    </div>
+                    <button id="clear-all-filters" class="ml-auto text-xs text-blue-600 hover:text-blue-800">
+                        Clear All
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Time-based Quick Filters -->
+        <div class="flex overflow-x-auto scrollbar-none pb-2 mb-4">
+            <button data-time-filter="all" class="time-filter-btn flex-shrink-0 px-3 py-1.5 mr-2 rounded-full bg-primary-600 text-white text-sm">
+                All Time
+            </button>
+            <button data-time-filter="today" class="time-filter-btn flex-shrink-0 px-3 py-1.5 mr-2 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 text-sm">
+                Today
+            </button>
+            <button data-time-filter="yesterday" class="time-filter-btn flex-shrink-0 px-3 py-1.5 mr-2 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 text-sm">
+                Yesterday
+            </button>
+            <button data-time-filter="week" class="time-filter-btn flex-shrink-0 px-3 py-1.5 mr-2 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 text-sm">
+                This Week
+            </button>
+            <button data-time-filter="month" class="time-filter-btn flex-shrink-0 px-3 py-1.5 mr-2 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 text-sm">
+                This Month
+            </button>
         </div>
 
         <!-- Results List -->
         @if (!Model.Any())
         {
             <div class="bg-white rounded-xl shadow-md p-8 text-center fade-in">
-                <div class="mx-auto w-20 h-20 rounded-full bg-primary-50 text-primary-500 flex items-center justify-center mb-4">
-                    <i class="fas fa-qrcode text-3xl"></i>
+                <div class="mx-auto w-24 h-24 rounded-full bg-primary-50 text-primary-500 flex items-center justify-center mb-4">
+                    <i class="fas fa-qrcode text-4xl"></i>
                 </div>
                 <h3 class="text-xl font-semibold text-gray-800 mb-2">No scan results found</h3>
-                <p class="text-gray-500 mb-6 max-w-md mx-auto">Scan one of your product tags to see the results here. Use a QR code scanner app on your phone.</p>
-                <a asp-action="Index" class="btn-primary inline-flex shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all">
-                    <i class="fas fa-layer-group mr-2"></i> View Products
-                </a>
+                <p class="text-gray-500 mb-6 max-w-md mx-auto">Scan one of your product tags to see the results here. Use a QR code scanner app on your mobile device.</p>
+                <div class="flex gap-3 justify-center flex-wrap">
+                    <a asp-action="Index" class="btn-primary inline-flex shadow-md hover:shadow-lg">
+                        <i class="fas fa-layer-group mr-2"></i> View Products
+                    </a>
+                    <a asp-action="Create" class="btn-secondary inline-flex shadow-md hover:shadow-lg">
+                        <i class="fas fa-plus-circle mr-2"></i> Add New Product
+                    </a>
+                </div>
             </div>
         }
         else
         {
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="overflow-x-auto">
+            <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6">
+                <!-- Table Toolbar -->
+                <div class="p-3 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+                    <div class="text-sm text-gray-500">
+                        <span id="result-count">Showing <span class="font-medium text-gray-700">@Model.Count()</span> results</span>
+                    </div>
+                    <div class="flex space-x-2">
+                        <div class="relative">
+                            <select id="results-per-page" class="text-sm border border-gray-200 rounded-lg py-1.5 pl-3 pr-8 appearance-none bg-white">
+                                <option value="10">10 per page</option>
+                                <option value="25">25 per page</option>
+                                <option value="50">50 per page</option>
+                                <option value="100">100 per page</option>
+                            </select>
+                            <div class="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-400">
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </div>
+                        </div>
+                        <div class="flex border border-gray-200 rounded-lg overflow-hidden">
+                            <button id="view-table" class="px-2 py-1.5 bg-white text-primary-600 border-r border-gray-200">
+                                <i class="fas fa-table"></i>
+                            </button>
+                            <button id="view-cards" class="px-2 py-1.5 bg-gray-50 text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-th-large"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Table View (default) -->
+                <div id="table-view" class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Product
+                                <th scope="col" class="sortable px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" data-sort="product">
+                                    <div class="flex items-center">
+                                        Product <i class="fas fa-sort ml-1 text-gray-400"></i>
+                                    </div>
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Scan Time
+                                <th scope="col" class="sortable px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" data-sort="time">
+                                    <div class="flex items-center">
+                                        Scan Time <i class="fas fa-sort ml-1 text-gray-400"></i>
+                                    </div>
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Device Info
+                                <th scope="col" class="sortable px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" data-sort="device">
+                                    <div class="flex items-center">
+                                        Device Info <i class="fas fa-sort ml-1 text-gray-400"></i>
+                                    </div>
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Location
+                                <th scope="col" class="sortable px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" data-sort="location">
+                                    <div class="flex items-center">
+                                        Location <i class="fas fa-sort ml-1 text-gray-400"></i>
+                                    </div>
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Scan Result
+                                <th scope="col" class="sortable px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" data-sort="result">
+                                    <div class="flex items-center">
+                                        Result <i class="fas fa-sort ml-1 text-gray-400"></i>
+                                    </div>
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Actions
                                 </th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
+                        <tbody id="results-table-body" class="bg-white divide-y divide-gray-200">
+                            @{int rowIndex = 0;}
                             @foreach (var item in Model)
                             {
-                                <tr class="hover:bg-gray-50 transition-colors">
+                                string rowClass = rowIndex % 2 == 0 ? "" : "bg-gray-50";
+                                rowIndex++;
+                                
+                                <tr class="scan-result-row hover:bg-blue-50 transition-colors @rowClass" 
+                                    data-id="@item.CardId" 
+                                    data-product="@item.CardName" 
+                                    data-time="@item.ScanTime.ToString("yyyy-MM-ddTHH:mm:ss")" 
+                                    data-device="@item.DeviceInfo" 
+                                    data-location="@item.Location" 
+                                    data-result="@item.ScanResult">
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
-                                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-600">
+                                            <div class="flex-shrink-0 h-10 w-10 rounded-lg bg-primary-100 flex items-center justify-center text-primary-600 shadow-sm">
                                                 <i class="fas fa-tag"></i>
                                             </div>
                                             <div class="ml-4">
-                                                <div class="text-sm font-medium text-gray-900">@item.CardName</div>
-                                                <div class="text-sm text-gray-500">ID: @item.CardId</div>
+                                                <div class="text-sm font-medium text-gray-900 hover:text-primary-600">@item.CardName</div>
+                                                <div class="text-xs text-gray-500">ID: @item.CardId</div>
                                             </div>
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="text-sm text-gray-900">@item.ScanTime.ToString("yyyy-MM-dd")</div>
-                                        <div class="text-sm text-gray-500">@item.ScanTime.ToString("HH:mm:ss")</div>
+                                        <div class="text-xs text-gray-500">@item.ScanTime.ToString("HH:mm:ss")</div>
+                                        <div class="text-xs text-gray-400">@((DateTime.Now - item.ScanTime).TotalHours < 24 ? $"{Math.Round((DateTime.Now - item.ScanTime).TotalHours)} hours ago" : $"{(DateTime.Now - item.ScanTime).Days} days ago")</div>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        @item.DeviceInfo
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-500">@item.DeviceInfo</div>
+                                        @if (item.DeviceInfo.Contains("iPhone"))
+                                        {
+                                            <div class="text-xs text-blue-500"><i class="fab fa-apple mr-1"></i> iOS Device</div>
+                                        }
+                                        else if (item.DeviceInfo.Contains("Android"))
+                                        {
+                                            <div class="text-xs text-green-500"><i class="fab fa-android mr-1"></i> Android Device</div>
+                                        }
+                                        else
+                                        {
+                                            <div class="text-xs text-gray-400"><i class="fas fa-mobile-alt mr-1"></i> Other Device</div>
+                                        }
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        @item.Location
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                            <i class="fas fa-map-marker-alt mr-1 text-primary-500"></i>
+                                            @item.Location
+                                        </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @if (item.ScanResult == "Success")
                                         {
-                                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                Success
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                <i class="fas fa-check-circle mr-1"></i> Success
                                             </span>
                                         }
                                         else if (item.ScanResult == "Failed")
                                         {
-                                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                                Failed
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                <i class="fas fa-times-circle mr-1"></i> Failed
                                             </span>
                                         }
                                         else
                                         {
-                                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                                @item.ScanResult
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                <i class="fas fa-exclamation-circle mr-1"></i> @item.ScanResult
                                             </span>
                                         }
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <a asp-action="Details" asp-route-id="@item.CardId" class="text-primary-600 hover:text-primary-900 mr-3">View Card</a>
-                                        <a asp-action="ScanShow" asp-route-id="@item.CardId" class="text-gray-500 hover:text-gray-700">Details</a>
+                                        <div class="flex justify-end space-x-2">
+                                            <a asp-action="Details" asp-route-id="@item.CardId" class="text-primary-600 hover:text-primary-900 p-1" title="View Card Details">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a asp-action="ScanShow" asp-route-id="@item.CardId" class="text-gray-500 hover:text-gray-700 p-1" title="View Scan Details">
+                                                <i class="fas fa-info-circle"></i>
+                                            </a>
+                                            <button class="text-red-500 hover:text-red-700 p-1 delete-scan" data-id="@item.Id" title="Delete Scan Record">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             }
                         </tbody>
                     </table>
                 </div>
+                
+                <!-- Card View (hidden by default) -->
+                <div id="card-view" class="hidden p-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        @foreach (var item in Model)
+                        {
+                            <div class="scan-result-card bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all overflow-hidden" 
+                                 data-id="@item.CardId" 
+                                 data-product="@item.CardName" 
+                                 data-time="@item.ScanTime.ToString("yyyy-MM-ddTHH:mm:ss")" 
+                                 data-device="@item.DeviceInfo" 
+                                 data-location="@item.Location" 
+                                 data-result="@item.ScanResult">
+                                <div class="p-4 border-b border-gray-100 flex justify-between items-center">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center text-primary-600 mr-3">
+                                            <i class="fas fa-tag"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-medium text-gray-900">@item.CardName</h4>
+                                            <p class="text-xs text-gray-500">ID: @item.CardId</p>
+                                        </div>
+                                    </div>
+                                    @if (item.ScanResult == "Success")
+                                    {
+                                        <span class="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            <i class="fas fa-check-circle mr-1"></i> Success
+                                        </span>
+                                    }
+                                    else if (item.ScanResult == "Failed")
+                                    {
+                                        <span class="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                            <i class="fas fa-times-circle mr-1"></i> Failed
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                            <i class="fas fa-exclamation-circle mr-1"></i> @item.ScanResult
+                                        </span>
+                                    }
+                                </div>
+                                <div class="p-4 space-y-3">
+                                    <div class="flex items-center text-sm">
+                                        <i class="fas fa-clock w-5 text-gray-400"></i>
+                                        <span class="ml-2">
+                                            @item.ScanTime.ToString("yyyy-MM-dd HH:mm:ss")
+                                            <span class="text-xs text-gray-500 ml-1">
+                                                (@((DateTime.Now - item.ScanTime).TotalHours < 24 ? $"{Math.Round((DateTime.Now - item.ScanTime).TotalHours)}h ago" : $"{(DateTime.Now - item.ScanTime).Days}d ago"))
+                                            </span>
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center text-sm">
+                                        <i class="fas fa-mobile-alt w-5 text-gray-400"></i>
+                                        <span class="ml-2">@item.DeviceInfo</span>
+                                    </div>
+                                    <div class="flex items-center text-sm">
+                                        <i class="fas fa-map-marker-alt w-5 text-gray-400"></i>
+                                        <span class="ml-2">@item.Location</span>
+                                    </div>
+                                </div>
+                                <div class="px-4 py-3 bg-gray-50 border-t border-gray-100 flex justify-end space-x-2">
+                                    <a asp-action="Details" asp-route-id="@item.CardId" class="px-3 py-1 text-xs bg-primary-50 text-primary-600 rounded hover:bg-primary-100 transition-colors">
+                                        <i class="fas fa-eye mr-1"></i> View Card
+                                    </a>
+                                    <a asp-action="ScanShow" asp-route-id="@item.CardId" class="px-3 py-1 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors">
+                                        <i class="fas fa-info-circle mr-1"></i> Details
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                
+                <!-- Pagination -->
+                <div class="px-4 py-3 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-sm text-gray-700">
+                                Showing <span class="font-medium">1</span> to <span class="font-medium">@(Model.Count() < 10 ? Model.Count() : 10)</span> of <span class="font-medium">@Model.Count()</span> results
+                            </p>
+                        </div>
+                        <div>
+                            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <span class="sr-only">Previous</span>
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-primary-50 text-sm font-medium text-primary-600 hover:bg-primary-100">
+                                    1
+                                </a>
+                                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                    2
+                                </a>
+                                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                    3
+                                </a>
+                                <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                                    ...
+                                </span>
+                                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                    10
+                                </a>
+                                <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <span class="sr-only">Next</span>
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
             </div>
         }
+        
+        <!-- Analytics Section -->
+        <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6">
+            <div class="p-4 border-b border-gray-100 flex justify-between items-center">
+                <h3 class="font-bold text-gray-700 flex items-center">
+                    <i class="fas fa-chart-bar text-primary-500 mr-2"></i> Scan Analytics
+                </h3>
+                <div class="flex space-x-2">
+                    <button class="period-btn px-3 py-1 text-xs bg-primary-100 text-primary-600 rounded-full" data-period="week">Week</button>
+                    <button class="period-btn px-3 py-1 text-xs bg-gray-100 text-gray-600 rounded-full" data-period="month">Month</button>
+                    <button class="period-btn px-3 py-1 text-xs bg-gray-100 text-gray-600 rounded-full" data-period="year">Year</button>
+                </div>
+            </div>
+            <div class="p-4">
+                <div class="aspect-[1.4142] bg-gray-50 rounded-lg border border-gray-100 flex items-center justify-center">
+                    <!-- This would be a chart in the real implementation -->
+                    <div class="text-center">
+                        <p class="text-gray-500 mb-2">Scan Activity (Last 7 Days)</p>
+                        <div class="w-full max-w-3xl mx-auto h-40 flex items-end justify-around px-4">
+                            @{
+                                Random rand = new Random(DateTime.Now.Day);
+                                for (int i = 6; i >= 0; i--)
+                                {
+                                    var day = DateTime.Now.AddDays(-i);
+                                    var height = rand.Next(20, 100);
+                                    var isToday = i == 0;
+                                    
+                                    <div class="flex flex-col items-center">
+                                        <div class="w-12 bg-@(isToday ? "primary" : "blue")-@(isToday ? "500" : "300") rounded-t transition-all hover:bg-@(isToday ? "primary" : "blue")-@(isToday ? "600" : "400")" style="height: @(height)%"></div>
+                                        <div class="text-xs mt-2 text-gray-600">@day.ToString("ddd")</div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-gray-200 py-4">
+    <footer class="bg-white border-t border-gray-200 py-4 mt-auto">
         <div class="container mx-auto px-4">
             <div class="flex flex-col md:flex-row justify-between items-center">
                 <div class="text-center md:text-left mb-4 md:mb-0">
@@ -205,13 +586,104 @@
                     <span class="text-gray-500">Scan Results</span>
                 </div>
                 <div class="flex space-x-4">
-                    <a href="#" class="text-gray-500 hover:text-gray-700">
+                    <button id="help-btn" class="text-gray-500 hover:text-gray-700">
                         <i class="fas fa-question-circle mr-1"></i> Help
-                    </a>
+                    </button>
+                    <button id="settings-btn" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-cog mr-1"></i> Settings
+                    </button>
                 </div>
             </div>
         </div>
     </footer>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div class="p-5 border-b border-gray-200">
+                <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                    <i class="fas fa-exclamation-triangle text-red-500 mr-3"></i> Confirm Deletion
+                </h3>
+            </div>
+            <div class="p-5">
+                <p class="text-gray-600 mb-4">Are you sure you want to delete this scan record? This action cannot be undone.</p>
+                <div class="bg-gray-50 p-3 rounded-lg mb-4">
+                    <div id="delete-item-details" class="text-sm">
+                        <!-- Details will be inserted here by JavaScript -->
+                    </div>
+                </div>
+            </div>
+            <div class="px-5 py-3 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
+                <button id="cancel-delete" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none">
+                    Cancel
+                </button>
+                <button id="confirm-delete" class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none">
+                    Delete Record
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="help-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 overflow-hidden">
+            <div class="p-5 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                    <i class="fas fa-question-circle text-primary-500 mr-3"></i> Scan Results Help
+                </h3>
+                <button id="close-help-modal" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-5 max-h-96 overflow-y-auto">
+                <div class="space-y-4">
+                    <div>
+                        <h4 class="text-md font-medium text-gray-800 mb-2">About Scan Results</h4>
+                        <p class="text-gray-600">This page shows all instances when product tags have been scanned using a QR code scanner. Each record provides information about when and where the scan occurred, which device was used, and whether the scan was successful.</p>
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-md font-medium text-gray-800 mb-2">Using Filters</h4>
+                        <p class="text-gray-600 mb-2">You can filter the scan results using the search bar at the top. Use the Advanced Filter button to access additional filtering options.</p>
+                        <ul class="list-disc list-inside text-gray-600 space-y-1">
+                            <li>Search by product name, location, or scan result</li>
+                            <li>Filter by date range</li>
+                            <li>Filter by specific location</li>
+                            <li>Filter by scan result (Success, Failed, Partial)</li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-md font-medium text-gray-800 mb-2">Viewing Options</h4>
+                        <p class="text-gray-600">You can view scan results in two formats:</p>
+                        <ul class="list-disc list-inside text-gray-600 space-y-1">
+                            <li><i class="fas fa-table text-primary-500 mr-1"></i> <strong>Table View:</strong> Shows detailed information in rows and columns</li>
+                            <li><i class="fas fa-th-large text-primary-500 mr-1"></i> <strong>Card View:</strong> Shows information in a grid of cards</li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-md font-medium text-gray-800 mb-2">Exporting Data</h4>
+                        <p class="text-gray-600">You can export the scan results in various formats:</p>
+                        <ul class="list-disc list-inside text-gray-600 space-y-1">
+                            <li>CSV (Comma-Separated Values)</li>
+                            <li>PDF (Portable Document Format)</li>
+                            <li>Excel Spreadsheet</li>
+                        </ul>
+                        <p class="text-gray-600 mt-2">Click the <i class="fas fa-download text-primary-500"></i> button in the top-right corner to access export options.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="px-5 py-3 bg-gray-50 border-t border-gray-200 flex justify-between">
+                <div>
+                    <a href="#" class="text-primary-600 hover:text-primary-800 text-sm">View full documentation</a>
+                </div>
+                <button id="close-help" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Toast Notification -->
     <div id="toast-notification" class="fixed bottom-4 right-4 bg-white rounded-lg shadow-lg border border-gray-100 p-4 max-w-sm transform translate-y-20 opacity-0 transition-all duration-300 z-50 hidden">
@@ -233,26 +705,680 @@
 @section Scripts {
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Initialize animated counters
+        const counters = document.querySelectorAll('.animate-counter');
+        counters.forEach(counter => {
+            const target = parseInt(counter.getAttribute('data-count'));
+            const duration = 1500; // ms
+            const steps = 30;
+            const stepValue = target / steps;
+            let currentValue = 0;
+            const interval = duration / steps;
+            
+            const timer = setInterval(function() {
+                currentValue += stepValue;
+                if (currentValue >= target) {
+                    counter.textContent = target;
+                    clearInterval(timer);
+                } else {
+                    counter.textContent = Math.floor(currentValue);
+                }
+            }, interval);
+        });
+        
         // Search functionality
         const searchInput = document.getElementById('scan-search');
+        const clearSearch = document.getElementById('clear-search');
+        
         if (searchInput) {
             searchInput.addEventListener('input', function() {
                 const searchTerm = this.value.toLowerCase().trim();
-                const rows = document.querySelectorAll('tbody tr');
+                filterResults(searchTerm);
                 
-                rows.forEach(row => {
-                    const text = row.textContent.toLowerCase();
-                    if (searchTerm === '' || text.includes(searchTerm)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
+                if (searchTerm) {
+                    clearSearch.classList.remove('hidden');
+                } else {
+                    clearSearch.classList.add('hidden');
+                }
+            });
+        }
+        
+        if (clearSearch) {
+            clearSearch.addEventListener('click', function() {
+                searchInput.value = '';
+                searchInput.focus();
+                clearSearch.classList.add('hidden');
+                filterResults('');
+            });
+        }
+        
+        function filterResults(searchTerm) {
+            const tableRows = document.querySelectorAll('.scan-result-row');
+            const cardItems = document.querySelectorAll('.scan-result-card');
+            let visibleCount = 0;
+            
+            // Filter table rows
+            tableRows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (!searchTerm || text.includes(searchTerm)) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+            
+            // Filter card items
+            cardItems.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                if (!searchTerm || text.includes(searchTerm)) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            // Update result count
+            const resultCount = document.getElementById('result-count');
+            if (resultCount) {
+                resultCount.innerHTML = `Showing <span class="font-medium text-gray-700">${visibleCount}</span> results`;
+            }
+        }
+        
+        // Advanced filter panel toggle
+        const advancedFilterBtn = document.getElementById('advanced-filter-btn');
+        const advancedFilterPanel = document.getElementById('advanced-filter-panel');
+        
+        if (advancedFilterBtn && advancedFilterPanel) {
+            advancedFilterBtn.addEventListener('click', function() {
+                advancedFilterPanel.classList.toggle('hidden');
+            });
+        }
+        
+        // Date filter button
+        const dateFilterBtn = document.getElementById('date-filter-btn');
+        if (dateFilterBtn) {
+            dateFilterBtn.addEventListener('click', function() {
+                advancedFilterPanel.classList.remove('hidden');
+                document.getElementById('date-from').focus();
+            });
+        }
+        
+        // Reset filters button
+        const resetFiltersBtn = document.getElementById('reset-filters');
+        if (resetFiltersBtn) {
+            resetFiltersBtn.addEventListener('click', function() {
+                document.getElementById('date-from').value = '';
+                document.getElementById('date-to').value = '';
+                document.getElementById('result-filter').value = '';
+                document.getElementById('location-filter').value = '';
+                
+                // Reset all filter tags
+                document.getElementById('active-filters').classList.add('hidden');
+                
+                // Reset all results visibility
+                resetFilters();
+            });
+        }
+        
+        // Apply filters button
+        const applyFiltersBtn = document.getElementById('apply-filters');
+        if (applyFiltersBtn) {
+            applyFiltersBtn.addEventListener('click', function() {
+                const dateFrom = document.getElementById('date-from').value;
+                const dateTo = document.getElementById('date-to').value;
+                const resultFilter = document.getElementById('result-filter').value;
+                const locationFilter = document.getElementById('location-filter').value;
+                
+                applyAdvancedFilters(dateFrom, dateTo, resultFilter, locationFilter);
+            });
+        }
+        
+        function applyAdvancedFilters(dateFrom, dateTo, resultFilter, locationFilter) {
+            const activeFilters = document.getElementById('active-filters');
+            const filterTags = document.getElementById('filter-tags');
+            
+            // Clear existing filter tags
+            filterTags.innerHTML = '';
+            
+            // Create filter tags for active filters
+            let hasActiveFilters = false;
+            
+            if (dateFrom) {
+                hasActiveFilters = true;
+                const tag = createFilterTag('From: ' + new Date(dateFrom).toLocaleDateString(), 'date-from');
+                filterTags.appendChild(tag);
+            }
+            
+            if (dateTo) {
+                hasActiveFilters = true;
+                const tag = createFilterTag('To: ' + new Date(dateTo).toLocaleDateString(), 'date-to');
+                filterTags.appendChild(tag);
+            }
+            
+            if (resultFilter) {
+                hasActiveFilters = true;
+                const tag = createFilterTag('Result: ' + resultFilter, 'result');
+                filterTags.appendChild(tag);
+            }
+            
+            if (locationFilter) {
+                hasActiveFilters = true;
+                const tag = createFilterTag('Location: ' + locationFilter, 'location');
+                filterTags.appendChild(tag);
+            }
+            
+            // Show/hide active filters section
+            if (hasActiveFilters) {
+                activeFilters.classList.remove('hidden');
+            } else {
+                activeFilters.classList.add('hidden');
+            }
+            
+            // Apply filters to results
+            const tableRows = document.querySelectorAll('.scan-result-row');
+            const cardItems = document.querySelectorAll('.scan-result-card');
+            let visibleCount = 0;
+            
+            // Filter function for both table rows and cards
+            function shouldShow(element) {
+                const time = element.getAttribute('data-time');
+                const result = element.getAttribute('data-result');
+                const location = element.getAttribute('data-location');
+                
+                // Date filter
+                if (dateFrom && time < dateFrom + 'T00:00:00') return false;
+                if (dateTo && time > dateTo + 'T23:59:59') return false;
+                
+                // Result filter
+                if (resultFilter && result !== resultFilter) return false;
+                
+                // Location filter
+                if (locationFilter && location !== locationFilter) return false;
+                
+                return true;
+            }
+            
+            // Apply filters to table rows
+            tableRows.forEach(row => {
+                if (shouldShow(row)) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+            
+            // Apply filters to card items
+            cardItems.forEach(card => {
+                if (shouldShow(card)) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            // Update result count
+            const resultCount = document.getElementById('result-count');
+            if (resultCount) {
+                resultCount.innerHTML = `Showing <span class="font-medium text-gray-700">${visibleCount}</span> filtered results`;
+            }
+            
+            // Hide the advanced filter panel after applying filters
+            advancedFilterPanel.classList.add('hidden');
+            
+            // Show toast notification
+            showToast('Filters applied', 'success', `Showing ${visibleCount} results matching your criteria`);
+        }
+        
+        function createFilterTag(text, type) {
+            const tag = document.createElement('div');
+            tag.className = 'inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800';
+            tag.dataset.type = type;
+            
+            tag.innerHTML = `
+                ${text}
+                <button class="ml-1 focus:outline-none" data-remove="${type}">
+                    <i class="fas fa-times-circle"></i>
+                </button>
+            `;
+            
+            // Add event listener to remove button
+            tag.querySelector(`[data-remove="${type}"]`).addEventListener('click', function() {
+                // Remove the filter
+                if (type === 'date-from') document.getElementById('date-from').value = '';
+                if (type === 'date-to') document.getElementById('date-to').value = '';
+                if (type === 'result') document.getElementById('result-filter').value = '';
+                if (type === 'location') document.getElementById('location-filter').value = '';
+                
+                // Remove the tag
+                tag.remove();
+                
+                // Reapply filters
+                const dateFrom = document.getElementById('date-from').value;
+                const dateTo = document.getElementById('date-to').value;
+                const resultFilter = document.getElementById('result-filter').value;
+                const locationFilter = document.getElementById('location-filter').value;
+                
+                applyAdvancedFilters(dateFrom, dateTo, resultFilter, locationFilter);
+            });
+            
+            return tag;
+        }
+        
+        // Clear all filters button
+        const clearAllFiltersBtn = document.getElementById('clear-all-filters');
+        if (clearAllFiltersBtn) {
+            clearAllFiltersBtn.addEventListener('click', function() {
+                document.getElementById('date-from').value = '';
+                document.getElementById('date-to').value = '';
+                document.getElementById('result-filter').value = '';
+                document.getElementById('location-filter').value = '';
+                
+                document.getElementById('active-filters').classList.add('hidden');
+                resetFilters();
+            });
+        }
+        
+        function resetFilters() {
+            // Show all table rows and cards
+            const tableRows = document.querySelectorAll('.scan-result-row');
+            const cardItems = document.querySelectorAll('.scan-result-card');
+            
+            tableRows.forEach(row => {
+                row.style.display = '';
+            });
+            
+            cardItems.forEach(card => {
+                card.style.display = '';
+            });
+            
+            // Update result count
+            const resultCount = document.getElementById('result-count');
+            if (resultCount) {
+                resultCount.innerHTML = `Showing <span class="font-medium text-gray-700">${tableRows.length}</span> results`;
+            }
+            
+            // Reset time filter buttons
+            document.querySelectorAll('.time-filter-btn').forEach(btn => {
+                btn.classList.remove('bg-primary-600', 'text-white');
+                btn.classList.add('bg-gray-200', 'text-gray-700');
+            });
+            
+            document.querySelector('[data-time-filter="all"]').classList.remove('bg-gray-200', 'text-gray-700');
+            document.querySelector('[data-time-filter="all"]').classList.add('bg-primary-600', 'text-white');
+            
+            // Show toast notification
+            showToast('Filters cleared', 'info', 'Showing all results');
+        }
+        
+        // Time filter buttons
+        document.querySelectorAll('.time-filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Update button styles
+                document.querySelectorAll('.time-filter-btn').forEach(b => {
+                    b.classList.remove('bg-primary-600', 'text-white');
+                    b.classList.add('bg-gray-200', 'text-gray-700');
+                });
+                
+                this.classList.remove('bg-gray-200', 'text-gray-700');
+                this.classList.add('bg-primary-600', 'text-white');
+                
+                // Apply time filter
+                const filter = this.getAttribute('data-time-filter');
+                applyTimeFilter(filter);
+            });
+        });
+        
+        function applyTimeFilter(filter) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            
+            const startOfWeek = new Date(today);
+            startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+            
+            const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+            
+            const tableRows = document.querySelectorAll('.scan-result-row');
+            const cardItems = document.querySelectorAll('.scan-result-card');
+            let visibleCount = 0;
+            
+            function shouldShowByTime(element) {
+                const time = new Date(element.getAttribute('data-time'));
+                
+                if (filter === 'all') return true;
+                if (filter === 'today' && time >= today) return true;
+                if (filter === 'yesterday' && time >= yesterday && time < today) return true;
+                if (filter === 'week' && time >= startOfWeek) return true;
+                if (filter === 'month' && time >= startOfMonth) return true;
+                
+                return false;
+            }
+            
+            // Apply filter to table rows
+            tableRows.forEach(row => {
+                if (shouldShowByTime(row)) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+            
+            // Apply filter to card items
+            cardItems.forEach(card => {
+                if (shouldShowByTime(card)) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            // Update result count
+            const resultCount = document.getElementById('result-count');
+            if (resultCount) {
+                resultCount.innerHTML = `Showing <span class="font-medium text-gray-700">${visibleCount}</span> results`;
+            }
+            
+            // Show toast notification
+            let filterText = 'All time';
+            if (filter === 'today') filterText = 'Today only';
+            if (filter === 'yesterday') filterText = 'Yesterday only';
+            if (filter === 'week') filterText = 'This week';
+            if (filter === 'month') filterText = 'This month';
+            
+            showToast('Time filter applied', 'info', `Showing ${visibleCount} results from ${filterText}`);
+        }
+        
+        // View toggle (Table/Cards)
+        const viewTableBtn = document.getElementById('view-table');
+        const viewCardsBtn = document.getElementById('view-cards');
+        const tableView = document.getElementById('table-view');
+        const cardView = document.getElementById('card-view');
+        
+        if (viewTableBtn && viewCardsBtn && tableView && cardView) {
+            viewTableBtn.addEventListener('click', function() {
+                // Update button styles
+                viewTableBtn.classList.remove('bg-gray-50', 'text-gray-500');
+                viewTableBtn.classList.add('bg-white', 'text-primary-600');
+                viewCardsBtn.classList.remove('bg-white', 'text-primary-600');
+                viewCardsBtn.classList.add('bg-gray-50', 'text-gray-500');
+                
+                // Show table view, hide card view
+                tableView.classList.remove('hidden');
+                cardView.classList.add('hidden');
+                
+                // Show toast notification
+                showToast('Table view activated', 'info', 'Displaying results in table format');
+            });
+            
+            viewCardsBtn.addEventListener('click', function() {
+                // Update button styles
+                viewCardsBtn.classList.remove('bg-gray-50', 'text-gray-500');
+                viewCardsBtn.classList.add('bg-white', 'text-primary-600');
+                viewTableBtn.classList.remove('bg-white', 'text-primary-600');
+                viewTableBtn.classList.add('bg-gray-50', 'text-gray-500');
+                
+                // Show card view, hide table view
+                cardView.classList.remove('hidden');
+                tableView.classList.add('hidden');
+                
+                // Show toast notification
+                showToast('Card view activated', 'info', 'Displaying results in card format');
+            });
+        }
+        
+        // Sort table columns
+        const sortableHeaders = document.querySelectorAll('.sortable');
+        if (sortableHeaders) {
+            sortableHeaders.forEach(header => {
+                header.addEventListener('click', function() {
+                    const column = this.getAttribute('data-sort');
+                    const direction = this.classList.contains('sort-asc') ? 'desc' : 'asc';
+                    
+                    // Update header classes
+                    sortableHeaders.forEach(h => {
+                        h.classList.remove('sort-asc', 'sort-desc');
+                        h.querySelector('i').className = 'fas fa-sort ml-1 text-gray-400';
+                    });
+                    
+                    this.classList.add(`sort-${direction}`);
+                    this.querySelector('i').className = `fas fa-sort-${direction} ml-1 text-primary-600`;
+                    
+                    // Sort the table
+                    sortTable(column, direction);
+                });
+            });
+        }
+        
+        function sortTable(column, direction) {
+            const tableBody = document.getElementById('results-table-body');
+            const rows = Array.from(tableBody.querySelectorAll('tr.scan-result-row'));
+            
+            // Sort rows
+            rows.sort((a, b) => {
+                let valueA = a.getAttribute(`data-${column}`);
+                let valueB = b.getAttribute(`data-${column}`);
+                
+                // Handle different data types
+                if (column === 'time') {
+                    valueA = new Date(valueA);
+                    valueB = new Date(valueB);
+                }
+                
+                if (direction === 'asc') {
+                    return valueA > valueB ? 1 : -1;
+                } else {
+                    return valueA < valueB ? 1 : -1;
+                }
+            });
+            
+            // Reorder rows in the table
+            rows.forEach(row => {
+                tableBody.appendChild(row);
+            });
+            
+            // Show toast notification
+            showToast('Table sorted', 'info', `Sorted by ${column} in ${direction === 'asc' ? 'ascending' : 'descending'} order`);
+        }
+        
+        // Delete scan record functionality
+        const deleteButtons = document.querySelectorAll('.delete-scan');
+        const deleteModal = document.getElementById('delete-modal');
+        const cancelDeleteBtn = document.getElementById('cancel-delete');
+        const confirmDeleteBtn = document.getElementById('confirm-delete');
+        const deleteItemDetails = document.getElementById('delete-item-details');
+        
+        if (deleteButtons && deleteModal) {
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const id = this.getAttribute('data-id');
+                    const row = this.closest('tr.scan-result-row');
+                    const card = document.querySelector(`.scan-result-card[data-id="${row.getAttribute('data-id')}"]`);
+                    
+                    // Populate delete modal with details
+                    deleteItemDetails.innerHTML = `
+                        <p><strong>Product:</strong> ${row.getAttribute('data-product')}</p>
+                        <p><strong>Scan Time:</strong> ${new Date(row.getAttribute('data-time')).toLocaleString()}</p>
+                        <p><strong>Location:</strong> ${row.getAttribute('data-location')}</p>
+                        <p><strong>Result:</strong> ${row.getAttribute('data-result')}</p>
+                    `;
+                    
+                    // Store the row and card references for deletion
+                    confirmDeleteBtn.setAttribute('data-row-id', row.getAttribute('data-id'));
+                    
+                    // Show the modal
+                    deleteModal.classList.remove('hidden');
+                });
+            });
+            
+            cancelDeleteBtn.addEventListener('click', function() {
+                deleteModal.classList.add('hidden');
+            });
+            
+            confirmDeleteBtn.addEventListener('click', function() {
+                const id = this.getAttribute('data-row-id');
+                
+                // Find and remove the row and card
+                const row = document.querySelector(`.scan-result-row[data-id="${id}"]`);
+                const card = document.querySelector(`.scan-result-card[data-id="${id}"]`);
+                
+                if (row) row.remove();
+                if (card) card.remove();
+                
+                // Hide the modal
+                deleteModal.classList.add('hidden');
+                
+                // Show toast notification
+                showToast('Record deleted', 'success', 'Scan record has been permanently deleted');
+                
+                // Update result count
+                const remainingRows = document.querySelectorAll('.scan-result-row');
+                const resultCount = document.getElementById('result-count');
+                if (resultCount) {
+                    resultCount.innerHTML = `Showing <span class="font-medium text-gray-700">${remainingRows.length}</span> results`;
+                }
+                
+                // Update counters
+                const totalCounter = document.getElementById('total-scans-counter');
+                if (totalCounter) {
+                    const currentCount = parseInt(totalCounter.querySelector('.animate-counter').textContent);
+                    totalCounter.querySelector('.animate-counter').textContent = currentCount - 1;
+                }
+            });
+            
+            // Close modal when clicking outside
+            deleteModal.addEventListener('click', function(e) {
+                if (e.target === deleteModal) {
+                    deleteModal.classList.add('hidden');
+                }
+            });
+        }
+        
+        // Export menu toggle
+        const exportMenuBtn = document.getElementById('export-menu-btn');
+        const exportMenu = document.getElementById('export-menu');
+        
+        if (exportMenuBtn && exportMenu) {
+            exportMenuBtn.addEventListener('click', function() {
+                exportMenu.classList.toggle('hidden');
+                exportMenu.classList.toggle('scale-95');
+                exportMenu.classList.toggle('scale-100');
+            });
+            
+            // Close menu when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!exportMenuBtn.contains(e.target) && !exportMenu.contains(e.target)) {
+                    exportMenu.classList.add('hidden');
+                    exportMenu.classList.add('scale-95');
+                    exportMenu.classList.remove('scale-100');
+                }
+            });
+            
+            // Export buttons
+            document.getElementById('export-csv').addEventListener('click', function() {
+                showToast('Export started', 'success', 'Exporting to CSV file...');
+                exportMenu.classList.add('hidden');
+            });
+            
+            document.getElementById('export-pdf').addEventListener('click', function() {
+                showToast('Export started', 'success', 'Exporting to PDF file...');
+                exportMenu.classList.add('hidden');
+            });
+            
+            document.getElementById('export-excel').addEventListener('click', function() {
+                showToast('Export started', 'success', 'Exporting to Excel file...');
+                exportMenu.classList.add('hidden');
+            });
+            
+            document.getElementById('print-results').addEventListener('click', function() {
+                showToast('Preparing print view', 'info', 'Opening print dialog...');
+                exportMenu.classList.add('hidden');
+                setTimeout(() => { window.print(); }, 1000);
+            });
+        }
+        
+        // Refresh button with animation
+        const refreshBtn = document.getElementById('refresh-btn');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', function() {
+                this.querySelector('i').classList.add('animate-spin');
+                
+                // Simulate refresh delay
+                setTimeout(() => {
+                    this.querySelector('i').classList.remove('animate-spin');
+                    showToast('Data refreshed', 'success', 'Scan results updated');
+                }, 1000);
+            });
+        }
+        
+        // Help button and modal
+        const helpBtn = document.getElementById('help-btn');
+        const helpModal = document.getElementById('help-modal');
+        const closeHelpModal = document.getElementById('close-help-modal');
+        const closeHelp = document.getElementById('close-help');
+        
+        if (helpBtn && helpModal) {
+            helpBtn.addEventListener('click', function() {
+                helpModal.classList.remove('hidden');
+            });
+            
+            if (closeHelpModal) {
+                closeHelpModal.addEventListener('click', function() {
+                    helpModal.classList.add('hidden');
+                });
+            }
+            
+            if (closeHelp) {
+                closeHelp.addEventListener('click', function() {
+                    helpModal.classList.add('hidden');
+                });
+            }
+            
+            // Close modal when clicking outside
+            helpModal.addEventListener('click', function(e) {
+                if (e.target === helpModal) {
+                    helpModal.classList.add('hidden');
+                }
+            });
+        }
+        
+        // Settings button
+        const settingsBtn = document.getElementById('settings-btn');
+        if (settingsBtn) {
+            settingsBtn.addEventListener('click', function() {
+                showToast('Settings', 'info', 'Settings panel would open here');
+            });
+        }
+        
+        // Analytics period buttons
+        const periodBtns = document.querySelectorAll('.period-btn');
+        if (periodBtns) {
+            periodBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Update button styles
+                    periodBtns.forEach(b => {
+                        b.classList.remove('bg-primary-100', 'text-primary-600');
+                        b.classList.add('bg-gray-100', 'text-gray-600');
+                    });
+                    
+                    this.classList.remove('bg-gray-100', 'text-gray-600');
+                    this.classList.add('bg-primary-100', 'text-primary-600');
+                    
+                    // Show toast notification
+                    const period = this.getAttribute('data-period');
+                    showToast('Analytics period changed', 'info', `Showing data for the last ${period}`);
                 });
             });
         }
         
         // Toast notification system
-        window.showToast = function(message, type = 'info', description = '') {
+        function showToast(message, type = 'info', description = '') {
             const toast = document.getElementById('toast-notification');
             const toastMessage = document.getElementById('toast-message');
             const toastDescription = document.getElementById('toast-description');
@@ -301,29 +1427,6 @@
                     }, 300);
                 });
             }
-        }
-        
-        // Filter buttons
-        const dateFilterBtn = document.getElementById('date-filter-btn');
-        if (dateFilterBtn) {
-            dateFilterBtn.addEventListener('click', function() {
-                showToast('Date filter', 'info', 'Date filtering would be shown here');
-            });
-        }
-        
-        const locationFilterBtn = document.getElementById('location-filter-btn');
-        if (locationFilterBtn) {
-            locationFilterBtn.addEventListener('click', function() {
-                showToast('Location filter', 'info', 'Location filtering would be shown here');
-            });
-        }
-        
-        // Export button
-        const exportBtn = document.getElementById('export-btn');
-        if (exportBtn) {
-            exportBtn.addEventListener('click', function() {
-                showToast('Export initiated', 'success', 'Your scan results are being exported');
-            });
         }
     });
 </script>
