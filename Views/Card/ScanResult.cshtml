@@ -1,4 +1,4 @@
-@model IEnumerable<CardTagManager.Models.Card>
+@model IEnumerable<CardTagManager.Models.ScanResultViewModel>
 
 @{
     ViewData["Title"] = "Scan Results";
@@ -38,7 +38,7 @@
                         <i class="fas fa-qrcode text-xl"></i>
                     </div>
                     <div>
-                        <p class="text-gray-500 text-sm">Total Products</p>
+                        <p class="text-gray-500 text-sm">Total Scans</p>
                         <p class="text-2xl font-bold">@Model.Count()</p>
                     </div>
                 </div>
@@ -50,8 +50,8 @@
                         <i class="fas fa-calendar-day text-xl"></i>
                     </div>
                     <div>
-                        <p class="text-gray-500 text-sm">With Warranty</p>
-                        <p class="text-2xl font-bold">@Model.Count(s => s.WarrantyExpiration > DateTime.Now)</p>
+                        <p class="text-gray-500 text-sm">Today's Scans</p>
+                        <p class="text-2xl font-bold">@Model.Count(s => s.ScanTime.Date == DateTime.Today)</p>
                     </div>
                 </div>
             </div>
@@ -59,11 +59,11 @@
             <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
                 <div class="flex items-center">
                     <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 mr-4">
-                        <i class="fas fa-tag text-xl"></i>
+                        <i class="fas fa-map-marker-alt text-xl"></i>
                     </div>
                     <div>
-                        <p class="text-gray-500 text-sm">Categories</p>
-                        <p class="text-2xl font-bold">@Model.Select(s => s.Category).Distinct().Count()</p>
+                        <p class="text-gray-500 text-sm">Unique Locations</p>
+                        <p class="text-2xl font-bold">@Model.Select(s => s.Location).Distinct().Count()</p>
                     </div>
                 </div>
             </div>
@@ -73,7 +73,7 @@
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
             <div class="p-4 border-b border-gray-100 flex justify-between items-center">
                 <h2 class="font-bold text-gray-700 flex items-center">
-                    <i class="fas fa-filter text-primary-500 mr-2"></i> Filter Products
+                    <i class="fas fa-filter text-primary-500 mr-2"></i> Filter Scan Results
                 </h2>
                 <div class="flex items-center space-x-2">
                     <button id="date-filter-btn" class="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 flex items-center">
@@ -87,7 +87,7 @@
             
             <div class="p-4">
                 <div class="relative">
-                    <input type="text" id="product-search" placeholder="Search by product name, location, or model..." 
+                    <input type="text" id="scan-search" placeholder="Search by product name, location, or scan result..." 
                            class="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all" />
                     <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
                         <i class="fas fa-search"></i>
@@ -103,7 +103,7 @@
                 <div class="mx-auto w-20 h-20 rounded-full bg-primary-50 text-primary-500 flex items-center justify-center mb-4">
                     <i class="fas fa-qrcode text-3xl"></i>
                 </div>
-                <h3 class="text-xl font-semibold text-gray-800 mb-2">No products found</h3>
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">No scan results found</h3>
                 <p class="text-gray-500 mb-6 max-w-md mx-auto">Scan one of your product tags to see the results here. Use a QR code scanner app on your phone.</p>
                 <a asp-action="Index" class="btn-primary inline-flex shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all">
                     <i class="fas fa-layer-group mr-2"></i> View Products
@@ -121,16 +121,16 @@
                                     Product
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Category
+                                    Scan Time
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Model/Serial
+                                    Device Info
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Location
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Warranty
+                                    Scan Result
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Actions
@@ -147,46 +147,44 @@
                                                 <i class="fas fa-tag"></i>
                                             </div>
                                             <div class="ml-4">
-                                                <div class="text-sm font-medium text-gray-900">@item.ProductName</div>
-                                                <div class="text-sm text-gray-500">@item.Manufacturer</div>
+                                                <div class="text-sm font-medium text-gray-900">@item.CardName</div>
+                                                <div class="text-sm text-gray-500">ID: @item.CardId</div>
                                             </div>
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                            @item.Category
-                                        </span>
+                                        <div class="text-sm text-gray-900">@item.ScanTime.ToString("yyyy-MM-dd")</div>
+                                        <div class="text-sm text-gray-500">@item.ScanTime.ToString("HH:mm:ss")</div>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900">@item.ModelNumber</div>
-                                        <div class="text-sm text-gray-500">SN: @item.SerialNumber</div>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        @item.DeviceInfo
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         @item.Location
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        @if (item.WarrantyExpiration < DateTime.Now)
+                                        @if (item.ScanResult == "Success")
                                         {
-                                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                                Expired
+                                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                Success
                                             </span>
                                         }
-                                        else if (item.WarrantyExpiration < DateTime.Now.AddMonths(3))
+                                        else if (item.ScanResult == "Failed")
                                         {
-                                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                                Expiring Soon
+                                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                                Failed
                                             </span>
                                         }
                                         else
                                         {
-                                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                Active
+                                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                @item.ScanResult
                                             </span>
                                         }
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <a asp-action="Details" asp-route-id="@item.Id" class="text-primary-600 hover:text-primary-900 mr-3">View</a>
-                                        <a asp-action="ScanShow" asp-route-id="@item.Id" class="text-gray-500 hover:text-gray-700">Details</a>
+                                        <a asp-action="Details" asp-route-id="@item.CardId" class="text-primary-600 hover:text-primary-900 mr-3">View Card</a>
+                                        <a asp-action="ScanShow" asp-route-id="@item.CardId" class="text-gray-500 hover:text-gray-700">Details</a>
                                     </td>
                                 </tr>
                             }
@@ -236,7 +234,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Search functionality
-        const searchInput = document.getElementById('product-search');
+        const searchInput = document.getElementById('scan-search');
         if (searchInput) {
             searchInput.addEventListener('input', function() {
                 const searchTerm = this.value.toLowerCase().trim();
@@ -317,6 +315,14 @@
         if (locationFilterBtn) {
             locationFilterBtn.addEventListener('click', function() {
                 showToast('Location filter', 'info', 'Location filtering would be shown here');
+            });
+        }
+        
+        // Export button
+        const exportBtn = document.getElementById('export-btn');
+        if (exportBtn) {
+            exportBtn.addEventListener('click', function() {
+                showToast('Export initiated', 'success', 'Your scan results are being exported');
             });
         }
     });

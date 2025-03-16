@@ -162,14 +162,86 @@ namespace CardTagManager.Controllers
             return View(card);
         }
 
-        public IActionResult ScanResult()
+// Add this to CardController.cs
+public IActionResult ScanResult()
+{
+    // Demo data for testing the ScanResult view
+    var demoResults = new List<ScanResultViewModel>
+    {
+        new ScanResultViewModel
         {
-            // Retrieve scan results from repository or service
-            // For demo purposes using empty list
-            var scanResults = new List<ScanResultViewModel>();
-            
-            return View(scanResults);
+            Id = 1,
+            CardId = 1,
+            CardName = "RustShield Pro 5000",
+            ScanTime = DateTime.Now.AddHours(-2),
+            DeviceInfo = "iPhone 14 Pro, iOS 16.5",
+            Location = "Chemical Storage Room A",
+            ScanResult = "Success"
+        },
+        new ScanResultViewModel
+        {
+            Id = 2,
+            CardId = 3,
+            CardName = "Precision Lab Scale",
+            ScanTime = DateTime.Now.AddDays(-1),
+            DeviceInfo = "Samsung Galaxy S22, Android 13",
+            Location = "Quality Control Lab",
+            ScanResult = "Success"
+        },
+        new ScanResultViewModel
+        {
+            Id = 3,
+            CardId = 4,
+            CardName = "Emergency Eyewash Station",
+            ScanTime = DateTime.Now.AddHours(-5),
+            DeviceInfo = "iPad Air, iOS 16.4",
+            Location = "Chemical Processing Area",
+            ScanResult = "Success"
+        },
+        new ScanResultViewModel
+        {
+            Id = 4,
+            CardId = 2,
+            CardName = "Industrial Spray Booth",
+            ScanTime = DateTime.Today,
+            DeviceInfo = "Google Pixel 7, Android 13",
+            Location = "Building 2, Bay 4",
+            ScanResult = "Failed"
+        },
+        new ScanResultViewModel
+        {
+            Id = 5,
+            CardId = 5,
+            CardName = "CorrosionGuard Ultimate",
+            ScanTime = DateTime.Now.AddMinutes(-30),
+            DeviceInfo = "iPhone 13, iOS 16.5",
+            Location = "Chemical Storage Room B",
+            ScanResult = "Success"
+        },
+        new ScanResultViewModel
+        {
+            Id = 6,
+            CardId = 7,
+            CardName = "Coating Thickness Analyzer",
+            ScanTime = DateTime.Today.AddHours(-1),
+            DeviceInfo = "Samsung Galaxy Tab, Android 12",
+            Location = "QC Testing Room",
+            ScanResult = "Partial"
+        },
+        new ScanResultViewModel
+        {
+            Id = 7,
+            CardId = 1,
+            CardName = "RustShield Pro 5000",
+            ScanTime = DateTime.Now.AddDays(-2),
+            DeviceInfo = "iPhone SE, iOS 16.3",
+            Location = "Storage Area",
+            ScanResult = "Success"
         }
+    };
+    
+    return View(demoResults);
+}
 
         // Helper method to generate card data for QR code
         private string GenerateCardQrData(Card card)
