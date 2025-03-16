@@ -19,10 +19,11 @@ namespace CardTagManager.Controllers
         }
 
         [HttpGet]
-        public IActionResult Login(string returnUrl = null)
+        public IActionResult Login(string returnUrl = "/")
         {
-            ViewData["ReturnUrl"] = returnUrl;
-            return View();
+            // Always set a default returnUrl
+            ViewData["ReturnUrl"] = string.IsNullOrEmpty(returnUrl) ? "/" : returnUrl;
+            return View(new LoginViewModel { ReturnUrl = ViewData["ReturnUrl"]?.ToString() });
         }
 
         [HttpPost]
@@ -88,12 +89,7 @@ namespace CardTagManager.Controllers
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             
-            foreach (var cookie in Request.Cookies.Keys)
-            {
-                Response.Cookies.Delete(cookie);
-            }
-            
-            return RedirectToAction("Login", "Account");
+            return Redirect("/Account/Login?ReturnUrl=/");
         }
     }
 }
