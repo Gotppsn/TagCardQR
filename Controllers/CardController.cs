@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using CardTagManager.Models;
 using CardTagManager.Services;
+using Microsoft.AspNetCore.Authorization;
 using System;
 using System.Collections.Generic;
 
 namespace CardTagManager.Controllers
 {
+    [Authorize]
     public class CardController : Controller
     {
         private readonly CardRepository _cardRepository;

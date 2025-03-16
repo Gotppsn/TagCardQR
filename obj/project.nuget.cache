@@ -1,12 +1,18 @@
 {
   "version": 2,
-  "dgSpecHash": "dqjeJn4A7kc=",
+  "dgSpecHash": "nb2joZOHWqg=",
   "success": true,
   "projectFilePath": "C:\\Users\\got01\\Desktop\\TagCardQR\\CardTagManager.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\got01\\.nuget\\packages\\microsoft.win32.systemevents\\8.0.0\\microsoft.win32.systemevents.8.0.0.nupkg.sha512",
     "C:\\Users\\got01\\.nuget\\packages\\qrcoder\\1.4.1\\qrcoder.1.4.1.nupkg.sha512",
+    "C:\\Users\\got01\\.nuget\\packages\\system.configuration.configurationmanager\\9.0.3\\system.configuration.configurationmanager.9.0.3.nupkg.sha512",
+    "C:\\Users\\got01\\.nuget\\packages\\system.diagnostics.eventlog\\9.0.3\\system.diagnostics.eventlog.9.0.3.nupkg.sha512",
+    "C:\\Users\\got01\\.nuget\\packages\\system.directoryservices\\9.0.3\\system.directoryservices.9.0.3.nupkg.sha512",
+    "C:\\Users\\got01\\.nuget\\packages\\system.directoryservices.accountmanagement\\9.0.3\\system.directoryservices.accountmanagement.9.0.3.nupkg.sha512",
+    "C:\\Users\\got01\\.nuget\\packages\\system.directoryservices.protocols\\9.0.3\\system.directoryservices.protocols.9.0.3.nupkg.sha512",
     "C:\\Users\\got01\\.nuget\\packages\\system.drawing.common\\8.0.0\\system.drawing.common.8.0.0.nupkg.sha512",
+    "C:\\Users\\got01\\.nuget\\packages\\system.security.cryptography.protecteddata\\9.0.3\\system.security.cryptography.protecteddata.9.0.3.nupkg.sha512",
     "C:\\Users\\got01\\.nuget\\packages\\zxing.net\\0.16.10\\zxing.net.0.16.10.nupkg.sha512"
   ],
   "logs": []

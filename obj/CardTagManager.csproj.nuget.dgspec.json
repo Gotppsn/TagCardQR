@@ -54,6 +54,10 @@
               "target": "Package",
               "version": "[1.4.1, )"
             },
+            "System.DirectoryServices.AccountManagement": {
+              "target": "Package",
+              "version": "[9.0.3, )"
+            },
             "System.Drawing.Common": {
               "target": "Package",
               "version": "[8.0.0, )"

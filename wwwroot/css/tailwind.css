@@ -1879,6 +1879,10 @@ body {
   border-radius: 0.25rem;
 }
 
+.rounded-2xl {
+  border-radius: 1rem;
+}
+
 .rounded-full {
   border-radius: 9999px;
 }
@@ -2609,6 +2613,11 @@ body {
 
 .tracking-wider {
   letter-spacing: 0.05em;
+}
+
+.text-blue-100 {
+  --tw-text-opacity: 1;
+  color: rgb(219 234 254 / var(--tw-text-opacity));
 }
 
 .text-blue-400 {
