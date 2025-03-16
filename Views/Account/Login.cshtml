@@ -8,7 +8,7 @@
     <div class="w-full max-w-md">
         <!-- Logo & Header -->
         <div class="text-center mb-8">
-            <div class="w-20 h-20 bg-blue-500 text-white flex items-center justify-center rounded-2xl shadow-lg mx-auto mb-4">
+            <div class="w-20 h-20 bg-gradient-to-r from-blue-500 to-primary-500 text-white flex items-center justify-center rounded-2xl shadow-lg mx-auto mb-4 transform transition-transform hover:scale-105">
                 <i class="fas fa-box-open text-3xl"></i>
             </div>
             <h1 class="text-3xl font-bold text-gray-800">TagCardQR Manager</h1>
@@ -16,9 +16,9 @@
         </div>
 
         <!-- Login Card -->
-        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden transition-all hover:shadow-xl">
             <!-- Card Header -->
-            <div class="bg-blue-500 p-6 text-white">
+            <div class="bg-gradient-to-r from-blue-500 to-primary-500 p-6 text-white">
                 <h2 class="text-xl font-semibold">Welcome Back</h2>
                 <p class="text-blue-100 text-sm mt-1">Sign in to manage your product tags</p>
             </div>
@@ -45,12 +45,7 @@
                             </span>
                             <input asp-for="Username" class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" placeholder="Enter your username" autocomplete="username" />
                         </div>
-                        <div class="flex items-center mt-1">
-                            @* Error indicator for username - properly structured *@
-                            <i class="fas fa-exclamation-circle mr-1 hidden" id="username-error-icon"></i> 
-                            <span class="text-sm text-red-600" id="username-error-text"></span>
-                            <span asp-validation-for="Username" class="text-sm text-red-600"></span>
-                        </div>
+                        <span asp-validation-for="Username" class="text-sm text-red-600"></span>
                     </div>
 
                     <!-- Password Field -->
@@ -60,17 +55,9 @@
                             <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                                 <i class="fas fa-lock"></i>
                             </span>
-                            <input asp-for="Password" class="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" placeholder="Enter your password" autocomplete="current-password" />
-                            <button type="button" id="toggle-password" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none">
-                                <i class="fas fa-eye" id="password-icon"></i>
-                            </button>
+                            <input asp-for="Password" class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" placeholder="Enter your password" autocomplete="current-password" />
                         </div>
-                        <div class="flex items-center mt-1">
-                            @* Error indicator for password - properly structured *@
-                            <i class="fas fa-exclamation-circle mr-1 hidden" id="password-error-icon"></i>
-                            <span class="text-sm text-red-600" id="password-error-text"></span>
-                            <span asp-validation-for="Password" class="text-sm text-red-600"></span>
-                        </div>
+                        <span asp-validation-for="Password" class="text-sm text-red-600"></span>
                     </div>
 
                     <!-- Remember Me -->
@@ -110,226 +97,23 @@
 
 @section Scripts {
     <script>
-        // Enhanced UX interactions with error prevention
+        // Add subtle UX enhancements
         document.addEventListener('DOMContentLoaded', function() {
-            // Cache DOM references with null checks
-            const usernameInput = document.getElementById('Username');
-            const passwordInput = document.getElementById('Password');
+            // Focus username field on load
+            document.getElementById('Username').focus();
             
-            // Safely get elements with fallback
-            const getElement = (id) => document.getElementById(id) || { 
-                classList: { add: () => {}, remove: () => {} },
-                style: {},
-                textContent: ''
-            };
-            
-            // Username focus handling
-            if (usernameInput) {
-                usernameInput.focus();
-                
-                const usernameFocusRing = getElement('username-focus-ring');
-                
-                usernameInput.addEventListener('focus', function() {
-                    usernameFocusRing.style.opacity = '0.1';
-                });
-                
-                usernameInput.addEventListener('blur', function() {
-                    usernameFocusRing.style.opacity = '0';
-                });
-                
-                // Clear error states on input
-                usernameInput.addEventListener('input', function() {
-                    this.classList.remove('border-red-500');
-                    getElement('username-error-icon').classList.add('hidden');
-                    getElement('username-error-text').textContent = '';
-                });
-            }
-            
-            // Password field handling with safety checks
-            if (passwordInput) {
-                const passwordFocusRing = getElement('password-focus-ring');
-                const passwordErrorIcon = getElement('password-error-icon');
-                const passwordErrorText = getElement('password-error-text');
-                
-                passwordInput.addEventListener('focus', function() {
-                    passwordFocusRing.style.opacity = '0.1';
-                });
-                
-                passwordInput.addEventListener('blur', function() {
-                    passwordFocusRing.style.opacity = '0';
-                });
-                
-                // Clear error states on input - with error prevention
-                passwordInput.addEventListener('input', function() {
-                    this.classList.remove('border-red-500');
-                    passwordErrorIcon.classList.add('hidden');
-                    passwordErrorText.textContent = '';
-                });
-                
-                // Toggle password visibility if elements exist
-                const togglePassword = getElement('toggle-password');
-                const passwordIcon = getElement('password-icon');
-                
-                if (togglePassword && passwordIcon) {
-                    togglePassword.addEventListener('click', function() {
-                        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                        passwordInput.setAttribute('type', type);
-                        
-                        // Toggle eye icon
-                        if (type === 'text') {
-                            passwordIcon.classList.remove('fa-eye');
-                            passwordIcon.classList.add('fa-eye-slash');
-                        } else {
-                            passwordIcon.classList.remove('fa-eye-slash');
-                            passwordIcon.classList.add('fa-eye');
-                        }
-                        
-                        // Refocus on password input
-                        passwordInput.focus();
-                    });
-                }
-            }
-            
-            // Custom checkbox handling with null check
-            const rememberCheckbox = getElement('remember-checkbox');
-            const rememberBox = getElement('remember-box');
-            const rememberCheck = getElement('remember-check');
-            
-            if (rememberCheckbox && rememberBox && rememberCheck) {
-                function updateCheckbox() {
-                    if (rememberCheckbox.checked) {
-                        rememberBox.classList.add('bg-primary-500');
-                        rememberBox.classList.add('border-primary-500');
-                        rememberCheck.classList.remove('scale-0');
-                        rememberCheck.classList.add('scale-100');
-                    } else {
-                        rememberBox.classList.remove('bg-primary-500');
-                        rememberBox.classList.remove('border-primary-500');
-                        rememberCheck.classList.remove('scale-100');
-                        rememberCheck.classList.add('scale-0');
-                    }
-                }
-                
-                rememberCheckbox.addEventListener('change', updateCheckbox);
-                updateCheckbox(); // Initialize state
-            }
-            
-            // Form field animation with safety checks
-            const formGroups = document.querySelectorAll('.form-group');
-            if (formGroups.length > 0) {
-                formGroups.forEach((element, index) => {
-                    if (element) {
-                        element.style.opacity = '0';
-                        element.style.transform = 'translateY(15px)';
-                        element.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-                        
-                        setTimeout(() => {
-                            element.style.opacity = '1';
-                            element.style.transform = 'translateY(0)';
-                        }, 150 + (index * 100));
-                    }
-                });
-            }
-            
-            // Add submit button animation with null check
-            const submitButton = document.querySelector('button[type="submit"]');
-            if (submitButton && submitButton.parentElement) {
-                submitButton.parentElement.style.opacity = '0';
-                submitButton.parentElement.style.transform = 'translateY(15px)';
-                submitButton.parentElement.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            // Add subtle animation to form elements
+            const formElements = document.querySelectorAll('form > div');
+            formElements.forEach((element, index) => {
+                element.style.opacity = '0';
+                element.style.transform = 'translateY(10px)';
+                element.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
                 
                 setTimeout(() => {
-                    submitButton.parentElement.style.opacity = '1';
-                    submitButton.parentElement.style.transform = 'translateY(0)';
-                }, 450);
-            }
-            
-            // Form validation enhancement with error prevention
-            const form = document.querySelector('form');
-            if (form && usernameInput && passwordInput) {
-                form.addEventListener('submit', function(e) {
-                    let isValid = true;
-                    
-                    // Username validation
-                    if (!usernameInput.value.trim()) {
-                        isValid = false;
-                        const usernameErrorIcon = getElement('username-error-icon');
-                        const usernameErrorText = getElement('username-error-text');
-                        
-                        usernameErrorIcon.classList.remove('hidden');
-                        usernameErrorText.textContent = 'Username is required';
-                        usernameInput.classList.add('border-red-500');
-                        
-                        // Add shake animation if supported
-                        if (usernameInput.classList.contains('animate-shake') || typeof usernameInput.animate === 'function') {
-                            usernameInput.classList.add('animate-shake');
-                            setTimeout(() => usernameInput.classList.remove('animate-shake'), 500);
-                        }
-                    }
-                    
-                    // Password validation
-                    if (!passwordInput.value.trim()) {
-                        isValid = false;
-                        const passwordErrorIcon = getElement('password-error-icon');
-                        const passwordErrorText = getElement('password-error-text');
-                        
-                        passwordErrorIcon.classList.remove('hidden');
-                        passwordErrorText.textContent = 'Password is required';
-                        passwordInput.classList.add('border-red-500');
-                        
-                        // Add shake animation if supported
-                        if (passwordInput.classList.contains('animate-shake') || typeof passwordInput.animate === 'function') {
-                            passwordInput.classList.add('animate-shake');
-                            setTimeout(() => passwordInput.classList.remove('animate-shake'), 500);
-                        }
-                    }
-                    
-                    if (!isValid) {
-                        e.preventDefault();
-                    }
-                });
-            }
+                    element.style.opacity = '1';
+                    element.style.transform = 'translateY(0)';
+                }, 100 + (index * 50));
+            });
         });
-
-        // Add keyframe animations to the page
-        const style = document.createElement('style');
-        style.textContent = `
-            @@keyframes fadeIn {
-                from { opacity: 0; }
-                to { opacity: 1; }
-            }
-            
-            @@keyframes fadeUp {
-                from { opacity: 0; transform: translateY(20px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-            
-            @@keyframes shake {
-                0%, 100% { transform: translateX(0); }
-                25% { transform: translateX(-8px); }
-                75% { transform: translateX(8px); }
-            }
-            
-            @@keyframes shine {
-                100% { right: -50%; left: 0; }
-            }
-            
-            .animate-fadeIn {
-                animation: fadeIn 0.5s ease forwards;
-            }
-            
-            .animate-fadeUp {
-                animation: fadeUp 0.5s ease forwards;
-            }
-            
-            .animate-shake {
-                animation: shake 0.4s ease-in-out;
-            }
-            
-            .animate-shine {
-                animation: shine 1.5s ease-in-out;
-            }
-        `;
-        document.head.appendChild(style);
     </script>
 }
