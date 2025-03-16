@@ -36,22 +36,30 @@ namespace CardTagManager.Controllers
 
                 if (isValid)
                 {
+                    // Ensure we're creating a fresh claims identity each time
                     var claims = new List<Claim>
                     {
                         new Claim(ClaimTypes.Name, model.Username),
-                        // Add role claims as needed
-                        new Claim(ClaimTypes.Role, model.Username == "admin" ? "Administrator" : "User")
+                        new Claim(ClaimTypes.Role, model.Username == "admin" ? "Administrator" : "User"),
+                        // Add unique timestamp claim to prevent stale authentication
+                        new Claim("login_timestamp", DateTime.UtcNow.Ticks.ToString())
                     };
 
                     var claimsIdentity = new ClaimsIdentity(
                         claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
+                    // Explicitly set IsPersistent based on RememberMe
                     var authProperties = new AuthenticationProperties
                     {
                         IsPersistent = model.RememberMe,
-                        ExpiresUtc = System.DateTimeOffset.UtcNow.AddHours(12)
+                        ExpiresUtc = System.DateTimeOffset.UtcNow.AddHours(12),
+                        // Adding redirect URL to auth properties
+                        RedirectUri = returnUrl
                     };
 
+                    // Ensure user is completely signed out before signing in again
+                    await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                    
                     await HttpContext.SignInAsync(
                         CookieAuthenticationDefaults.AuthenticationScheme,
                         new ClaimsPrincipal(claimsIdentity),
@@ -79,6 +87,12 @@ namespace CardTagManager.Controllers
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            
+            foreach (var cookie in Request.Cookies.Keys)
+            {
+                Response.Cookies.Delete(cookie);
+            }
+            
             return RedirectToAction("Login", "Account");
         }
     }

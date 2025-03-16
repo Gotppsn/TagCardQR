@@ -1,7 +1,9 @@
-// Path: Program.cs
 using CardTagManager.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Extensions.Caching.Memory;
 using System;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +13,8 @@ builder.Services.AddSingleton<CardRepository>();
 builder.Services.AddSingleton<QrCodeService>();
 builder.Services.AddSingleton<LdapAuthenticationService>(provider => 
     new LdapAuthenticationService(builder.Configuration["LdapSettings:Domain"] ?? "thaiparkerizing"));
+
+builder.Services.AddMemoryCache();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -22,6 +26,9 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.Cookie.HttpOnly = true;
         options.ExpireTimeSpan = TimeSpan.FromHours(12);
         options.SlidingExpiration = true;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        options.SessionStore = new MemoryCacheTicketStore();
     });    
 
 var app = builder.Build();
@@ -39,9 +46,49 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Card}/{action=Index}/{id?}");
 
 app.Run();
+
+// Memory cache ticket store implementation
+public class MemoryCacheTicketStore : ITicketStore
+{
+    private readonly IMemoryCache _cache;
+    
+    public MemoryCacheTicketStore()
+    {
+        _cache = new MemoryCache(new MemoryCacheOptions());
+    }
+    
+    public Task<string> StoreAsync(AuthenticationTicket ticket)
+    {
+        var id = Guid.NewGuid().ToString();
+        RenewAsync(id, ticket);
+        return Task.FromResult(id);
+    }
+    
+    public Task RenewAsync(string key, AuthenticationTicket ticket)
+    {
+        var options = new MemoryCacheEntryOptions
+        {
+            AbsoluteExpiration = ticket.Properties.ExpiresUtc
+        };
+        
+        _cache.Set(key, ticket, options);
+        return Task.CompletedTask;
+    }
+    
+    public Task<AuthenticationTicket> RetrieveAsync(string key)
+    {
+        _cache.TryGetValue(key, out AuthenticationTicket ticket);
+        return Task.FromResult(ticket);
+    }
+    
+    public Task RemoveAsync(string key)
+    {
+        _cache.Remove(key);
+        return Task.CompletedTask;
+    }
+}
