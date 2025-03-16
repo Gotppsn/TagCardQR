@@ -72,25 +72,29 @@
             <button id="actions-menu-btn" class="btn-secondary">
                 <i class="fas fa-ellipsis-h mr-2"></i> More Actions
             </button>
-    <div id="actions-dropdown" class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl z-10 hidden group-focus-within:block transform origin-top-right transition-all border border-gray-100">
-        <div class="py-1">
-            <a asp-action="PrintAll" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50">
-                <i class="fas fa-print w-5 mr-2 text-gray-500"></i> Print All Tags
-            </a>
-            <a href="#" id="export-csv-btn" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50">
-                <i class="fas fa-file-csv w-5 mr-2 text-gray-500"></i> Export to CSV
-            </a>
-            <a href="#" id="batch-edit-btn" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50">
-                <i class="fas fa-edit w-5 mr-2 text-gray-500"></i> Batch Edit
-            </a>
-            <a asp-action="ScanResult" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50">
-                <i class="fas fa-qrcode w-5 mr-2 text-gray-500"></i> Scan Results
-            </a>
-            <hr class="my-1 border-gray-100">
-            <a href="#" id="settings-btn" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50">
-                <i class="fas fa-cog w-5 mr-2 text-gray-500"></i> Settings
-            </a>
-        </div>
+            <div id="actions-dropdown" class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl z-10 hidden group-focus-within:block transform origin-top-right transition-all border border-gray-100">
+                <div class="py-1">
+                    <a asp-action="PrintAll" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50">
+                        <i class="fas fa-print w-5 mr-2 text-gray-500"></i> Print All Tags
+                    </a>
+                    <a href="#" id="export-csv-btn" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50">
+                        <i class="fas fa-file-csv w-5 mr-2 text-gray-500"></i> Export to CSV
+                    </a>
+                    <a href="#" id="batch-edit-btn" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50">
+                        <i class="fas fa-edit w-5 mr-2 text-gray-500"></i> Batch Edit
+                    </a>
+                    <a asp-action="ScanResult" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50">
+                        <i class="fas fa-qrcode w-5 mr-2 text-gray-500"></i> Scan Results
+                    </a>
+                    <a asp-action="ScanShow" asp-route-id="1" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50">
+                        <i class="fas fa-info-circle w-5 mr-2 text-gray-500"></i> Product Information
+                    </a>
+                    <hr class="my-1 border-gray-100">
+                    <a href="#" id="settings-btn" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50">
+                        <i class="fas fa-cog w-5 mr-2 text-gray-500"></i> Settings
+                    </a>
+                </div>
+            </div>
     </div>
         </div>
     </div>
@@ -254,20 +258,23 @@ else
                                 <button class="p-2 rounded-full hover:bg-white hover:bg-opacity-20 transition-colors">
                                     <i class="fas fa-ellipsis-v"></i>
                                 </button>
-                                <div class="dropdown-menu hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border border-gray-100 group-hover:block">
-                                    <a asp-action="Edit" asp-route-id="@product.Id" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                                        <i class="fas fa-edit mr-2"></i> Edit
-                                    </a>
-                                    <a asp-action="Print" asp-route-id="@product.Id" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                                        <i class="fas fa-print mr-2"></i> Print Tag
-                                    </a>
-                                    <a asp-action="QrCode" asp-route-id="@product.Id" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                                        <i class="fas fa-qrcode mr-2"></i> Show QR Code
-                                    </a>
-                                    <a asp-action="Delete" asp-route-id="@product.Id" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50">
-                                        <i class="fas fa-trash-alt mr-2"></i> Delete
-                                    </a>
-                                </div>
+                            <div class="dropdown-menu hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border border-gray-100 group-hover:block">
+                                <a asp-action="Edit" asp-route-id="@product.Id" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                    <i class="fas fa-edit mr-2"></i> Edit
+                                </a>
+                                <a asp-action="Print" asp-route-id="@product.Id" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                    <i class="fas fa-print mr-2"></i> Print Tag
+                                </a>
+                                <a asp-action="QrCode" asp-route-id="@product.Id" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                    <i class="fas fa-qrcode mr-2"></i> Show QR Code
+                                </a>
+                                <a asp-action="ScanShow" asp-route-id="@product.Id" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                    <i class="fas fa-info-circle mr-2"></i> Product Information
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@product.Id" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                                    <i class="fas fa-trash-alt mr-2"></i> Delete
+                                </a>
+                            </div>
                             </div>
                         </div>
                         
@@ -362,6 +369,9 @@ else
                                     </a>
                                     <a asp-action="Print" asp-route-id="@product.Id" class="px-3 py-1 bg-gray-50 text-gray-600 rounded-md hover:bg-gray-100 text-sm">
                                         <i class="fas fa-print mr-1"></i> Print
+                                    </a>
+                                    <a asp-action="ScanShow" asp-route-id="@product.Id" class="px-3 py-1 bg-gray-50 text-gray-600 rounded-md hover:bg-gray-100 text-sm">
+                                        <i class="fas fa-info-circle mr-1"></i> Info
                                     </a>
                                 </div>
                             </div>

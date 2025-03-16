@@ -210,5 +210,20 @@ namespace CardTagManager.Controllers
             // Return the data as a downloadable file
             return File(System.Text.Encoding.UTF8.GetBytes(cardDataContent), "text/plain", fileName);
         }
+        
+        public IActionResult ScanShow(int id)
+        {
+            var card = _cardRepository.GetById(id);
+            if (card == null)
+            {
+                return NotFound();
+            }
+            
+            // Generate QR code for printable tag
+            string qrCodeData = GenerateCardQrData(card);
+            ViewBag.QrCodeImage = _qrCodeService.GenerateQrCodeAsBase64(qrCodeData);
+
+            return View(card);
+        }
     }
 }
