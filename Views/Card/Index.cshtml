@@ -64,37 +64,34 @@
         <p class="text-gray-500">Manage your inventory with QR-enabled product tags</p>
     </div>
     
-<div class="flex flex-wrap gap-3">
-    <a asp-action="Create" class="btn-primary shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all">
-        <i class="fas fa-plus-circle mr-2"></i> Add New Product
-    </a>
-    <a asp-action="ScanResult" class="btn-secondary shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all">
-        <i class="fas fa-qrcode mr-2"></i> Scan Results
-    </a>
-    <div class="relative group">
-        <button id="actions-menu-btn" class="btn-secondary">
-            <i class="fas fa-ellipsis-h mr-2"></i> More Actions
-        </button>
-            <div id="actions-dropdown" class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl z-10 hidden group-focus-within:block transform origin-top-right transition-all border border-gray-100">
-                <div class="py-1">
-                    <a asp-action="PrintAll" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50">
-                        <i class="fas fa-print w-5 mr-2 text-gray-500"></i> Print All Tags
-                    </a>
-                    <a href="#" id="export-csv-btn" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50">
-                        <i class="fas fa-file-csv w-5 mr-2 text-gray-500"></i> Export to CSV
-                    </a>
-                    <a href="#" id="batch-edit-btn" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50">
-                        <i class="fas fa-edit w-5 mr-2 text-gray-500"></i> Batch Edit
-                    </a>
-                    <a asp-action="ScanResult" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50">
-                        <i class="fas fa-qrcode w-5 mr-2 text-gray-500"></i> Scan Results
-                    </a>
-                    <hr class="my-1 border-gray-100">
-                    <a href="#" id="settings-btn" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50">
-                        <i class="fas fa-cog w-5 mr-2 text-gray-500"></i> Settings
-                    </a>
-                </div>
-            </div>
+    <div class="flex flex-wrap gap-3">
+        <a asp-action="Create" class="btn-primary shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all">
+            <i class="fas fa-plus-circle mr-2"></i> Add New Product
+        </a>
+        <div class="relative group">
+            <button id="actions-menu-btn" class="btn-secondary">
+                <i class="fas fa-ellipsis-h mr-2"></i> More Actions
+            </button>
+    <div id="actions-dropdown" class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl z-10 hidden group-focus-within:block transform origin-top-right transition-all border border-gray-100">
+        <div class="py-1">
+            <a asp-action="PrintAll" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50">
+                <i class="fas fa-print w-5 mr-2 text-gray-500"></i> Print All Tags
+            </a>
+            <a href="#" id="export-csv-btn" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50">
+                <i class="fas fa-file-csv w-5 mr-2 text-gray-500"></i> Export to CSV
+            </a>
+            <a href="#" id="batch-edit-btn" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50">
+                <i class="fas fa-edit w-5 mr-2 text-gray-500"></i> Batch Edit
+            </a>
+            <a asp-action="ScanResult" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50">
+                <i class="fas fa-qrcode w-5 mr-2 text-gray-500"></i> Scan Results
+            </a>
+            <hr class="my-1 border-gray-100">
+            <a href="#" id="settings-btn" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50">
+                <i class="fas fa-cog w-5 mr-2 text-gray-500"></i> Settings
+            </a>
+        </div>
+    </div>
         </div>
     </div>
 </div>
