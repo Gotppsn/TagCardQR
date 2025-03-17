@@ -1484,7 +1484,6 @@
             
             // Form submission handling
             document.getElementById('product-form').addEventListener('submit', function(e) {
-                e.preventDefault();
                 
                 // Validate all required fields
                 let isValid = true;
@@ -1504,6 +1503,8 @@
                 });
                 
                 if (!isValid) {
+                    e.preventDefault(); // Only prevent submission if validation fails
+                    
                     // Find which step has errors
                     let stepWithError = 1;
                     const step1Errors = document.querySelectorAll('.form-section[data-step="1"] .border-red-500').length > 0;
@@ -1528,20 +1529,23 @@
                     return;
                 }
                 
-                // Create hidden fields for all form inputs
-                document.querySelectorAll('input:not([type="hidden"]), select, textarea').forEach(input => {
-                    // Skip file inputs - they're handled separately
-                    if (input.type === 'file') return;
-                    
-                    let hiddenField = document.querySelector(`input[type="hidden"][name="${input.name}"]`);
-                    if (!hiddenField) {
-                        hiddenField = document.createElement('input');
-                        hiddenField.type = 'hidden';
-                        hiddenField.name = input.name;
-                        this.appendChild(hiddenField);
+                // Instead of creating new hidden fields, ensure all inputs in hidden sections 
+                // have their values properly set
+                const allInputs = this.querySelectorAll('input:not([type="file"]), select, textarea');
+                allInputs.forEach(input => {
+                    // Make sure hidden inputs in non-visible sections still have their values
+                    if (input.closest('.form-section.hidden')) {
+                        // Ensure the input's value is preserved
+                        const hiddenInput = document.querySelector(`input[type="hidden"][name="${input.name}"]`);
+                        if (hiddenInput) {
+                            hiddenInput.value = input.value;
+                        }
                     }
-                    hiddenField.value = input.value;
                 });
+                
+                // Ensure QR color values are set in the hidden fields
+                document.getElementById('qrFgColorHidden').value = document.getElementById('qr-fg-color').value;
+                document.getElementById('qrBgColorHidden').value = document.getElementById('qr-bg-color').value;
                 
                 // Show saving indicator on the button
                 const submitButton = this.querySelector('button[type="submit"]');
@@ -1549,13 +1553,7 @@
                     submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
                     submitButton.disabled = true;
                 }
-                
-                console.log("Submitting form with all data captured");
-                
-                // Submit the form
-                this.submit();
             });
-        });
         
         // Show notification function
         function showNotification(message, type = 'success', description = '') {

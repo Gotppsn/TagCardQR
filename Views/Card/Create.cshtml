@@ -71,8 +71,6 @@
             </div>
             
             <form asp-action="Create" method="post" id="product-form" enctype="multipart/form-data">
-                <div asp-validation-summary="ModelOnly" class="text-red-500 text-sm p-4 hidden" id="validation-summary"></div>
-                
                 <div class="card-body">
                     <!-- Step 1: Basic Information -->
                     <div class="form-section" data-step="1">
@@ -97,7 +95,7 @@
                                             <i class="fas fa-check-circle text-green-500"></i>
                                         </div>
                                     </div>
-                                    <span asp-validation-for="ProductName" class="form-error text-red-500 text-sm"></span>
+                                    <span asp-validation-for="ProductName" class="form-error"></span>
                                 </div>
                                 
                                 <div class="form-group">
@@ -106,8 +104,7 @@
                                         <span class="text-red-500 ml-1">*</span>
                                     </label>
                                     <div class="relative">
-                                        <select asp-for="Category" class="form-input pl-9" required>
-                                            <option value="">Select a category</option>
+                                        <select asp-for="Category" class="form-input pl-9">
                                             <option value="Rust Coating Chemical">Rust Coating Chemical</option>
                                             <option value="Application Equipment">Application Equipment</option>
                                             <option value="Lab Equipment">Lab Equipment</option>
@@ -120,7 +117,7 @@
                                             <i class="fas fa-folder text-gray-400"></i>
                                         </div>
                                     </div>
-                                    <span asp-validation-for="Category" class="form-error text-red-500 text-sm"></span>
+                                    <span asp-validation-for="Category" class="form-error"></span>
                                 </div>
                                 
                                 <div class="form-group">
@@ -134,7 +131,7 @@
                                             <i class="fas fa-industry text-gray-400"></i>
                                         </div>
                                     </div>
-                                    <span asp-validation-for="Manufacturer" class="form-error text-red-500 text-sm"></span>
+                                    <span asp-validation-for="Manufacturer" class="form-error"></span>
                                 </div>
                             </div>
                             
@@ -150,7 +147,7 @@
                                             <i class="fas fa-barcode text-gray-400"></i>
                                         </div>
                                     </div>
-                                    <span asp-validation-for="ModelNumber" class="form-error text-red-500 text-sm"></span>
+                                    <span asp-validation-for="ModelNumber" class="form-error"></span>
                                 </div>
                                 
                                 <div class="form-group">
@@ -164,13 +161,13 @@
                                             <i class="fas fa-fingerprint text-gray-400"></i>
                                         </div>
                                     </div>
-                                    <span asp-validation-for="SerialNumber" class="form-error text-red-500 text-sm"></span>
+                                    <span asp-validation-for="SerialNumber" class="form-error"></span>
                                 </div>
                                 
                                 <div class="form-group">
                                     <label class="form-label">Product Image</label>
                                     <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:bg-gray-50 transition-colors cursor-pointer" id="dropzone">
-                                        <input type="file" class="hidden" id="product-image" name="ImageFile" accept="image/*">
+                                        <input type="file" class="hidden" id="product-image" accept="image/*">
                                         <div class="flex flex-col items-center justify-center">
                                             <i class="fas fa-cloud-upload-alt text-2xl text-gray-400 mb-2"></i>
                                             <p class="text-sm text-gray-500 mb-1">Drag and drop an image here or click to browse</p>
@@ -212,7 +209,7 @@
                                         <i class="fas fa-map-marker-alt text-gray-400"></i>
                                     </div>
                                 </div>
-                                <span asp-validation-for="Location" class="form-error text-red-500 text-sm"></span>
+                                <span asp-validation-for="Location" class="form-error"></span>
                             </div>
                             
                             <div class="form-group">
@@ -224,7 +221,7 @@
                                         <i class="fas fa-wrench text-gray-400"></i>
                                     </div>
                                 </div>
-                                <span asp-validation-for="MaintenanceInfo" class="form-error text-red-500 text-sm"></span>
+                                <span asp-validation-for="MaintenanceInfo" class="form-error"></span>
                             </div>
                         </div>
                         
@@ -235,12 +232,12 @@
                                     <span class="text-red-500 ml-1">*</span>
                                 </label>
                                 <div class="relative">
-                                    <input asp-for="ManufactureDate" type="date" class="form-input pl-9" required value="@DateTime.Now.ToString("yyyy-MM-dd")">
+                                    <input asp-for="ManufactureDate" type="date" class="form-input pl-9" required>
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-calendar-day text-gray-400"></i>
                                     </div>
                                 </div>
-                                <span asp-validation-for="ManufactureDate" class="form-error text-red-500 text-sm"></span>
+                                <span asp-validation-for="ManufactureDate" class="form-error"></span>
                             </div>
                             
                             <div class="form-group">
@@ -249,12 +246,12 @@
                                     <span class="text-red-500 ml-1">*</span>
                                 </label>
                                 <div class="relative">
-                                    <input asp-for="PurchaseDate" type="date" class="form-input pl-9" required value="@DateTime.Now.ToString("yyyy-MM-dd")">
+                                    <input asp-for="PurchaseDate" type="date" class="form-input pl-9" required>
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-shopping-cart text-gray-400"></i>
                                     </div>
                                 </div>
-                                <span asp-validation-for="PurchaseDate" class="form-error text-red-500 text-sm"></span>
+                                <span asp-validation-for="PurchaseDate" class="form-error"></span>
                             </div>
                             
                             <div class="form-group">
@@ -263,12 +260,12 @@
                                     <span class="text-red-500 ml-1">*</span>
                                 </label>
                                 <div class="relative">
-                                    <input asp-for="WarrantyExpiration" type="date" class="form-input pl-9" required value="@DateTime.Now.AddYears(1).ToString("yyyy-MM-dd")">
+                                    <input asp-for="WarrantyExpiration" type="date" class="form-input pl-9" required>
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-shield-alt text-gray-400"></i>
                                     </div>
                                 </div>
-                                <span asp-validation-for="WarrantyExpiration" class="form-error text-red-500 text-sm"></span>
+                                <span asp-validation-for="WarrantyExpiration" class="form-error"></span>
                             </div>
                         </div>
                         
@@ -288,43 +285,6 @@
                         
                         <div class="mb-6">
                             <label class="form-label">Card Layout</label>
-                            <input type="hidden" asp-for="Layout" id="selected-layout" value="standard">
-                            <!-- Add a section to display LDAP user information -->
-                            <div class="mt-6 p-4 bg-gray-50 rounded-lg">
-                                <h4 class="text-sm font-medium mb-3">User Information (Auto-populated from LDAP)</h4>
-                                
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div class="form-group">
-                                        <label asp-for="Username" class="text-xs text-gray-500 uppercase font-medium mb-1 block">Username</label>
-                                        <div class="text-sm font-medium text-gray-700">@User.FindFirstValue("Username")</div>
-                                        <input type="hidden" asp-for="Username" value="@User.FindFirstValue("Username")" />
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <label asp-for="Department" class="text-xs text-gray-500 uppercase font-medium mb-1 block">Department</label>
-                                        <div class="text-sm font-medium text-gray-700">@User.FindFirstValue("Department")</div>
-                                        <input type="hidden" asp-for="Department" value="@User.FindFirstValue("Department")" />
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <label asp-for="Email" class="text-xs text-gray-500 uppercase font-medium mb-1 block">Email</label>
-                                        <div class="text-sm font-medium text-gray-700">@User.FindFirstValue("Email")</div>
-                                        <input type="hidden" asp-for="Email" value="@User.FindFirstValue("Email")" />
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <label asp-for="UserFullName" class="text-xs text-gray-500 uppercase font-medium mb-1 block">Full Name</label>
-                                        <div class="text-sm font-medium text-gray-700">@User.FindFirstValue("FullName")</div>
-                                        <input type="hidden" asp-for="UserFullName" value="@User.FindFirstValue("FullName")" />
-                                    </div>
-                                    
-                                    <div class="form-group md:col-span-2">
-                                        <label asp-for="PlantName" class="text-xs text-gray-500 uppercase font-medium mb-1 block">Plant</label>
-                                        <div class="text-sm font-medium text-gray-700">@User.FindFirstValue("PlantName")</div>
-                                        <input type="hidden" asp-for="PlantName" value="@User.FindFirstValue("PlantName")" />
-                                    </div>
-                                </div>
-                            </div>
                             <div class="grid grid-cols-3 gap-3">
                                 <div class="layout-option border rounded-lg p-2 cursor-pointer hover:border-primary-500 transition-colors active" data-layout="standard">
                                     <div class="bg-gray-100 rounded mb-1 flex items-center justify-center p-3">
@@ -396,9 +356,9 @@
                                 <label asp-for="BackgroundColor" class="form-label">Background Color</label>
                                 <div class="color-picker-wrapper">
                                     <div class="flex">
-                                        <input asp-for="BackgroundColor" type="color" class="color-input hidden" id="bg-color-picker" value="#ffffff">
+                                        <input asp-for="BackgroundColor" type="color" class="color-input hidden" id="bg-color-picker">
                                         <div class="color-preview w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer" id="bg-color-preview" style="background-color: #ffffff;"></div>
-                                        <input asp-for="BackgroundColor" type="text" class="form-input ml-2 flex-grow" placeholder="#ffffff" value="#ffffff">
+                                        <input asp-for="BackgroundColor" type="text" class="form-input ml-2 flex-grow" placeholder="#ffffff">
                                     </div>
                                     <div class="color-presets mt-2 flex flex-wrap gap-2">
                                         <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#ffffff" style="background-color: #ffffff;"></span>
@@ -407,16 +367,16 @@
                                         <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#1e293b" style="background-color: #1e293b;"></span>
                                     </div>
                                 </div>
-                                <span asp-validation-for="BackgroundColor" class="form-error text-red-500 text-sm"></span>
+                                <span asp-validation-for="BackgroundColor" class="form-error"></span>
                             </div>
                             
                             <div class="form-group">
                                 <label asp-for="TextColor" class="form-label">Text Color</label>
                                 <div class="color-picker-wrapper">
                                     <div class="flex">
-                                        <input asp-for="TextColor" type="color" class="color-input hidden" id="text-color-picker" value="#000000">
+                                        <input asp-for="TextColor" type="color" class="color-input hidden" id="text-color-picker">
                                         <div class="color-preview w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer" id="text-color-preview" style="background-color: #000000;"></div>
-                                        <input asp-for="TextColor" type="text" class="form-input ml-2 flex-grow" placeholder="#000000" value="#000000">
+                                        <input asp-for="TextColor" type="text" class="form-input ml-2 flex-grow" placeholder="#000000">
                                     </div>
                                     <div class="color-presets mt-2 flex flex-wrap gap-2">
                                         <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#000000" style="background-color: #000000;"></span>
@@ -425,16 +385,16 @@
                                         <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#64748b" style="background-color: #64748b;"></span>
                                     </div>
                                 </div>
-                                <span asp-validation-for="TextColor" class="form-error text-red-500 text-sm"></span>
+                                <span asp-validation-for="TextColor" class="form-error"></span>
                             </div>
                             
                             <div class="form-group">
                                 <label asp-for="AccentColor" class="form-label">Accent Color</label>
                                 <div class="color-picker-wrapper">
                                     <div class="flex">
-                                        <input asp-for="AccentColor" type="color" class="color-input hidden" id="accent-color-picker" value="#0284c7">
+                                        <input asp-for="AccentColor" type="color" class="color-input hidden" id="accent-color-picker">
                                         <div class="color-preview w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer" id="accent-color-preview" style="background-color: #0284c7;"></div>
-                                        <input asp-for="AccentColor" type="text" class="form-input ml-2 flex-grow" placeholder="#0284c7" value="#0284c7">
+                                        <input asp-for="AccentColor" type="text" class="form-input ml-2 flex-grow" placeholder="#0284c7">
                                     </div>
                                     <div class="color-presets mt-2 flex flex-wrap gap-2">
                                         <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#0284c7" style="background-color: #0284c7;"></span>
@@ -443,7 +403,7 @@
                                         <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#9333ea" style="background-color: #9333ea;"></span>
                                     </div>
                                 </div>
-                                <span asp-validation-for="AccentColor" class="form-error text-red-500 text-sm"></span>
+                                <span asp-validation-for="AccentColor" class="form-error"></span>
                             </div>
                         </div>
                         
@@ -583,24 +543,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
-
-<!-- Toast Notification -->
-<div id="toast" class="fixed bottom-4 right-4 hidden transform transition-transform duration-300 z-50">
-    <div class="bg-white rounded-lg shadow-lg border border-gray-100 p-4 max-w-md">
-        <div class="flex items-center">
-            <div id="toast-icon" class="flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-green-100">
-                <i class="fas fa-check text-green-500"></i>
-            </div>
-            <div class="ml-3">
-                <p id="toast-message" class="text-sm font-medium text-gray-900">Action successful!</p>
-                <p id="toast-description" class="text-sm text-gray-500">Operation completed successfully.</p>
-            </div>
-            <button id="close-toast" class="ml-auto text-gray-400 hover:text-gray-500">
-                <i class="fas fa-times"></i>
-            </button>
         </div>
     </div>
 </div>
@@ -947,7 +889,7 @@
             // Card layout selection
             function initializeCardLayouts() {
                 const layoutOptions = document.querySelectorAll('.layout-option');
-                            
+                
                 layoutOptions.forEach(option => {
                     option.addEventListener('click', function() {
                         // Remove active class from all options
@@ -958,9 +900,6 @@
                         
                         // Get layout type
                         const layoutType = this.getAttribute('data-layout');
-                        
-                        // Update hidden input value to save the selection
-                        document.getElementById('selected-layout').value = layoutType;
                         
                         // Update preview
                         updateCardLayout(layoutType);
@@ -1059,7 +998,7 @@
                             </div>
                             <div class="w-1/3 bg-gray-50 rounded-r-lg flex items-center justify-center">
                                 <div class="text-center">
-                                    <div class="w-16 h-16 mx-auto bg-white p-1 rounded shadow-sm flex items-center justify-center">
+                                    <div class="w-16 h-16 mx-auto bg-white p-1 rounded shadow-sm">
                                         <i class="fas fa-qrcode text-2xl text-gray-400"></i>
                                     </div>
                                     <p class="text-xs mt-1">Scan</p>
@@ -1469,66 +1408,85 @@
                         firstInvalid.focus();
                     }
                     
-                    // Show validation summary
-                    const validationSummary = document.getElementById('validation-summary');
-                    if (validationSummary) {
-                        validationSummary.classList.remove('hidden');
-                        validationSummary.textContent = 'Please fill in all required fields before submitting.';
-                    }
-                    
                     showNotification('Please fill in all required fields', 'error');
                 }
             });
         });
         
         // Show notification function
-        function showNotification(message, type = 'success', description = '') {
+        function showNotification(message, type = 'success') {
             // Check if notification container exists
-            let toast = document.getElementById('toast');
-            let toastMessage = document.getElementById('toast-message');
-            let toastDescription = document.getElementById('toast-description');
-            let toastIcon = document.getElementById('toast-icon');
+            let notificationContainer = document.getElementById('notification-container');
             
-            if (toast && toastMessage && toastDescription && toastIcon) {
-                toastMessage.textContent = message;
-                toastDescription.textContent = description;
-                
-                // Set notification type
-                if (type === 'success') {
-                    toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-green-100';
-                    toastIcon.innerHTML = '<i class="fas fa-check text-green-500"></i>';
-                } else if (type === 'error') {
-                    toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-red-100';
-                    toastIcon.innerHTML = '<i class="fas fa-exclamation-triangle text-red-500"></i>';
-                } else if (type === 'info') {
-                    toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-blue-100';
-                    toastIcon.innerHTML = '<i class="fas fa-info-circle text-blue-500"></i>';
-                } else if (type === 'warning') {
-                    toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-yellow-100';
-                    toastIcon.innerHTML = '<i class="fas fa-exclamation-circle text-yellow-500"></i>';
-                }
-                
-                // Show the toast
-                toast.classList.remove('hidden');
-                
-                // Auto-hide after 5 seconds
-                setTimeout(function() {
-                    toast.classList.add('translate-y-12', 'opacity-0');
-                    setTimeout(function() {
-                        toast.classList.add('hidden');
-                        toast.classList.remove('translate-y-12', 'opacity-0');
-                    }, 300);
-                }, 5000);
-                
-                // Close button functionality
-                document.getElementById('close-toast').addEventListener('click', function() {
-                    toast.classList.add('translate-y-12', 'opacity-0');
-                    setTimeout(function() {
-                        toast.classList.add('hidden');
-                        toast.classList.remove('translate-y-12', 'opacity-0');
-                    }, 300);
-                });
+            if (!notificationContainer) {
+                // Create notification container
+                notificationContainer = document.createElement('div');
+                notificationContainer.id = 'notification-container';
+                notificationContainer.className = 'fixed top-4 right-4 z-50 flex flex-col gap-2';
+                document.body.appendChild(notificationContainer);
             }
+            
+            // Create notification
+            const notification = document.createElement('div');
+            notification.className = 'transform transition-all duration-300 translate-x-full opacity-0 flex items-center gap-2 bg-white p-3 rounded-lg shadow-lg border max-w-md';
+            
+            // Set notification type
+            if (type === 'success') {
+                notification.classList.add('border-green-200');
+                notification.innerHTML = `
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+                        <i class="fas fa-check text-green-500"></i>
+                    </div>
+                    <div class="flex-grow">
+                        <p class="text-gray-800">${message}</p>
+                    </div>
+                    <button class="text-gray-400 hover:text-gray-600" onclick="this.parentNode.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+            } else if (type === 'error') {
+                notification.classList.add('border-red-200');
+                notification.innerHTML = `
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
+                        <i class="fas fa-exclamation-triangle text-red-500"></i>
+                    </div>
+                    <div class="flex-grow">
+                        <p class="text-gray-800">${message}</p>
+                    </div>
+                    <button class="text-gray-400 hover:text-gray-600" onclick="this.parentNode.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+            } else {
+                notification.classList.add('border-blue-200');
+                notification.innerHTML = `
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                        <i class="fas fa-info-circle text-blue-500"></i>
+                    </div>
+                    <div class="flex-grow">
+                        <p class="text-gray-800">${message}</p>
+                    </div>
+                    <button class="text-gray-400 hover:text-gray-600" onclick="this.parentNode.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+            }
+            
+            // Add notification to container
+            notificationContainer.appendChild(notification);
+            
+            // Animate in
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full', 'opacity-0');
+            }, 10);
+            
+            // Automatically remove after 5 seconds
+            setTimeout(() => {
+                notification.classList.add('translate-x-full', 'opacity-0');
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 5000);
         }
     </script>
 }
