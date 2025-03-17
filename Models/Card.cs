@@ -8,7 +8,6 @@ namespace CardTagManager.Models
     {
         public int Id { get; set; }
         
-        // Renamed to match view expectations
         [Required]
         [StringLength(100)]
         [Display(Name = "Product Name")]
@@ -20,25 +19,24 @@ namespace CardTagManager.Models
             set => ProductName = value; 
         }
         
-        // Contact info properties
+        // Contact info properties - Making these optional
         [Display(Name = "Job Title")]
-        public string Title { get; set; } = string.Empty;
+        public string? Title { get; set; }
         
         [Display(Name = "Email Address")]
         [EmailAddress]
-        public string Email { get; set; } = string.Empty;
+        public string? Email { get; set; } // Changed to nullable
         
         [Display(Name = "Phone Number")]
-        public string Phone { get; set; } = string.Empty;
+        public string? Phone { get; set; }
         
         [Display(Name = "Address")]
-        public string Address { get; set; } = string.Empty;
+        public string? Address { get; set; }
         
         [Display(Name = "Website")]
         [Url]
-        public string Website { get; set; } = string.Empty;
+        public string? Website { get; set; } // Changed to nullable
         
-        // Renamed to match view expectations
         [Required]
         [StringLength(100)]
         [Display(Name = "Manufacturer")]
@@ -59,13 +57,15 @@ namespace CardTagManager.Models
         
         [Display(Name = "Serial Number")]
         public string SerialNumber { get; set; } = string.Empty;
-        public string ImagePath { get; set; }
+        
+        // Make ImagePath optional
+        public string? ImagePath { get; set; }
         
         [StringLength(255)]
         public string Location { get; set; } = string.Empty;
         
         [Display(Name = "Maintenance Information")]
-        public string MaintenanceInfo { get; set; } = string.Empty;
+        public string? MaintenanceInfo { get; set; }
         
         [Required]
         [Display(Name = "Manufacture Date")]

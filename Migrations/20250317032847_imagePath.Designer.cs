@@ -4,6 +4,7 @@ using CardTagManager.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CardTagManager.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250317032847_imagePath")]
+    partial class imagePath
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,6 +38,7 @@ namespace CardTagManager.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Address")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("BackgroundColor")
@@ -56,9 +60,11 @@ namespace CardTagManager.Migrations
                         .HasDefaultValueSql("GETDATE()");
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ImagePath")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Location")
@@ -67,6 +73,7 @@ namespace CardTagManager.Migrations
                         .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("MaintenanceInfo")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("ManufactureDate")
@@ -86,6 +93,7 @@ namespace CardTagManager.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Phone")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ProductName")
@@ -105,6 +113,7 @@ namespace CardTagManager.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -116,6 +125,7 @@ namespace CardTagManager.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Website")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");

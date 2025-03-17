@@ -1,14 +1,15 @@
+using System;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using CardTagManager.Models;
 using CardTagManager.Services;
 using CardTagManager.Data;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CardTagManager.Controllers
 {
@@ -18,41 +19,73 @@ namespace CardTagManager.Controllers
         private readonly ApplicationDbContext _context;
         private readonly QrCodeService _qrCodeService;
         private readonly FileUploadService _fileUploadService;
+        private readonly ILogger<CardController> _logger;
 
-        public CardController(ApplicationDbContext context, QrCodeService qrCodeService, FileUploadService fileUploadService)
+        public CardController(
+            ApplicationDbContext context, 
+            QrCodeService qrCodeService, 
+            FileUploadService fileUploadService,
+            ILogger<CardController> logger)
         {
             _context = context;
             _qrCodeService = qrCodeService;
             _fileUploadService = fileUploadService;
+            _logger = logger;
         }
 
         // GET: Card - Main card listing page
         public async Task<IActionResult> Index()
         {
-            var cards = await _context.Cards.ToListAsync();
-            return View(cards);
+            try
+            {
+                var cards = await _context.Cards.ToListAsync();
+                return View(cards);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving cards");
+                TempData["ErrorMessage"] = "Error loading products: " + ex.Message;
+                return View(new List<Card>());
+            }
         }
 
         // GET: Card/Details/5 - Shows detailed card information
         public async Task<IActionResult> Details(int id)
         {
-            var card = await _context.Cards.FindAsync(id);
-            if (card == null)
+            try
             {
-                return NotFound();
+                var card = await _context.Cards.FindAsync(id);
+                if (card == null)
+                {
+                    return NotFound();
+                }
+
+                // Generate QR code for card details view
+                string qrCodeData = GenerateCardQrData(card);
+                ViewBag.QrCodeImage = _qrCodeService.GenerateQrCodeAsBase64(qrCodeData);
+
+                return View(card);
             }
-
-            // Generate QR code for card details view
-            string qrCodeData = GenerateCardQrData(card);
-            ViewBag.QrCodeImage = _qrCodeService.GenerateQrCodeAsBase64(qrCodeData);
-
-            return View(card);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving card details for ID: {id}");
+                TempData["ErrorMessage"] = "Error loading product details: " + ex.Message;
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         // GET: Card/Create - Shows card creation form
         public IActionResult Create()
         {
-            return View();
+            return View(new Card
+            {
+                ManufactureDate = DateTime.Now,
+                PurchaseDate = DateTime.Now,
+                WarrantyExpiration = DateTime.Now.AddYears(1),
+                BackgroundColor = "#ffffff",
+                TextColor = "#000000",
+                AccentColor = "#0284c7"
+            });
         }
 
         // POST: Card/Create - Handles form submission for new card
@@ -60,39 +93,93 @@ namespace CardTagManager.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Card card, IFormFile ImageFile)
         {
-            if (ModelState.IsValid)
+            try
             {
-                // Handle image upload if a file was provided
-                if (ImageFile != null && ImageFile.Length > 0)
+                _logger.LogInformation($"Creating card: {card.ProductName}, Category: {card.Category}");
+                
+                if (ModelState.IsValid)
                 {
-                    try
+                    // Handle image upload if a file was provided
+                    if (ImageFile != null && ImageFile.Length > 0)
                     {
-                        var fileResponse = await _fileUploadService.UploadFile(ImageFile);
-                        if (fileResponse.IsSuccess)
+                        try
                         {
-                            // Save the image URL to the card
-                            card.ImagePath = fileResponse.FileUrl;
+                            _logger.LogInformation($"Uploading image: {ImageFile.FileName}, Size: {ImageFile.Length}");
+                            var fileResponse = await _fileUploadService.UploadFile(ImageFile);
+                            if (fileResponse.IsSuccess)
+                            {
+                                // Save the image URL to the card
+                                card.ImagePath = fileResponse.FileUrl;
+                                _logger.LogInformation($"Image uploaded successfully: {fileResponse.FileUrl}");
+                            }
+                            else
+                            {
+                                _logger.LogWarning($"Failed to upload image: {fileResponse.ErrorMessage}");
+                                ModelState.AddModelError("ImageFile", "Failed to upload image: " + fileResponse.ErrorMessage);
+                                return View(card);
+                            }
                         }
-                        else
+                        catch (Exception ex)
                         {
-                            ModelState.AddModelError("ImageFile", "Failed to upload image: " + fileResponse.ErrorMessage);
+                            _logger.LogError(ex, "Error uploading image");
+                            ModelState.AddModelError("ImageFile", "Error uploading image: " + ex.Message);
                             return View(card);
                         }
                     }
-                    catch (Exception ex)
+
+                    // Set creation timestamps explicitly
+                    card.CreatedAt = DateTime.Now;
+                    card.UpdatedAt = DateTime.Now;
+                    
+                    // Debug log before adding to context
+                    _logger.LogInformation($"About to add card to DB: {card.ProductName}, Manufacturer: {card.Manufacturer}");
+                    
+                    try
                     {
-                        ModelState.AddModelError("ImageFile", "Error uploading image: " + ex.Message);
+                        // Add the card to the context
+                        _context.Cards.Add(card);
+                        
+                        // Save the changes to the database
+                        int result = await _context.SaveChangesAsync();
+                        
+                        // Check if SaveChanges succeeded
+                        if (result > 0)
+                        {
+                            _logger.LogInformation($"Card saved successfully with ID: {card.Id}");
+                            TempData["SuccessMessage"] = $"Product '{card.ProductName}' created successfully.";
+                            return RedirectToAction(nameof(Index));
+                        }
+                        else
+                        {
+                            _logger.LogWarning("SaveChanges returned 0 affected rows");
+                            ModelState.AddModelError(string.Empty, "No changes were saved to the database.");
+                            return View(card);
+                        }
+                    }
+                    catch (DbUpdateException dbEx)
+                    {
+                        _logger.LogError(dbEx, "Database error when saving card");
+                        ModelState.AddModelError(string.Empty, "Database error: " + (dbEx.InnerException?.Message ?? dbEx.Message));
                         return View(card);
                     }
                 }
-
-                card.CreatedAt = DateTime.Now;
-                card.UpdatedAt = DateTime.Now;
-                
-                _context.Add(card);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                else
+                {
+                    // Log validation errors
+                    var errors = string.Join("; ", ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage));
+                    
+                    _logger.LogWarning($"Model validation failed: {errors}");
+                }
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error in Create action");
+                ModelState.AddModelError(string.Empty, "An unexpected error occurred: " + ex.Message);
+            }
+            
+            // If we got this far, something failed, redisplay form
             return View(card);
         }
 
@@ -167,6 +254,8 @@ namespace CardTagManager.Controllers
                     card.UpdatedAt = DateTime.Now;
                     _context.Update(card);
                     await _context.SaveChangesAsync();
+                    
+                    TempData["SuccessMessage"] = $"Product '{card.ProductName}' updated successfully.";
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -205,13 +294,37 @@ namespace CardTagManager.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var card = await _context.Cards.FindAsync(id);
-            if (card != null)
+            try
             {
-                _context.Cards.Remove(card);
-                await _context.SaveChangesAsync();
+                var card = await _context.Cards.FindAsync(id);
+                if (card != null)
+                {
+                    // Delete associated image if exists
+                    if (!string.IsNullOrEmpty(card.ImagePath))
+                    {
+                        try
+                        {
+                            await _fileUploadService.DeleteFile(card.ImagePath);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogWarning(ex, $"Failed to delete image file: {card.ImagePath}");
+                        }
+                    }
+                    
+                    _context.Cards.Remove(card);
+                    await _context.SaveChangesAsync();
+                    
+                    TempData["SuccessMessage"] = $"Product '{card.ProductName}' deleted successfully.";
+                }
+                return RedirectToAction(nameof(Index));
             }
-            return RedirectToAction(nameof(Index));
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error deleting card with ID: {id}");
+                TempData["ErrorMessage"] = "Error deleting product: " + ex.Message;
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         // GET: Card/Print/5 - Generates printable card tag
@@ -262,7 +375,7 @@ namespace CardTagManager.Controllers
             string qrCodeImage = _qrCodeService.GenerateQrCodeAsBase64(qrCodeData);
 
             ViewBag.QrCodeImage = qrCodeImage;
-            ViewBag.CardName = card.Name;
+            ViewBag.CardName = card.ProductName;
 
             return View(card);
         }
@@ -282,7 +395,6 @@ namespace CardTagManager.Controllers
                     Location = "Chemical Storage Room A",
                     ScanResult = "Success"
                 },
-                // Other demo results...
                 new ScanResultViewModel
                 {
                     Id = 7,
@@ -296,46 +408,6 @@ namespace CardTagManager.Controllers
             };
             
             return View(demoResults);
-        }
-
-        // Helper method to generate card data for QR code
-        private string GenerateCardQrData(Card card)
-        {
-            string cardData = $"CARD:{card.Name}\n" +
-                               $"CATEGORY:{card.Category}\n" +
-                               $"COMPANY:{card.Company}\n" +
-                               $"MODEL:{card.ModelNumber}\n" +
-                               $"SERIAL:{card.SerialNumber}\n" +
-                               $"LOCATION:{card.Location}\n" +
-                               $"MFGDATE:{card.ManufactureDate:yyyy-MM-dd}\n" +
-                               $"PURCHDATE:{card.PurchaseDate:yyyy-MM-dd}\n" +
-                               $"WARRANTY:{card.WarrantyExpiration:yyyy-MM-dd}\n";
-
-            if (!string.IsNullOrEmpty(card.MaintenanceInfo))
-            {
-                cardData += $"MAINTENANCE:{card.MaintenanceInfo}\n";
-            }
-
-            return cardData;
-        }
-
-        // Generate downloadable card data file
-        public async Task<IActionResult> DownloadData(int id)
-        {
-            var card = await _context.Cards.FindAsync(id);
-            if (card == null)
-            {
-                return NotFound();
-            }
-
-            // Generate card data content
-            string cardDataContent = GenerateCardQrData(card);
-
-            // Create a file name
-            string fileName = $"{card.Name.Replace(" ", "_")}_Info.txt";
-
-            // Return the data as a downloadable file
-            return File(System.Text.Encoding.UTF8.GetBytes(cardDataContent), "text/plain", fileName);
         }
         
         public async Task<IActionResult> ScanShow(int id)
@@ -353,6 +425,46 @@ namespace CardTagManager.Controllers
             return View(card);
         }
         
+        // Generate downloadable card data file
+        public async Task<IActionResult> DownloadData(int id)
+        {
+            var card = await _context.Cards.FindAsync(id);
+            if (card == null)
+            {
+                return NotFound();
+            }
+
+            // Generate card data content
+            string cardDataContent = GenerateCardQrData(card);
+
+            // Create a file name
+            string fileName = $"{card.ProductName.Replace(" ", "_")}_Info.txt";
+
+            // Return the data as a downloadable file
+            return File(System.Text.Encoding.UTF8.GetBytes(cardDataContent), "text/plain", fileName);
+        }
+
+        // Helper method to generate card data for QR code
+        private string GenerateCardQrData(Card card)
+        {
+            string cardData = $"CARD:{card.ProductName}\n" +
+                               $"CATEGORY:{card.Category}\n" +
+                               $"COMPANY:{card.Manufacturer}\n" +
+                               $"MODEL:{card.ModelNumber}\n" +
+                               $"SERIAL:{card.SerialNumber}\n" +
+                               $"LOCATION:{card.Location}\n" +
+                               $"MFGDATE:{card.ManufactureDate:yyyy-MM-dd}\n" +
+                               $"PURCHDATE:{card.PurchaseDate:yyyy-MM-dd}\n" +
+                               $"WARRANTY:{card.WarrantyExpiration:yyyy-MM-dd}\n";
+
+            if (!string.IsNullOrEmpty(card.MaintenanceInfo))
+            {
+                cardData += $"MAINTENANCE:{card.MaintenanceInfo}\n";
+            }
+
+            return cardData;
+        }
+
         private bool CardExists(int id)
         {
             return _context.Cards.Any(e => e.Id == id);

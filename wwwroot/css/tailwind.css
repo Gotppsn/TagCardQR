@@ -1391,6 +1391,10 @@ body {
   height: 2rem;
 }
 
+.h-auto {
+  height: auto;
+}
+
 .h-full {
   height: 100%;
 }
