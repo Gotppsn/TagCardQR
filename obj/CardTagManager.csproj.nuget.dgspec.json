@@ -64,9 +64,17 @@
               "target": "Package",
               "version": "[9.0.3, )"
             },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.3, )"
+            },
             "QRCoder": {
               "target": "Package",
               "version": "[1.4.1, )"
+            },
+            "RestSharp": {
+              "target": "Package",
+              "version": "[112.1.0, )"
             },
             "System.DirectoryServices.AccountManagement": {
               "target": "Package",

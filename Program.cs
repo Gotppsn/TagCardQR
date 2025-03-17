@@ -22,6 +22,7 @@ builder.Services.AddSingleton<LdapAuthenticationService>(provider =>
     new LdapAuthenticationService(builder.Configuration["LdapSettings:Domain"] ?? "thaiparkerizing"));
 
 builder.Services.AddMemoryCache();
+builder.Services.AddScoped<FileUploadService>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>

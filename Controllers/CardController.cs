@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace CardTagManager.Controllers
 {
@@ -16,11 +17,13 @@ namespace CardTagManager.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly QrCodeService _qrCodeService;
+        private readonly FileUploadService _fileUploadService;
 
-        public CardController(ApplicationDbContext context, QrCodeService qrCodeService)
+        public CardController(ApplicationDbContext context, QrCodeService qrCodeService, FileUploadService fileUploadService)
         {
             _context = context;
             _qrCodeService = qrCodeService;
+            _fileUploadService = fileUploadService;
         }
 
         // GET: Card - Main card listing page
@@ -55,10 +58,34 @@ namespace CardTagManager.Controllers
         // POST: Card/Create - Handles form submission for new card
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Card card)
+        public async Task<IActionResult> Create(Card card, IFormFile ImageFile)
         {
             if (ModelState.IsValid)
             {
+                // Handle image upload if a file was provided
+                if (ImageFile != null && ImageFile.Length > 0)
+                {
+                    try
+                    {
+                        var fileResponse = await _fileUploadService.UploadFile(ImageFile);
+                        if (fileResponse.IsSuccess)
+                        {
+                            // Save the image URL to the card
+                            card.ImagePath = fileResponse.FileUrl;
+                        }
+                        else
+                        {
+                            ModelState.AddModelError("ImageFile", "Failed to upload image: " + fileResponse.ErrorMessage);
+                            return View(card);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        ModelState.AddModelError("ImageFile", "Error uploading image: " + ex.Message);
+                        return View(card);
+                    }
+                }
+
                 card.CreatedAt = DateTime.Now;
                 card.UpdatedAt = DateTime.Now;
                 
@@ -88,7 +115,7 @@ namespace CardTagManager.Controllers
         // POST: Card/Edit/5 - Handles form submission for card updates
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Card card)
+        public async Task<IActionResult> Edit(int id, Card card, IFormFile ImageFile)
         {
             if (id != card.Id)
             {
@@ -99,6 +126,44 @@ namespace CardTagManager.Controllers
             {
                 try
                 {
+                    // Get existing card to check if we need to delete old image
+                    var existingCard = await _context.Cards.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
+                    
+                    // Handle image upload if a file was provided
+                    if (ImageFile != null && ImageFile.Length > 0)
+                    {
+                        try
+                        {
+                            // Delete old image if it exists
+                            if (!string.IsNullOrEmpty(existingCard?.ImagePath))
+                            {
+                                await _fileUploadService.DeleteFile(existingCard.ImagePath);
+                            }
+                            
+                            var fileResponse = await _fileUploadService.UploadFile(ImageFile);
+                            if (fileResponse.IsSuccess)
+                            {
+                                // Save the image URL to the card
+                                card.ImagePath = fileResponse.FileUrl;
+                            }
+                            else
+                            {
+                                ModelState.AddModelError("ImageFile", "Failed to upload image: " + fileResponse.ErrorMessage);
+                                return View(card);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            ModelState.AddModelError("ImageFile", "Error uploading image: " + ex.Message);
+                            return View(card);
+                        }
+                    }
+                    else
+                    {
+                        // Keep the existing image if no new one was uploaded
+                        card.ImagePath = existingCard?.ImagePath;
+                    }
+
                     card.UpdatedAt = DateTime.Now;
                     _context.Update(card);
                     await _context.SaveChangesAsync();
@@ -114,7 +179,7 @@ namespace CardTagManager.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Details), new { id = card.Id });
             }
             return View(card);
         }
