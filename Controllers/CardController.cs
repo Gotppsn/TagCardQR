@@ -1,35 +1,39 @@
 using Microsoft.AspNetCore.Mvc;
 using CardTagManager.Models;
 using CardTagManager.Services;
+using CardTagManager.Data;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace CardTagManager.Controllers
 {
     [Authorize]
     public class CardController : Controller
     {
-        private readonly CardRepository _cardRepository;
+        private readonly ApplicationDbContext _context;
         private readonly QrCodeService _qrCodeService;
 
-        public CardController(CardRepository cardRepository, QrCodeService qrCodeService)
+        public CardController(ApplicationDbContext context, QrCodeService qrCodeService)
         {
-            _cardRepository = cardRepository;
+            _context = context;
             _qrCodeService = qrCodeService;
         }
 
         // GET: Card - Main card listing page
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var cards = _cardRepository.GetAll();
+            var cards = await _context.Cards.ToListAsync();
             return View(cards);
         }
 
         // GET: Card/Details/5 - Shows detailed card information
-        public IActionResult Details(int id)
+        public async Task<IActionResult> Details(int id)
         {
-            var card = _cardRepository.GetById(id);
+            var card = await _context.Cards.FindAsync(id);
             if (card == null)
             {
                 return NotFound();
@@ -51,31 +55,40 @@ namespace CardTagManager.Controllers
         // POST: Card/Create - Handles form submission for new card
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Card card)
+        public async Task<IActionResult> Create(Card card)
         {
             if (ModelState.IsValid)
             {
-                _cardRepository.Add(card);
+                card.CreatedAt = DateTime.Now;
+                card.UpdatedAt = DateTime.Now;
+                
+                _context.Add(card);
+                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             return View(card);
         }
 
         // GET: Card/Edit/5 - Shows card editing form
-        public IActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int id)
         {
-            var card = _cardRepository.GetById(id);
+            var card = await _context.Cards.FindAsync(id);
             if (card == null)
             {
                 return NotFound();
             }
+            
+            // Generate QR code for preview
+            string qrCodeData = GenerateCardQrData(card);
+            ViewBag.QrCodeImage = _qrCodeService.GenerateQrCodeAsBase64(qrCodeData);
+            
             return View(card);
         }
 
         // POST: Card/Edit/5 - Handles form submission for card updates
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, Card card)
+        public async Task<IActionResult> Edit(int id, Card card)
         {
             if (id != card.Id)
             {
@@ -84,20 +97,40 @@ namespace CardTagManager.Controllers
 
             if (ModelState.IsValid)
             {
-                _cardRepository.Update(card);
+                try
+                {
+                    card.UpdatedAt = DateTime.Now;
+                    _context.Update(card);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!CardExists(card.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
                 return RedirectToAction(nameof(Index));
             }
             return View(card);
         }
 
         // GET: Card/Delete/5 - Shows deletion confirmation
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var card = _cardRepository.GetById(id);
+            var card = await _context.Cards.FindAsync(id);
             if (card == null)
             {
                 return NotFound();
             }
+            
+            // Generate QR code for preview
+            string qrCodeData = GenerateCardQrData(card);
+            ViewBag.QrCodeImage = _qrCodeService.GenerateQrCodeAsBase64(qrCodeData);
 
             return View(card);
         }
@@ -105,16 +138,21 @@ namespace CardTagManager.Controllers
         // POST: Card/Delete/5 - Handles card deletion
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public IActionResult DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            _cardRepository.Delete(id);
+            var card = await _context.Cards.FindAsync(id);
+            if (card != null)
+            {
+                _context.Cards.Remove(card);
+                await _context.SaveChangesAsync();
+            }
             return RedirectToAction(nameof(Index));
         }
 
         // GET: Card/Print/5 - Generates printable card tag
-        public IActionResult Print(int id)
+        public async Task<IActionResult> Print(int id)
         {
-            var card = _cardRepository.GetById(id);
+            var card = await _context.Cards.FindAsync(id);
             if (card == null)
             {
                 return NotFound();
@@ -128,9 +166,9 @@ namespace CardTagManager.Controllers
         }
 
         // GET: Card/PrintAll - Print all card tags
-        public IActionResult PrintAll()
+        public async Task<IActionResult> PrintAll()
         {
-            var cards = _cardRepository.GetAll();
+            var cards = await _context.Cards.ToListAsync();
 
             // Generate QR codes for all cards
             var qrCodes = new Dictionary<int, string>();
@@ -146,9 +184,9 @@ namespace CardTagManager.Controllers
         }
 
         // GET: Card/QrCode/5 - Dedicated QR code display for scanning
-        public IActionResult QrCode(int id)
+        public async Task<IActionResult> QrCode(int id)
         {
-            var card = _cardRepository.GetById(id);
+            var card = await _context.Cards.FindAsync(id);
             if (card == null)
             {
                 return NotFound();
@@ -164,86 +202,36 @@ namespace CardTagManager.Controllers
             return View(card);
         }
 
-// Add this to CardController.cs
-public IActionResult ScanResult()
-{
-    // Demo data for testing the ScanResult view
-    var demoResults = new List<ScanResultViewModel>
-    {
-        new ScanResultViewModel
+        public IActionResult ScanResult()
         {
-            Id = 1,
-            CardId = 1,
-            CardName = "RustShield Pro 5000",
-            ScanTime = DateTime.Now.AddHours(-2),
-            DeviceInfo = "iPhone 14 Pro, iOS 16.5",
-            Location = "Chemical Storage Room A",
-            ScanResult = "Success"
-        },
-        new ScanResultViewModel
-        {
-            Id = 2,
-            CardId = 3,
-            CardName = "Precision Lab Scale",
-            ScanTime = DateTime.Now.AddDays(-1),
-            DeviceInfo = "Samsung Galaxy S22, Android 13",
-            Location = "Quality Control Lab",
-            ScanResult = "Success"
-        },
-        new ScanResultViewModel
-        {
-            Id = 3,
-            CardId = 4,
-            CardName = "Emergency Eyewash Station",
-            ScanTime = DateTime.Now.AddHours(-5),
-            DeviceInfo = "iPad Air, iOS 16.4",
-            Location = "Chemical Processing Area",
-            ScanResult = "Success"
-        },
-        new ScanResultViewModel
-        {
-            Id = 4,
-            CardId = 2,
-            CardName = "Industrial Spray Booth",
-            ScanTime = DateTime.Today,
-            DeviceInfo = "Google Pixel 7, Android 13",
-            Location = "Building 2, Bay 4",
-            ScanResult = "Failed"
-        },
-        new ScanResultViewModel
-        {
-            Id = 5,
-            CardId = 5,
-            CardName = "CorrosionGuard Ultimate",
-            ScanTime = DateTime.Now.AddMinutes(-30),
-            DeviceInfo = "iPhone 13, iOS 16.5",
-            Location = "Chemical Storage Room B",
-            ScanResult = "Success"
-        },
-        new ScanResultViewModel
-        {
-            Id = 6,
-            CardId = 7,
-            CardName = "Coating Thickness Analyzer",
-            ScanTime = DateTime.Today.AddHours(-1),
-            DeviceInfo = "Samsung Galaxy Tab, Android 12",
-            Location = "QC Testing Room",
-            ScanResult = "Partial"
-        },
-        new ScanResultViewModel
-        {
-            Id = 7,
-            CardId = 1,
-            CardName = "RustShield Pro 5000",
-            ScanTime = DateTime.Now.AddDays(-2),
-            DeviceInfo = "iPhone SE, iOS 16.3",
-            Location = "Storage Area",
-            ScanResult = "Success"
+            // Demo data for testing the ScanResult view
+            var demoResults = new List<ScanResultViewModel>
+            {
+                new ScanResultViewModel
+                {
+                    Id = 1,
+                    CardId = 1,
+                    CardName = "RustShield Pro 5000",
+                    ScanTime = DateTime.Now.AddHours(-2),
+                    DeviceInfo = "iPhone 14 Pro, iOS 16.5",
+                    Location = "Chemical Storage Room A",
+                    ScanResult = "Success"
+                },
+                // Other demo results...
+                new ScanResultViewModel
+                {
+                    Id = 7,
+                    CardId = 1,
+                    CardName = "RustShield Pro 5000",
+                    ScanTime = DateTime.Now.AddDays(-2),
+                    DeviceInfo = "iPhone SE, iOS 16.3",
+                    Location = "Storage Area",
+                    ScanResult = "Success"
+                }
+            };
+            
+            return View(demoResults);
         }
-    };
-    
-    return View(demoResults);
-}
 
         // Helper method to generate card data for QR code
         private string GenerateCardQrData(Card card)
@@ -267,9 +255,9 @@ public IActionResult ScanResult()
         }
 
         // Generate downloadable card data file
-        public IActionResult DownloadData(int id)
+        public async Task<IActionResult> DownloadData(int id)
         {
-            var card = _cardRepository.GetById(id);
+            var card = await _context.Cards.FindAsync(id);
             if (card == null)
             {
                 return NotFound();
@@ -285,9 +273,9 @@ public IActionResult ScanResult()
             return File(System.Text.Encoding.UTF8.GetBytes(cardDataContent), "text/plain", fileName);
         }
         
-        public IActionResult ScanShow(int id)
+        public async Task<IActionResult> ScanShow(int id)
         {
-            var card = _cardRepository.GetById(id);
+            var card = await _context.Cards.FindAsync(id);
             if (card == null)
             {
                 return NotFound();
@@ -298,6 +286,11 @@ public IActionResult ScanResult()
             ViewBag.QrCodeImage = _qrCodeService.GenerateQrCodeAsBase64(qrCodeData);
 
             return View(card);
+        }
+        
+        private bool CardExists(int id)
+        {
+            return _context.Cards.Any(e => e.Id == id);
         }
     }
 }
