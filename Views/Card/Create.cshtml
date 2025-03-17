@@ -359,10 +359,11 @@
                             <div class="form-group">
                                 <label asp-for="BackgroundColor" class="form-label">Background Color</label>
                                 <div class="color-picker-wrapper">
-                                    <div class="flex">
-                                        <input type="color" class="color-input w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer" id="bg-color-picker" value="#ffffff">
-                                        <input asp-for="BackgroundColor" type="text" class="form-input ml-2 flex-grow" placeholder="#ffffff" value="#ffffff">
-                                    </div>
+                                <div class="flex">
+                                    <input asp-for="BackgroundColor" type="color" class="color-input hidden" id="bg-color-picker">
+                                    <div class="color-preview w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer" id="bg-color-preview" style="background-color: #ffffff"></div>
+                                    <input asp-for="BackgroundColor" type="text" class="form-input ml-2 flex-grow" placeholder="#ffffff" value="#ffffff">
+                                </div>
                                     <div class="color-presets mt-2 flex flex-wrap gap-2">
                                         <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#ffffff" style="background-color: #ffffff;"></span>
                                         <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#f8fafc" style="background-color: #f8fafc;"></span>
@@ -791,12 +792,28 @@
             function initializeColorPickers() {
                 const colorInputs = document.querySelectorAll('.color-input');
                 const colorPresets = document.querySelectorAll('.color-preset');
-                
+
+                const colorPreviews = document.querySelectorAll('.color-preview');
+                colorPreviews.forEach(preview => {
+                    preview.addEventListener('click', function() {
+                        const inputId = this.id.replace('-preview', '-picker');
+                        const colorInput = document.getElementById(inputId);
+                        if (colorInput) {
+                            colorInput.click();
+                        }
+                    });
+                });
+                    
                 // Connect color inputs to text inputs
                 colorInputs.forEach(input => {
                     input.addEventListener('input', function() {
-                        // Get the associated text input (sibling in flex container)
+                        const previewId = this.id.replace('-picker', '-preview');
+                        const colorPreview = document.getElementById(previewId);
                         const textInput = this.parentNode.querySelector('input[type="text"]');
+                        
+                        if (colorPreview) {
+                            colorPreview.style.backgroundColor = this.value;
+                        }
                         
                         if (textInput) {
                             textInput.value = this.value;
