@@ -456,7 +456,7 @@
                             <i class="fas fa-pencil-alt"></i>
                         </div>
                         <div class="ml-4">
-                            <div class="text-sm font-medium text-gray-800">Last updated on @Model.UpdatedAt.ToString("MMM dd, yyyy")</div>
+                            <div class="text-sm font-medium text-gray-800">Last updated on @Model.UpdatedAt.ToString("MMM dd, yyyy HH:mm")</div>
                             <div class="text-xs text-gray-500 mt-1">Fields changed: Location, Warranty Expiration</div>
                         </div>
                     </div>
@@ -543,7 +543,7 @@
                     </div>
                 </div>
                 <div class="flex justify-center mt-4">
-                    <a id="download-qr" href="#" class="text-sm text-primary-600 hover:text-primary-800 flex items-center">
+                    <a id="download-qr" href="@Url.Action("DownloadData", new { id = Model.Id })" class="text-sm text-primary-600 hover:text-primary-800 flex items-center">
                         <i class="fas fa-download mr-1"></i> Download QR Code
                     </a>
                 </div>
@@ -628,6 +628,11 @@
             document.getElementById('text-color-preview').style.backgroundColor = '@Model.TextColor';
             document.getElementById('accent-color-preview').style.backgroundColor = '@Model.AccentColor';
             
+            // Pre-fill character counter for product name
+            if (document.getElementById('ProductName') && document.getElementById('name-counter')) {
+                countChars(document.getElementById('ProductName'), 'name-counter', 100);
+            }
+            
             // Step navigation
             function initializeSteps() {
                 const steps = document.querySelectorAll('.step');
@@ -699,6 +704,9 @@
                     const formTop = document.getElementById('product-form').getBoundingClientRect().top + window.pageYOffset - 100;
                     window.scrollTo({top: formTop, behavior: 'smooth'});
                 }
+                
+                // Make goToStep globally available
+                window.goToStep = goToStep;
                 
                 // Next step buttons
                 nextButtons.forEach(button => {
@@ -966,7 +974,7 @@
             // Card layout selection
             function initializeCardLayouts() {
                 const layoutOptions = document.querySelectorAll('.layout-option');
-                
+                            
                 layoutOptions.forEach(option => {
                     option.addEventListener('click', function() {
                         // Remove active class from all options
@@ -977,6 +985,9 @@
                         
                         // Get layout type
                         const layoutType = this.getAttribute('data-layout');
+                        
+                        // Update hidden input value to save the selection
+                        document.getElementById('selected-layout').value = layoutType;
                         
                         // Update preview
                         updateCardLayout(layoutType);
@@ -1281,8 +1292,9 @@
                 const downloadQrBtn = document.getElementById('download-qr');
                 if (downloadQrBtn) {
                     downloadQrBtn.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        showNotification('QR Code download started', 'Your QR code will download shortly', 'success');
+                        // The href is already set to the controller action, so we don't need to prevent default
+                        // Just show a notification
+                        showNotification('QR Code download started', 'Your file will download shortly', 'success');
                     });
                 }
             }
@@ -1517,7 +1529,6 @@
             
             // Show toast
             toast.classList.remove('hidden');
-            toast.classList.add('translate-y-0');
             
             // Auto-hide after 5 seconds
             setTimeout(function() {
@@ -1528,7 +1539,7 @@
                 }, 300);
             }, 5000);
             
-            // Close button
+            // Close button functionality
             document.getElementById('close-toast').addEventListener('click', function() {
                 toast.classList.add('translate-y-12', 'opacity-0');
                 setTimeout(function() {
