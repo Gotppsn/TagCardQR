@@ -456,22 +456,14 @@ namespace CardTagManager.Controllers
         // Helper method to generate card data for QR code
         private string GenerateCardQrData(Card card)
         {
-            string cardData = $"CARD:{card.ProductName}\n" +
-                               $"CATEGORY:{card.Category}\n" +
-                               $"COMPANY:{card.Manufacturer}\n" +
-                               $"MODEL:{card.ModelNumber}\n" +
-                               $"SERIAL:{card.SerialNumber}\n" +
-                               $"LOCATION:{card.Location}\n" +
-                               $"MFGDATE:{card.ManufactureDate:yyyy-MM-dd}\n" +
-                               $"PURCHDATE:{card.PurchaseDate:yyyy-MM-dd}\n" +
-                               $"WARRANTY:{card.WarrantyExpiration:yyyy-MM-dd}\n";
-
-            if (!string.IsNullOrEmpty(card.MaintenanceInfo))
-            {
-                cardData += $"MAINTENANCE:{card.MaintenanceInfo}\n";
-            }
-
-            return cardData;
+            // Get the base URL dynamically
+            string baseUrl = $"{Request.Scheme}://{Request.Host}";
+            
+            // Create a URL to the ScanShow action
+            string scanUrl = $"{baseUrl}/Card/ScanShow/{card.Id}";
+            
+            // Return just the URL so QR code scanners will open it
+            return scanUrl;
         }
 
         private bool CardExists(int id)
