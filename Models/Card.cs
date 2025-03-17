@@ -1,8 +1,9 @@
 // Path: Models/Card.cs
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel;
-
+using Microsoft.AspNetCore.Http;
 
 namespace CardTagManager.Models
 {
@@ -21,7 +22,7 @@ namespace CardTagManager.Models
             set => ProductName = value; 
         }
         
-        // LDAP populated fields marked as ReadOnly
+        // LDAP populated fields - make Email not required
         [ReadOnly(true)]
         [Display(Name = "Username")]
         public string Username { get; set; } = string.Empty;
@@ -33,7 +34,7 @@ namespace CardTagManager.Models
         [ReadOnly(true)]
         [Display(Name = "Email Address")]
         [EmailAddress]
-        public string Email { get; set; } = string.Empty;
+        public string? Email { get; set; } = string.Empty; // Changed to nullable
         
         [ReadOnly(true)]
         [Display(Name = "User's Name")]
@@ -103,5 +104,15 @@ namespace CardTagManager.Models
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
+        
+        // Non-persistent properties for form handling
+        [NotMapped]
+        public IFormFile? ImageFile { get; set; }
+        
+        [NotMapped]
+        public string QrFgColor { get; set; } = "#000000";
+        
+        [NotMapped]
+        public string QrBgColor { get; set; } = "#FFFFFF";
     }
 }

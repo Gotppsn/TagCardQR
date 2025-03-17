@@ -123,80 +123,24 @@ namespace CardTagManager.Controllers
                     card.PlantName = User.FindFirstValue("PlantName") ?? "";
                 }
                 
-                if (ModelState.IsValid)
-                {
-                    // Handle image upload if a file was provided
-                    if (ImageFile != null && ImageFile.Length > 0)
-                    {
-                        try
-                        {
-                            _logger.LogInformation($"Uploading image: {ImageFile.FileName}, Size: {ImageFile.Length}");
-                            var fileResponse = await _fileUploadService.UploadFile(ImageFile);
-                            if (fileResponse.IsSuccess)
-                            {
-                                // Save the image URL to the card
-                                card.ImagePath = fileResponse.FileUrl;
-                                _logger.LogInformation($"Image uploaded successfully: {fileResponse.FileUrl}");
-                            }
-                            else
-                            {
-                                _logger.LogWarning($"Failed to upload image: {fileResponse.ErrorMessage}");
-                                ModelState.AddModelError("ImageFile", "Failed to upload image: " + fileResponse.ErrorMessage);
-                                return View(card);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.LogError(ex, "Error uploading image");
-                            ModelState.AddModelError("ImageFile", "Error uploading image: " + ex.Message);
-                            return View(card);
-                        }
-                    }
-
-                    // Set creation timestamps explicitly
-                    card.CreatedAt = DateTime.Now;
-                    card.UpdatedAt = DateTime.Now;
+                // Verify background colors are set
+                if (string.IsNullOrEmpty(card.BackgroundColor))
+                    card.BackgroundColor = "#ffffff";
+                
+                if (string.IsNullOrEmpty(card.TextColor))
+                    card.TextColor = "#000000";
+                
+                if (string.IsNullOrEmpty(card.AccentColor))
+                    card.AccentColor = "#0284c7";
+                
+                // Remove specific validation errors before checking model state
+                if (ModelState.ContainsKey("ImageFile"))
+                    ModelState.Remove("ImageFile");
                     
-                    // Store QR color preferences in TempData for the session
-                    if (!string.IsNullOrEmpty(qrFgColor))
-                        TempData["QrFgColor"] = qrFgColor;
-                    
-                    if (!string.IsNullOrEmpty(qrBgColor))
-                        TempData["QrBgColor"] = qrBgColor;
-                    
-                    try
-                    {
-                        // Add the card to the context
-                        _context.Cards.Add(card);
-                        
-                        // Save the changes to the database
-                        await _context.SaveChangesAsync();
-                        
-                        // Add history record for creation
-                        var createHistory = new CardHistory
-                        {
-                            CardId = card.Id,
-                            FieldName = "Creation",
-                            OldValue = "",
-                            NewValue = "Initial product creation",
-                            ChangedAt = DateTime.Now,
-                            ChangedBy = User.Identity.Name
-                        };
-                        
-                        _context.CardHistories.Add(createHistory);
-                        await _context.SaveChangesAsync();
-                        
-                        _logger.LogInformation($"Card saved successfully with ID: {card.Id}");
-                        TempData["SuccessMessage"] = $"Product '{card.ProductName}' created successfully.";
-                        return RedirectToAction(nameof(Index));
-                    }
-                    catch (DbUpdateException dbEx)
-                    {
-                        _logger.LogError(dbEx, "Database error when saving card");
-                        ModelState.AddModelError(string.Empty, "Database error: " + (dbEx.InnerException?.Message ?? dbEx.Message));
-                    }
-                }
-                else
+                if (ModelState.ContainsKey("Email"))
+                    ModelState.Remove("Email");
+                
+                if (!ModelState.IsValid)
                 {
                     // Log validation errors
                     var errors = string.Join("; ", ModelState.Values
@@ -204,6 +148,106 @@ namespace CardTagManager.Controllers
                         .Select(e => e.ErrorMessage));
                     
                     _logger.LogWarning($"Model validation failed: {errors}");
+                    return View(card);
+                }
+
+                // Handle image upload if a file was provided
+                if (ImageFile != null && ImageFile.Length > 0)
+                {
+                    try
+                    {
+                        _logger.LogInformation($"Uploading image: {ImageFile.FileName}, Size: {ImageFile.Length}");
+                        var fileResponse = await _fileUploadService.UploadFile(ImageFile);
+                        if (fileResponse.IsSuccess)
+                        {
+                            // Save the image URL to the card
+                            card.ImagePath = fileResponse.FileUrl;
+                            _logger.LogInformation($"Image uploaded successfully: {fileResponse.FileUrl}");
+                        }
+                        else
+                        {
+                            _logger.LogWarning($"Failed to upload image: {fileResponse.ErrorMessage}");
+                            ModelState.AddModelError("ImageFile", "Failed to upload image: " + fileResponse.ErrorMessage);
+                            return View(card);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error uploading image");
+                        ModelState.AddModelError("ImageFile", "Error uploading image: " + ex.Message);
+                        return View(card);
+                    }
+                }
+
+                // Handle image upload if a file was provided
+                if (ImageFile != null && ImageFile.Length > 0)
+                {
+                    try
+                    {
+                        _logger.LogInformation($"Uploading image: {ImageFile.FileName}, Size: {ImageFile.Length}");
+                        var fileResponse = await _fileUploadService.UploadFile(ImageFile);
+                        if (fileResponse.IsSuccess)
+                        {
+                            // Save the image URL to the card
+                            card.ImagePath = fileResponse.FileUrl;
+                            _logger.LogInformation($"Image uploaded successfully: {fileResponse.FileUrl}");
+                        }
+                        else
+                        {
+                            _logger.LogWarning($"Failed to upload image: {fileResponse.ErrorMessage}");
+                            ModelState.AddModelError("ImageFile", "Failed to upload image: " + fileResponse.ErrorMessage);
+                            return View(card);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error uploading image");
+                        ModelState.AddModelError("ImageFile", "Error uploading image: " + ex.Message);
+                        return View(card);
+                    }
+                }
+
+                // Set creation timestamps explicitly
+                card.CreatedAt = DateTime.Now;
+                card.UpdatedAt = DateTime.Now;
+                
+                // Store QR color preferences in TempData for the session
+                if (!string.IsNullOrEmpty(qrFgColor))
+                    TempData["QrFgColor"] = qrFgColor;
+                
+                if (!string.IsNullOrEmpty(qrBgColor))
+                    TempData["QrBgColor"] = qrBgColor;
+                
+                try
+                {
+                    // Add the card to the context
+                    _context.Cards.Add(card);
+                    
+                    // Save the changes to the database
+                    await _context.SaveChangesAsync();
+                    
+                    // Add history record for creation
+                    var createHistory = new CardHistory
+                    {
+                        CardId = card.Id,
+                        FieldName = "Creation",
+                        OldValue = "",
+                        NewValue = "Initial product creation",
+                        ChangedAt = DateTime.Now,
+                        ChangedBy = User.Identity.Name
+                    };
+                    
+                    _context.CardHistories.Add(createHistory);
+                    await _context.SaveChangesAsync();
+                    
+                    _logger.LogInformation($"Card saved successfully with ID: {card.Id}");
+                    TempData["SuccessMessage"] = $"Product '{card.ProductName}' created successfully.";
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateException dbEx)
+                {
+                    _logger.LogError(dbEx, "Database error when saving card");
+                    ModelState.AddModelError(string.Empty, "Database error: " + (dbEx.InnerException?.Message ?? dbEx.Message));
                 }
             }
             catch (Exception ex)
@@ -259,138 +303,200 @@ namespace CardTagManager.Controllers
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            // Remove specific validation errors before checking model state
+            if (ModelState.ContainsKey("ImageFile"))
+                ModelState.Remove("ImageFile");
+                
+            if (ModelState.ContainsKey("Email"))
+                ModelState.Remove("Email");
+            
+            if (!ModelState.IsValid)
             {
-                try
+                // Generate QR code for preview if validation fails
+                string qrCodeData = GenerateCardQrData(card);
+                ViewBag.QrCodeImage = _qrCodeService.GenerateQrCodeAsBase64(
+                    qrCodeData, 
+                    qrFgColor ?? "#000000", 
+                    qrBgColor ?? "#FFFFFF"
+                );
+                
+                // Get edit history for the view
+                var history = await _context.CardHistories
+                    .Where(ch => ch.CardId == id)
+                    .OrderByDescending(ch => ch.ChangedAt)
+                    .Take(5)
+                    .ToListAsync();
+                    
+                ViewBag.History = history;
+                
+                return View(card);
+            }
+
+            try
+            {
+                // Get existing card
+                var existingCard = await _context.Cards.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
+                if (existingCard == null)
                 {
-                    // Get existing card
-                    var existingCard = await _context.Cards.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
-                    if (existingCard == null)
+                    return NotFound();
+                }
+                
+                // Keep the user information from the database
+                card.Username = existingCard.Username;
+                card.Department = existingCard.Department;
+                card.Email = existingCard.Email;
+                card.UserFullName = existingCard.UserFullName;
+                card.PlantName = existingCard.PlantName;
+                card.CreatedAt = existingCard.CreatedAt;
+                
+                // Verify background colors are set
+                if (string.IsNullOrEmpty(card.BackgroundColor))
+                    card.BackgroundColor = existingCard.BackgroundColor ?? "#ffffff";
+                
+                if (string.IsNullOrEmpty(card.TextColor))
+                    card.TextColor = existingCard.TextColor ?? "#000000";
+                
+                if (string.IsNullOrEmpty(card.AccentColor))
+                    card.AccentColor = existingCard.AccentColor ?? "#0284c7";
+                
+                // Handle image upload if a file was provided
+                if (ImageFile != null && ImageFile.Length > 0)
+                {
+                    try
                     {
-                        return NotFound();
-                    }
-                    
-                    // Keep the user information from the database
-                    card.Username = existingCard.Username;
-                    card.Department = existingCard.Department;
-                    card.Email = existingCard.Email;
-                    card.UserFullName = existingCard.UserFullName;
-                    card.PlantName = existingCard.PlantName;
-                    card.CreatedAt = existingCard.CreatedAt;
-                    
-                    // Handle image upload if a file was provided
-                    if (ImageFile != null && ImageFile.Length > 0)
-                    {
-                        try
+                        // Delete old image if it exists
+                        if (!string.IsNullOrEmpty(existingCard.ImagePath))
                         {
-                            // Delete old image if it exists
-                            if (!string.IsNullOrEmpty(existingCard.ImagePath))
-                            {
-                                await _fileUploadService.DeleteFile(existingCard.ImagePath);
-                            }
-                            
-                            var fileResponse = await _fileUploadService.UploadFile(ImageFile);
-                            if (fileResponse.IsSuccess)
-                            {
-                                // Save the image URL to the card
-                                card.ImagePath = fileResponse.FileUrl;
-                            }
-                            else
-                            {
-                                ModelState.AddModelError("ImageFile", "Failed to upload image: " + fileResponse.ErrorMessage);
-                                return View(card);
-                            }
+                            await _fileUploadService.DeleteFile(existingCard.ImagePath);
                         }
-                        catch (Exception ex)
+                        
+                        var fileResponse = await _fileUploadService.UploadFile(ImageFile);
+                        if (fileResponse.IsSuccess)
                         {
-                            ModelState.AddModelError("ImageFile", "Error uploading image: " + ex.Message);
+                            // Save the image URL to the card
+                            card.ImagePath = fileResponse.FileUrl;
+                        }
+                        else
+                        {
+                            ModelState.AddModelError("ImageFile", "Failed to upload image: " + fileResponse.ErrorMessage);
+                            
+                            // Generate QR code for preview if error
+                            string qrCodeData = GenerateCardQrData(card);
+                            ViewBag.QrCodeImage = _qrCodeService.GenerateQrCodeAsBase64(
+                                qrCodeData, 
+                                qrFgColor ?? "#000000", 
+                                qrBgColor ?? "#FFFFFF"
+                            );
+                            
+                            // Get edit history for the view
+                            var history = await _context.CardHistories
+                                .Where(ch => ch.CardId == id)
+                                .OrderByDescending(ch => ch.ChangedAt)
+                                .Take(5)
+                                .ToListAsync();
+                                
+                            ViewBag.History = history;
+                            
                             return View(card);
                         }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        // Keep the existing image if no new one was uploaded
-                        card.ImagePath = existingCard.ImagePath;
-                    }
-
-                    // Store QR color preferences in TempData for the session
-                    if (!string.IsNullOrEmpty(qrFgColor))
-                        TempData["QrFgColor"] = qrFgColor;
-                    
-                    if (!string.IsNullOrEmpty(qrBgColor))
-                        TempData["QrBgColor"] = qrBgColor;
-
-                    // Track changes for history
-                    var changedProperties = new List<CardHistory>();
-                    
-                    // Define properties to track (excluding system-managed properties)
-                    var propertiesToTrack = typeof(Card).GetProperties()
-                        .Where(p => 
-                            p.Name != "Id" && 
-                            p.Name != "CreatedAt" && 
-                            p.Name != "UpdatedAt" &&
-                            p.Name != "Username" && 
-                            p.Name != "Department" && 
-                            p.Name != "Email" && 
-                            p.Name != "UserFullName" && 
-                            p.Name != "PlantName")
-                        .ToList();
-
-                    foreach (var prop in propertiesToTrack)
-                    {
-                        var oldValue = prop.GetValue(existingCard)?.ToString();
-                        var newValue = prop.GetValue(card)?.ToString();
+                        ModelState.AddModelError("ImageFile", "Error uploading image: " + ex.Message);
                         
-                        if (oldValue != newValue)
-                        {
-                            changedProperties.Add(new CardHistory
-                            {
-                                CardId = card.Id,
-                                FieldName = prop.Name,
-                                OldValue = oldValue ?? "",
-                                NewValue = newValue ?? "",
-                                ChangedAt = DateTime.Now,
-                                ChangedBy = User.Identity.Name
-                            });
-                        }
+                        // Generate QR code for preview if error
+                        string qrCodeData = GenerateCardQrData(card);
+                        ViewBag.QrCodeImage = _qrCodeService.GenerateQrCodeAsBase64(
+                            qrCodeData, 
+                            qrFgColor ?? "#000000", 
+                            qrBgColor ?? "#FFFFFF"
+                        );
+                        
+                        // Get edit history for the view
+                        var history = await _context.CardHistories
+                            .Where(ch => ch.CardId == id)
+                            .OrderByDescending(ch => ch.ChangedAt)
+                            .Take(5)
+                            .ToListAsync();
+                            
+                        ViewBag.History = history;
+                        
+                        return View(card);
                     }
-
-                    card.UpdatedAt = DateTime.Now;
-                    _context.Update(card);
-                    
-                    // Add change history if any properties changed
-                    if (changedProperties.Any())
-                    {
-                        await _context.CardHistories.AddRangeAsync(changedProperties);
-                    }
-                    
-                    await _context.SaveChangesAsync();
-                    
-                    TempData["SuccessMessage"] = $"Product '{card.ProductName}' updated successfully.";
                 }
-                catch (DbUpdateConcurrencyException)
+                else
                 {
-                    if (!CardExists(card.Id))
+                    // Keep the existing image if no new one was uploaded
+                    card.ImagePath = existingCard.ImagePath;
+                }
+
+                // Store QR color preferences in TempData for the session
+                if (!string.IsNullOrEmpty(qrFgColor))
+                    TempData["QrFgColor"] = qrFgColor;
+                
+                if (!string.IsNullOrEmpty(qrBgColor))
+                    TempData["QrBgColor"] = qrBgColor;
+
+                // Track changes for history
+                var changedProperties = new List<CardHistory>();
+                
+                // Define properties to track (excluding system-managed properties)
+                var propertiesToTrack = typeof(Card).GetProperties()
+                    .Where(p => 
+                        p.Name != "Id" && 
+                        p.Name != "CreatedAt" && 
+                        p.Name != "UpdatedAt" &&
+                        p.Name != "Username" && 
+                        p.Name != "Department" && 
+                        p.Name != "Email" && 
+                        p.Name != "UserFullName" && 
+                        p.Name != "PlantName")
+                    .ToList();
+
+                foreach (var prop in propertiesToTrack)
+                {
+                    var oldValue = prop.GetValue(existingCard)?.ToString();
+                    var newValue = prop.GetValue(card)?.ToString();
+                    
+                    if (oldValue != newValue)
                     {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
+                        changedProperties.Add(new CardHistory
+                        {
+                            CardId = card.Id,
+                            FieldName = prop.Name,
+                            OldValue = oldValue ?? "",
+                            NewValue = newValue ?? "",
+                            ChangedAt = DateTime.Now,
+                            ChangedBy = User.Identity.Name
+                        });
                     }
                 }
+
+                card.UpdatedAt = DateTime.Now;
+                _context.Update(card);
+                
+                // Add change history if any properties changed
+                if (changedProperties.Any())
+                {
+                    await _context.CardHistories.AddRangeAsync(changedProperties);
+                }
+                
+                await _context.SaveChangesAsync();
+                
+                TempData["SuccessMessage"] = $"Product '{card.ProductName}' updated successfully.";
                 return RedirectToAction(nameof(Details), new { id = card.Id });
             }
-            
-            // If model validation fails, regenerate the QR code for the preview
-            string qrCodeData = GenerateCardQrData(card);
-            ViewBag.QrCodeImage = _qrCodeService.GenerateQrCodeAsBase64(
-                qrCodeData, 
-                qrFgColor ?? "#000000", 
-                qrBgColor ?? "#FFFFFF"
-            );
-            
-            return View(card);
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!CardExists(card.Id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
         }
 
         // GET: Card/Delete/5 - Shows deletion confirmation

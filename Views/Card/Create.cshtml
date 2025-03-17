@@ -70,7 +70,10 @@
                 </div>
             </div>
             
-            <form asp-action="Create" method="post" id="product-form" enctype="multipart/form-data">
+        <form asp-action="Create" method="post" id="product-form" enctype="multipart/form-data">
+            <!-- Add hidden fields for QR colors -->
+            <input type="hidden" asp-for="QrFgColor" id="qrFgColorHidden" value="#000000" />
+            <input type="hidden" asp-for="QrBgColor" id="qrBgColorHidden" value="#FFFFFF" />
                 <div class="card-body">
                     <!-- Step 1: Basic Information -->
                     <div class="form-section" data-step="1">
@@ -413,15 +416,15 @@
                                 <div>
                                     <label class="text-xs text-gray-600 block mb-1">Foreground Color</label>
                                     <div class="flex">
-                                        <input type="color" class="w-10 h-10 border border-gray-300 rounded-lg cursor-pointer" value="#000000" id="qr-fg-color">
-                                        <input type="text" class="form-input ml-2 flex-grow text-sm" value="#000000" id="qr-fg-color-text">
+                                        <input type="color" class="w-10 h-10 border border-gray-300 rounded-lg cursor-pointer" value="#000000" id="qr-fg-color" onchange="updateQrColors()">
+                                        <input type="text" class="form-input ml-2 flex-grow text-sm" value="#000000" id="qr-fg-color-text" onchange="updateQrColors()">
                                     </div>
                                 </div>
                                 <div>
                                     <label class="text-xs text-gray-600 block mb-1">Background Color</label>
                                     <div class="flex">
-                                        <input type="color" class="w-10 h-10 border border-gray-300 rounded-lg cursor-pointer" value="#ffffff" id="qr-bg-color">
-                                        <input type="text" class="form-input ml-2 flex-grow text-sm" value="#ffffff" id="qr-bg-color-text">
+                                        <input type="color" class="w-10 h-10 border border-gray-300 rounded-lg cursor-pointer" value="#ffffff" id="qr-bg-color" onchange="updateQrColors()">
+                                        <input type="text" class="form-input ml-2 flex-grow text-sm" value="#ffffff" id="qr-bg-color-text" onchange="updateQrColors()">
                                     </div>
                                 </div>
                             </div>
@@ -929,6 +932,53 @@
                     });
                 }
             }
+
+            function updateQrColors() {
+                // Update hidden fields
+                document.getElementById('qrFgColorHidden').value = document.getElementById('qr-fg-color').value;
+                document.getElementById('qrBgColorHidden').value = document.getElementById('qr-bg-color').value;
+            }
+
+            // Add to existing scripts
+            document.addEventListener('DOMContentLoaded', function() {
+                // Initialize existing code
+                
+                // Make sure QR color values are captured before form submission
+                document.getElementById('product-form').addEventListener('submit', function() {
+                    updateQrColors();
+                });
+                
+                // Connect QR color inputs
+                const qrFgColor = document.getElementById('qr-fg-color');
+                const qrFgColorText = document.getElementById('qr-fg-color-text');
+                
+                if (qrFgColor && qrFgColorText) {
+                    qrFgColor.addEventListener('input', function() {
+                        qrFgColorText.value = this.value;
+                        updateQrColors();
+                    });
+                    
+                    qrFgColorText.addEventListener('input', function() {
+                        qrFgColor.value = this.value;
+                        updateQrColors();
+                    });
+                }
+                
+                const qrBgColor = document.getElementById('qr-bg-color');
+                const qrBgColorText = document.getElementById('qr-bg-color-text');
+                
+                if (qrBgColor && qrBgColorText) {
+                    qrBgColor.addEventListener('input', function() {
+                        qrBgColorText.value = this.value;
+                        updateQrColors();
+                    });
+                    
+                    qrBgColorText.addEventListener('input', function() {
+                        qrBgColor.value = this.value;
+                        updateQrColors();
+                    });
+                }
+            });
             
             // Apply layout to preview
             function updateCardLayout(layoutType) {
