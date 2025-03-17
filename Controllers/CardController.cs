@@ -99,8 +99,10 @@ namespace CardTagManager.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Card card, IFormFile ImageFile)
         {
-            if (ModelState.IsValid)
+            try
             {
+                _logger.LogInformation($"Creating card: {card.ProductName}, Category: {card.Category}");
+                
                 // Set user information from claims
                 if (User.Identity.IsAuthenticated)
                 {
@@ -110,9 +112,6 @@ namespace CardTagManager.Controllers
                     card.UserFullName = User.FindFirstValue("FullName") ?? "";
                     card.PlantName = User.FindFirstValue("PlantName") ?? "";
                 }
-            try
-            {
-                _logger.LogInformation($"Creating card: {card.ProductName}, Category: {card.Category}");
                 
                 if (ModelState.IsValid)
                 {
@@ -148,36 +147,22 @@ namespace CardTagManager.Controllers
                     card.CreatedAt = DateTime.Now;
                     card.UpdatedAt = DateTime.Now;
                     
-                    // Debug log before adding to context
-                    _logger.LogInformation($"About to add card to DB: {card.ProductName}, Manufacturer: {card.Manufacturer}");
-                    
                     try
                     {
                         // Add the card to the context
                         _context.Cards.Add(card);
                         
                         // Save the changes to the database
-                        int result = await _context.SaveChangesAsync();
+                        await _context.SaveChangesAsync();
                         
-                        // Check if SaveChanges succeeded
-                        if (result > 0)
-                        {
-                            _logger.LogInformation($"Card saved successfully with ID: {card.Id}");
-                            TempData["SuccessMessage"] = $"Product '{card.ProductName}' created successfully.";
-                            return RedirectToAction(nameof(Index));
-                        }
-                        else
-                        {
-                            _logger.LogWarning("SaveChanges returned 0 affected rows");
-                            ModelState.AddModelError(string.Empty, "No changes were saved to the database.");
-                            return View(card);
-                        }
+                        _logger.LogInformation($"Card saved successfully with ID: {card.Id}");
+                        TempData["SuccessMessage"] = $"Product '{card.ProductName}' created successfully.";
+                        return RedirectToAction(nameof(Index));
                     }
                     catch (DbUpdateException dbEx)
                     {
                         _logger.LogError(dbEx, "Database error when saving card");
                         ModelState.AddModelError(string.Empty, "Database error: " + (dbEx.InnerException?.Message ?? dbEx.Message));
-                        return View(card);
                     }
                 }
                 else
@@ -195,7 +180,7 @@ namespace CardTagManager.Controllers
                 _logger.LogError(ex, "Unexpected error in Create action");
                 ModelState.AddModelError(string.Empty, "An unexpected error occurred: " + ex.Message);
             }
-        }
+            
             // If we got this far, something failed, redisplay form
             return View(card);
         }

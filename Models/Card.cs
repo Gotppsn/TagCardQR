@@ -64,7 +64,7 @@ namespace CardTagManager.Models
         [Display(Name = "Serial Number")]
         public string SerialNumber { get; set; } = string.Empty;
         
-        public string ImagePath { get; set; }
+        public string? ImagePath { get; set; } = null;
         
         [StringLength(255)]
         public string Location { get; set; } = string.Empty;

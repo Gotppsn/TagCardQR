@@ -34,6 +34,11 @@ namespace CardTagManager.Data
                 .Property(c => c.Category)
                 .IsRequired()
                 .HasMaxLength(100);
+                
+            // Make ImagePath optional (nullable)
+            modelBuilder.Entity<Card>()
+                .Property(c => c.ImagePath)
+                .IsRequired(false);
 
             // Set up database-generated properties for CreatedAt and UpdatedAt
             modelBuilder.Entity<Card>()
