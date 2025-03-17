@@ -101,6 +101,13 @@ namespace CardTagManager.Models
         [Display(Name = "Card Layout")]
         public string Layout { get; set; } = "standard";
         
+        // Add QR Code Options as database fields (removing [NotMapped])
+        [Display(Name = "QR Foreground Color")]
+        public string QrFgColor { get; set; } = "#000000";
+        
+        [Display(Name = "QR Background Color")]
+        public string QrBgColor { get; set; } = "#FFFFFF";
+        
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
@@ -108,11 +115,5 @@ namespace CardTagManager.Models
         // Non-persistent properties for form handling
         [NotMapped]
         public IFormFile? ImageFile { get; set; }
-        
-        [NotMapped]
-        public string QrFgColor { get; set; } = "#000000";
-        
-        [NotMapped]
-        public string QrBgColor { get; set; } = "#FFFFFF";
     }
 }

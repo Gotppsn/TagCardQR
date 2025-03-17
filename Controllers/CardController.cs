@@ -64,13 +64,13 @@ namespace CardTagManager.Controllers
                     return NotFound();
                 }
 
-                // Get QR colors from TempData or use defaults
-                string qrFgColor = TempData["QrFgColor"]?.ToString() ?? "#000000";
-                string qrBgColor = TempData["QrBgColor"]?.ToString() ?? "#FFFFFF";
+                // Use QR colors from the card database values
+                string qrFgColor = card.QrFgColor ?? "#000000";
+                string qrBgColor = card.QrBgColor ?? "#FFFFFF";
                 
-                // Preserve QR colors in TempData for subsequent requests
-                TempData.Keep("QrFgColor");
-                TempData.Keep("QrBgColor");
+                // Also store in TempData for subsequent requests
+                TempData["QrFgColor"] = qrFgColor;
+                TempData["QrBgColor"] = qrBgColor;
 
                 // Generate QR code for card details view
                 string qrCodeData = GenerateCardQrData(card);
@@ -107,7 +107,7 @@ namespace CardTagManager.Controllers
         // POST: Card/Create - Handles form submission for new card
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Card card, IFormFile ImageFile, string qrFgColor, string qrBgColor)
+        public async Task<IActionResult> Create(Card card, IFormFile ImageFile)
         {
             try
             {
@@ -132,6 +132,17 @@ namespace CardTagManager.Controllers
                 
                 if (string.IsNullOrEmpty(card.AccentColor))
                     card.AccentColor = "#0284c7";
+                
+                // Verify QR colors are set
+                if (string.IsNullOrEmpty(card.QrFgColor))
+                    card.QrFgColor = "#000000";
+                    
+                if (string.IsNullOrEmpty(card.QrBgColor))
+                    card.QrBgColor = "#FFFFFF";
+                    
+                // Verify layout is set
+                if (string.IsNullOrEmpty(card.Layout))
+                    card.Layout = "standard";
                 
                 // Remove specific validation errors before checking model state
                 if (ModelState.ContainsKey("ImageFile"))
@@ -179,44 +190,13 @@ namespace CardTagManager.Controllers
                     }
                 }
 
-                // Handle image upload if a file was provided
-                if (ImageFile != null && ImageFile.Length > 0)
-                {
-                    try
-                    {
-                        _logger.LogInformation($"Uploading image: {ImageFile.FileName}, Size: {ImageFile.Length}");
-                        var fileResponse = await _fileUploadService.UploadFile(ImageFile);
-                        if (fileResponse.IsSuccess)
-                        {
-                            // Save the image URL to the card
-                            card.ImagePath = fileResponse.FileUrl;
-                            _logger.LogInformation($"Image uploaded successfully: {fileResponse.FileUrl}");
-                        }
-                        else
-                        {
-                            _logger.LogWarning($"Failed to upload image: {fileResponse.ErrorMessage}");
-                            ModelState.AddModelError("ImageFile", "Failed to upload image: " + fileResponse.ErrorMessage);
-                            return View(card);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Error uploading image");
-                        ModelState.AddModelError("ImageFile", "Error uploading image: " + ex.Message);
-                        return View(card);
-                    }
-                }
-
                 // Set creation timestamps explicitly
                 card.CreatedAt = DateTime.Now;
                 card.UpdatedAt = DateTime.Now;
                 
                 // Store QR color preferences in TempData for the session
-                if (!string.IsNullOrEmpty(qrFgColor))
-                    TempData["QrFgColor"] = qrFgColor;
-                
-                if (!string.IsNullOrEmpty(qrBgColor))
-                    TempData["QrBgColor"] = qrBgColor;
+                TempData["QrFgColor"] = card.QrFgColor;
+                TempData["QrBgColor"] = card.QrBgColor;
                 
                 try
                 {
@@ -269,13 +249,13 @@ namespace CardTagManager.Controllers
                 return NotFound();
             }
             
-            // Get QR colors from TempData or use defaults
-            string qrFgColor = TempData["QrFgColor"]?.ToString() ?? "#000000";
-            string qrBgColor = TempData["QrBgColor"]?.ToString() ?? "#FFFFFF";
+            // Use QR colors from the card database values
+            string qrFgColor = card.QrFgColor ?? "#000000";
+            string qrBgColor = card.QrBgColor ?? "#FFFFFF";
             
-            // Preserve values in TempData
-            TempData.Keep("QrFgColor");
-            TempData.Keep("QrBgColor");
+            // Also store in TempData for subsequent requests
+            TempData["QrFgColor"] = qrFgColor;
+            TempData["QrBgColor"] = qrBgColor;
             
             // Get edit history
             var history = await _context.CardHistories
@@ -296,7 +276,7 @@ namespace CardTagManager.Controllers
         // POST: Card/Edit/5 - Handles form submission for card updates
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Card card, IFormFile ImageFile, string qrFgColor, string qrBgColor)
+        public async Task<IActionResult> Edit(int id, Card card, IFormFile ImageFile)
         {
             if (id != card.Id)
             {
@@ -316,8 +296,8 @@ namespace CardTagManager.Controllers
                 string qrCodeData = GenerateCardQrData(card);
                 ViewBag.QrCodeImage = _qrCodeService.GenerateQrCodeAsBase64(
                     qrCodeData, 
-                    qrFgColor ?? "#000000", 
-                    qrBgColor ?? "#FFFFFF"
+                    card.QrFgColor ?? "#000000", 
+                    card.QrBgColor ?? "#FFFFFF"
                 );
                 
                 // Get edit history for the view
@@ -359,6 +339,17 @@ namespace CardTagManager.Controllers
                 if (string.IsNullOrEmpty(card.AccentColor))
                     card.AccentColor = existingCard.AccentColor ?? "#0284c7";
                 
+                // Verify QR colors are set
+                if (string.IsNullOrEmpty(card.QrFgColor))
+                    card.QrFgColor = existingCard.QrFgColor ?? "#000000";
+                    
+                if (string.IsNullOrEmpty(card.QrBgColor))
+                    card.QrBgColor = existingCard.QrBgColor ?? "#FFFFFF";
+                    
+                // Verify layout is set
+                if (string.IsNullOrEmpty(card.Layout))
+                    card.Layout = existingCard.Layout ?? "standard";
+                
                 // Handle image upload if a file was provided
                 if (ImageFile != null && ImageFile.Length > 0)
                 {
@@ -384,8 +375,8 @@ namespace CardTagManager.Controllers
                             string qrCodeData = GenerateCardQrData(card);
                             ViewBag.QrCodeImage = _qrCodeService.GenerateQrCodeAsBase64(
                                 qrCodeData, 
-                                qrFgColor ?? "#000000", 
-                                qrBgColor ?? "#FFFFFF"
+                                card.QrFgColor ?? "#000000", 
+                                card.QrBgColor ?? "#FFFFFF"
                             );
                             
                             // Get edit history for the view
@@ -408,8 +399,8 @@ namespace CardTagManager.Controllers
                         string qrCodeData = GenerateCardQrData(card);
                         ViewBag.QrCodeImage = _qrCodeService.GenerateQrCodeAsBase64(
                             qrCodeData, 
-                            qrFgColor ?? "#000000", 
-                            qrBgColor ?? "#FFFFFF"
+                            card.QrFgColor ?? "#000000", 
+                            card.QrBgColor ?? "#FFFFFF"
                         );
                         
                         // Get edit history for the view
@@ -431,11 +422,8 @@ namespace CardTagManager.Controllers
                 }
 
                 // Store QR color preferences in TempData for the session
-                if (!string.IsNullOrEmpty(qrFgColor))
-                    TempData["QrFgColor"] = qrFgColor;
-                
-                if (!string.IsNullOrEmpty(qrBgColor))
-                    TempData["QrBgColor"] = qrBgColor;
+                TempData["QrFgColor"] = card.QrFgColor;
+                TempData["QrBgColor"] = card.QrBgColor;
 
                 // Track changes for history
                 var changedProperties = new List<CardHistory>();
@@ -508,13 +496,13 @@ namespace CardTagManager.Controllers
                 return NotFound();
             }
             
-            // Get QR colors from TempData or use defaults
-            string qrFgColor = TempData["QrFgColor"]?.ToString() ?? "#000000";
-            string qrBgColor = TempData["QrBgColor"]?.ToString() ?? "#FFFFFF";
+            // Use QR colors from card database values
+            string qrFgColor = card.QrFgColor ?? "#000000";
+            string qrBgColor = card.QrBgColor ?? "#FFFFFF";
             
-            // Preserve values in TempData
-            TempData.Keep("QrFgColor");
-            TempData.Keep("QrBgColor");
+            // Store in TempData for subsequent requests
+            TempData["QrFgColor"] = qrFgColor;
+            TempData["QrBgColor"] = qrBgColor;
             
             // Generate QR code for preview with custom colors
             string qrCodeData = GenerateCardQrData(card);
@@ -577,13 +565,13 @@ namespace CardTagManager.Controllers
                 return NotFound();
             }
 
-            // Get QR colors from TempData or use defaults
-            string qrFgColor = TempData["QrFgColor"]?.ToString() ?? "#000000";
-            string qrBgColor = TempData["QrBgColor"]?.ToString() ?? "#FFFFFF";
+            // Use QR colors from card database values
+            string qrFgColor = card.QrFgColor ?? "#000000";
+            string qrBgColor = card.QrBgColor ?? "#FFFFFF";
             
-            // Preserve values in TempData
-            TempData.Keep("QrFgColor");
-            TempData.Keep("QrBgColor");
+            // Store in TempData for subsequent requests
+            TempData["QrFgColor"] = qrFgColor;
+            TempData["QrBgColor"] = qrBgColor;
 
             // Generate QR code for printable tag with custom colors
             string qrCodeData = GenerateCardQrData(card);
@@ -597,18 +585,13 @@ namespace CardTagManager.Controllers
         {
             var cards = await _context.Cards.ToListAsync();
 
-            // Get QR colors from TempData or use defaults
-            string qrFgColor = TempData["QrFgColor"]?.ToString() ?? "#000000";
-            string qrBgColor = TempData["QrBgColor"]?.ToString() ?? "#FFFFFF";
-            
-            // Preserve values in TempData
-            TempData.Keep("QrFgColor");
-            TempData.Keep("QrBgColor");
-
-            // Generate QR codes for all cards with custom colors
+            // Generate QR codes for all cards with their custom colors
             var qrCodes = new Dictionary<int, string>();
             foreach (var card in cards)
             {
+                string qrFgColor = card.QrFgColor ?? "#000000";
+                string qrBgColor = card.QrBgColor ?? "#FFFFFF";
+                
                 string qrCodeData = GenerateCardQrData(card);
                 qrCodes[card.Id] = _qrCodeService.GenerateQrCodeAsBase64(qrCodeData, qrFgColor, qrBgColor);
             }
@@ -627,13 +610,13 @@ namespace CardTagManager.Controllers
                 return NotFound();
             }
 
-            // Get QR colors from TempData or use defaults
-            string qrFgColor = TempData["QrFgColor"]?.ToString() ?? "#000000";
-            string qrBgColor = TempData["QrBgColor"]?.ToString() ?? "#FFFFFF";
+            // Use QR colors from card database values
+            string qrFgColor = card.QrFgColor ?? "#000000";
+            string qrBgColor = card.QrBgColor ?? "#FFFFFF";
             
-            // Preserve values in TempData
-            TempData.Keep("QrFgColor");
-            TempData.Keep("QrBgColor");
+            // Store in TempData for subsequent requests
+            TempData["QrFgColor"] = qrFgColor;
+            TempData["QrBgColor"] = qrBgColor;
 
             // Generate QR code data with custom colors
             string qrCodeData = GenerateCardQrData(card);
@@ -685,13 +668,13 @@ namespace CardTagManager.Controllers
                 return NotFound();
             }
             
-            // Get QR colors from TempData or use defaults
-            string qrFgColor = TempData["QrFgColor"]?.ToString() ?? "#000000";
-            string qrBgColor = TempData["QrBgColor"]?.ToString() ?? "#FFFFFF";
+            // Use QR colors from card database values
+            string qrFgColor = card.QrFgColor ?? "#000000";
+            string qrBgColor = card.QrBgColor ?? "#FFFFFF";
             
-            // Preserve values in TempData
-            TempData.Keep("QrFgColor");
-            TempData.Keep("QrBgColor");
+            // Store in TempData for subsequent requests
+            TempData["QrFgColor"] = qrFgColor;
+            TempData["QrBgColor"] = qrBgColor;
             
             // Generate QR code for mobile view with custom colors
             string qrCodeData = GenerateCardQrData(card);
@@ -727,7 +710,15 @@ namespace CardTagManager.Controllers
                 WarrantyExpiration = card.WarrantyExpiration.ToString("yyyy-MM-dd"),
                 CreatedBy = card.Username,
                 Department = card.Department,
-                LastUpdated = card.UpdatedAt.ToString("yyyy-MM-dd HH:mm:ss")
+                LastUpdated = card.UpdatedAt.ToString("yyyy-MM-dd HH:mm:ss"),
+                Appearance = new {
+                    Layout = card.Layout,
+                    BackgroundColor = card.BackgroundColor,
+                    TextColor = card.TextColor,
+                    AccentColor = card.AccentColor,
+                    QrForegroundColor = card.QrFgColor,
+                    QrBackgroundColor = card.QrBgColor
+                }
             };
 
             // Convert to JSON
@@ -752,13 +743,9 @@ namespace CardTagManager.Controllers
                 return NotFound();
             }
 
-            // Get QR colors from TempData or use defaults
-            string qrFgColor = TempData["QrFgColor"]?.ToString() ?? "#000000";
-            string qrBgColor = TempData["QrBgColor"]?.ToString() ?? "#FFFFFF";
-            
-            // Preserve values in TempData
-            TempData.Keep("QrFgColor");
-            TempData.Keep("QrBgColor");
+            // Use QR colors from card database values
+            string qrFgColor = card.QrFgColor ?? "#000000";
+            string qrBgColor = card.QrBgColor ?? "#FFFFFF";
 
             // Generate QR code for download with custom colors
             string qrCodeData = GenerateCardQrData(card);

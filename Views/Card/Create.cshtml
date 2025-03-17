@@ -290,6 +290,7 @@
                             <label class="form-label">Card Layout</label>
                             <div class="grid grid-cols-3 gap-3">
                                 <div class="layout-option border rounded-lg p-2 cursor-pointer hover:border-primary-500 transition-colors active" data-layout="standard">
+                                    <input type="hidden" name="Layout" id="layoutHidden" value="standard" />
                                     <div class="bg-gray-100 rounded mb-1 flex items-center justify-center p-3">
                                         <div class="w-full aspect-w-16 aspect-h-10 bg-white rounded shadow-sm p-1">
                                             <div class="flex">
@@ -892,6 +893,7 @@
             // Card layout selection
             function initializeCardLayouts() {
                 const layoutOptions = document.querySelectorAll('.layout-option');
+                const layoutHidden = document.getElementById('layoutHidden');
                 
                 layoutOptions.forEach(option => {
                     option.addEventListener('click', function() {
@@ -903,6 +905,9 @@
                         
                         // Get layout type
                         const layoutType = this.getAttribute('data-layout');
+                        
+                        // Update hidden input value to save the selection
+                        layoutHidden.value = layoutType;
                         
                         // Update preview
                         updateCardLayout(layoutType);
@@ -932,18 +937,26 @@
                     });
                 }
             }
+                function updateQrColors() {
+                    // Update hidden fields
+                    document.getElementById('qrFgColorHidden').value = document.getElementById('qr-fg-color').value;
+                    document.getElementById('qrBgColorHidden').value = document.getElementById('qr-bg-color').value;
+                }
 
-            function updateQrColors() {
-                // Update hidden fields
-                document.getElementById('qrFgColorHidden').value = document.getElementById('qr-fg-color').value;
-                document.getElementById('qrBgColorHidden').value = document.getElementById('qr-bg-color').value;
-            }
+                // Add event listeners for QR color inputs
+                document.getElementById('qr-fg-color').addEventListener('input', updateQrColors);
+                document.getElementById('qr-fg-color-text').addEventListener('input', function() {
+                    document.getElementById('qr-fg-color').value = this.value;
+                    updateQrColors();
+                });
 
-            // Add to existing scripts
-            document.addEventListener('DOMContentLoaded', function() {
-                // Initialize existing code
-                
-                // Make sure QR color values are captured before form submission
+                document.getElementById('qr-bg-color').addEventListener('input', updateQrColors);
+                document.getElementById('qr-bg-color-text').addEventListener('input', function() {
+                    document.getElementById('qr-bg-color').value = this.value;
+                    updateQrColors();
+                });
+
+                // Ensure QR colors are captured before form submission
                 document.getElementById('product-form').addEventListener('submit', function() {
                     updateQrColors();
                 });
