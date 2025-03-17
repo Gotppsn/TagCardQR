@@ -1,3 +1,4 @@
+// Path: Services/QrCodeService.cs
 using System;
 using System.IO;
 using QRCoder;
@@ -8,7 +9,7 @@ namespace CardTagManager.Services
 {
     public class QrCodeService
     {
-        public string GenerateQrCodeAsBase64(string textData)
+        public string GenerateQrCodeAsBase64(string textData, string foregroundColor = "#000000", string backgroundColor = "#FFFFFF")
         {
             // Create QR code generator
             using (var qrGenerator = new QRCodeGenerator())
@@ -16,13 +17,40 @@ namespace CardTagManager.Services
                 // Create QR code data
                 var qrCodeData = qrGenerator.CreateQrCode(textData, QRCodeGenerator.ECCLevel.Q);
                 
-                // Use PngByteQRCode for better compatibility
-                using (var pngGenerator = new PngByteQRCode(qrCodeData))
+                // Convert hex colors to RGB
+                var fgColor = HexToColor(foregroundColor);
+                var bgColor = HexToColor(backgroundColor);
+                
+                // Use QRCode with custom colors
+                using (var qrCode = new QRCode(qrCodeData))
                 {
-                    byte[] pngBytes = pngGenerator.GetGraphic(20);
-                    return $"data:image/png;base64,{Convert.ToBase64String(pngBytes)}";
+                    // Generate bitmap with custom colors
+                    using (var qrBitmap = qrCode.GetGraphic(20, fgColor, bgColor, true))
+                    {
+                        // Convert bitmap to Base64 string
+                        using (var ms = new MemoryStream())
+                        {
+                            qrBitmap.Save(ms, ImageFormat.Png);
+                            byte[] byteImage = ms.ToArray();
+                            return $"data:image/png;base64,{Convert.ToBase64String(byteImage)}";
+                        }
+                    }
                 }
             }
+        }
+        
+        private Color HexToColor(string hexColor)
+        {
+            // Remove # if present
+            if (hexColor.StartsWith("#"))
+                hexColor = hexColor.Substring(1);
+                
+            // Convert hex to RGB
+            int r = Convert.ToInt32(hexColor.Substring(0, 2), 16);
+            int g = Convert.ToInt32(hexColor.Substring(2, 2), 16);
+            int b = Convert.ToInt32(hexColor.Substring(4, 2), 16);
+            
+            return Color.FromArgb(r, g, b);
         }
     }
 }

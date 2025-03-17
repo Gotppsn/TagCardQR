@@ -11,6 +11,7 @@ namespace CardTagManager.Data
         }
 
         public DbSet<Card> Cards { get; set; }
+        public DbSet<CardHistory> CardHistories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -48,6 +49,14 @@ namespace CardTagManager.Data
             modelBuilder.Entity<Card>()
                 .Property(c => c.UpdatedAt)
                 .HasDefaultValueSql("GETDATE()");
+
+            modelBuilder.Entity<CardHistory>()
+                .HasKey(ch => ch.Id);
+
+            modelBuilder.Entity<CardHistory>()
+                .HasOne(ch => ch.Card)
+                .WithMany()
+                .HasForeignKey(ch => ch.CardId);                
         }
     }
 }

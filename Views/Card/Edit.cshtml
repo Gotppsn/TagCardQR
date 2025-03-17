@@ -392,7 +392,9 @@
                                 <span asp-validation-for="AccentColor" class="form-error"></span>
                             </div>
                         </div>
-                        
+                        <!-- In the form, add hidden inputs for QR colors to be passed to the controller -->
+                        <input type="hidden" id="qrFgColor" name="qrFgColor" value="#000000">
+                        <input type="hidden" id="qrBgColor" name="qrBgColor" value="#FFFFFF">
                         <div class="mt-6 p-4 bg-gray-50 rounded-lg">
                             <h4 class="text-sm font-medium mb-3">QR Code Options</h4>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -543,7 +545,7 @@
                     </div>
                 </div>
                 <div class="flex justify-center mt-4">
-                    <a id="download-qr" href="@Url.Action("DownloadData", new { id = Model.Id })" class="text-sm text-primary-600 hover:text-primary-800 flex items-center">
+                    <a id="download-qr" href="@Url.Action("DownloadQrCode", new { id = Model.Id })" class="text-sm text-primary-600 hover:text-primary-800 flex items-center">
                         <i class="fas fa-download mr-1"></i> Download QR Code
                     </a>
                 </div>
@@ -949,24 +951,30 @@
                 const qrFgColorText = document.getElementById('qr-fg-color-text');
                 const qrBgColor = document.getElementById('qr-bg-color');
                 const qrBgColorText = document.getElementById('qr-bg-color-text');
-                
-                if (qrFgColor && qrFgColorText) {
+                const qrFgColorHidden = document.getElementById('qrFgColor');
+                const qrBgColorHidden = document.getElementById('qrBgColor');
+
+                if (qrFgColor && qrFgColorText && qrFgColorHidden) {
                     qrFgColor.addEventListener('input', function() {
                         qrFgColorText.value = this.value;
+                        qrFgColorHidden.value = this.value;
                     });
                     
                     qrFgColorText.addEventListener('input', function() {
                         qrFgColor.value = this.value;
+                        qrFgColorHidden.value = this.value;
                     });
                 }
-                
-                if (qrBgColor && qrBgColorText) {
+
+                if (qrBgColor && qrBgColorText && qrBgColorHidden) {
                     qrBgColor.addEventListener('input', function() {
                         qrBgColorText.value = this.value;
+                        qrBgColorHidden.value = this.value;
                     });
                     
                     qrBgColorText.addEventListener('input', function() {
                         qrBgColor.value = this.value;
+                        qrBgColorHidden.value = this.value;
                     });
                 }
             }
