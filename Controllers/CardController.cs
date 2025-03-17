@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace CardTagManager.Controllers
 {
@@ -77,22 +78,38 @@ namespace CardTagManager.Controllers
         // GET: Card/Create - Shows card creation form
         public IActionResult Create()
         {
-            return View(new Card
+            var card = new Card();
+            
+            // Pre-fill user information from claims
+            if (User.Identity.IsAuthenticated)
             {
-                ManufactureDate = DateTime.Now,
-                PurchaseDate = DateTime.Now,
-                WarrantyExpiration = DateTime.Now.AddYears(1),
-                BackgroundColor = "#ffffff",
-                TextColor = "#000000",
-                AccentColor = "#0284c7"
-            });
+                card.Username = User.FindFirstValue("Username") ?? User.Identity.Name;
+                card.Department = User.FindFirstValue("Department") ?? "";
+                card.Email = User.FindFirstValue("Email") ?? "";
+                card.UserFullName = User.FindFirstValue("FullName") ?? "";
+                card.PlantName = User.FindFirstValue("PlantName") ?? "";
+            }
+            
+            return View(card);
         }
+
 
         // POST: Card/Create - Handles form submission for new card
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Card card, IFormFile ImageFile)
         {
+            if (ModelState.IsValid)
+            {
+                // Set user information from claims
+                if (User.Identity.IsAuthenticated)
+                {
+                    card.Username = User.FindFirstValue("Username") ?? User.Identity.Name;
+                    card.Department = User.FindFirstValue("Department") ?? "";
+                    card.Email = User.FindFirstValue("Email") ?? "";
+                    card.UserFullName = User.FindFirstValue("FullName") ?? "";
+                    card.PlantName = User.FindFirstValue("PlantName") ?? "";
+                }
             try
             {
                 _logger.LogInformation($"Creating card: {card.ProductName}, Category: {card.Category}");
@@ -178,7 +195,7 @@ namespace CardTagManager.Controllers
                 _logger.LogError(ex, "Unexpected error in Create action");
                 ModelState.AddModelError(string.Empty, "An unexpected error occurred: " + ex.Message);
             }
-            
+        }
             // If we got this far, something failed, redisplay form
             return View(card);
         }
@@ -213,8 +230,15 @@ namespace CardTagManager.Controllers
             {
                 try
                 {
-                    // Get existing card to check if we need to delete old image
+                    // Get existing card
                     var existingCard = await _context.Cards.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
+                    
+                    // Keep the user information from the database
+                    card.Username = existingCard.Username;
+                    card.Department = existingCard.Department;
+                    card.Email = existingCard.Email;
+                    card.UserFullName = existingCard.UserFullName;
+                    card.PlantName = existingCard.PlantName;
                     
                     // Handle image upload if a file was provided
                     if (ImageFile != null && ImageFile.Length > 0)

@@ -270,8 +270,9 @@
                         
                         <div class="mb-6">
                             <label class="form-label">Card Layout</label>
+                            <input type="hidden" asp-for="Layout" id="selected-layout" value="@Model.Layout">
                             <div class="grid grid-cols-3 gap-3">
-                                <div class="layout-option border rounded-lg p-2 cursor-pointer hover:border-primary-500 transition-colors active" data-layout="standard">
+                                <div class="layout-option border rounded-lg p-2 cursor-pointer hover:border-primary-500 transition-colors @(Model.Layout == "standard" ? "active border-primary-500" : "")" data-layout="standard">
                                     <div class="bg-gray-100 rounded mb-1 flex items-center justify-center p-3">
                                         <div class="w-full aspect-w-16 aspect-h-10 bg-white rounded shadow-sm p-1">
                                             <div class="flex">
@@ -291,7 +292,7 @@
                                     </div>
                                     <p class="text-xs text-center">Standard</p>
                                 </div>
-                                <div class="layout-option border rounded-lg p-2 cursor-pointer hover:border-primary-500 transition-colors" data-layout="modern">
+                                <div class="layout-option border rounded-lg p-2 cursor-pointer hover:border-primary-500 transition-colors @(Model.Layout == "modern" ? "active border-primary-500" : "")" data-layout="modern">
                                     <div class="bg-gray-100 rounded mb-1 flex items-center justify-center p-3">
                                         <div class="w-full aspect-w-16 aspect-h-10 bg-white rounded shadow-sm p-1">
                                             <div class="flex flex-col">
@@ -313,7 +314,7 @@
                                     </div>
                                     <p class="text-xs text-center">Modern</p>
                                 </div>
-                                <div class="layout-option border rounded-lg p-2 cursor-pointer hover:border-primary-500 transition-colors" data-layout="compact">
+                                <div class="layout-option border rounded-lg p-2 cursor-pointer hover:border-primary-500 transition-colors @(Model.Layout == "compact" ? "active border-primary-500" : "")" data-layout="compact">
                                     <div class="bg-gray-100 rounded mb-1 flex items-center justify-center p-3">
                                         <div class="w-full aspect-w-16 aspect-h-10 bg-white rounded shadow-sm p-1">
                                             <div class="flex">

@@ -1,3 +1,4 @@
+// Path: Controllers/AccountController.cs
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
@@ -33,7 +34,7 @@ namespace CardTagManager.Controllers
 
             if (ModelState.IsValid)
             {
-                bool isValid = _authService.ValidateCredentials(model.Username, model.Password);
+                var (isValid, userInfo) = _authService.ValidateCredentials(model.Username, model.Password);
 
                 if (isValid)
                 {
@@ -42,6 +43,12 @@ namespace CardTagManager.Controllers
                     {
                         new Claim(ClaimTypes.Name, model.Username),
                         new Claim(ClaimTypes.Role, model.Username == "admin" ? "Administrator" : "User"),
+                        // Add user LDAP information as claims
+                        new Claim("Username", userInfo.Username),
+                        new Claim("Department", userInfo.Department ?? ""),
+                        new Claim("Email", userInfo.Email ?? ""),
+                        new Claim("FullName", userInfo.FullName ?? ""),
+                        new Claim("PlantName", userInfo.PlantName ?? ""),
                         // Add unique timestamp claim to prevent stale authentication
                         new Claim("login_timestamp", DateTime.UtcNow.Ticks.ToString())
                     };

@@ -1,6 +1,8 @@
 // Path: Models/Card.cs
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel;
+
 
 namespace CardTagManager.Models
 {
@@ -19,23 +21,27 @@ namespace CardTagManager.Models
             set => ProductName = value; 
         }
         
-        // Contact info properties - Making these optional
-        [Display(Name = "Job Title")]
-        public string? Title { get; set; }
+        // LDAP populated fields marked as ReadOnly
+        [ReadOnly(true)]
+        [Display(Name = "Username")]
+        public string Username { get; set; } = string.Empty;
         
+        [ReadOnly(true)]
+        [Display(Name = "Department")]
+        public string Department { get; set; } = string.Empty;
+        
+        [ReadOnly(true)]
         [Display(Name = "Email Address")]
         [EmailAddress]
-        public string? Email { get; set; } // Changed to nullable
+        public string Email { get; set; } = string.Empty;
         
-        [Display(Name = "Phone Number")]
-        public string? Phone { get; set; }
+        [ReadOnly(true)]
+        [Display(Name = "User's Name")]
+        public string UserFullName { get; set; } = string.Empty;
         
-        [Display(Name = "Address")]
-        public string? Address { get; set; }
-        
-        [Display(Name = "Website")]
-        [Url]
-        public string? Website { get; set; } // Changed to nullable
+        [ReadOnly(true)]
+        [Display(Name = "Plant Name")]
+        public string PlantName { get; set; } = string.Empty;
         
         [Required]
         [StringLength(100)]
@@ -58,14 +64,13 @@ namespace CardTagManager.Models
         [Display(Name = "Serial Number")]
         public string SerialNumber { get; set; } = string.Empty;
         
-        // Make ImagePath optional
-        public string? ImagePath { get; set; }
+        public string ImagePath { get; set; }
         
         [StringLength(255)]
         public string Location { get; set; } = string.Empty;
         
         [Display(Name = "Maintenance Information")]
-        public string? MaintenanceInfo { get; set; }
+        public string MaintenanceInfo { get; set; } = string.Empty;
         
         [Required]
         [Display(Name = "Manufacture Date")]
@@ -90,6 +95,10 @@ namespace CardTagManager.Models
         
         [Display(Name = "Accent Color")]
         public string AccentColor { get; set; } = "#0284c7";
+        
+        // Added to store card layout selection
+        [Display(Name = "Card Layout")]
+        public string Layout { get; set; } = "standard";
         
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         

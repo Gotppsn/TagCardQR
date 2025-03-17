@@ -288,6 +288,43 @@
                         
                         <div class="mb-6">
                             <label class="form-label">Card Layout</label>
+                            <input type="hidden" asp-for="Layout" id="selected-layout" value="standard">
+                            <!-- Add a section to display LDAP user information -->
+                            <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                                <h4 class="text-sm font-medium mb-3">User Information (Auto-populated from LDAP)</h4>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="form-group">
+                                        <label asp-for="Username" class="text-xs text-gray-500 uppercase font-medium mb-1 block">Username</label>
+                                        <div class="text-sm font-medium text-gray-700">@User.FindFirstValue("Username")</div>
+                                        <input type="hidden" asp-for="Username" value="@User.FindFirstValue("Username")" />
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label asp-for="Department" class="text-xs text-gray-500 uppercase font-medium mb-1 block">Department</label>
+                                        <div class="text-sm font-medium text-gray-700">@User.FindFirstValue("Department")</div>
+                                        <input type="hidden" asp-for="Department" value="@User.FindFirstValue("Department")" />
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label asp-for="Email" class="text-xs text-gray-500 uppercase font-medium mb-1 block">Email</label>
+                                        <div class="text-sm font-medium text-gray-700">@User.FindFirstValue("Email")</div>
+                                        <input type="hidden" asp-for="Email" value="@User.FindFirstValue("Email")" />
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label asp-for="UserFullName" class="text-xs text-gray-500 uppercase font-medium mb-1 block">Full Name</label>
+                                        <div class="text-sm font-medium text-gray-700">@User.FindFirstValue("FullName")</div>
+                                        <input type="hidden" asp-for="UserFullName" value="@User.FindFirstValue("FullName")" />
+                                    </div>
+                                    
+                                    <div class="form-group md:col-span-2">
+                                        <label asp-for="PlantName" class="text-xs text-gray-500 uppercase font-medium mb-1 block">Plant</label>
+                                        <div class="text-sm font-medium text-gray-700">@User.FindFirstValue("PlantName")</div>
+                                        <input type="hidden" asp-for="PlantName" value="@User.FindFirstValue("PlantName")" />
+                                    </div>
+                                </div>
+                            </div>
                             <div class="grid grid-cols-3 gap-3">
                                 <div class="layout-option border rounded-lg p-2 cursor-pointer hover:border-primary-500 transition-colors active" data-layout="standard">
                                     <div class="bg-gray-100 rounded mb-1 flex items-center justify-center p-3">
@@ -910,7 +947,7 @@
             // Card layout selection
             function initializeCardLayouts() {
                 const layoutOptions = document.querySelectorAll('.layout-option');
-                
+                            
                 layoutOptions.forEach(option => {
                     option.addEventListener('click', function() {
                         // Remove active class from all options
@@ -921,6 +958,9 @@
                         
                         // Get layout type
                         const layoutType = this.getAttribute('data-layout');
+                        
+                        // Update hidden input value to save the selection
+                        document.getElementById('selected-layout').value = layoutType;
                         
                         // Update preview
                         updateCardLayout(layoutType);
