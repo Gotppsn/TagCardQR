@@ -45,9 +45,17 @@
                 <p class="text-sm text-gray-500 mt-1">Update the details for your product tag</p>
             </div>
             
-            <form asp-action="Edit" method="post" id="product-form" enctype="multipart/form-data">
+            <form asp-action="Edit" asp-controller="Card" method="post" id="product-form" enctype="multipart/form-data">
                 <input type="hidden" asp-for="Id" />
                 <input type="hidden" asp-for="CreatedAt" />
+                <input type="hidden" asp-for="ImagePath" />
+                <input type="hidden" asp-for="Username" />
+                <input type="hidden" asp-for="Department" />
+                <input type="hidden" asp-for="Email" />
+                <input type="hidden" asp-for="UserFullName" />
+                <input type="hidden" asp-for="PlantName" />
+                <input type="hidden" name="qrFgColor" id="qrFgColorHidden" value="#000000" />
+                <input type="hidden" name="qrBgColor" id="qrBgColorHidden" value="#FFFFFF" />
                 
                 <div class="card-body">
                     <!-- Step 1: Basic Information -->
@@ -392,9 +400,7 @@
                                 <span asp-validation-for="AccentColor" class="form-error"></span>
                             </div>
                         </div>
-                        <!-- In the form, add hidden inputs for QR colors to be passed to the controller -->
-                        <input type="hidden" id="qrFgColor" name="qrFgColor" value="#000000">
-                        <input type="hidden" id="qrBgColor" name="qrBgColor" value="#FFFFFF">
+                        
                         <div class="mt-6 p-4 bg-gray-50 rounded-lg">
                             <h4 class="text-sm font-medium mb-3">QR Code Options</h4>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -419,13 +425,8 @@
                             <button type="button" class="btn-secondary prev-step" data-prev="2">
                                 <i class="fas fa-arrow-left mr-2"></i> Back to Details
                             </button>
-                            <button type="submit" class="btn-primary relative group">
-                                <span class="flex items-center">
-                                    <i class="fas fa-save mr-2"></i> Update Product
-                                </span>
-                                <span class="absolute inset-0 flex items-center justify-center bg-primary-600 rounded-md opacity-0 transition-opacity group-hover:opacity-0 group-active:opacity-100">
-                                    <i class="fas fa-spinner fa-spin"></i>
-                                </span>
+                            <button type="submit" class="btn-primary">
+                                <i class="fas fa-save mr-2"></i> Update Product
                             </button>
                         </div>
                     </div>
@@ -668,8 +669,36 @@
                     }
                 }
                 
+                // Capture form values
+                function captureFormValues() {
+                    // Get all visible inputs
+                    const inputs = document.querySelectorAll('input:not([type="hidden"]), select, textarea');
+                    
+                    // Store all input values
+                    inputs.forEach(input => {
+                        // Find or create a hidden field for this input
+                        let hiddenInput = document.querySelector(`input[type="hidden"][name="${input.name}"]`);
+                        if (!hiddenInput) {
+                            hiddenInput = document.createElement('input');
+                            hiddenInput.type = 'hidden';
+                            hiddenInput.name = input.name;
+                            document.getElementById('product-form').appendChild(hiddenInput);
+                        }
+                        hiddenInput.value = input.value;
+                    });
+                    
+                    // Get QR color values
+                    const qrFgColor = document.getElementById('qr-fg-color')?.value || '#000000';
+                    const qrBgColor = document.getElementById('qr-bg-color')?.value || '#FFFFFF';
+                    document.getElementById('qrFgColorHidden').value = qrFgColor;
+                    document.getElementById('qrBgColorHidden').value = qrBgColor;
+                }
+                
                 // Navigate to step
                 function goToStep(stepNumber) {
+                    // Capture current values
+                    captureFormValues();
+                    
                     // Hide all sections
                     formSections.forEach(section => section.classList.add('hidden'));
                     
@@ -715,6 +744,7 @@
                     button.addEventListener('click', function() {
                         const nextStep = parseInt(this.getAttribute('data-next'));
                         if (validateStep(nextStep - 1)) {
+                            captureFormValues(); // Capture values before moving
                             goToStep(nextStep);
                         }
                     });
@@ -724,6 +754,7 @@
                 prevButtons.forEach(button => {
                     button.addEventListener('click', function() {
                         const prevStep = parseInt(this.getAttribute('data-prev'));
+                        captureFormValues(); // Capture values before moving
                         goToStep(prevStep);
                     });
                 });
@@ -739,6 +770,7 @@
                             if (targetStep > currentStepNum && !validateStep(currentStepNum)) {
                                 return; // Don't proceed if current step isn't valid
                             }
+                            captureFormValues(); // Capture values before moving
                             goToStep(targetStep);
                         }
                     });
@@ -951,8 +983,8 @@
                 const qrFgColorText = document.getElementById('qr-fg-color-text');
                 const qrBgColor = document.getElementById('qr-bg-color');
                 const qrBgColorText = document.getElementById('qr-bg-color-text');
-                const qrFgColorHidden = document.getElementById('qrFgColor');
-                const qrBgColorHidden = document.getElementById('qrBgColor');
+                const qrFgColorHidden = document.getElementById('qrFgColorHidden');
+                const qrBgColorHidden = document.getElementById('qrBgColorHidden');
 
                 if (qrFgColor && qrFgColorText && qrFgColorHidden) {
                     qrFgColor.addEventListener('input', function() {
@@ -1450,8 +1482,11 @@
                 }
             };
             
-            // Form validation on submit
+            // Form submission handling
             document.getElementById('product-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Validate all required fields
                 let isValid = true;
                 const requiredFields = this.querySelectorAll('[required]');
                 
@@ -1469,8 +1504,6 @@
                 });
                 
                 if (!isValid) {
-                    e.preventDefault();
-                    
                     // Find which step has errors
                     let stepWithError = 1;
                     const step1Errors = document.querySelectorAll('.form-section[data-step="1"] .border-red-500').length > 0;
@@ -1492,30 +1525,46 @@
                     }
                     
                     showNotification('Please fill in all required fields', 'error');
-                } else {
-                    // Show saving indicator on the button
-                    const submitButton = this.querySelector('button[type="submit"]');
-                    if (submitButton) {
-                        const originalContent = submitButton.innerHTML;
-                        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-                        submitButton.disabled = true;
-                        
-                        // Re-enable after short delay to prevent double submission
-                        setTimeout(() => {
-                            submitButton.innerHTML = originalContent;
-                            submitButton.disabled = false;
-                        }, 2000);
-                    }
+                    return;
                 }
+                
+                // Create hidden fields for all form inputs
+                document.querySelectorAll('input:not([type="hidden"]), select, textarea').forEach(input => {
+                    // Skip file inputs - they're handled separately
+                    if (input.type === 'file') return;
+                    
+                    let hiddenField = document.querySelector(`input[type="hidden"][name="${input.name}"]`);
+                    if (!hiddenField) {
+                        hiddenField = document.createElement('input');
+                        hiddenField.type = 'hidden';
+                        hiddenField.name = input.name;
+                        this.appendChild(hiddenField);
+                    }
+                    hiddenField.value = input.value;
+                });
+                
+                // Show saving indicator on the button
+                const submitButton = this.querySelector('button[type="submit"]');
+                if (submitButton) {
+                    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+                    submitButton.disabled = true;
+                }
+                
+                console.log("Submitting form with all data captured");
+                
+                // Submit the form
+                this.submit();
             });
         });
         
         // Show notification function
-        function showNotification(message, description = '', type = 'success') {
+        function showNotification(message, type = 'success', description = '') {
             const toast = document.getElementById('toast');
             const toastMessage = document.getElementById('toast-message');
             const toastDescription = document.getElementById('toast-description');
             const toastIcon = document.getElementById('toast-icon');
+            
+            if (!toast || !toastMessage || !toastDescription || !toastIcon) return;
             
             toastMessage.textContent = message;
             toastDescription.textContent = description;
@@ -1530,7 +1579,7 @@
             } else if (type === 'warning') {
                 toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-yellow-100';
                 toastIcon.innerHTML = '<i class="fas fa-exclamation text-yellow-500"></i>';
-            } else if (type === 'info') {
+            } else {
                 toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-blue-100';
                 toastIcon.innerHTML = '<i class="fas fa-info-circle text-blue-500"></i>';
             }
@@ -1547,7 +1596,7 @@
                 }, 300);
             }, 5000);
             
-            // Close button functionality
+            // Close on click
             document.getElementById('close-toast').addEventListener('click', function() {
                 toast.classList.add('translate-y-12', 'opacity-0');
                 setTimeout(function() {
