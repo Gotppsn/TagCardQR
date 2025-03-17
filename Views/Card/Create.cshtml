@@ -360,9 +360,8 @@
                                 <label asp-for="BackgroundColor" class="form-label">Background Color</label>
                                 <div class="color-picker-wrapper">
                                     <div class="flex">
-                                        <input asp-for="BackgroundColor" type="color" class="color-input hidden" id="bg-color-picker">
-                                        <div class="color-preview w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer" id="bg-color-preview" style="background-color: #ffffff;"></div>
-                                        <input asp-for="BackgroundColor" type="text" class="form-input ml-2 flex-grow" placeholder="#ffffff">
+                                        <input type="color" class="color-input w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer" id="bg-color-picker" value="#ffffff">
+                                        <input asp-for="BackgroundColor" type="text" class="form-input ml-2 flex-grow" placeholder="#ffffff" value="#ffffff">
                                     </div>
                                     <div class="color-presets mt-2 flex flex-wrap gap-2">
                                         <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#ffffff" style="background-color: #ffffff;"></span>
@@ -378,9 +377,8 @@
                                 <label asp-for="TextColor" class="form-label">Text Color</label>
                                 <div class="color-picker-wrapper">
                                     <div class="flex">
-                                        <input asp-for="TextColor" type="color" class="color-input hidden" id="text-color-picker">
-                                        <div class="color-preview w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer" id="text-color-preview" style="background-color: #000000;"></div>
-                                        <input asp-for="TextColor" type="text" class="form-input ml-2 flex-grow" placeholder="#000000">
+                                        <input type="color" class="color-input w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer" id="text-color-picker" value="#000000">
+                                        <input asp-for="TextColor" type="text" class="form-input ml-2 flex-grow" placeholder="#000000" value="#000000">
                                     </div>
                                     <div class="color-presets mt-2 flex flex-wrap gap-2">
                                         <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#000000" style="background-color: #000000;"></span>
@@ -396,9 +394,8 @@
                                 <label asp-for="AccentColor" class="form-label">Accent Color</label>
                                 <div class="color-picker-wrapper">
                                     <div class="flex">
-                                        <input asp-for="AccentColor" type="color" class="color-input hidden" id="accent-color-picker">
-                                        <div class="color-preview w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer" id="accent-color-preview" style="background-color: #0284c7;"></div>
-                                        <input asp-for="AccentColor" type="text" class="form-input ml-2 flex-grow" placeholder="#0284c7">
+                                        <input type="color" class="color-input w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer" id="accent-color-picker" value="#0284c7">
+                                        <input asp-for="AccentColor" type="text" class="form-input ml-2 flex-grow" placeholder="#0284c7" value="#0284c7">
                                     </div>
                                     <div class="color-presets mt-2 flex flex-wrap gap-2">
                                         <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#0284c7" style="background-color: #0284c7;"></span>
@@ -793,29 +790,13 @@
             // Initialize color pickers
             function initializeColorPickers() {
                 const colorInputs = document.querySelectorAll('.color-input');
-                const colorPreviews = document.querySelectorAll('.color-preview');
                 const colorPresets = document.querySelectorAll('.color-preset');
                 
-                // Connect color inputs and previews
-                colorPreviews.forEach(preview => {
-                    preview.addEventListener('click', function() {
-                        const inputId = this.id.replace('-preview', '-picker');
-                        const colorInput = document.getElementById(inputId);
-                        if (colorInput) {
-                            colorInput.click();
-                        }
-                    });
-                });
-                
+                // Connect color inputs to text inputs
                 colorInputs.forEach(input => {
                     input.addEventListener('input', function() {
-                        const previewId = this.id.replace('-picker', '-preview');
-                        const colorPreview = document.getElementById(previewId);
+                        // Get the associated text input (sibling in flex container)
                         const textInput = this.parentNode.querySelector('input[type="text"]');
-                        
-                        if (colorPreview) {
-                            colorPreview.style.backgroundColor = this.value;
-                        }
                         
                         if (textInput) {
                             textInput.value = this.value;
@@ -826,24 +807,20 @@
                 });
                 
                 // Connect text inputs to color pickers
-                const textColorInputs = document.querySelectorAll('input[type="text"][id$="Color"]');
+                const textColorInputs = document.querySelectorAll('input[type="text"][asp-for]');
                 textColorInputs.forEach(input => {
-                    input.addEventListener('input', function() {
-                        const colorInputId = this.id.replace(this.id, this.id + '-picker');
-                        const previewId = this.id.replace(this.id, this.id + '-preview');
-                        const colorInput = document.getElementById(colorInputId);
-                        const colorPreview = document.getElementById(previewId);
-                        
-                        if (colorInput) {
-                            colorInput.value = this.value;
-                        }
-                        
-                        if (colorPreview) {
-                            colorPreview.style.backgroundColor = this.value;
-                        }
-                        
-                        updateTagPreview();
-                    });
+                    if (input.id.includes('Color')) {
+                        input.addEventListener('input', function() {
+                            // Get the associated color input (sibling in flex container)
+                            const colorInput = this.parentNode.querySelector('.color-input');
+                            
+                            if (colorInput) {
+                                colorInput.value = this.value;
+                            }
+                            
+                            updateTagPreview();
+                        });
+                    }
                 });
                 
                 // Color presets
@@ -854,11 +831,9 @@
                         
                         if (wrapper) {
                             const colorInput = wrapper.querySelector('.color-input');
-                            const colorPreview = wrapper.querySelector('.color-preview');
                             const textInput = wrapper.querySelector('input[type="text"]');
                             
                             if (colorInput) colorInput.value = color;
-                            if (colorPreview) colorPreview.style.backgroundColor = color;
                             if (textInput) textInput.value = color;
                             
                             // Visual feedback
@@ -966,9 +941,9 @@
                     if (content) {
                         content.className = 'h-full flex flex-col';
                         content.innerHTML = `
-                            <div class="h-8 w-full rounded-t-lg" style="background-color: ${document.getElementById('AccentColor').value}"></div>
+                            <div class="h-8 w-full rounded-t-lg" style="background-color: ${document.getElementById('accent-color-picker').value}"></div>
                             <div class="p-4 flex flex-col flex-grow">
-                                <h3 id="preview-name" class="text-xl font-bold" style="color: ${document.getElementById('AccentColor').value}">${document.getElementById('ProductName').value || 'Product Name'}</h3>
+                                <h3 id="preview-name" class="text-xl font-bold" style="color: ${document.getElementById('accent-color-picker').value}">${document.getElementById('ProductName').value || 'Product Name'}</h3>
                                 <p id="preview-manufacturer" class="text-md">${document.getElementById('Manufacturer').value || 'Manufacturer'}</p>
                                 <div class="flex items-center space-x-2 mt-1 text-sm">
                                     <span class="font-semibold">Model:</span>
@@ -976,11 +951,11 @@
                                 </div>
                                 <div class="space-y-2 mt-auto text-sm">
                                     <p class="flex items-center">
-                                        <i class="fas fa-map-marker-alt mr-3" style="color: ${document.getElementById('AccentColor').value}"></i>
+                                        <i class="fas fa-map-marker-alt mr-3" style="color: ${document.getElementById('accent-color-picker').value}"></i>
                                         <span class="font-medium">Location:</span>&nbsp;<span id="preview-location">${document.getElementById('Location').value || 'Storage Location'}</span>
                                     </p>
                                     <p class="flex items-center">
-                                        <i class="fas fa-calendar-check mr-3" style="color: ${document.getElementById('AccentColor').value}"></i>
+                                        <i class="fas fa-calendar-check mr-3" style="color: ${document.getElementById('accent-color-picker').value}"></i>
                                         <span class="font-medium">Warranty:</span>&nbsp;<span id="preview-warranty">${formatDate(document.getElementById('WarrantyExpiration').value) || 'Jan 1, 2026'}</span>
                                     </p>
                                 </div>
@@ -994,25 +969,25 @@
                         content.className = 'h-full flex';
                         content.innerHTML = `
                             <div class="flex-grow p-4">
-                                <span id="preview-category" class="px-2 py-1 text-xs font-semibold rounded-full" style="background-color: ${document.getElementById('AccentColor').value}; color: ${document.getElementById('BackgroundColor').value}">
+                                <span id="preview-category" class="px-2 py-1 text-xs font-semibold rounded-full" style="background-color: ${document.getElementById('accent-color-picker').value}; color: ${document.getElementById('bg-color-picker').value}">
                                     ${document.getElementById('Category').value || 'Product Category'}
                                 </span>
-                                <h3 id="preview-name" class="text-lg font-bold mt-2" style="color: ${document.getElementById('AccentColor').value}">${document.getElementById('ProductName').value || 'Product Name'}</h3>
+                                <h3 id="preview-name" class="text-lg font-bold mt-2" style="color: ${document.getElementById('accent-color-picker').value}">${document.getElementById('ProductName').value || 'Product Name'}</h3>
                                 <div class="space-y-1 mt-3 text-xs">
                                     <p class="flex items-center">
-                                        <i class="fas fa-industry mr-2" style="color: ${document.getElementById('AccentColor').value}"></i>
+                                        <i class="fas fa-industry mr-2" style="color: ${document.getElementById('accent-color-picker').value}"></i>
                                         ${document.getElementById('Manufacturer').value || 'Manufacturer'}
                                     </p>
                                     <p class="flex items-center">
-                                        <i class="fas fa-tag mr-2" style="color: ${document.getElementById('AccentColor').value}"></i>
+                                        <i class="fas fa-tag mr-2" style="color: ${document.getElementById('accent-color-picker').value}"></i>
                                         ${document.getElementById('ModelNumber').value || 'MODEL-XXX'}
                                     </p>
                                     <p class="flex items-center">
-                                        <i class="fas fa-fingerprint mr-2" style="color: ${document.getElementById('AccentColor').value}"></i>
+                                        <i class="fas fa-fingerprint mr-2" style="color: ${document.getElementById('accent-color-picker').value}"></i>
                                         ${document.getElementById('SerialNumber').value || 'SN12345'}
                                     </p>
                                     <p class="flex items-center">
-                                        <i class="fas fa-map-marker-alt mr-2" style="color: ${document.getElementById('AccentColor').value}"></i>
+                                        <i class="fas fa-map-marker-alt mr-2" style="color: ${document.getElementById('accent-color-picker').value}"></i>
                                         ${document.getElementById('Location').value || 'Storage Location'}
                                     </p>
                                 </div>
@@ -1158,14 +1133,14 @@
                     document.getElementById('WarrantyExpiration').value = formatDateForInput(warrantyDate);
                     
                     // Set colors
-                    document.getElementById('BackgroundColor').value = '#ffffff';
-                    document.getElementById('TextColor').value = '#1e293b';
-                    document.getElementById('AccentColor').value = '#0284c7';
+                    document.getElementById('bg-color-picker').value = '#ffffff';
+                    document.getElementById('text-color-picker').value = '#1e293b';
+                    document.getElementById('accent-color-picker').value = '#0284c7';
                     
-                    // Update color previews
-                    document.getElementById('bg-color-preview').style.backgroundColor = '#ffffff';
-                    document.getElementById('text-color-preview').style.backgroundColor = '#1e293b';
-                    document.getElementById('accent-color-preview').style.backgroundColor = '#0284c7';
+                    // Update text inputs
+                    document.querySelector('input[asp-for="BackgroundColor"]').value = '#ffffff';
+                    document.querySelector('input[asp-for="TextColor"]').value = '#1e293b';
+                    document.querySelector('input[asp-for="AccentColor"]').value = '#0284c7';
                     
                     showNotification('Chemical product template applied', 'success');
                 } else if (type === 'equipment') {
@@ -1193,14 +1168,14 @@
                     document.getElementById('WarrantyExpiration').value = formatDateForInput(warrantyDate);
                     
                     // Set colors
-                    document.getElementById('BackgroundColor').value = '#f8fafc';
-                    document.getElementById('TextColor').value = '#334155';
-                    document.getElementById('AccentColor').value = '#6366f1';
+                    document.getElementById('bg-color-picker').value = '#f8fafc';
+                    document.getElementById('text-color-picker').value = '#334155';
+                    document.getElementById('accent-color-picker').value = '#6366f1';
                     
-                    // Update color previews
-                    document.getElementById('bg-color-preview').style.backgroundColor = '#f8fafc';
-                    document.getElementById('text-color-preview').style.backgroundColor = '#334155';
-                    document.getElementById('accent-color-preview').style.backgroundColor = '#6366f1';
+                    // Update text inputs
+                    document.querySelector('input[asp-for="BackgroundColor"]').value = '#f8fafc';
+                    document.querySelector('input[asp-for="TextColor"]').value = '#334155';
+                    document.querySelector('input[asp-for="AccentColor"]').value = '#6366f1';
                     
                     showNotification('Equipment template applied', 'success');
                 } else if (type === 'safety') {
@@ -1228,14 +1203,14 @@
                     document.getElementById('WarrantyExpiration').value = formatDateForInput(warrantyDate);
                     
                     // Set colors
-                    document.getElementById('BackgroundColor').value = '#fffbeb';
-                    document.getElementById('TextColor').value = '#451a03';
-                    document.getElementById('AccentColor').value = '#ea580c';
+                    document.getElementById('bg-color-picker').value = '#fffbeb';
+                    document.getElementById('text-color-picker').value = '#451a03';
+                    document.getElementById('accent-color-picker').value = '#ea580c';
                     
-                    // Update color previews
-                    document.getElementById('bg-color-preview').style.backgroundColor = '#fffbeb';
-                    document.getElementById('text-color-preview').style.backgroundColor = '#451a03';
-                    document.getElementById('accent-color-preview').style.backgroundColor = '#ea580c';
+                    // Update text inputs
+                    document.querySelector('input[asp-for="BackgroundColor"]').value = '#fffbeb';
+                    document.querySelector('input[asp-for="TextColor"]').value = '#451a03';
+                    document.querySelector('input[asp-for="AccentColor"]').value = '#ea580c';
                     
                     showNotification('Safety equipment template applied', 'success');
                 }
@@ -1265,9 +1240,9 @@
             
             // Update tag preview on form input
             function updateTagPreview() {
-                const bgColor = document.getElementById('BackgroundColor').value || '#ffffff';
-                const textColor = document.getElementById('TextColor').value || '#000000';
-                const accentColor = document.getElementById('AccentColor').value || '#0284c7';
+                const bgColor = document.getElementById('bg-color-picker').value || '#ffffff';
+                const textColor = document.getElementById('text-color-picker').value || '#000000';
+                const accentColor = document.getElementById('accent-color-picker').value || '#0284c7';
                 
                 const name = document.getElementById('ProductName').value || 'Product Name';
                 const category = document.getElementById('Category').value || 'Product Category';
@@ -1430,10 +1405,28 @@
                     }
                     
                     showNotification('Please fill in all required fields', 'error');
+                    return;
                 }
                 
                 // Make sure QR colors are updated before submit
                 updateQrColors();
+                
+                // Ensure color values are set from color pickers
+                const bgColorPicker = document.getElementById('bg-color-picker');
+                const textColorPicker = document.getElementById('text-color-picker');
+                const accentColorPicker = document.getElementById('accent-color-picker');
+                
+                if (bgColorPicker) {
+                    document.querySelector('input[asp-for="BackgroundColor"]').value = bgColorPicker.value;
+                }
+                
+                if (textColorPicker) {
+                    document.querySelector('input[asp-for="TextColor"]').value = textColorPicker.value;
+                }
+                
+                if (accentColorPicker) {
+                    document.querySelector('input[asp-for="AccentColor"]').value = accentColorPicker.value;
+                }
             });
         });
         
