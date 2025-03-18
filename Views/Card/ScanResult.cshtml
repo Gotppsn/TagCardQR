@@ -514,18 +514,27 @@
                                 <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-primary-50 text-sm font-medium text-primary-600 hover:bg-primary-100">
                                     1
                                 </a>
-                                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                                    2
-                                </a>
-                                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                                    3
-                                </a>
-                                <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
-                                    ...
-                                </span>
-                                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                                    10
-                                </a>
+                                @if (Model.Count() > 10)
+                                {
+                                    <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                        2
+                                    </a>
+                                }
+                                @if (Model.Count() > 20)
+                                {
+                                    <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                        3
+                                    </a>
+                                }
+                                @if (Model.Count() > 30)
+                                {
+                                    <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                                        ...
+                                    </span>
+                                    <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                        @(Math.Ceiling((double)Model.Count() / 10))
+                                    </a>
+                                }
                                 <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
                                     <span class="sr-only">Next</span>
                                     <i class="fas fa-chevron-right"></i>
@@ -551,7 +560,7 @@
             </div>
             <div class="p-4">
                 <div class="aspect-[1.4142] bg-gray-50 rounded-lg border border-gray-100 flex items-center justify-center">
-                    <!-- This would be a chart in the real implementation -->
+                    <!-- Chart visualization -->
                     <div class="text-center">
                         <p class="text-gray-500 mb-2">Scan Activity (Last 7 Days)</p>
                         <div class="w-full max-w-3xl mx-auto h-40 flex items-end justify-around px-4">
@@ -706,6 +715,37 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Initialize animated counters
+        initializeCounters();
+        
+        // Setup search functionality
+        initializeSearch();
+        
+        // Setup advanced filters
+        initializeAdvancedFilters();
+        
+        // Setup time-based filters
+        initializeTimeFilters();
+        
+        // Setup view toggle (Table/Cards)
+        initializeViewToggle();
+        
+        // Setup table sorting
+        initializeTableSorting();
+        
+        // Setup delete functionality
+        initializeDeleteFunctionality();
+        
+        // Setup export menu
+        initializeExportMenu();
+        
+        // Setup modal controls
+        initializeModals();
+        
+        // Setup toast notifications
+        initializeToastNotifications();
+    });
+    
+    function initializeCounters() {
         const counters = document.querySelectorAll('.animate-counter');
         counters.forEach(counter => {
             const target = parseInt(counter.getAttribute('data-count'));
@@ -725,8 +765,9 @@
                 }
             }, interval);
         });
-        
-        // Search functionality
+    }
+    
+    function initializeSearch() {
         const searchInput = document.getElementById('scan-search');
         const clearSearch = document.getElementById('clear-search');
         
@@ -751,43 +792,48 @@
                 filterResults('');
             });
         }
+    }
+    
+    function filterResults(searchTerm) {
+        const tableRows = document.querySelectorAll('.scan-result-row');
+        const cardItems = document.querySelectorAll('.scan-result-card');
+        let visibleCount = 0;
         
-        function filterResults(searchTerm) {
-            const tableRows = document.querySelectorAll('.scan-result-row');
-            const cardItems = document.querySelectorAll('.scan-result-card');
-            let visibleCount = 0;
-            
-            // Filter table rows
-            tableRows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                if (!searchTerm || text.includes(searchTerm)) {
-                    row.style.display = '';
-                    visibleCount++;
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-            
-            // Filter card items
-            cardItems.forEach(card => {
-                const text = card.textContent.toLowerCase();
-                if (!searchTerm || text.includes(searchTerm)) {
-                    card.style.display = '';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-            
-            // Update result count
-            const resultCount = document.getElementById('result-count');
-            if (resultCount) {
-                resultCount.innerHTML = `Showing <span class="font-medium text-gray-700">${visibleCount}</span> results`;
+        // Filter table rows
+        tableRows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            if (!searchTerm || text.includes(searchTerm)) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
             }
-        }
+        });
         
-        // Advanced filter panel toggle
+        // Filter card items
+        cardItems.forEach(card => {
+            const text = card.textContent.toLowerCase();
+            if (!searchTerm || text.includes(searchTerm)) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        
+        // Update result count
+        const resultCount = document.getElementById('result-count');
+        if (resultCount) {
+            resultCount.innerHTML = `Showing <span class="font-medium text-gray-700">${visibleCount}</span> results`;
+        }
+    }
+    
+    function initializeAdvancedFilters() {
         const advancedFilterBtn = document.getElementById('advanced-filter-btn');
         const advancedFilterPanel = document.getElementById('advanced-filter-panel');
+        const dateFilterBtn = document.getElementById('date-filter-btn');
+        const resetFiltersBtn = document.getElementById('reset-filters');
+        const applyFiltersBtn = document.getElementById('apply-filters');
+        const clearAllFiltersBtn = document.getElementById('clear-all-filters');
         
         if (advancedFilterBtn && advancedFilterPanel) {
             advancedFilterBtn.addEventListener('click', function() {
@@ -795,17 +841,13 @@
             });
         }
         
-        // Date filter button
-        const dateFilterBtn = document.getElementById('date-filter-btn');
-        if (dateFilterBtn) {
+        if (dateFilterBtn && advancedFilterPanel) {
             dateFilterBtn.addEventListener('click', function() {
                 advancedFilterPanel.classList.remove('hidden');
                 document.getElementById('date-from').focus();
             });
         }
         
-        // Reset filters button
-        const resetFiltersBtn = document.getElementById('reset-filters');
         if (resetFiltersBtn) {
             resetFiltersBtn.addEventListener('click', function() {
                 document.getElementById('date-from').value = '';
@@ -813,16 +855,11 @@
                 document.getElementById('result-filter').value = '';
                 document.getElementById('location-filter').value = '';
                 
-                // Reset all filter tags
                 document.getElementById('active-filters').classList.add('hidden');
-                
-                // Reset all results visibility
                 resetFilters();
             });
         }
         
-        // Apply filters button
-        const applyFiltersBtn = document.getElementById('apply-filters');
         if (applyFiltersBtn) {
             applyFiltersBtn.addEventListener('click', function() {
                 const dateFrom = document.getElementById('date-from').value;
@@ -834,140 +871,6 @@
             });
         }
         
-        function applyAdvancedFilters(dateFrom, dateTo, resultFilter, locationFilter) {
-            const activeFilters = document.getElementById('active-filters');
-            const filterTags = document.getElementById('filter-tags');
-            
-            // Clear existing filter tags
-            filterTags.innerHTML = '';
-            
-            // Create filter tags for active filters
-            let hasActiveFilters = false;
-            
-            if (dateFrom) {
-                hasActiveFilters = true;
-                const tag = createFilterTag('From: ' + new Date(dateFrom).toLocaleDateString(), 'date-from');
-                filterTags.appendChild(tag);
-            }
-            
-            if (dateTo) {
-                hasActiveFilters = true;
-                const tag = createFilterTag('To: ' + new Date(dateTo).toLocaleDateString(), 'date-to');
-                filterTags.appendChild(tag);
-            }
-            
-            if (resultFilter) {
-                hasActiveFilters = true;
-                const tag = createFilterTag('Result: ' + resultFilter, 'result');
-                filterTags.appendChild(tag);
-            }
-            
-            if (locationFilter) {
-                hasActiveFilters = true;
-                const tag = createFilterTag('Location: ' + locationFilter, 'location');
-                filterTags.appendChild(tag);
-            }
-            
-            // Show/hide active filters section
-            if (hasActiveFilters) {
-                activeFilters.classList.remove('hidden');
-            } else {
-                activeFilters.classList.add('hidden');
-            }
-            
-            // Apply filters to results
-            const tableRows = document.querySelectorAll('.scan-result-row');
-            const cardItems = document.querySelectorAll('.scan-result-card');
-            let visibleCount = 0;
-            
-            // Filter function for both table rows and cards
-            function shouldShow(element) {
-                const time = element.getAttribute('data-time');
-                const result = element.getAttribute('data-result');
-                const location = element.getAttribute('data-location');
-                
-                // Date filter
-                if (dateFrom && time < dateFrom + 'T00:00:00') return false;
-                if (dateTo && time > dateTo + 'T23:59:59') return false;
-                
-                // Result filter
-                if (resultFilter && result !== resultFilter) return false;
-                
-                // Location filter
-                if (locationFilter && location !== locationFilter) return false;
-                
-                return true;
-            }
-            
-            // Apply filters to table rows
-            tableRows.forEach(row => {
-                if (shouldShow(row)) {
-                    row.style.display = '';
-                    visibleCount++;
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-            
-            // Apply filters to card items
-            cardItems.forEach(card => {
-                if (shouldShow(card)) {
-                    card.style.display = '';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-            
-            // Update result count
-            const resultCount = document.getElementById('result-count');
-            if (resultCount) {
-                resultCount.innerHTML = `Showing <span class="font-medium text-gray-700">${visibleCount}</span> filtered results`;
-            }
-            
-            // Hide the advanced filter panel after applying filters
-            advancedFilterPanel.classList.add('hidden');
-            
-            // Show toast notification
-            showToast('Filters applied', 'success', `Showing ${visibleCount} results matching your criteria`);
-        }
-        
-        function createFilterTag(text, type) {
-            const tag = document.createElement('div');
-            tag.className = 'inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800';
-            tag.dataset.type = type;
-            
-            tag.innerHTML = `
-                ${text}
-                <button class="ml-1 focus:outline-none" data-remove="${type}">
-                    <i class="fas fa-times-circle"></i>
-                </button>
-            `;
-            
-            // Add event listener to remove button
-            tag.querySelector(`[data-remove="${type}"]`).addEventListener('click', function() {
-                // Remove the filter
-                if (type === 'date-from') document.getElementById('date-from').value = '';
-                if (type === 'date-to') document.getElementById('date-to').value = '';
-                if (type === 'result') document.getElementById('result-filter').value = '';
-                if (type === 'location') document.getElementById('location-filter').value = '';
-                
-                // Remove the tag
-                tag.remove();
-                
-                // Reapply filters
-                const dateFrom = document.getElementById('date-from').value;
-                const dateTo = document.getElementById('date-to').value;
-                const resultFilter = document.getElementById('result-filter').value;
-                const locationFilter = document.getElementById('location-filter').value;
-                
-                applyAdvancedFilters(dateFrom, dateTo, resultFilter, locationFilter);
-            });
-            
-            return tag;
-        }
-        
-        // Clear all filters button
-        const clearAllFiltersBtn = document.getElementById('clear-all-filters');
         if (clearAllFiltersBtn) {
             clearAllFiltersBtn.addEventListener('click', function() {
                 document.getElementById('date-from').value = '';
@@ -979,40 +882,173 @@
                 resetFilters();
             });
         }
+    }
+    
+    function applyAdvancedFilters(dateFrom, dateTo, resultFilter, locationFilter) {
+        const activeFilters = document.getElementById('active-filters');
+        const filterTags = document.getElementById('filter-tags');
         
-        function resetFilters() {
-            // Show all table rows and cards
-            const tableRows = document.querySelectorAll('.scan-result-row');
-            const cardItems = document.querySelectorAll('.scan-result-card');
-            
-            tableRows.forEach(row => {
-                row.style.display = '';
-            });
-            
-            cardItems.forEach(card => {
-                card.style.display = '';
-            });
-            
-            // Update result count
-            const resultCount = document.getElementById('result-count');
-            if (resultCount) {
-                resultCount.innerHTML = `Showing <span class="font-medium text-gray-700">${tableRows.length}</span> results`;
-            }
-            
-            // Reset time filter buttons
-            document.querySelectorAll('.time-filter-btn').forEach(btn => {
-                btn.classList.remove('bg-primary-600', 'text-white');
-                btn.classList.add('bg-gray-200', 'text-gray-700');
-            });
-            
-            document.querySelector('[data-time-filter="all"]').classList.remove('bg-gray-200', 'text-gray-700');
-            document.querySelector('[data-time-filter="all"]').classList.add('bg-primary-600', 'text-white');
-            
-            // Show toast notification
-            showToast('Filters cleared', 'info', 'Showing all results');
+        // Clear existing filter tags
+        filterTags.innerHTML = '';
+        
+        // Create filter tags for active filters
+        let hasActiveFilters = false;
+        
+        if (dateFrom) {
+            hasActiveFilters = true;
+            const tag = createFilterTag('From: ' + new Date(dateFrom).toLocaleDateString(), 'date-from');
+            filterTags.appendChild(tag);
         }
         
-        // Time filter buttons
+        if (dateTo) {
+            hasActiveFilters = true;
+            const tag = createFilterTag('To: ' + new Date(dateTo).toLocaleDateString(), 'date-to');
+            filterTags.appendChild(tag);
+        }
+        
+        if (resultFilter) {
+            hasActiveFilters = true;
+            const tag = createFilterTag('Result: ' + resultFilter, 'result');
+            filterTags.appendChild(tag);
+        }
+        
+        if (locationFilter) {
+            hasActiveFilters = true;
+            const tag = createFilterTag('Location: ' + locationFilter, 'location');
+            filterTags.appendChild(tag);
+        }
+        
+        // Show/hide active filters section
+        if (hasActiveFilters) {
+            activeFilters.classList.remove('hidden');
+        } else {
+            activeFilters.classList.add('hidden');
+        }
+        
+        // Apply filters to results
+        const tableRows = document.querySelectorAll('.scan-result-row');
+        const cardItems = document.querySelectorAll('.scan-result-card');
+        let visibleCount = 0;
+        
+        // Filter function for both table rows and cards
+        function shouldShow(element) {
+            const time = element.getAttribute('data-time');
+            const result = element.getAttribute('data-result');
+            const location = element.getAttribute('data-location');
+            
+            // Date filter
+            if (dateFrom && time < dateFrom + 'T00:00:00') return false;
+            if (dateTo && time > dateTo + 'T23:59:59') return false;
+            
+            // Result filter
+            if (resultFilter && result !== resultFilter) return false;
+            
+            // Location filter
+            if (locationFilter && location !== locationFilter) return false;
+            
+            return true;
+        }
+        
+        // Apply filters to table rows
+        tableRows.forEach(row => {
+            if (shouldShow(row)) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        
+        // Apply filters to card items
+        cardItems.forEach(card => {
+            if (shouldShow(card)) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        
+        // Update result count
+        const resultCount = document.getElementById('result-count');
+        if (resultCount) {
+            resultCount.innerHTML = `Showing <span class="font-medium text-gray-700">${visibleCount}</span> filtered results`;
+        }
+        
+        // Hide the advanced filter panel after applying filters
+        document.getElementById('advanced-filter-panel').classList.add('hidden');
+        
+        // Show toast notification
+        showToast('Filters applied', 'success', `Showing ${visibleCount} results matching your criteria`);
+    }
+    
+    function createFilterTag(text, type) {
+        const tag = document.createElement('div');
+        tag.className = 'inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800';
+        tag.dataset.type = type;
+        
+        tag.innerHTML = `
+            ${text}
+            <button class="ml-1 focus:outline-none" data-remove="${type}">
+                <i class="fas fa-times-circle"></i>
+            </button>
+        `;
+        
+        // Add event listener to remove button
+        tag.querySelector(`[data-remove="${type}"]`).addEventListener('click', function() {
+            // Remove the filter
+            if (type === 'date-from') document.getElementById('date-from').value = '';
+            if (type === 'date-to') document.getElementById('date-to').value = '';
+            if (type === 'result') document.getElementById('result-filter').value = '';
+            if (type === 'location') document.getElementById('location-filter').value = '';
+            
+            // Remove the tag
+            tag.remove();
+            
+            // Reapply filters
+            const dateFrom = document.getElementById('date-from').value;
+            const dateTo = document.getElementById('date-to').value;
+            const resultFilter = document.getElementById('result-filter').value;
+            const locationFilter = document.getElementById('location-filter').value;
+            
+            applyAdvancedFilters(dateFrom, dateTo, resultFilter, locationFilter);
+        });
+        
+        return tag;
+    }
+    
+    function resetFilters() {
+        // Show all table rows and cards
+        const tableRows = document.querySelectorAll('.scan-result-row');
+        const cardItems = document.querySelectorAll('.scan-result-card');
+        
+        tableRows.forEach(row => {
+            row.style.display = '';
+        });
+        
+        cardItems.forEach(card => {
+            card.style.display = '';
+        });
+        
+        // Update result count
+        const resultCount = document.getElementById('result-count');
+        if (resultCount) {
+            resultCount.innerHTML = `Showing <span class="font-medium text-gray-700">${tableRows.length}</span> results`;
+        }
+        
+        // Reset time filter buttons
+        document.querySelectorAll('.time-filter-btn').forEach(btn => {
+            btn.classList.remove('bg-primary-600', 'text-white');
+            btn.classList.add('bg-gray-200', 'text-gray-700');
+        });
+        
+        document.querySelector('[data-time-filter="all"]').classList.remove('bg-gray-200', 'text-gray-700');
+        document.querySelector('[data-time-filter="all"]').classList.add('bg-primary-600', 'text-white');
+        
+        // Show toast notification
+        showToast('Filters cleared', 'info', 'Showing all results');
+    }
+    
+    function initializeTimeFilters() {
         document.querySelectorAll('.time-filter-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 // Update button styles
@@ -1029,71 +1065,72 @@
                 applyTimeFilter(filter);
             });
         });
+    }
+    
+    function applyTimeFilter(filter) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
         
-        function applyTimeFilter(filter) {
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        
+        const startOfWeek = new Date(today);
+        startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+        
+        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        
+        const tableRows = document.querySelectorAll('.scan-result-row');
+        const cardItems = document.querySelectorAll('.scan-result-card');
+        let visibleCount = 0;
+        
+        function shouldShowByTime(element) {
+            const time = new Date(element.getAttribute('data-time'));
             
-            const yesterday = new Date(today);
-            yesterday.setDate(yesterday.getDate() - 1);
+            if (filter === 'all') return true;
+            if (filter === 'today' && time >= today) return true;
+            if (filter === 'yesterday' && time >= yesterday && time < today) return true;
+            if (filter === 'week' && time >= startOfWeek) return true;
+            if (filter === 'month' && time >= startOfMonth) return true;
             
-            const startOfWeek = new Date(today);
-            startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
-            
-            const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-            
-            const tableRows = document.querySelectorAll('.scan-result-row');
-            const cardItems = document.querySelectorAll('.scan-result-card');
-            let visibleCount = 0;
-            
-            function shouldShowByTime(element) {
-                const time = new Date(element.getAttribute('data-time'));
-                
-                if (filter === 'all') return true;
-                if (filter === 'today' && time >= today) return true;
-                if (filter === 'yesterday' && time >= yesterday && time < today) return true;
-                if (filter === 'week' && time >= startOfWeek) return true;
-                if (filter === 'month' && time >= startOfMonth) return true;
-                
-                return false;
-            }
-            
-            // Apply filter to table rows
-            tableRows.forEach(row => {
-                if (shouldShowByTime(row)) {
-                    row.style.display = '';
-                    visibleCount++;
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-            
-            // Apply filter to card items
-            cardItems.forEach(card => {
-                if (shouldShowByTime(card)) {
-                    card.style.display = '';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-            
-            // Update result count
-            const resultCount = document.getElementById('result-count');
-            if (resultCount) {
-                resultCount.innerHTML = `Showing <span class="font-medium text-gray-700">${visibleCount}</span> results`;
-            }
-            
-            // Show toast notification
-            let filterText = 'All time';
-            if (filter === 'today') filterText = 'Today only';
-            if (filter === 'yesterday') filterText = 'Yesterday only';
-            if (filter === 'week') filterText = 'This week';
-            if (filter === 'month') filterText = 'This month';
-            
-            showToast('Time filter applied', 'info', `Showing ${visibleCount} results from ${filterText}`);
+            return false;
         }
         
-        // View toggle (Table/Cards)
+        // Apply filter to table rows
+        tableRows.forEach(row => {
+            if (shouldShowByTime(row)) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        
+        // Apply filter to card items
+        cardItems.forEach(card => {
+            if (shouldShowByTime(card)) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        
+        // Update result count
+        const resultCount = document.getElementById('result-count');
+        if (resultCount) {
+            resultCount.innerHTML = `Showing <span class="font-medium text-gray-700">${visibleCount}</span> results`;
+        }
+        
+        // Show toast notification
+        let filterText = 'All time';
+        if (filter === 'today') filterText = 'Today only';
+        if (filter === 'yesterday') filterText = 'Yesterday only';
+        if (filter === 'week') filterText = 'This week';
+        if (filter === 'month') filterText = 'This month';
+        
+        showToast('Time filter applied', 'info', `Showing ${visibleCount} results from ${filterText}`);
+    }
+    
+    function initializeViewToggle() {
         const viewTableBtn = document.getElementById('view-table');
         const viewCardsBtn = document.getElementById('view-cards');
         const tableView = document.getElementById('table-view');
@@ -1130,9 +1167,11 @@
                 showToast('Card view activated', 'info', 'Displaying results in card format');
             });
         }
-        
-        // Sort table columns
+    }
+    
+    function initializeTableSorting() {
         const sortableHeaders = document.querySelectorAll('.sortable');
+        
         if (sortableHeaders) {
             sortableHeaders.forEach(header => {
                 header.addEventListener('click', function() {
@@ -1153,39 +1192,40 @@
                 });
             });
         }
+    }
+    
+    function sortTable(column, direction) {
+        const tableBody = document.getElementById('results-table-body');
+        const rows = Array.from(tableBody.querySelectorAll('tr.scan-result-row'));
         
-        function sortTable(column, direction) {
-            const tableBody = document.getElementById('results-table-body');
-            const rows = Array.from(tableBody.querySelectorAll('tr.scan-result-row'));
+        // Sort rows
+        rows.sort((a, b) => {
+            let valueA = a.getAttribute(`data-${column}`);
+            let valueB = b.getAttribute(`data-${column}`);
             
-            // Sort rows
-            rows.sort((a, b) => {
-                let valueA = a.getAttribute(`data-${column}`);
-                let valueB = b.getAttribute(`data-${column}`);
-                
-                // Handle different data types
-                if (column === 'time') {
-                    valueA = new Date(valueA);
-                    valueB = new Date(valueB);
-                }
-                
-                if (direction === 'asc') {
-                    return valueA > valueB ? 1 : -1;
-                } else {
-                    return valueA < valueB ? 1 : -1;
-                }
-            });
+            // Handle different data types
+            if (column === 'time') {
+                valueA = new Date(valueA);
+                valueB = new Date(valueB);
+            }
             
-            // Reorder rows in the table
-            rows.forEach(row => {
-                tableBody.appendChild(row);
-            });
-            
-            // Show toast notification
-            showToast('Table sorted', 'info', `Sorted by ${column} in ${direction === 'asc' ? 'ascending' : 'descending'} order`);
-        }
+            if (direction === 'asc') {
+                return valueA > valueB ? 1 : -1;
+            } else {
+                return valueA < valueB ? 1 : -1;
+            }
+        });
         
-        // Delete scan record functionality
+        // Reorder rows in the table
+        rows.forEach(row => {
+            tableBody.appendChild(row);
+        });
+        
+        // Show toast notification
+        showToast('Table sorted', 'info', `Sorted by ${column} in ${direction === 'asc' ? 'ascending' : 'descending'} order`);
+    }
+    
+    function initializeDeleteFunctionality() {
         const deleteButtons = document.querySelectorAll('.delete-scan');
         const deleteModal = document.getElementById('delete-modal');
         const cancelDeleteBtn = document.getElementById('cancel-delete');
@@ -1199,7 +1239,6 @@
                     
                     const id = this.getAttribute('data-id');
                     const row = this.closest('tr.scan-result-row');
-                    const card = document.querySelector(`.scan-result-card[data-id="${row.getAttribute('data-id')}"]`);
                     
                     // Populate delete modal with details
                     deleteItemDetails.innerHTML = `
@@ -1209,7 +1248,7 @@
                         <p><strong>Result:</strong> ${row.getAttribute('data-result')}</p>
                     `;
                     
-                    // Store the row and card references for deletion
+                    // Store the row reference for deletion
                     confirmDeleteBtn.setAttribute('data-row-id', row.getAttribute('data-id'));
                     
                     // Show the modal
@@ -1224,32 +1263,50 @@
             confirmDeleteBtn.addEventListener('click', function() {
                 const id = this.getAttribute('data-row-id');
                 
-                // Find and remove the row and card
-                const row = document.querySelector(`.scan-result-row[data-id="${id}"]`);
-                const card = document.querySelector(`.scan-result-card[data-id="${id}"]`);
+                // Get the CSRF token
+                const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
                 
-                if (row) row.remove();
-                if (card) card.remove();
-                
-                // Hide the modal
-                deleteModal.classList.add('hidden');
-                
-                // Show toast notification
-                showToast('Record deleted', 'success', 'Scan record has been permanently deleted');
-                
-                // Update result count
-                const remainingRows = document.querySelectorAll('.scan-result-row');
-                const resultCount = document.getElementById('result-count');
-                if (resultCount) {
-                    resultCount.innerHTML = `Showing <span class="font-medium text-gray-700">${remainingRows.length}</span> results`;
-                }
-                
-                // Update counters
-                const totalCounter = document.getElementById('total-scans-counter');
-                if (totalCounter) {
-                    const currentCount = parseInt(totalCounter.querySelector('.animate-counter').textContent);
-                    totalCounter.querySelector('.animate-counter').textContent = currentCount - 1;
-                }
+                // Send delete request
+                fetch('/Card/DeleteScanResult', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'RequestVerificationToken': token
+                    },
+                    body: `id=${id}`
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        // Find and remove the row and card
+                        const row = document.querySelector(`.scan-result-row[data-id="${id}"]`);
+                        const card = document.querySelector(`.scan-result-card[data-id="${id}"]`);
+                        
+                        if (row) row.remove();
+                        if (card) card.remove();
+                        
+                        // Update counters
+                        updateCounters();
+                        
+                        // Show toast notification
+                        showToast('Record deleted', 'success', 'Scan record has been permanently deleted');
+                    } else {
+                        showToast('Error', 'error', data.error || 'Failed to delete record');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Error', 'error', 'Failed to delete record. Please try again.');
+                })
+                .finally(() => {
+                    // Hide the modal
+                    deleteModal.classList.add('hidden');
+                });
             });
             
             // Close modal when clicking outside
@@ -1259,8 +1316,50 @@
                 }
             });
         }
+    }
+    
+    function updateCounters() {
+        const totalCounter = document.getElementById('total-scans-counter');
+        const todayCounter = document.getElementById('today-scans-counter');
+        const locationsCounter = document.getElementById('locations-counter');
+        const successRateCounter = document.getElementById('success-rate-counter');
         
-        // Export menu toggle
+        if (totalCounter) {
+            const visibleRows = document.querySelectorAll('.scan-result-row:not([style*="display: none"])');
+            const total = visibleRows.length;
+            
+            totalCounter.querySelector('.animate-counter').textContent = total;
+            
+            // Count today's scans
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const todayScans = Array.from(visibleRows).filter(row => {
+                const scanTime = new Date(row.getAttribute('data-time'));
+                return scanTime >= today;
+            }).length;
+            
+            if (todayCounter) {
+                todayCounter.querySelector('.animate-counter').textContent = todayScans;
+            }
+            
+            // Count unique locations
+            const locations = new Set(Array.from(visibleRows).map(row => row.getAttribute('data-location')));
+            
+            if (locationsCounter) {
+                locationsCounter.querySelector('.animate-counter').textContent = locations.size;
+            }
+            
+            // Calculate success rate
+            const successfulScans = Array.from(visibleRows).filter(row => row.getAttribute('data-result') === 'Success').length;
+            const successRate = total > 0 ? Math.round((successfulScans / total) * 100) : 0;
+            
+            if (successRateCounter) {
+                successRateCounter.querySelector('.animate-counter').textContent = successRate;
+            }
+        }
+    }
+    
+    function initializeExportMenu() {
         const exportMenuBtn = document.getElementById('export-menu-btn');
         const exportMenu = document.getElementById('export-menu');
         
@@ -1282,17 +1381,17 @@
             
             // Export buttons
             document.getElementById('export-csv').addEventListener('click', function() {
-                showToast('Export started', 'success', 'Exporting to CSV file...');
+                exportData('csv');
                 exportMenu.classList.add('hidden');
             });
             
             document.getElementById('export-pdf').addEventListener('click', function() {
-                showToast('Export started', 'success', 'Exporting to PDF file...');
+                exportData('pdf');
                 exportMenu.classList.add('hidden');
             });
             
             document.getElementById('export-excel').addEventListener('click', function() {
-                showToast('Export started', 'success', 'Exporting to Excel file...');
+                exportData('excel');
                 exportMenu.classList.add('hidden');
             });
             
@@ -1303,7 +1402,7 @@
             });
         }
         
-        // Refresh button with animation
+        // Also add refresh button functionality
         const refreshBtn = document.getElementById('refresh-btn');
         if (refreshBtn) {
             refreshBtn.addEventListener('click', function() {
@@ -1313,11 +1412,44 @@
                 setTimeout(() => {
                     this.querySelector('i').classList.remove('animate-spin');
                     showToast('Data refreshed', 'success', 'Scan results updated');
+                    
+                    // In a real app, you would reload the data here
+                    // location.reload();
                 }, 1000);
             });
         }
+    }
+    
+    function exportData(format) {
+        // Get visible rows
+        const rows = document.querySelectorAll('.scan-result-row:not([style*="display: none"])');
         
-        // Help button and modal
+        if (rows.length === 0) {
+            showToast('Export failed', 'error', 'No data to export');
+            return;
+        }
+        
+        // Prepare data for export
+        const data = Array.from(rows).map(row => ({
+            product: row.getAttribute('data-product'),
+            time: new Date(row.getAttribute('data-time')).toLocaleString(),
+            device: row.getAttribute('data-device'),
+            location: row.getAttribute('data-location'),
+            result: row.getAttribute('data-result')
+        }));
+        
+        // In a real application, you would send this data to a server endpoint
+        // For this example, we'll just simulate a successful export
+        
+        showToast('Export started', 'success', `Exporting ${rows.length} records to ${format.toUpperCase()}`);
+        
+        // Simulate export completion after a delay
+        setTimeout(() => {
+            showToast('Export completed', 'success', `${format.toUpperCase()} file has been generated`);
+        }, 2000);
+    }
+    
+    function initializeModals() {
         const helpBtn = document.getElementById('help-btn');
         const helpModal = document.getElementById('help-modal');
         const closeHelpModal = document.getElementById('close-help-modal');
@@ -1376,58 +1508,61 @@
                 });
             });
         }
+    }
+    
+    function initializeToastNotifications() {
+        const toast = document.getElementById('toast-notification');
+        const closeToast = document.getElementById('close-toast');
         
-        // Toast notification system
-        function showToast(message, type = 'info', description = '') {
-            const toast = document.getElementById('toast-notification');
-            const toastMessage = document.getElementById('toast-message');
-            const toastDescription = document.getElementById('toast-description');
-            const toastIcon = document.getElementById('toast-icon');
-            const toastIconSymbol = document.getElementById('toast-icon-symbol');
-            
-            if (!toast || !toastMessage || !toastDescription || !toastIcon || !toastIconSymbol) return;
-            
-            toastMessage.textContent = message;
-            toastDescription.textContent = description;
-            
-            // Set icon based on type
-            if (type === 'success') {
-                toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-green-100';
-                toastIconSymbol.className = 'fas fa-check text-green-500';
-            } else if (type === 'error') {
-                toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-red-100';
-                toastIconSymbol.className = 'fas fa-times text-red-500';
-            } else if (type === 'warning') {
-                toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-yellow-100';
-                toastIconSymbol.className = 'fas fa-exclamation text-yellow-500';
-            } else {
-                toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-blue-100';
-                toastIconSymbol.className = 'fas fa-info text-blue-500';
-            }
-            
-            // Show toast
-            toast.classList.remove('hidden', 'translate-y-20', 'opacity-0');
-            toast.classList.add('translate-y-0', 'opacity-100');
-            
-            // Auto-hide after 5 seconds
-            setTimeout(function() {
+        if (closeToast && toast) {
+            closeToast.addEventListener('click', function() {
                 toast.classList.add('translate-y-20', 'opacity-0');
-                setTimeout(function() {
+                setTimeout(() => {
                     toast.classList.add('hidden');
                 }, 300);
-            }, 5000);
-            
-            // Close on click
-            const closeToast = document.getElementById('close-toast');
-            if (closeToast) {
-                closeToast.addEventListener('click', function() {
-                    toast.classList.add('translate-y-20', 'opacity-0');
-                    setTimeout(function() {
-                        toast.classList.add('hidden');
-                    }, 300);
-                });
-            }
+            });
         }
-    });
+    }
+    
+    function showToast(message, type = 'success', description = '') {
+        const toast = document.getElementById('toast-notification');
+        const toastMessage = document.getElementById('toast-message');
+        const toastDescription = document.getElementById('toast-description');
+        const toastIcon = document.getElementById('toast-icon');
+        const toastIconSymbol = document.getElementById('toast-icon-symbol');
+        
+        toastMessage.textContent = message;
+        toastDescription.textContent = description;
+        
+        // Set icon based on type
+        if (type === 'success') {
+            toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-green-100';
+            toastIconSymbol.className = 'fas fa-check text-green-500';
+        } else if (type === 'error') {
+            toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-red-100';
+            toastIconSymbol.className = 'fas fa-times text-red-500';
+        } else if (type === 'warning') {
+            toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-yellow-100';
+            toastIconSymbol.className = 'fas fa-exclamation text-yellow-500';
+        } else {
+            toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-blue-100';
+            toastIconSymbol.className = 'fas fa-info text-blue-500';
+        }
+        
+        // Show toast
+        toast.classList.remove('hidden');
+        // Use a small delay to ensure the transition works
+        setTimeout(() => {
+            toast.classList.remove('translate-y-20', 'opacity-0');
+        }, 10);
+        
+        // Auto hide after 5 seconds
+        setTimeout(() => {
+            toast.classList.add('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 300);
+        }, 5000);
+    }
 </script>
 }
