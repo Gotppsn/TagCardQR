@@ -1087,5 +1087,106 @@ namespace CardTagManager.Controllers
                 return StatusCode(500, new { error = "An error occurred while retrieving history." });
             }
         }
+
+        [HttpPost]
+        public async Task<IActionResult> ReportIssue([FromBody] IssueReport issueReport)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new { success = false, error = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).FirstOrDefault() });
+                }
+
+                // Set creation timestamp
+                issueReport.CreatedAt = DateTime.Now;
+                
+                // Set initial status
+                issueReport.Status = "Open";
+                
+                // Add to database
+                _context.IssueReports.Add(issueReport);
+                await _context.SaveChangesAsync();
+                
+                // Log the issue
+                _logger.LogInformation($"New issue reported for card {issueReport.CardId}: {issueReport.IssueType} - {issueReport.Description}");
+                
+                // Send notification email (in a real application)
+                // await _emailService.SendIssueNotification(issueReport);
+                
+                return Json(new { success = true, message = "Issue reported successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error reporting issue");
+                return StatusCode(500, new { success = false, error = $"An error occurred: {ex.Message}" });
+            }
+        }
+
+        // POST: Card/SendContactMessage
+        [HttpPost]
+        public async Task<IActionResult> SendContactMessage([FromBody] ContactMessage message)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new { success = false, error = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).FirstOrDefault() });
+                }
+
+                // Set creation timestamp
+                message.CreatedAt = DateTime.Now;
+                
+                // Add to database
+                _context.ContactMessages.Add(message);
+                await _context.SaveChangesAsync();
+                
+                // Log the message
+                _logger.LogInformation($"New contact message for product {message.ProductId}: {message.Subject}");
+                
+                // Send notification email (in a real application)
+                // await _emailService.SendContactMessageNotification(message);
+                
+                return Json(new { success = true, message = "Message sent successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error sending contact message");
+                return StatusCode(500, new { success = false, error = $"An error occurred: {ex.Message}" });
+            }
+        }
+
+        // GET: Card/GetMaintenanceHistory/5
+        [HttpGet]
+        public async Task<IActionResult> GetMaintenanceHistory(int id)
+        {
+            try
+            {
+                // In a real application, this would fetch actual maintenance history
+                // For now, we'll return the reminders as placeholders
+                var reminders = await _context.MaintenanceReminders
+                    .Where(r => r.CardId == id)
+                    .OrderByDescending(r => r.DueDate)
+                    .Take(10)
+                    .ToListAsync();
+                    
+                // Transform reminders to history items
+                var history = reminders.Select(r => new {
+                    Id = r.Id,
+                    Title = r.Title, 
+                    Date = r.DueDate,
+                    Notes = r.Notes,
+                    Type = "Maintenance",
+                    Status = r.DueDate < DateTime.Now ? "Completed" : "Scheduled"
+                }).ToList();
+                
+                return Json(history);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving maintenance history for card {id}");
+                return StatusCode(500, new { error = "An error occurred while retrieving maintenance history." });
+            }
+        }        
     }
 }
