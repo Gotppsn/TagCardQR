@@ -1093,45 +1093,38 @@
                 reminderForm.addEventListener('submit', function(e) {
                     e.preventDefault();
                     
-                    const reminderId = document.getElementById('reminder-id').value;
-                    const cardId = document.getElementById('card-id').value;
-                    const title = document.getElementById('reminder-title').value;
-                    const dueDate = document.getElementById('reminder-date').value;
-                    const notes = document.getElementById('reminder-notes').value;
-                    const repeatFrequency = document.getElementById('reminder-repeat').value;
+                    const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
                     
-                    // Create JSON data - critical for proper model binding
                     const data = {
-                        Id: parseInt(reminderId) || 0,
-                        CardId: parseInt(cardId),
-                        Title: title,
-                        DueDate: dueDate,
-                        Notes: notes,
-                        RepeatFrequency: repeatFrequency
+                        Id: parseInt(document.getElementById('reminder-id').value) || 0,
+                        CardId: parseInt(document.getElementById('card-id').value),
+                        Title: document.getElementById('reminder-title').value,
+                        DueDate: document.getElementById('reminder-date').value,
+                        Notes: document.getElementById('reminder-notes').value,
+                        RepeatFrequency: document.getElementById('reminder-repeat').value
                     };
                     
-                    // Send JSON request to server
                     fetch('/Card/SaveReminder', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'Accept': 'application/json'
+                            'RequestVerificationToken': token
                         },
                         body: JSON.stringify(data)
                     })
                     .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
+                    .then(result => {
+                        if (result.success) {
                             reminderModal.classList.add('hidden');
                             loadReminders();
                             showToast('Reminder saved', 'Your maintenance reminder has been scheduled', 'success');
                         } else {
-                            showToast('Error', data.error || 'Failed to save reminder', 'error');
+                            showToast('Error', result.error || 'Failed to save reminder', 'error');
                         }
                     })
                     .catch(error => {
                         console.error('Error saving reminder:', error);
-                        showToast('Error', 'Failed to save reminder. Please try again.', 'error');
+                        showToast('Error', 'Network error. Please try again.', 'error');
                     });
                 });
             }
