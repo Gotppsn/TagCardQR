@@ -1,10 +1,12 @@
-@@{
-    ViewData["Title"] = "Create New Product Tag";
+@model CardTagManager.Models.Card
+
+@{
+    ViewData["Title"] = "Create New Product";
 }
 
 <div class="mb-6">
-    <a href="javascript:history.back()" class="inline-flex items-center text-primary-600 hover:text-primary-700 transition-colors group">
-        <i class="fas fa-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i> Back to Tag Library
+    <a asp-action="Index" class="inline-flex items-center text-primary-600 hover:text-primary-700 transition-colors group">
+        <i class="fas fa-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i> Back to Library
     </a>
 </div>
 
@@ -12,21 +14,21 @@
 <div class="form-progress mb-6">
     <div class="flex items-center justify-between max-w-2xl mx-auto">
         <div class="step active" data-step="1">
-            <div class="step-circle bg-primary-600 text-white h-8 w-8 rounded-full flex items-center justify-center shadow-sm">1</div>
+            <div class="step-circle bg-primary-600 text-white h-8 w-8 rounded-full flex items-center justify-center">1</div>
             <div class="step-label text-sm font-medium mt-1">Basic Info</div>
         </div>
         <div class="step-connector h-1 flex-grow bg-gray-200 mx-2 relative">
-            <div class="absolute inset-0 bg-primary-600 step-progress transition-all duration-300" style="width: 0%"></div>
+            <div class="absolute inset-0 bg-primary-600 step-progress" style="width: 0%"></div>
         </div>
         <div class="step" data-step="2">
-            <div class="step-circle bg-gray-200 text-gray-600 h-8 w-8 rounded-full flex items-center justify-center shadow-sm">2</div>
+            <div class="step-circle bg-gray-200 text-gray-600 h-8 w-8 rounded-full flex items-center justify-center">2</div>
             <div class="step-label text-sm font-medium mt-1">Details</div>
         </div>
         <div class="step-connector h-1 flex-grow bg-gray-200 mx-2 relative">
-            <div class="absolute inset-0 bg-primary-600 step-progress transition-all duration-300" style="width: 0%"></div>
+            <div class="absolute inset-0 bg-primary-600 step-progress" style="width: 0%"></div>
         </div>
         <div class="step" data-step="3">
-            <div class="step-circle bg-gray-200 text-gray-600 h-8 w-8 rounded-full flex items-center justify-center shadow-sm">3</div>
+            <div class="step-circle bg-gray-200 text-gray-600 h-8 w-8 rounded-full flex items-center justify-center">3</div>
             <div class="step-label text-sm font-medium mt-1">Appearance</div>
         </div>
     </div>
@@ -35,205 +37,134 @@
 <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 fade-in">
     <!-- Form Section (3 columns) -->
     <div class="lg:col-span-3">
-        <div class="card shadow hover:shadow-md transition-all duration-300">
-            <div class="card-header flex justify-between items-center">
-                <div>
-                    <h2 class="text-xl font-bold text-gray-800 flex items-center">
-                        <i class="fas fa-tags text-primary-500 mr-2"></i> Create New Tag
-                    </h2>
-                    <p class="text-sm text-gray-500 mt-1">Design a custom product tag with QR code</p>
-                </div>
-                <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded-md text-xs font-medium">
-                    <i class="fas fa-pen-fancy mr-1"></i> Design Mode
-                </span>
+        <div class="card">
+            <div class="card-header">
+                <h2 class="text-xl font-bold text-gray-800 flex items-center">
+                    <i class="fas fa-plus-circle text-primary-500 mr-2"></i> Add New Product
+                </h2>
+                <p class="text-sm text-gray-500 mt-1">Fill in the details for your product tag</p>
             </div>
             
             <!-- Template Gallery -->
-            <div class="px-6 pt-4 pb-2 border-b border-gray-100">
-                <div class="flex justify-between items-center mb-3">
-                    <h3 class="text-sm font-medium text-gray-700">Quick Start Templates</h3>
-                    <span class="text-xs text-gray-500">Select a template to start with</span>
-                </div>
-                
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <div class="template-card cursor-pointer border rounded-lg p-2 hover:border-primary-500 hover:shadow-md transition-all duration-200 transform hover:-translate-y-1" data-template="chemical">
-                        <div class="aspect-w-16 aspect-h-10 bg-blue-50 rounded mb-2 p-2 flex items-center justify-center relative overflow-hidden">
+            <div class="px-6 pt-4 pb-2">
+                <h3 class="text-sm font-medium text-gray-700 mb-3">Quick Start Templates</h3>
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="template-card cursor-pointer border rounded-lg p-2 hover:border-primary-500 transition-all" data-template="chemical">
+                        <div class="aspect-w-16 aspect-h-10 bg-blue-50 rounded mb-2 p-2 flex items-center justify-center">
                             <i class="fas fa-flask text-blue-500 text-xl"></i>
-                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
                         </div>
-                        <p class="text-xs text-center font-medium">Chemical Product</p>
+                        <p class="text-xs text-center">Chemical Product</p>
                     </div>
-                    <div class="template-card cursor-pointer border rounded-lg p-2 hover:border-primary-500 hover:shadow-md transition-all duration-200 transform hover:-translate-y-1" data-template="equipment">
-                        <div class="aspect-w-16 aspect-h-10 bg-purple-50 rounded mb-2 p-2 flex items-center justify-center relative overflow-hidden">
+                    <div class="template-card cursor-pointer border rounded-lg p-2 hover:border-primary-500 transition-all" data-template="equipment">
+                        <div class="aspect-w-16 aspect-h-10 bg-purple-50 rounded mb-2 p-2 flex items-center justify-center">
                             <i class="fas fa-tools text-purple-500 text-xl"></i>
-                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
                         </div>
-                        <p class="text-xs text-center font-medium">Equipment</p>
+                        <p class="text-xs text-center">Equipment</p>
                     </div>
-                    <div class="template-card cursor-pointer border rounded-lg p-2 hover:border-primary-500 hover:shadow-md transition-all duration-200 transform hover:-translate-y-1" data-template="safety">
-                        <div class="aspect-w-16 aspect-h-10 bg-orange-50 rounded mb-2 p-2 flex items-center justify-center relative overflow-hidden">
+                    <div class="template-card cursor-pointer border rounded-lg p-2 hover:border-primary-500 transition-all" data-template="safety">
+                        <div class="aspect-w-16 aspect-h-10 bg-orange-50 rounded mb-2 p-2 flex items-center justify-center">
                             <i class="fas fa-hard-hat text-orange-500 text-xl"></i>
-                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
                         </div>
-                        <p class="text-xs text-center font-medium">Safety Equipment</p>
-                    </div>
-                    <div class="template-card cursor-pointer border rounded-lg p-2 hover:border-primary-500 hover:shadow-md transition-all duration-200 transform hover:-translate-y-1" data-template="office">
-                        <div class="aspect-w-16 aspect-h-10 bg-green-50 rounded mb-2 p-2 flex items-center justify-center relative overflow-hidden">
-                            <i class="fas fa-desktop text-green-500 text-xl"></i>
-                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
-                        </div>
-                        <p class="text-xs text-center font-medium">Office Equipment</p>
+                        <p class="text-xs text-center">Safety Equipment</p>
                     </div>
                 </div>
-                
-                <!-- Advanced Template Picker (Hidden by default) -->
-                <div class="hidden mt-4 pt-4 border-t border-gray-100" id="advanced-templates">
-                    <h4 class="text-xs font-medium text-gray-600 mb-2">Industry-Specific Templates</h4>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        <div class="template-card cursor-pointer border rounded-lg p-2 hover:border-primary-500 hover:shadow-md transition-all duration-200 transform hover:-translate-y-1" data-template="laboratory">
-                            <div class="aspect-w-16 aspect-h-10 bg-indigo-50 rounded mb-2 p-2 flex items-center justify-center relative overflow-hidden">
-                                <i class="fas fa-vial text-indigo-500 text-xl"></i>
-                                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
-                            </div>
-                            <p class="text-xs text-center font-medium">Laboratory</p>
-                        </div>
-                        <div class="template-card cursor-pointer border rounded-lg p-2 hover:border-primary-500 hover:shadow-md transition-all duration-200 transform hover:-translate-y-1" data-template="maintenance">
-                            <div class="aspect-w-16 aspect-h-10 bg-yellow-50 rounded mb-2 p-2 flex items-center justify-center relative overflow-hidden">
-                                <i class="fas fa-wrench text-yellow-500 text-xl"></i>
-                                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
-                            </div>
-                            <p class="text-xs text-center font-medium">Maintenance</p>
-                        </div>
-                        <div class="template-card cursor-pointer border rounded-lg p-2 hover:border-primary-500 hover:shadow-md transition-all duration-200 transform hover:-translate-y-1" data-template="it">
-                            <div class="aspect-w-16 aspect-h-10 bg-cyan-50 rounded mb-2 p-2 flex items-center justify-center relative overflow-hidden">
-                                <i class="fas fa-microchip text-cyan-500 text-xl"></i>
-                                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
-                            </div>
-                            <p class="text-xs text-center font-medium">IT Asset</p>
-                        </div>
-                        <div class="template-card cursor-pointer border rounded-lg p-2 hover:border-primary-500 hover:shadow-md transition-all duration-200 transform hover:-translate-y-1" data-template="custom">
-                            <div class="aspect-w-16 aspect-h-10 bg-gray-50 rounded mb-2 p-2 flex items-center justify-center relative overflow-hidden">
-                                <i class="fas fa-plus text-gray-500 text-xl"></i>
-                                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
-                            </div>
-                            <p class="text-xs text-center font-medium">Custom Template</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <button type="button" id="show-more-templates" class="text-xs text-primary-600 hover:text-primary-700 mt-3 flex items-center">
-                    <i class="fas fa-chevron-down mr-1"></i> Show more templates
-                </button>
-                <button type="button" id="hide-more-templates" class="text-xs text-primary-600 hover:text-primary-700 mt-3 hidden flex items-center">
-                    <i class="fas fa-chevron-up mr-1"></i> Hide additional templates
-                </button>
             </div>
             
-            <form id="product-form" onsubmit="handleFormSubmit(event)">
-                <!-- Add hidden fields for QR colors -->
-                <input type="hidden" name="QrFgColor" id="qrFgColorHidden" value="#000000" />
-                <input type="hidden" name="QrBgColor" id="qrBgColorHidden" value="#FFFFFF" />
+        <form asp-action="Create" method="post" id="product-form" enctype="multipart/form-data">
+            <!-- Add hidden fields for QR colors -->
+            <input type="hidden" name="QrFgColor" id="qrFgColorHidden" value="#000000" />
+            <input type="hidden" name="QrBgColor" id="qrBgColorHidden" value="#FFFFFF" />
                 <div class="card-body">
                     <!-- Step 1: Basic Information -->
                     <div class="form-section" data-step="1">
-                        <div class="flex justify-between items-center mb-4 pb-2 border-b">
-                            <h3 class="text-md font-semibold text-gray-700">Basic Information</h3>
-                            <button type="button" id="add-custom-field" class="inline-flex items-center text-xs text-primary-600 hover:text-primary-700 transition-colors px-2 py-1 rounded-md hover:bg-primary-50">
-                                <i class="fas fa-plus-circle mr-1"></i> Add Custom Field
-                            </button>
-                        </div>
+                        <h3 class="text-md font-semibold text-gray-700 mb-4 pb-2 border-b">Basic Information</h3>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-4">
                                 <div class="form-group">
-                                    <label for="ProductName" class="form-label flex items-center">
+                                    <label asp-for="ProductName" class="form-label flex items-center">
                                         Product Name
                                         <span class="text-red-500 ml-1">*</span>
                                         <span class="ml-auto text-xs text-gray-400" id="name-counter">0/100</span>
                                     </label>
                                     <div class="relative">
-                                        <input id="ProductName" name="ProductName" class="form-input pl-9" required 
-                                               placeholder="Enter product name" maxlength="100"
-                                               oninput="countChars(this, 'name-counter', 100); updateTagPreview();">
-                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                                            <i class="fas fa-tag"></i>
+                                        <input asp-for="ProductName" class="form-input pl-9" required 
+                                               placeholder="RustShield Pro 5000" maxlength="100"
+                                               oninput="countChars(this, 'name-counter', 100)">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <i class="fas fa-tag text-gray-400"></i>
                                         </div>
                                         <div class="validation-icon absolute inset-y-0 right-3 flex items-center hidden" id="name-valid">
                                             <i class="fas fa-check-circle text-green-500"></i>
                                         </div>
                                     </div>
-                                    <span class="form-error"></span>
+                                    <span asp-validation-for="ProductName" class="form-error"></span>
                                 </div>
                                 
                                 <div class="form-group">
-                                    <label for="Category" class="form-label">
+                                    <label asp-for="Category" class="form-label">
                                         Category
                                         <span class="text-red-500 ml-1">*</span>
                                     </label>
                                     <div class="relative">
-                                        <select id="Category" name="Category" class="form-input pl-9" onchange="updateTagPreview()">
-                                            <option value="">Select a category</option>
+                                        <select asp-for="Category" class="form-input pl-9">
                                             <option value="Rust Coating Chemical">Rust Coating Chemical</option>
                                             <option value="Application Equipment">Application Equipment</option>
                                             <option value="Lab Equipment">Lab Equipment</option>
                                             <option value="Office Equipment">Office Equipment</option>
                                             <option value="Safety Equipment">Safety Equipment</option>
                                             <option value="Quality Control">Quality Control</option>
-                                            <option value="IT Equipment">IT Equipment</option>
                                             <option value="Other">Other</option>
                                         </select>
-                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                                            <i class="fas fa-folder"></i>
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <i class="fas fa-folder text-gray-400"></i>
                                         </div>
                                     </div>
-                                    <span class="form-error"></span>
+                                    <span asp-validation-for="Category" class="form-error"></span>
                                 </div>
                                 
                                 <div class="form-group">
-                                    <label for="Manufacturer" class="form-label">
+                                    <label asp-for="Manufacturer" class="form-label">
                                         Manufacturer
                                         <span class="text-red-500 ml-1">*</span>
                                     </label>
                                     <div class="relative">
-                                        <input id="Manufacturer" name="Manufacturer" class="form-input pl-9" required 
-                                               placeholder="Enter manufacturer name" oninput="updateTagPreview()">
-                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                                            <i class="fas fa-industry"></i>
+                                        <input asp-for="Manufacturer" class="form-input pl-9" required placeholder="ChemTech Industries">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <i class="fas fa-industry text-gray-400"></i>
                                         </div>
                                     </div>
-                                    <span class="form-error"></span>
+                                    <span asp-validation-for="Manufacturer" class="form-error"></span>
                                 </div>
                             </div>
                             
                             <div class="space-y-4">
                                 <div class="form-group">
-                                    <label for="ModelNumber" class="form-label">
+                                    <label asp-for="ModelNumber" class="form-label">
                                         Model Number
                                         <span class="text-red-500 ml-1">*</span>
                                     </label>
                                     <div class="relative">
-                                        <input id="ModelNumber" name="ModelNumber" class="form-input pl-9" required 
-                                               placeholder="Enter model number" oninput="updateTagPreview()">
-                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                                            <i class="fas fa-barcode"></i>
+                                        <input asp-for="ModelNumber" class="form-input pl-9" required placeholder="RS-5000-X">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <i class="fas fa-barcode text-gray-400"></i>
                                         </div>
                                     </div>
-                                    <span class="form-error"></span>
+                                    <span asp-validation-for="ModelNumber" class="form-error"></span>
                                 </div>
                                 
                                 <div class="form-group">
-                                    <label for="SerialNumber" class="form-label">
+                                    <label asp-for="SerialNumber" class="form-label">
                                         Serial Number
                                         <span class="text-red-500 ml-1">*</span>
                                     </label>
                                     <div class="relative">
-                                        <input id="SerialNumber" name="SerialNumber" class="form-input pl-9" required 
-                                               placeholder="Enter serial number" oninput="updateTagPreview()">
-                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                                            <i class="fas fa-fingerprint"></i>
+                                        <input asp-for="SerialNumber" class="form-input pl-9" required placeholder="CT20250001">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <i class="fas fa-fingerprint text-gray-400"></i>
                                         </div>
                                     </div>
-                                    <span class="form-error"></span>
+                                    <span asp-validation-for="SerialNumber" class="form-error"></span>
                                 </div>
                                 
                                 <div class="form-group">
@@ -261,58 +192,6 @@
                             </div>
                         </div>
                         
-                        <!-- Custom Fields Container -->
-                        <div id="custom-fields-container" class="mt-6 border-t border-gray-100 pt-4">
-                            <div class="flex justify-between items-center mb-3">
-                                <h4 class="text-sm font-medium text-gray-600">Custom Fields</h4>
-                                <span class="text-xs text-gray-500">Drag to reorder</span>
-                            </div>
-                            
-                            <!-- Custom fields will be added here dynamically -->
-                            <div class="custom-fields-list space-y-4">
-                                <!-- Example custom field (will be cloned or replaced by JS) -->
-                                <div class="custom-field-item hidden" id="custom-field-template">
-                                    <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                                        <div class="flex justify-between mb-2">
-                                            <div class="flex items-center">
-                                                <i class="fas fa-grip-lines mr-2 text-gray-400 cursor-move"></i>
-                                                <h5 class="text-sm font-medium custom-field-label">Custom Field</h5>
-                                            </div>
-                                            <div class="flex items-center space-x-2">
-                                                <button type="button" class="text-gray-500 hover:text-gray-700 edit-custom-field p-1 rounded hover:bg-gray-100">
-                                                    <i class="fas fa-pencil-alt"></i>
-                                                </button>
-                                                <button type="button" class="text-red-500 hover:text-red-700 remove-custom-field p-1 rounded hover:bg-red-50">
-                                                    <i class="fas fa-trash-alt"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <div class="relative">
-                                            <input type="text" class="form-input custom-field-input" name="custom_fields[0][value]" placeholder="Enter value" oninput="updateTagPreview()">
-                                            <input type="hidden" class="custom-field-key" name="custom_fields[0][key]" value="">
-                                            <input type="hidden" class="custom-field-type" name="custom_fields[0][type]" value="text">
-                                            <input type="hidden" class="custom-field-icon" name="custom_fields[0][icon]" value="fa-star">
-                                            <div class="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 flex items-center justify-center custom-field-icon-display text-gray-400">
-                                                <i class="fas fa-star"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Empty state for custom fields -->
-                            <div id="custom-fields-empty" class="bg-gray-50 border border-gray-200 border-dashed rounded-lg p-6 text-center">
-                                <div class="text-gray-400 mb-2">
-                                    <i class="fas fa-plus-circle text-2xl"></i>
-                                </div>
-                                <p class="text-sm text-gray-500">No custom fields added yet</p>
-                                <p class="text-xs text-gray-400 mt-1">Add custom fields to include additional product information</p>
-                                <button type="button" class="mt-3 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs rounded-md" id="add-first-custom-field">
-                                    <i class="fas fa-plus mr-1"></i> Add Custom Field
-                                </button>
-                            </div>
-                        </div>
-                        
                         <div class="flex justify-end mt-6">
                             <button type="button" class="btn-primary next-step" data-next="2">
                                 Continue to Details <i class="fas fa-arrow-right ml-2"></i>
@@ -326,71 +205,70 @@
                         
                         <div class="space-y-4">
                             <div class="form-group">
-                                <label for="Location" class="form-label">Location</label>
+                                <label asp-for="Location" class="form-label">Location</label>
                                 <div class="relative">
-                                    <input id="Location" name="Location" class="form-input pl-9" 
-                                           placeholder="Where is this product located?" oninput="updateTagPreview()">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                                        <i class="fas fa-map-marker-alt"></i>
+                                    <input asp-for="Location" class="form-input pl-9" placeholder="Chemical Storage Room A">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-map-marker-alt text-gray-400"></i>
                                     </div>
                                 </div>
-                                <span class="form-error"></span>
+                                <span asp-validation-for="Location" class="form-error"></span>
                             </div>
                             
                             <div class="form-group">
-                                <label for="MaintenanceInfo" class="form-label">Maintenance Information</label>
+                                <label asp-for="MaintenanceInfo" class="form-label">Maintenance Information</label>
                                 <div class="relative">
-                                    <textarea id="MaintenanceInfo" name="MaintenanceInfo" class="form-input h-20 pl-9" 
-                                              placeholder="Enter maintenance instructions or requirements" oninput="updateTagPreview()"></textarea>
-                                    <div class="absolute top-3 left-0 pl-3 flex items-start pointer-events-none text-gray-400">
-                                        <i class="fas fa-wrench"></i>
+                                    <textarea asp-for="MaintenanceInfo" class="form-input h-20 pl-9" 
+                                              placeholder="Store at 10-15°C, away from direct sunlight"></textarea>
+                                    <div class="absolute top-3 left-0 pl-3 flex items-start pointer-events-none">
+                                        <i class="fas fa-wrench text-gray-400"></i>
                                     </div>
                                 </div>
-                                <span class="form-error"></span>
+                                <span asp-validation-for="MaintenanceInfo" class="form-error"></span>
                             </div>
                         </div>
                         
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                             <div class="form-group">
-                                <label for="ManufactureDate" class="form-label">
+                                <label asp-for="ManufactureDate" class="form-label">
                                     Manufacture Date
                                     <span class="text-red-500 ml-1">*</span>
                                 </label>
                                 <div class="relative">
-                                    <input id="ManufactureDate" name="ManufactureDate" type="date" class="form-input pl-9" required onchange="updateTagPreview()">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                                        <i class="fas fa-calendar-day"></i>
+                                    <input asp-for="ManufactureDate" type="date" class="form-input pl-9" required>
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-calendar-day text-gray-400"></i>
                                     </div>
                                 </div>
-                                <span class="form-error"></span>
+                                <span asp-validation-for="ManufactureDate" class="form-error"></span>
                             </div>
                             
                             <div class="form-group">
-                                <label for="PurchaseDate" class="form-label">
+                                <label asp-for="PurchaseDate" class="form-label">
                                     Purchase Date
                                     <span class="text-red-500 ml-1">*</span>
                                 </label>
                                 <div class="relative">
-                                    <input id="PurchaseDate" name="PurchaseDate" type="date" class="form-input pl-9" required onchange="updateTagPreview()">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                                        <i class="fas fa-shopping-cart"></i>
+                                    <input asp-for="PurchaseDate" type="date" class="form-input pl-9" required>
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-shopping-cart text-gray-400"></i>
                                     </div>
                                 </div>
-                                <span class="form-error"></span>
+                                <span asp-validation-for="PurchaseDate" class="form-error"></span>
                             </div>
                             
                             <div class="form-group">
-                                <label for="WarrantyExpiration" class="form-label">
+                                <label asp-for="WarrantyExpiration" class="form-label">
                                     Warranty Until
                                     <span class="text-red-500 ml-1">*</span>
                                 </label>
                                 <div class="relative">
-                                    <input id="WarrantyExpiration" name="WarrantyExpiration" type="date" class="form-input pl-9" required onchange="updateTagPreview()">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                                        <i class="fas fa-shield-alt"></i>
+                                    <input asp-for="WarrantyExpiration" type="date" class="form-input pl-9" required>
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-shield-alt text-gray-400"></i>
                                     </div>
                                 </div>
-                                <span class="form-error"></span>
+                                <span asp-validation-for="WarrantyExpiration" class="form-error"></span>
                             </div>
                         </div>
                         
@@ -479,45 +357,46 @@
                         
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div class="form-group">
-                                <label for="BackgroundColor" class="form-label">Background Color</label>
+                                <label asp-for="BackgroundColor" class="form-label">Background Color</label>
                                 <div class="color-picker-wrapper">
                                 <div class="flex">
-                                    <input type="color" class="color-input w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer" id="bg-color-picker" value="#ffffff" oninput="updateTagPreview()">
-                                    <input id="BackgroundColor" name="BackgroundColor" type="text" class="form-input ml-2 flex-grow" placeholder="#ffffff" value="#ffffff" oninput="updateColorPicker('bg-color-picker', this.value); updateTagPreview()">
+                                    <input asp-for="BackgroundColor" type="color" class="color-input hidden" id="bg-color-picker">
+                                    <div class="color-preview w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer" id="bg-color-preview" style="background-color: #ffffff"></div>
+                                    <input asp-for="BackgroundColor" type="text" class="form-input ml-2 flex-grow" placeholder="#ffffff" value="#ffffff">
                                 </div>
                                     <div class="color-presets mt-2 flex flex-wrap gap-2">
                                         <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#ffffff" style="background-color: #ffffff;"></span>
                                         <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#f8fafc" style="background-color: #f8fafc;"></span>
                                         <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#f0f9ff" style="background-color: #f0f9ff;"></span>
-                                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#ecfdf5" style="background-color: #ecfdf5;"></span>
+                                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#1e293b" style="background-color: #1e293b;"></span>
                                     </div>
                                 </div>
-                                <span class="form-error"></span>
+                                <span asp-validation-for="BackgroundColor" class="form-error"></span>
                             </div>
                             
                             <div class="form-group">
-                                <label for="TextColor" class="form-label">Text Color</label>
+                                <label asp-for="TextColor" class="form-label">Text Color</label>
                                 <div class="color-picker-wrapper">
                                     <div class="flex">
-                                        <input type="color" class="color-input w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer" id="text-color-picker" value="#000000" oninput="updateTagPreview()">
-                                        <input id="TextColor" name="TextColor" type="text" class="form-input ml-2 flex-grow" placeholder="#000000" value="#000000" oninput="updateColorPicker('text-color-picker', this.value); updateTagPreview()">
+                                        <input type="color" class="color-input w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer" id="text-color-picker" value="#000000">
+                                        <input asp-for="TextColor" type="text" class="form-input ml-2 flex-grow" placeholder="#000000" value="#000000">
                                     </div>
                                     <div class="color-presets mt-2 flex flex-wrap gap-2">
                                         <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#000000" style="background-color: #000000;"></span>
                                         <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#1e293b" style="background-color: #1e293b;"></span>
-                                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#334155" style="background-color: #334155;"></span>
+                                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#ffffff" style="background-color: #ffffff;"></span>
                                         <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#64748b" style="background-color: #64748b;"></span>
                                     </div>
                                 </div>
-                                <span class="form-error"></span>
+                                <span asp-validation-for="TextColor" class="form-error"></span>
                             </div>
                             
                             <div class="form-group">
-                                <label for="AccentColor" class="form-label">Accent Color</label>
+                                <label asp-for="AccentColor" class="form-label">Accent Color</label>
                                 <div class="color-picker-wrapper">
                                     <div class="flex">
-                                        <input type="color" class="color-input w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer" id="accent-color-picker" value="#0284c7" oninput="updateTagPreview()">
-                                        <input id="AccentColor" name="AccentColor" type="text" class="form-input ml-2 flex-grow" placeholder="#0284c7" value="#0284c7" oninput="updateColorPicker('accent-color-picker', this.value); updateTagPreview()">
+                                        <input type="color" class="color-input w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer" id="accent-color-picker" value="#0284c7">
+                                        <input asp-for="AccentColor" type="text" class="form-input ml-2 flex-grow" placeholder="#0284c7" value="#0284c7">
                                     </div>
                                     <div class="color-presets mt-2 flex flex-wrap gap-2">
                                         <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#0284c7" style="background-color: #0284c7;"></span>
@@ -526,25 +405,25 @@
                                         <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#9333ea" style="background-color: #9333ea;"></span>
                                     </div>
                                 </div>
-                                <span class="form-error"></span>
+                                <span asp-validation-for="AccentColor" class="form-error"></span>
                             </div>
                         </div>
                         
-                        <div class="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-100">
+                        <div class="mt-6 p-4 bg-gray-50 rounded-lg">
                             <h4 class="text-sm font-medium mb-3">QR Code Options</h4>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label class="text-xs text-gray-600 block mb-1">Foreground Color</label>
                                     <div class="flex">
-                                        <input type="color" class="w-10 h-10 border border-gray-300 rounded-lg cursor-pointer" value="#000000" id="qr-fg-color" oninput="updateQrColors()">
-                                        <input type="text" class="form-input ml-2 flex-grow text-sm" value="#000000" id="qr-fg-color-text" oninput="updateQrColors(true)">
+                                        <input type="color" class="w-10 h-10 border border-gray-300 rounded-lg cursor-pointer" value="#000000" id="qr-fg-color">
+                                        <input type="text" class="form-input ml-2 flex-grow text-sm" value="#000000" id="qr-fg-color-text">
                                     </div>
                                 </div>
                                 <div>
                                     <label class="text-xs text-gray-600 block mb-1">Background Color</label>
                                     <div class="flex">
-                                        <input type="color" class="w-10 h-10 border border-gray-300 rounded-lg cursor-pointer" value="#ffffff" id="qr-bg-color" oninput="updateQrColors()">
-                                        <input type="text" class="form-input ml-2 flex-grow text-sm" value="#ffffff" id="qr-bg-color-text" oninput="updateQrColors(true)">
+                                        <input type="color" class="w-10 h-10 border border-gray-300 rounded-lg cursor-pointer" value="#ffffff" id="qr-bg-color">
+                                        <input type="text" class="form-input ml-2 flex-grow text-sm" value="#ffffff" id="qr-bg-color-text">
                                     </div>
                                 </div>
                             </div>
@@ -585,7 +464,7 @@
         <div class="sticky top-6 space-y-4">
             <div class="flex justify-between items-center mb-2">
                 <h3 class="text-lg font-bold text-gray-800 flex items-center">
-                    <i class="fas fa-eye text-primary-500 mr-2"></i> Live Preview
+                    <i class="fas fa-eye text-primary-500 mr-2"></i> Tag Preview
                 </h3>
                 <div class="preview-controls flex gap-2">
                     <button type="button" class="text-sm text-gray-600 hover:text-gray-800 flex items-center p-1 hover:bg-gray-100 rounded transition-colors" id="rotate-preview">
@@ -615,7 +494,7 @@
                                 <span id="preview-serial">SN12345</span>
                             </div>
                         </div>
-                        <div class="space-y-2 mt-2 text-sm">
+                        <div class="space-y-2 mt-auto text-sm">
                             <p class="flex items-center">
                                 <i class="fas fa-map-marker-alt mr-3" style="color: #0284c7"></i>
                                 <span class="font-medium">Location:</span>&nbsp;<span id="preview-location">Storage Location</span>
@@ -632,11 +511,6 @@
                                 <i class="fas fa-tools mr-3" style="color: #0284c7"></i>
                                 <span class="font-medium">Maintenance:</span>&nbsp;<span id="preview-maintenance">Maintenance information</span>
                             </p>
-                            
-                            <!-- Custom fields will appear here -->
-                            <div id="preview-custom-fields" class="space-y-2 border-t border-gray-100 pt-2 mt-2">
-                                <!-- Custom fields will be dynamically added here -->
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -645,25 +519,11 @@
             <div class="card p-4">
                 <h4 class="text-sm font-medium mb-3">QR Code Preview</h4>
                 <div class="flex justify-center">
-                    <div id="qr-code-container" class="p-3 bg-white border border-gray-200 rounded-lg shadow-sm relative">
-                        <div class="relative">
-                            <div id="qr-code" class="w-32 h-32 flex items-center justify-center bg-white">
-                                <canvas id="qr-canvas" width="128" height="128"></canvas>
-                                <div class="absolute inset-0 flex items-center justify-center qr-loading">
-                                    <i class="fas fa-qrcode text-gray-300 text-4xl"></i>
-                                </div>
-                            </div>
-                            <div class="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 qr-hover-info bg-white bg-opacity-90 rounded">
-                                <div class="text-center">
-                                    <i class="fas fa-search-plus text-primary-500 mb-1"></i>
-                                    <p class="text-xs text-gray-600">Scan to view details</p>
-                                </div>
-                            </div>
+                    <div class="qr-preview p-3 bg-white border border-gray-200 rounded-lg shadow-sm">
+                        <div class="w-32 h-32 bg-gray-100 flex items-center justify-center">
+                            <i class="fas fa-qrcode text-gray-400 text-4xl"></i>
                         </div>
                         <p class="text-center text-xs mt-2 text-gray-500">Scan for product details</p>
-                        <div class="absolute -top-8 right-2 p-2 rounded-full bg-gray-50 shadow-sm text-xs text-gray-500 opacity-0 transition-opacity qr-info">
-                            <i class="fas fa-info-circle"></i> Product QR Code
-                        </div>
                     </div>
                 </div>
             </div>
@@ -686,126 +546,6 @@
                 </div>
             </div>
         </div>
-    </div>
-</div>
-
-<!-- Custom Field Modal -->
-<div id="custom-field-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-    <div class="bg-white rounded-lg shadow-xl max-w-md w-full transform transition-all">
-        <div class="p-6">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold text-gray-800" id="modal-title">Add Custom Field</h3>
-                <button type="button" class="text-gray-400 hover:text-gray-500" id="close-modal">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <form id="custom-field-form" class="space-y-4">
-                <input type="hidden" id="edit-field-index" value="-1">
-                
-                <div class="form-group">
-                    <label for="custom-field-name" class="form-label">Field Name</label>
-                    <input type="text" id="custom-field-name" class="form-input" placeholder="Enter field name" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="custom-field-type" class="form-label">Field Type</label>
-                    <select id="custom-field-type" class="form-input">
-                        <option value="text">Text</option>
-                        <option value="number">Number</option>
-                        <option value="date">Date</option>
-                        <option value="email">Email</option>
-                        <option value="url">URL</option>
-                        <option value="phone">Phone</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Icon</label>
-                    <div class="grid grid-cols-8 gap-2 mt-2 border border-gray-200 rounded-lg p-2 bg-gray-50">
-                        <button type="button" class="icon-option w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200 transition-colors active" data-icon="fa-star">
-                            <i class="fas fa-star text-gray-600"></i>
-                        </button>
-                        <button type="button" class="icon-option w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200 transition-colors" data-icon="fa-info-circle">
-                            <i class="fas fa-info-circle text-gray-600"></i>
-                        </button>
-                        <button type="button" class="icon-option w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200 transition-colors" data-icon="fa-link">
-                            <i class="fas fa-link text-gray-600"></i>
-                        </button>
-                        <button type="button" class="icon-option w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200 transition-colors" data-icon="fa-calendar">
-                            <i class="fas fa-calendar text-gray-600"></i>
-                        </button>
-                        <button type="button" class="icon-option w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200 transition-colors" data-icon="fa-clock">
-                            <i class="fas fa-clock text-gray-600"></i>
-                        </button>
-                        <button type="button" class="icon-option w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200 transition-colors" data-icon="fa-hashtag">
-                            <i class="fas fa-hashtag text-gray-600"></i>
-                        </button>
-                        <button type="button" class="icon-option w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200 transition-colors" data-icon="fa-phone">
-                            <i class="fas fa-phone text-gray-600"></i>
-                        </button>
-                        <button type="button" class="icon-option w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200 transition-colors" data-icon="fa-envelope">
-                            <i class="fas fa-envelope text-gray-600"></i>
-                        </button>
-                        <button type="button" class="icon-option w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200 transition-colors" data-icon="fa-clipboard">
-                            <i class="fas fa-clipboard text-gray-600"></i>
-                        </button>
-                        <button type="button" class="icon-option w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200 transition-colors" data-icon="fa-file">
-                            <i class="fas fa-file text-gray-600"></i>
-                        </button>
-                        <button type="button" class="icon-option w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200 transition-colors" data-icon="fa-user">
-                            <i class="fas fa-user text-gray-600"></i>
-                        </button>
-                        <button type="button" class="icon-option w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200 transition-colors" data-icon="fa-users">
-                            <i class="fas fa-users text-gray-600"></i>
-                        </button>
-                        <button type="button" class="icon-option w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200 transition-colors" data-icon="fa-tag">
-                            <i class="fas fa-tag text-gray-600"></i>
-                        </button>
-                        <button type="button" class="icon-option w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200 transition-colors" data-icon="fa-tags">
-                            <i class="fas fa-tags text-gray-600"></i>
-                        </button>
-                        <button type="button" class="icon-option w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200 transition-colors" data-icon="fa-key">
-                            <i class="fas fa-key text-gray-600"></i>
-                        </button>
-                        <button type="button" class="icon-option w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200 transition-colors" data-icon="fa-dollar-sign">
-                            <i class="fas fa-dollar-sign text-gray-600"></i>
-                        </button>
-                    </div>
-                    <input type="hidden" id="custom-field-icon" value="fa-star">
-                </div>
-                
-                <div class="form-group">
-                    <label for="custom-field-default" class="form-label">Default Value (optional)</label>
-                    <input type="text" id="custom-field-default" class="form-input" placeholder="Enter default value">
-                </div>
-                
-                <div class="flex justify-end gap-2 mt-6">
-                    <button type="button" class="btn-secondary" id="cancel-custom-field">
-                        Cancel
-                    </button>
-                    <button type="submit" class="btn-primary">
-                        <i class="fas fa-save mr-1"></i> Save Field
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Success Notification Toast -->
-<div id="success-toast" class="fixed right-4 bottom-4 bg-white rounded-lg shadow-lg border-l-4 border-green-500 p-4 transform translate-y-20 opacity-0 transition-all duration-300 z-50 max-w-sm hidden">
-    <div class="flex items-center">
-        <div class="flex-shrink-0 mr-3">
-            <i class="fas fa-check-circle text-green-500 text-2xl"></i>
-        </div>
-        <div>
-            <h4 class="text-sm font-medium text-gray-800">Success!</h4>
-            <p class="text-sm text-gray-600" id="toast-message">Your product tag has been created successfully.</p>
-        </div>
-        <button class="ml-auto text-gray-400 hover:text-gray-500" onclick="hideToast()">
-            <i class="fas fa-times"></i>
-        </button>
     </div>
 </div>
 
