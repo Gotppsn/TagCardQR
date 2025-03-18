@@ -5,7 +5,7 @@
 }
 
 <div class="mb-6">
-    <a asp-action="Index" class="inline-flex items-center text-primary-600 hover:text-primary-700 transition-colors group">
+    <a href="#" class="inline-flex items-center text-primary-600 hover:text-primary-700 transition-colors group">
         <i class="fas fa-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i> Back to Library
     </a>
 </div>
@@ -46,9 +46,9 @@
             </div>
             
             <!-- Template Gallery -->
-            <div class="px-6 pt-4 pb-2">
+            <div class="px-6 pt-4 pb-2 border-b border-gray-100">
                 <h3 class="text-sm font-medium text-gray-700 mb-3">Quick Start Templates</h3>
-                <div class="grid grid-cols-3 gap-3">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                     <div class="template-card cursor-pointer border rounded-lg p-2 hover:border-primary-500 transition-all" data-template="chemical">
                         <div class="aspect-w-16 aspect-h-10 bg-blue-50 rounded mb-2 p-2 flex items-center justify-center">
                             <i class="fas fa-flask text-blue-500 text-xl"></i>
@@ -67,28 +67,77 @@
                         </div>
                         <p class="text-xs text-center">Safety Equipment</p>
                     </div>
+                    <div class="template-card cursor-pointer border rounded-lg p-2 hover:border-primary-500 transition-all" data-template="office">
+                        <div class="aspect-w-16 aspect-h-10 bg-green-50 rounded mb-2 p-2 flex items-center justify-center">
+                            <i class="fas fa-desktop text-green-500 text-xl"></i>
+                        </div>
+                        <p class="text-xs text-center">Office Equipment</p>
+                    </div>
                 </div>
+                
+                <!-- Advanced Template Picker (Hidden by default) -->
+                <div class="hidden mt-4 pt-4 border-t border-gray-100" id="advanced-templates">
+                    <h4 class="text-xs font-medium text-gray-600 mb-2">Industry-Specific Templates</h4>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div class="template-card cursor-pointer border rounded-lg p-2 hover:border-primary-500 transition-all" data-template="laboratory">
+                            <div class="aspect-w-16 aspect-h-10 bg-indigo-50 rounded mb-2 p-2 flex items-center justify-center">
+                                <i class="fas fa-vial text-indigo-500 text-xl"></i>
+                            </div>
+                            <p class="text-xs text-center">Laboratory</p>
+                        </div>
+                        <div class="template-card cursor-pointer border rounded-lg p-2 hover:border-primary-500 transition-all" data-template="maintenance">
+                            <div class="aspect-w-16 aspect-h-10 bg-yellow-50 rounded mb-2 p-2 flex items-center justify-center">
+                                <i class="fas fa-wrench text-yellow-500 text-xl"></i>
+                            </div>
+                            <p class="text-xs text-center">Maintenance</p>
+                        </div>
+                        <div class="template-card cursor-pointer border rounded-lg p-2 hover:border-primary-500 transition-all" data-template="it">
+                            <div class="aspect-w-16 aspect-h-10 bg-cyan-50 rounded mb-2 p-2 flex items-center justify-center">
+                                <i class="fas fa-microchip text-cyan-500 text-xl"></i>
+                            </div>
+                            <p class="text-xs text-center">IT Asset</p>
+                        </div>
+                        <div class="template-card cursor-pointer border rounded-lg p-2 hover:border-primary-500 transition-all" data-template="custom">
+                            <div class="aspect-w-16 aspect-h-10 bg-gray-50 rounded mb-2 p-2 flex items-center justify-center">
+                                <i class="fas fa-plus text-gray-500 text-xl"></i>
+                            </div>
+                            <p class="text-xs text-center">Custom Template</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="button" id="show-more-templates" class="text-xs text-primary-600 hover:text-primary-700 mt-3 flex items-center">
+                    <i class="fas fa-chevron-down mr-1"></i> Show more templates
+                </button>
+                <button type="button" id="hide-more-templates" class="text-xs text-primary-600 hover:text-primary-700 mt-3 hidden flex items-center">
+                    <i class="fas fa-chevron-up mr-1"></i> Hide additional templates
+                </button>
             </div>
             
-        <form asp-action="Create" method="post" id="product-form" enctype="multipart/form-data">
-            <!-- Add hidden fields for QR colors -->
-            <input type="hidden" name="QrFgColor" id="qrFgColorHidden" value="#000000" />
-            <input type="hidden" name="QrBgColor" id="qrBgColorHidden" value="#FFFFFF" />
+            <form id="product-form" enctype="multipart/form-data">
+                <!-- Add hidden fields for QR colors -->
+                <input type="hidden" name="QrFgColor" id="qrFgColorHidden" value="#000000" />
+                <input type="hidden" name="QrBgColor" id="qrBgColorHidden" value="#FFFFFF" />
                 <div class="card-body">
                     <!-- Step 1: Basic Information -->
                     <div class="form-section" data-step="1">
-                        <h3 class="text-md font-semibold text-gray-700 mb-4 pb-2 border-b">Basic Information</h3>
+                        <div class="flex justify-between items-center mb-4 pb-2 border-b">
+                            <h3 class="text-md font-semibold text-gray-700">Basic Information</h3>
+                            <button type="button" id="add-custom-field" class="text-xs flex items-center text-primary-600 hover:text-primary-700 transition-colors">
+                                <i class="fas fa-plus-circle mr-1"></i> Add Custom Field
+                            </button>
+                        </div>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-4">
                                 <div class="form-group">
-                                    <label asp-for="ProductName" class="form-label flex items-center">
+                                    <label for="ProductName" class="form-label flex items-center">
                                         Product Name
                                         <span class="text-red-500 ml-1">*</span>
                                         <span class="ml-auto text-xs text-gray-400" id="name-counter">0/100</span>
                                     </label>
                                     <div class="relative">
-                                        <input asp-for="ProductName" class="form-input pl-9" required 
+                                        <input id="ProductName" name="ProductName" class="form-input pl-9" required 
                                                placeholder="RustShield Pro 5000" maxlength="100"
                                                oninput="countChars(this, 'name-counter', 100)">
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -98,16 +147,16 @@
                                             <i class="fas fa-check-circle text-green-500"></i>
                                         </div>
                                     </div>
-                                    <span asp-validation-for="ProductName" class="form-error"></span>
+                                    <span class="form-error"></span>
                                 </div>
                                 
                                 <div class="form-group">
-                                    <label asp-for="Category" class="form-label">
+                                    <label for="Category" class="form-label">
                                         Category
                                         <span class="text-red-500 ml-1">*</span>
                                     </label>
                                     <div class="relative">
-                                        <select asp-for="Category" class="form-input pl-9">
+                                        <select id="Category" name="Category" class="form-input pl-9">
                                             <option value="Rust Coating Chemical">Rust Coating Chemical</option>
                                             <option value="Application Equipment">Application Equipment</option>
                                             <option value="Lab Equipment">Lab Equipment</option>
@@ -120,51 +169,51 @@
                                             <i class="fas fa-folder text-gray-400"></i>
                                         </div>
                                     </div>
-                                    <span asp-validation-for="Category" class="form-error"></span>
+                                    <span class="form-error"></span>
                                 </div>
                                 
                                 <div class="form-group">
-                                    <label asp-for="Manufacturer" class="form-label">
+                                    <label for="Manufacturer" class="form-label">
                                         Manufacturer
                                         <span class="text-red-500 ml-1">*</span>
                                     </label>
                                     <div class="relative">
-                                        <input asp-for="Manufacturer" class="form-input pl-9" required placeholder="ChemTech Industries">
+                                        <input id="Manufacturer" name="Manufacturer" class="form-input pl-9" required placeholder="ChemTech Industries">
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <i class="fas fa-industry text-gray-400"></i>
                                         </div>
                                     </div>
-                                    <span asp-validation-for="Manufacturer" class="form-error"></span>
+                                    <span class="form-error"></span>
                                 </div>
                             </div>
                             
                             <div class="space-y-4">
                                 <div class="form-group">
-                                    <label asp-for="ModelNumber" class="form-label">
+                                    <label for="ModelNumber" class="form-label">
                                         Model Number
                                         <span class="text-red-500 ml-1">*</span>
                                     </label>
                                     <div class="relative">
-                                        <input asp-for="ModelNumber" class="form-input pl-9" required placeholder="RS-5000-X">
+                                        <input id="ModelNumber" name="ModelNumber" class="form-input pl-9" required placeholder="RS-5000-X">
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <i class="fas fa-barcode text-gray-400"></i>
                                         </div>
                                     </div>
-                                    <span asp-validation-for="ModelNumber" class="form-error"></span>
+                                    <span class="form-error"></span>
                                 </div>
                                 
                                 <div class="form-group">
-                                    <label asp-for="SerialNumber" class="form-label">
+                                    <label for="SerialNumber" class="form-label">
                                         Serial Number
                                         <span class="text-red-500 ml-1">*</span>
                                     </label>
                                     <div class="relative">
-                                        <input asp-for="SerialNumber" class="form-input pl-9" required placeholder="CT20250001">
+                                        <input id="SerialNumber" name="SerialNumber" class="form-input pl-9" required placeholder="CT20250001">
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <i class="fas fa-fingerprint text-gray-400"></i>
                                         </div>
                                     </div>
-                                    <span asp-validation-for="SerialNumber" class="form-error"></span>
+                                    <span class="form-error"></span>
                                 </div>
                                 
                                 <div class="form-group">
@@ -192,6 +241,55 @@
                             </div>
                         </div>
                         
+                        <!-- Custom Fields Container -->
+                        <div id="custom-fields-container" class="mt-6 border-t border-gray-100 pt-4">
+                            <h4 class="text-sm font-medium text-gray-600 mb-3">Custom Fields</h4>
+                            
+                            <!-- Custom fields will be added here dynamically -->
+                            <div class="custom-fields-list space-y-4">
+                                <!-- Example custom field (will be cloned or replaced by JS) -->
+                                <div class="custom-field-item hidden" id="custom-field-template">
+                                    <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                                        <div class="flex justify-between mb-2">
+                                            <div class="flex items-center">
+                                                <i class="fas fa-grip-lines mr-2 text-gray-400 cursor-move"></i>
+                                                <h5 class="text-sm font-medium custom-field-label">Custom Field</h5>
+                                            </div>
+                                            <div class="flex items-center space-x-2">
+                                                <button type="button" class="text-gray-500 hover:text-gray-700 edit-custom-field">
+                                                    <i class="fas fa-pencil-alt"></i>
+                                                </button>
+                                                <button type="button" class="text-red-500 hover:text-red-700 remove-custom-field">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="relative">
+                                            <input type="text" class="form-input custom-field-input" name="custom_fields[0][value]" placeholder="Enter value">
+                                            <input type="hidden" class="custom-field-key" name="custom_fields[0][key]" value="">
+                                            <input type="hidden" class="custom-field-type" name="custom_fields[0][type]" value="text">
+                                            <input type="hidden" class="custom-field-icon" name="custom_fields[0][icon]" value="fa-star">
+                                            <div class="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 flex items-center justify-center custom-field-icon-display text-gray-400">
+                                                <i class="fas fa-star"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Empty state for custom fields -->
+                            <div id="custom-fields-empty" class="bg-gray-50 border border-gray-200 border-dashed rounded-lg p-6 text-center">
+                                <div class="text-gray-400 mb-2">
+                                    <i class="fas fa-plus-circle text-2xl"></i>
+                                </div>
+                                <p class="text-sm text-gray-500">No custom fields added yet</p>
+                                <p class="text-xs text-gray-400 mt-1">Add custom fields to include additional product information</p>
+                                <button type="button" class="mt-3 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs rounded-md" id="add-first-custom-field">
+                                    <i class="fas fa-plus mr-1"></i> Add Custom Field
+                                </button>
+                            </div>
+                        </div>
+                        
                         <div class="flex justify-end mt-6">
                             <button type="button" class="btn-primary next-step" data-next="2">
                                 Continue to Details <i class="fas fa-arrow-right ml-2"></i>
@@ -205,70 +303,70 @@
                         
                         <div class="space-y-4">
                             <div class="form-group">
-                                <label asp-for="Location" class="form-label">Location</label>
+                                <label for="Location" class="form-label">Location</label>
                                 <div class="relative">
-                                    <input asp-for="Location" class="form-input pl-9" placeholder="Chemical Storage Room A">
+                                    <input id="Location" name="Location" class="form-input pl-9" placeholder="Chemical Storage Room A">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-map-marker-alt text-gray-400"></i>
                                     </div>
                                 </div>
-                                <span asp-validation-for="Location" class="form-error"></span>
+                                <span class="form-error"></span>
                             </div>
                             
                             <div class="form-group">
-                                <label asp-for="MaintenanceInfo" class="form-label">Maintenance Information</label>
+                                <label for="MaintenanceInfo" class="form-label">Maintenance Information</label>
                                 <div class="relative">
-                                    <textarea asp-for="MaintenanceInfo" class="form-input h-20 pl-9" 
+                                    <textarea id="MaintenanceInfo" name="MaintenanceInfo" class="form-input h-20 pl-9" 
                                               placeholder="Store at 10-15°C, away from direct sunlight"></textarea>
                                     <div class="absolute top-3 left-0 pl-3 flex items-start pointer-events-none">
                                         <i class="fas fa-wrench text-gray-400"></i>
                                     </div>
                                 </div>
-                                <span asp-validation-for="MaintenanceInfo" class="form-error"></span>
+                                <span class="form-error"></span>
                             </div>
                         </div>
                         
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                             <div class="form-group">
-                                <label asp-for="ManufactureDate" class="form-label">
+                                <label for="ManufactureDate" class="form-label">
                                     Manufacture Date
                                     <span class="text-red-500 ml-1">*</span>
                                 </label>
                                 <div class="relative">
-                                    <input asp-for="ManufactureDate" type="date" class="form-input pl-9" required>
+                                    <input id="ManufactureDate" name="ManufactureDate" type="date" class="form-input pl-9" required>
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-calendar-day text-gray-400"></i>
                                     </div>
                                 </div>
-                                <span asp-validation-for="ManufactureDate" class="form-error"></span>
+                                <span class="form-error"></span>
                             </div>
                             
                             <div class="form-group">
-                                <label asp-for="PurchaseDate" class="form-label">
+                                <label for="PurchaseDate" class="form-label">
                                     Purchase Date
                                     <span class="text-red-500 ml-1">*</span>
                                 </label>
                                 <div class="relative">
-                                    <input asp-for="PurchaseDate" type="date" class="form-input pl-9" required>
+                                    <input id="PurchaseDate" name="PurchaseDate" type="date" class="form-input pl-9" required>
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-shopping-cart text-gray-400"></i>
                                     </div>
                                 </div>
-                                <span asp-validation-for="PurchaseDate" class="form-error"></span>
+                                <span class="form-error"></span>
                             </div>
                             
                             <div class="form-group">
-                                <label asp-for="WarrantyExpiration" class="form-label">
+                                <label for="WarrantyExpiration" class="form-label">
                                     Warranty Until
                                     <span class="text-red-500 ml-1">*</span>
                                 </label>
                                 <div class="relative">
-                                    <input asp-for="WarrantyExpiration" type="date" class="form-input pl-9" required>
+                                    <input id="WarrantyExpiration" name="WarrantyExpiration" type="date" class="form-input pl-9" required>
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-shield-alt text-gray-400"></i>
                                     </div>
                                 </div>
-                                <span asp-validation-for="WarrantyExpiration" class="form-error"></span>
+                                <span class="form-error"></span>
                             </div>
                         </div>
                         
@@ -357,12 +455,12 @@
                         
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div class="form-group">
-                                <label asp-for="BackgroundColor" class="form-label">Background Color</label>
+                                <label for="BackgroundColor" class="form-label">Background Color</label>
                                 <div class="color-picker-wrapper">
                                 <div class="flex">
-                                    <input asp-for="BackgroundColor" type="color" class="color-input hidden" id="bg-color-picker">
+                                    <input type="color" class="color-input hidden" id="bg-color-picker">
                                     <div class="color-preview w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer" id="bg-color-preview" style="background-color: #ffffff"></div>
-                                    <input asp-for="BackgroundColor" type="text" class="form-input ml-2 flex-grow" placeholder="#ffffff" value="#ffffff">
+                                    <input id="BackgroundColor" name="BackgroundColor" type="text" class="form-input ml-2 flex-grow" placeholder="#ffffff" value="#ffffff">
                                 </div>
                                     <div class="color-presets mt-2 flex flex-wrap gap-2">
                                         <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#ffffff" style="background-color: #ffffff;"></span>
@@ -371,15 +469,15 @@
                                         <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#1e293b" style="background-color: #1e293b;"></span>
                                     </div>
                                 </div>
-                                <span asp-validation-for="BackgroundColor" class="form-error"></span>
+                                <span class="form-error"></span>
                             </div>
                             
                             <div class="form-group">
-                                <label asp-for="TextColor" class="form-label">Text Color</label>
+                                <label for="TextColor" class="form-label">Text Color</label>
                                 <div class="color-picker-wrapper">
                                     <div class="flex">
                                         <input type="color" class="color-input w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer" id="text-color-picker" value="#000000">
-                                        <input asp-for="TextColor" type="text" class="form-input ml-2 flex-grow" placeholder="#000000" value="#000000">
+                                        <input id="TextColor" name="TextColor" type="text" class="form-input ml-2 flex-grow" placeholder="#000000" value="#000000">
                                     </div>
                                     <div class="color-presets mt-2 flex flex-wrap gap-2">
                                         <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#000000" style="background-color: #000000;"></span>
@@ -388,15 +486,15 @@
                                         <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#64748b" style="background-color: #64748b;"></span>
                                     </div>
                                 </div>
-                                <span asp-validation-for="TextColor" class="form-error"></span>
+                                <span class="form-error"></span>
                             </div>
                             
                             <div class="form-group">
-                                <label asp-for="AccentColor" class="form-label">Accent Color</label>
+                                <label for="AccentColor" class="form-label">Accent Color</label>
                                 <div class="color-picker-wrapper">
                                     <div class="flex">
                                         <input type="color" class="color-input w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer" id="accent-color-picker" value="#0284c7">
-                                        <input asp-for="AccentColor" type="text" class="form-input ml-2 flex-grow" placeholder="#0284c7" value="#0284c7">
+                                        <input id="AccentColor" name="AccentColor" type="text" class="form-input ml-2 flex-grow" placeholder="#0284c7" value="#0284c7">
                                     </div>
                                     <div class="color-presets mt-2 flex flex-wrap gap-2">
                                         <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#0284c7" style="background-color: #0284c7;"></span>
@@ -405,7 +503,7 @@
                                         <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#9333ea" style="background-color: #9333ea;"></span>
                                     </div>
                                 </div>
-                                <span asp-validation-for="AccentColor" class="form-error"></span>
+                                <span class="form-error"></span>
                             </div>
                         </div>
                         
@@ -494,7 +592,7 @@
                                 <span id="preview-serial">SN12345</span>
                             </div>
                         </div>
-                        <div class="space-y-2 mt-auto text-sm">
+                        <div class="space-y-2 mt-2 text-sm">
                             <p class="flex items-center">
                                 <i class="fas fa-map-marker-alt mr-3" style="color: #0284c7"></i>
                                 <span class="font-medium">Location:</span>&nbsp;<span id="preview-location">Storage Location</span>
@@ -511,6 +609,11 @@
                                 <i class="fas fa-tools mr-3" style="color: #0284c7"></i>
                                 <span class="font-medium">Maintenance:</span>&nbsp;<span id="preview-maintenance">Maintenance information</span>
                             </p>
+                            
+                            <!-- Custom fields will appear here -->
+                            <div id="preview-custom-fields" class="space-y-2 border-t border-gray-100 pt-2 mt-2">
+                                <!-- Custom fields will be dynamically added here -->
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -549,14 +652,115 @@
     </div>
 </div>
 
+<!-- Custom Field Modal -->
+<div id="custom-field-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full transform transition-all">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-800" id="modal-title">Add Custom Field</h3>
+                <button type="button" class="text-gray-400 hover:text-gray-500" id="close-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form id="custom-field-form" class="space-y-4">
+                <input type="hidden" id="edit-field-index" value="-1">
+                
+                <div class="form-group">
+                    <label for="custom-field-name" class="form-label">Field Name</label>
+                    <input type="text" id="custom-field-name" class="form-input" placeholder="Enter field name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="custom-field-type" class="form-label">Field Type</label>
+                    <select id="custom-field-type" class="form-input">
+                        <option value="text">Text</option>
+                        <option value="number">Number</option>
+                        <option value="date">Date</option>
+                        <option value="email">Email</option>
+                        <option value="url">URL</option>
+                        <option value="phone">Phone</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Icon</label>
+                    <div class="grid grid-cols-8 gap-2 mt-2 border border-gray-200 rounded-lg p-2 bg-gray-50">
+                        <button type="button" class="icon-option w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200 transition-colors active" data-icon="fa-star">
+                            <i class="fas fa-star text-gray-600"></i>
+                        </button>
+                        <button type="button" class="icon-option w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200 transition-colors" data-icon="fa-info-circle">
+                            <i class="fas fa-info-circle text-gray-600"></i>
+                        </button>
+                        <button type="button" class="icon-option w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200 transition-colors" data-icon="fa-link">
+                            <i class="fas fa-link text-gray-600"></i>
+                        </button>
+                        <button type="button" class="icon-option w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200 transition-colors" data-icon="fa-calendar">
+                            <i class="fas fa-calendar text-gray-600"></i>
+                        </button>
+                        <button type="button" class="icon-option w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200 transition-colors" data-icon="fa-clock">
+                            <i class="fas fa-clock text-gray-600"></i>
+                        </button>
+                        <button type="button" class="icon-option w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200 transition-colors" data-icon="fa-hashtag">
+                            <i class="fas fa-hashtag text-gray-600"></i>
+                        </button>
+                        <button type="button" class="icon-option w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200 transition-colors" data-icon="fa-phone">
+                            <i class="fas fa-phone text-gray-600"></i>
+                        </button>
+                        <button type="button" class="icon-option w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200 transition-colors" data-icon="fa-envelope">
+                            <i class="fas fa-envelope text-gray-600"></i>
+                        </button>
+                        <button type="button" class="icon-option w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200 transition-colors" data-icon="fa-clipboard">
+                            <i class="fas fa-clipboard text-gray-600"></i>
+                        </button>
+                        <button type="button" class="icon-option w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200 transition-colors" data-icon="fa-file">
+                            <i class="fas fa-file text-gray-600"></i>
+                        </button>
+                        <button type="button" class="icon-option w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200 transition-colors" data-icon="fa-user">
+                            <i class="fas fa-user text-gray-600"></i>
+                        </button>
+                        <button type="button" class="icon-option w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200 transition-colors" data-icon="fa-users">
+                            <i class="fas fa-users text-gray-600"></i>
+                        </button>
+                        <button type="button" class="icon-option w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200 transition-colors" data-icon="fa-tag">
+                            <i class="fas fa-tag text-gray-600"></i>
+                        </button>
+                        <button type="button" class="icon-option w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200 transition-colors" data-icon="fa-tags">
+                            <i class="fas fa-tags text-gray-600"></i>
+                        </button>
+                        <button type="button" class="icon-option w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200 transition-colors" data-icon="fa-key">
+                            <i class="fas fa-key text-gray-600"></i>
+                        </button>
+                        <button type="button" class="icon-option w-8 h-8 rounded flex items-center justify-center hover:bg-gray-200 transition-colors" data-icon="fa-dollar-sign">
+                            <i class="fas fa-dollar-sign text-gray-600"></i>
+                        </button>
+                    </div>
+                    <input type="hidden" id="custom-field-icon" value="fa-star">
+                </div>
+                
+                <div class="form-group">
+                    <label for="custom-field-default" class="form-label">Default Value (optional)</label>
+                    <input type="text" id="custom-field-default" class="form-input" placeholder="Enter default value">
+                </div>
+                
+                <div class="flex justify-end gap-2 mt-6">
+                    <button type="button" class="btn-secondary" id="cancel-custom-field">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save mr-1"></i> Save Field
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script>
-        // Function to update QR color values to hidden fields
-        function updateQrColors() {
-            document.getElementById('qrFgColorHidden').value = document.getElementById('qr-fg-color').value || '#000000';
-            document.getElementById('qrBgColorHidden').value = document.getElementById('qr-bg-color').value || '#FFFFFF';
-        }
+        // Define global variables for custom fields
+        let customFieldsCount = 0;
+        let customFields = [];
         
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize all form components
@@ -565,6 +769,7 @@
             initializeCardLayouts();
             initializeImageUpload();
             initializeTemplates();
+            initializeCustomFields();
             updateTagPreview();
             
             // Step navigation
@@ -638,6 +843,8 @@
                     const formTop = document.getElementById('product-form').getBoundingClientRect().top + window.pageYOffset - 100;
                     window.scrollTo({top: formTop, behavior: 'smooth'});
                 }
+                
+                window.goToStep = goToStep; // Make accessible globally for use in other functions
                 
                 // Next step buttons
                 nextButtons.forEach(button => {
@@ -824,7 +1031,7 @@
                 });
                 
                 // Connect text inputs to color pickers
-                const textColorInputs = document.querySelectorAll('input[type="text"][asp-for]');
+                const textColorInputs = document.querySelectorAll('input[type="text"][id$="Color"]');
                 textColorInputs.forEach(input => {
                     if (input.id.includes('Color')) {
                         input.addEventListener('input', function() {
@@ -873,24 +1080,24 @@
                 if (qrFgColor && qrFgColorText) {
                     qrFgColor.addEventListener('input', function() {
                         qrFgColorText.value = this.value;
-                        updateQrColors();
+                        document.getElementById('qrFgColorHidden').value = this.value;
                     });
                     
                     qrFgColorText.addEventListener('input', function() {
                         qrFgColor.value = this.value;
-                        updateQrColors();
+                        document.getElementById('qrFgColorHidden').value = this.value;
                     });
                 }
                 
                 if (qrBgColor && qrBgColorText) {
                     qrBgColor.addEventListener('input', function() {
                         qrBgColorText.value = this.value;
-                        updateQrColors();
+                        document.getElementById('qrBgColorHidden').value = this.value;
                     });
                     
                     qrBgColorText.addEventListener('input', function() {
                         qrBgColor.value = this.value;
-                        updateQrColors();
+                        document.getElementById('qrBgColorHidden').value = this.value;
                     });
                 }
             }
@@ -975,9 +1182,15 @@
                                         <i class="fas fa-calendar-check mr-3" style="color: ${document.getElementById('accent-color-picker').value}"></i>
                                         <span class="font-medium">Warranty:</span>&nbsp;<span id="preview-warranty">${formatDate(document.getElementById('WarrantyExpiration').value) || 'Jan 1, 2026'}</span>
                                     </p>
+                                    <div id="preview-custom-fields" class="space-y-2 border-t border-gray-100 pt-2 mt-2">
+                                        <!-- Custom fields will be dynamically added here -->
+                                    </div>
                                 </div>
                             </div>
                         `;
+                        
+                        // Update custom fields in preview
+                        updateCustomFieldsPreview();
                     }
                 } else if (layoutType === 'compact') {
                     // Compact layout with side QR
@@ -986,7 +1199,7 @@
                         content.className = 'h-full flex';
                         content.innerHTML = `
                             <div class="flex-grow p-4">
-                                <span id="preview-category" class="px-2 py-1 text-xs font-semibold rounded-full" style="background-color: ${document.getElementById('accent-color-picker').value}; color: ${document.getElementById('bg-color-picker').value}">
+                                <span id="preview-category" class="px-2 py-1 text-xs font-semibold rounded-full" style="background-color: ${document.getElementById('accent-color-picker').value}; color: ${document.getElementById('bg-color-picker').value || '#ffffff'}">
                                     ${document.getElementById('Category').value || 'Product Category'}
                                 </span>
                                 <h3 id="preview-name" class="text-lg font-bold mt-2" style="color: ${document.getElementById('accent-color-picker').value}">${document.getElementById('ProductName').value || 'Product Name'}</h3>
@@ -1007,6 +1220,9 @@
                                         <i class="fas fa-map-marker-alt mr-2" style="color: ${document.getElementById('accent-color-picker').value}"></i>
                                         ${document.getElementById('Location').value || 'Storage Location'}
                                     </p>
+                                    <div id="preview-custom-fields" class="space-y-1 mt-2 pt-2 border-t border-gray-100">
+                                        <!-- Custom fields will be dynamically added here -->
+                                    </div>
                                 </div>
                             </div>
                             <div class="w-1/3 bg-gray-50 rounded-r-lg flex items-center justify-center">
@@ -1018,6 +1234,9 @@
                                 </div>
                             </div>
                         `;
+                        
+                        // Update custom fields in preview
+                        updateCustomFieldsPreview();
                     }
                 } else {
                     // Standard layout
@@ -1105,9 +1324,302 @@
                 }
             }
             
+            // Initialize custom fields
+            function initializeCustomFields() {
+                const addCustomFieldBtn = document.getElementById('add-custom-field');
+                const addFirstCustomFieldBtn = document.getElementById('add-first-custom-field');
+                const customFieldsContainer = document.getElementById('custom-fields-container');
+                const customFieldsList = document.querySelector('.custom-fields-list');
+                const customFieldsEmpty = document.getElementById('custom-fields-empty');
+                const customFieldTemplate = document.getElementById('custom-field-template');
+                const customFieldModal = document.getElementById('custom-field-modal');
+                const closeModalBtn = document.getElementById('close-modal');
+                const cancelCustomFieldBtn = document.getElementById('cancel-custom-field');
+                const customFieldForm = document.getElementById('custom-field-form');
+                const iconOptions = document.querySelectorAll('.icon-option');
+                
+                // Add custom field button click
+                addCustomFieldBtn.addEventListener('click', function() {
+                    openCustomFieldModal();
+                });
+                
+                addFirstCustomFieldBtn.addEventListener('click', function() {
+                    openCustomFieldModal();
+                });
+                
+                // Close modal buttons
+                closeModalBtn.addEventListener('click', closeCustomFieldModal);
+                cancelCustomFieldBtn.addEventListener('click', closeCustomFieldModal);
+                
+                // Close modal when clicking outside
+                customFieldModal.addEventListener('click', function(e) {
+                    if (e.target === customFieldModal) {
+                        closeCustomFieldModal();
+                    }
+                });
+                
+                // Icon selection
+                iconOptions.forEach(option => {
+                    option.addEventListener('click', function() {
+                        iconOptions.forEach(opt => opt.classList.remove('bg-primary-100', 'active'));
+                        this.classList.add('bg-primary-100', 'active');
+                        document.getElementById('custom-field-icon').value = this.getAttribute('data-icon');
+                    });
+                });
+                
+                // Custom field form submission
+                customFieldForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const fieldName = document.getElementById('custom-field-name').value;
+                    const fieldType = document.getElementById('custom-field-type').value;
+                    const fieldIcon = document.getElementById('custom-field-icon').value;
+                    const fieldDefault = document.getElementById('custom-field-default').value;
+                    const editIndex = parseInt(document.getElementById('edit-field-index').value);
+                    
+                    if (editIndex >= 0) {
+                        // Update existing field
+                        updateCustomField(editIndex, fieldName, fieldType, fieldIcon, fieldDefault);
+                    } else {
+                        // Add new field
+                        addCustomField(fieldName, fieldType, fieldIcon, fieldDefault);
+                    }
+                    
+                    closeCustomFieldModal();
+                    updateTagPreview();
+                });
+                
+                // Open custom field modal
+                function openCustomFieldModal(fieldIndex = -1) {
+                    // Clear the form
+                    customFieldForm.reset();
+                    document.getElementById('edit-field-index').value = fieldIndex;
+                    
+                    // Reset icon selection
+                    iconOptions.forEach(opt => opt.classList.remove('bg-primary-100', 'active'));
+                    iconOptions[0].classList.add('bg-primary-100', 'active');
+                    document.getElementById('custom-field-icon').value = 'fa-star';
+                    
+                    // Set title
+                    document.getElementById('modal-title').textContent = fieldIndex >= 0 ? 'Edit Custom Field' : 'Add Custom Field';
+                    
+                    // If editing, populate form with existing field data
+                    if (fieldIndex >= 0) {
+                        const field = customFields[fieldIndex];
+                        document.getElementById('custom-field-name').value = field.name;
+                        document.getElementById('custom-field-type').value = field.type;
+                        document.getElementById('custom-field-default').value = field.value;
+                        document.getElementById('custom-field-icon').value = field.icon;
+                        
+                        // Select the corresponding icon
+                        iconOptions.forEach(opt => {
+                            if (opt.getAttribute('data-icon') === field.icon) {
+                                opt.classList.add('bg-primary-100', 'active');
+                            }
+                        });
+                    }
+                    
+                    // Show the modal
+                    customFieldModal.classList.remove('hidden');
+                }
+                
+                // Close custom field modal
+                function closeCustomFieldModal() {
+                    customFieldModal.classList.add('hidden');
+                }
+                
+                // Add custom field
+                function addCustomField(name, type, icon, defaultValue = '') {
+                    // Create new field
+                    const fieldId = `custom-field-${customFieldsCount}`;
+                    const field = {
+                        id: fieldId,
+                        name: name,
+                        type: type,
+                        icon: icon,
+                        value: defaultValue
+                    };
+                    
+                    // Add to fields array
+                    customFields.push(field);
+                    
+                    // Create DOM element
+                    const newField = customFieldTemplate.cloneNode(true);
+                    newField.id = fieldId;
+                    newField.classList.remove('hidden');
+                    
+                    // Set field content
+                    newField.querySelector('.custom-field-label').textContent = name;
+                    newField.querySelector('.custom-field-input').name = `custom_fields[${customFieldsCount}][value]`;
+                    newField.querySelector('.custom-field-input').value = defaultValue;
+                    newField.querySelector('.custom-field-input').placeholder = `Enter ${name}`;
+                    
+                    // Set field type
+                    newField.querySelector('.custom-field-input').type = type === 'number' ? 'number' : 
+                                                                         type === 'date' ? 'date' : 
+                                                                         type === 'email' ? 'email' : 
+                                                                         type === 'url' ? 'url' : 
+                                                                         type === 'phone' ? 'tel' : 'text';
+                    
+                    // Set hidden values
+                    newField.querySelector('.custom-field-key').name = `custom_fields[${customFieldsCount}][key]`;
+                    newField.querySelector('.custom-field-key').value = name.toLowerCase().replace(/\s+/g, '_');
+                    
+                    newField.querySelector('.custom-field-type').name = `custom_fields[${customFieldsCount}][type]`;
+                    newField.querySelector('.custom-field-type').value = type;
+                    
+                    newField.querySelector('.custom-field-icon').name = `custom_fields[${customFieldsCount}][icon]`;
+                    newField.querySelector('.custom-field-icon').value = icon;
+                    
+                    // Set icon
+                    newField.querySelector('.custom-field-icon-display i').className = `fas ${icon}`;
+                    
+                    // Add event listeners
+                    newField.querySelector('.edit-custom-field').addEventListener('click', function() {
+                        const fieldIndex = customFields.findIndex(f => f.id === fieldId);
+                        if (fieldIndex >= 0) {
+                            openCustomFieldModal(fieldIndex);
+                        }
+                    });
+                    
+                    newField.querySelector('.remove-custom-field').addEventListener('click', function() {
+                        const fieldIndex = customFields.findIndex(f => f.id === fieldId);
+                        if (fieldIndex >= 0) {
+                            customFields.splice(fieldIndex, 1);
+                            newField.remove();
+                            
+                            // Show empty state if no fields
+                            if (customFields.length === 0) {
+                                customFieldsEmpty.classList.remove('hidden');
+                            }
+                            
+                            updateTagPreview();
+                        }
+                    });
+                    
+                    // Add input change handler to update preview
+                    newField.querySelector('.custom-field-input').addEventListener('input', function() {
+                        const fieldIndex = customFields.findIndex(f => f.id === fieldId);
+                        if (fieldIndex >= 0) {
+                            customFields[fieldIndex].value = this.value;
+                            updateTagPreview();
+                        }
+                    });
+                    
+                    // Append to list
+                    customFieldsList.appendChild(newField);
+                    
+                    // Increment counter
+                    customFieldsCount++;
+                    
+                    // Hide empty state
+                    customFieldsEmpty.classList.add('hidden');
+                    
+                    return field;
+                }
+                
+                // Update existing custom field
+                function updateCustomField(index, name, type, icon, value) {
+                    const field = customFields[index];
+                    if (!field) return;
+                    
+                    // Update field data
+                    field.name = name;
+                    field.type = type;
+                    field.icon = icon;
+                    field.value = value;
+                    
+                    // Update DOM element
+                    const fieldElement = document.getElementById(field.id);
+                    if (fieldElement) {
+                        fieldElement.querySelector('.custom-field-label').textContent = name;
+                        
+                        const inputElement = fieldElement.querySelector('.custom-field-input');
+                        inputElement.value = value;
+                        inputElement.placeholder = `Enter ${name}`;
+                        inputElement.type = type === 'number' ? 'number' : 
+                                            type === 'date' ? 'date' : 
+                                            type === 'email' ? 'email' : 
+                                            type === 'url' ? 'url' : 
+                                            type === 'phone' ? 'tel' : 'text';
+                        
+                        // Update hidden values
+                        fieldElement.querySelector('.custom-field-key').value = name.toLowerCase().replace(/\s+/g, '_');
+                        fieldElement.querySelector('.custom-field-type').value = type;
+                        fieldElement.querySelector('.custom-field-icon').value = icon;
+                        
+                        // Update icon
+                        fieldElement.querySelector('.custom-field-icon-display i').className = `fas ${icon}`;
+                    }
+                }
+                
+                // Add to window for global access
+                window.customFieldsManager = {
+                    addCustomField,
+                    updateCustomField,
+                    openCustomFieldModal,
+                    closeCustomFieldModal
+                };
+            }
+            
+            // Update custom fields in preview
+            function updateCustomFieldsPreview() {
+                const previewCustomFields = document.getElementById('preview-custom-fields');
+                if (!previewCustomFields) return;
+                
+                // Clear existing fields
+                previewCustomFields.innerHTML = '';
+                
+                // If no custom fields, hide the container
+                if (customFields.length === 0) {
+                    previewCustomFields.style.display = 'none';
+                    return;
+                }
+                
+                // Show the container
+                previewCustomFields.style.display = 'block';
+                
+                // Get card layout type
+                const layoutType = document.querySelector('.layout-option.active').getAttribute('data-layout');
+                const isCompact = layoutType === 'compact';
+                
+                // Add each custom field
+                customFields.forEach(field => {
+                    const fieldElement = document.createElement('p');
+                    fieldElement.className = 'flex items-center';
+                    
+                    const iconMargin = isCompact ? 'mr-2' : 'mr-3';
+                    
+                    fieldElement.innerHTML = `
+                        <i class="fas ${field.icon} ${iconMargin}" style="color: ${document.getElementById('accent-color-picker').value}"></i>
+                        <span class="font-medium">${field.name}:</span>&nbsp;<span>${field.value || '—'}</span>
+                    `;
+                    
+                    previewCustomFields.appendChild(fieldElement);
+                });
+            }
+            
             // Template application
             function initializeTemplates() {
                 const templates = document.querySelectorAll('.template-card');
+                const showMoreTemplatesBtn = document.getElementById('show-more-templates');
+                const hideMoreTemplatesBtn = document.getElementById('hide-more-templates');
+                const advancedTemplates = document.getElementById('advanced-templates');
+                
+                // Show/hide advanced templates
+                if (showMoreTemplatesBtn && hideMoreTemplatesBtn && advancedTemplates) {
+                    showMoreTemplatesBtn.addEventListener('click', function() {
+                        advancedTemplates.classList.remove('hidden');
+                        showMoreTemplatesBtn.classList.add('hidden');
+                        hideMoreTemplatesBtn.classList.remove('hidden');
+                    });
+                    
+                    hideMoreTemplatesBtn.addEventListener('click', function() {
+                        advancedTemplates.classList.add('hidden');
+                        showMoreTemplatesBtn.classList.remove('hidden');
+                        hideMoreTemplatesBtn.classList.add('hidden');
+                    });
+                }
                 
                 templates.forEach(template => {
                     template.addEventListener('click', function() {
@@ -1125,111 +1637,346 @@
             
             // Apply predefined templates
             function applyTemplate(type) {
+                // Reset custom fields
+                customFields = [];
+                document.querySelector('.custom-fields-list').innerHTML = '';
+                document.querySelector('.custom-fields-list').appendChild(document.getElementById('custom-field-template'));
+                document.getElementById('custom-fields-empty').classList.remove('hidden');
+                
+                // Common fields setup function
+                function setupCommonFields(data) {
+                    document.getElementById('ProductName').value = data.name;
+                    document.getElementById('Category').value = data.category;
+                    document.getElementById('Manufacturer').value = data.manufacturer;
+                    document.getElementById('ModelNumber').value = data.model;
+                    document.getElementById('SerialNumber').value = data.serial;
+                    document.getElementById('Location').value = data.location;
+                    document.getElementById('MaintenanceInfo').value = data.maintenance;
+                    
+                    // Set dates
+                    const today = new Date();
+                    const manufactureDate = new Date(today);
+                    manufactureDate.setMonth(manufactureDate.getMonth() - data.ageMonths);
+                    
+                    const purchaseDate = new Date(today);
+                    purchaseDate.setMonth(purchaseDate.getMonth() - data.ageMonths + 1);
+                    
+                    const warrantyDate = new Date(today);
+                    warrantyDate.setFullYear(warrantyDate.getFullYear() + data.warrantyYears);
+                    
+                    document.getElementById('ManufactureDate').value = formatDateForInput(manufactureDate);
+                    document.getElementById('PurchaseDate').value = formatDateForInput(purchaseDate);
+                    document.getElementById('WarrantyExpiration').value = formatDateForInput(warrantyDate);
+                    
+                    // Set colors
+                    document.getElementById('bg-color-picker').value = data.colors.bg;
+                    document.getElementById('text-color-picker').value = data.colors.text;
+                    document.getElementById('accent-color-picker').value = data.colors.accent;
+                    
+                    // Update text inputs
+                    document.getElementById('BackgroundColor').value = data.colors.bg;
+                    document.getElementById('TextColor').value = data.colors.text;
+                    document.getElementById('AccentColor').value = data.colors.accent;
+                    
+                    // Add custom fields
+                    if (data.customFields && data.customFields.length) {
+                        data.customFields.forEach(field => {
+                            window.customFieldsManager.addCustomField(
+                                field.name,
+                                field.type,
+                                field.icon,
+                                field.value
+                            );
+                        });
+                        
+                        // Hide empty state
+                        document.getElementById('custom-fields-empty').classList.add('hidden');
+                    }
+                    
+                    // Set card layout if specified
+                    if (data.layout) {
+                        const layoutOption = document.querySelector(`.layout-option[data-layout="${data.layout}"]`);
+                        if (layoutOption) {
+                            // Trigger click to update layout
+                            layoutOption.click();
+                        }
+                    }
+                    
+                    showNotification(`${type.charAt(0).toUpperCase() + type.slice(1)} template applied successfully`, 'success');
+                }
+                
                 if (type === 'chemical') {
-                    document.getElementById('ProductName').value = 'RustShield Pro 5000';
-                    document.getElementById('Category').value = 'Rust Coating Chemical';
-                    document.getElementById('Manufacturer').value = 'ChemTech Industries';
-                    document.getElementById('ModelNumber').value = 'RS-5000-X';
-                    document.getElementById('SerialNumber').value = 'CT20250001';
-                    document.getElementById('Location').value = 'Chemical Storage Room A';
-                    document.getElementById('MaintenanceInfo').value = 'Store at 10-15°C, away from direct sunlight';
+                    setupCommonFields({
+                        name: 'RustShield Pro 5000',
+                        category: 'Rust Coating Chemical',
+                        manufacturer: 'ChemTech Industries',
+                        model: 'RS-5000-X',
+                        serial: 'CT20250001',
+                        location: 'Chemical Storage Room A',
+                        maintenance: 'Store at 10-15°C, away from direct sunlight. Rotate stock every 6 months.',
+                        ageMonths: 2,
+                        warrantyYears: 2,
+                        colors: {
+                            bg: '#ffffff',
+                            text: '#1e293b',
+                            accent: '#0284c7'
+                        },
+                        layout: 'standard',
+                        customFields: [
+                            {
+                                name: 'Safety Class',
+                                type: 'text',
+                                icon: 'fa-exclamation-triangle',
+                                value: 'Class B - Moderate'
+                            },
+                            {
+                                name: 'Batch Number',
+                                type: 'text',
+                                icon: 'fa-hashtag',
+                                value: 'BN-2025-4872'
+                            }
+                        ]
+                    });
                     
-                    // Set dates
-                    const today = new Date();
-                    const manufactureDate = new Date(today);
-                    manufactureDate.setMonth(manufactureDate.getMonth() - 2);
-                    
-                    const purchaseDate = new Date(today);
-                    purchaseDate.setMonth(purchaseDate.getMonth() - 1);
-                    
-                    const warrantyDate = new Date(today);
-                    warrantyDate.setFullYear(warrantyDate.getFullYear() + 2);
-                    
-                    document.getElementById('ManufactureDate').value = formatDateForInput(manufactureDate);
-                    document.getElementById('PurchaseDate').value = formatDateForInput(purchaseDate);
-                    document.getElementById('WarrantyExpiration').value = formatDateForInput(warrantyDate);
-                    
-                    // Set colors
-                    document.getElementById('bg-color-picker').value = '#ffffff';
-                    document.getElementById('text-color-picker').value = '#1e293b';
-                    document.getElementById('accent-color-picker').value = '#0284c7';
-                    
-                    // Update text inputs
-                    document.querySelector('input[asp-for="BackgroundColor"]').value = '#ffffff';
-                    document.querySelector('input[asp-for="TextColor"]').value = '#1e293b';
-                    document.querySelector('input[asp-for="AccentColor"]').value = '#0284c7';
-                    
-                    showNotification('Chemical product template applied', 'success');
                 } else if (type === 'equipment') {
-                    document.getElementById('ProductName').value = 'Industrial Spray Booth';
-                    document.getElementById('Category').value = 'Application Equipment';
-                    document.getElementById('Manufacturer').value = 'SprayTech';
-                    document.getElementById('ModelNumber').value = 'SB-2000';
-                    document.getElementById('SerialNumber').value = 'ST2024789';
-                    document.getElementById('Location').value = 'Building 2, Bay 4';
-                    document.getElementById('MaintenanceInfo').value = 'Filter replacement every 3 months';
+                    setupCommonFields({
+                        name: 'Industrial Spray Booth',
+                        category: 'Application Equipment',
+                        manufacturer: 'SprayTech',
+                        model: 'SB-2000',
+                        serial: 'ST2024789',
+                        location: 'Building 2, Bay 4',
+                        maintenance: 'Filter replacement every 3 months. Monthly calibration check required.',
+                        ageMonths: 4,
+                        warrantyYears: 3,
+                        colors: {
+                            bg: '#f8fafc',
+                            text: '#334155',
+                            accent: '#6366f1'
+                        },
+                        layout: 'modern',
+                        customFields: [
+                            {
+                                name: 'Last Service',
+                                type: 'date',
+                                icon: 'fa-calendar-check',
+                                value: formatDateForInput(new Date())
+                            },
+                            {
+                                name: 'Service Contact',
+                                type: 'phone',
+                                icon: 'fa-phone',
+                                value: '+66 123-456-7890'
+                            },
+                            {
+                                name: 'Power Rating',
+                                type: 'text',
+                                icon: 'fa-bolt',
+                                value: '240V / 30A'
+                            }
+                        ]
+                    });
                     
-                    // Set dates
-                    const today = new Date();
-                    const manufactureDate = new Date(today);
-                    manufactureDate.setMonth(manufactureDate.getMonth() - 4);
-                    
-                    const purchaseDate = new Date(today);
-                    purchaseDate.setMonth(purchaseDate.getMonth() - 3);
-                    
-                    const warrantyDate = new Date(today);
-                    warrantyDate.setFullYear(warrantyDate.getFullYear() + 2);
-                    
-                    document.getElementById('ManufactureDate').value = formatDateForInput(manufactureDate);
-                    document.getElementById('PurchaseDate').value = formatDateForInput(purchaseDate);
-                    document.getElementById('WarrantyExpiration').value = formatDateForInput(warrantyDate);
-                    
-                    // Set colors
-                    document.getElementById('bg-color-picker').value = '#f8fafc';
-                    document.getElementById('text-color-picker').value = '#334155';
-                    document.getElementById('accent-color-picker').value = '#6366f1';
-                    
-                    // Update text inputs
-                    document.querySelector('input[asp-for="BackgroundColor"]').value = '#f8fafc';
-                    document.querySelector('input[asp-for="TextColor"]').value = '#334155';
-                    document.querySelector('input[asp-for="AccentColor"]').value = '#6366f1';
-                    
-                    showNotification('Equipment template applied', 'success');
                 } else if (type === 'safety') {
-                    document.getElementById('ProductName').value = 'Emergency Eye Wash Station';
-                    document.getElementById('Category').value = 'Safety Equipment';
-                    document.getElementById('Manufacturer').value = 'SafetyFirst Inc.';
-                    document.getElementById('ModelNumber').value = 'EW-100';
-                    document.getElementById('SerialNumber').value = 'SF20245582';
-                    document.getElementById('Location').value = 'Chemical Processing Area';
-                    document.getElementById('MaintenanceInfo').value = 'Weekly testing required. Monthly full inspection.';
+                    setupCommonFields({
+                        name: 'Emergency Eye Wash Station',
+                        category: 'Safety Equipment',
+                        manufacturer: 'SafetyFirst Inc.',
+                        model: 'EW-100',
+                        serial: 'SF20245582',
+                        location: 'Chemical Processing Area',
+                        maintenance: 'Weekly testing required. Monthly full inspection. Maintain water pressure of 30-90 PSI.',
+                        ageMonths: 6,
+                        warrantyYears: 5,
+                        colors: {
+                            bg: '#fffbeb',
+                            text: '#451a03',
+                            accent: '#ea580c'
+                        },
+                        layout: 'compact',
+                        customFields: [
+                            {
+                                name: 'Last Test',
+                                type: 'date',
+                                icon: 'fa-calendar',
+                                value: formatDateForInput(new Date())
+                            },
+                            {
+                                name: 'Inspection Frequency',
+                                type: 'text',
+                                icon: 'fa-clock',
+                                value: 'Weekly'
+                            },
+                            {
+                                name: 'Safety Coordinator',
+                                type: 'text',
+                                icon: 'fa-user',
+                                value: 'Somchai Jaidee'
+                            }
+                        ]
+                    });
                     
-                    // Set dates
-                    const today = new Date();
-                    const manufactureDate = new Date(today);
-                    manufactureDate.setMonth(manufactureDate.getMonth() - 6);
+                } else if (type === 'office') {
+                    setupCommonFields({
+                        name: 'ThinkPad X1 Carbon',
+                        category: 'Office Equipment',
+                        manufacturer: 'Lenovo',
+                        model: 'X1 Carbon Gen 10',
+                        serial: 'LNV204925XC',
+                        location: 'Engineering Dept, 3rd Floor',
+                        maintenance: 'Monthly OS updates. Annual hardware checkup by IT.',
+                        ageMonths: 8,
+                        warrantyYears: 3,
+                        colors: {
+                            bg: '#f0f9ff',
+                            text: '#0f172a',
+                            accent: '#0ea5e9'
+                        },
+                        layout: 'standard',
+                        customFields: [
+                            {
+                                name: 'Assigned To',
+                                type: 'text',
+                                icon: 'fa-user',
+                                value: 'Pranee Chanthasad'
+                            },
+                            {
+                                name: 'IT Tag',
+                                type: 'text',
+                                icon: 'fa-tag',
+                                value: 'IT-LT-2254'
+                            },
+                            {
+                                name: 'IP Address',
+                                type: 'text',
+                                icon: 'fa-network-wired',
+                                value: '192.168.1.45'
+                            }
+                        ]
+                    });
                     
-                    const purchaseDate = new Date(today);
-                    purchaseDate.setMonth(purchaseDate.getMonth() - 5);
+                } else if (type === 'laboratory') {
+                    setupCommonFields({
+                        name: 'Digital Microscope XM200',
+                        category: 'Lab Equipment',
+                        manufacturer: 'OpticalPro',
+                        model: 'XM200-HD',
+                        serial: 'OP2025768Q',
+                        location: 'Quality Control Lab, Room 105',
+                        maintenance: 'Monthly lens cleaning. Bi-annual calibration required.',
+                        ageMonths: 5,
+                        warrantyYears: 2,
+                        colors: {
+                            bg: '#f5f3ff',
+                            text: '#1e1b4b',
+                            accent: '#7c3aed'
+                        },
+                        layout: 'modern',
+                        customFields: [
+                            {
+                                name: 'Magnification',
+                                type: 'text',
+                                icon: 'fa-search-plus',
+                                value: '50-1000x'
+                            },
+                            {
+                                name: 'Last Calibration',
+                                type: 'date',
+                                icon: 'fa-calendar-check',
+                                value: formatDateForInput(new Date())
+                            },
+                            {
+                                name: 'Resolution',
+                                type: 'text',
+                                icon: 'fa-compress-arrows-alt',
+                                value: '1920x1080 HD'
+                            }
+                        ]
+                    });
                     
-                    const warrantyDate = new Date(today);
-                    warrantyDate.setFullYear(warrantyDate.getFullYear() + 5);
+                } else if (type === 'maintenance') {
+                    setupCommonFields({
+                        name: 'Hydraulic Press HP-500',
+                        category: 'Application Equipment',
+                        manufacturer: 'PressMax Industrial',
+                        model: 'HP-500',
+                        serial: 'PMI-2024-1456',
+                        location: 'Production Floor, Section C',
+                        maintenance: 'Weekly oil level check. Quarterly seal inspection. Annual full service.',
+                        ageMonths: 10,
+                        warrantyYears: 5,
+                        colors: {
+                            bg: '#fefce8',
+                            text: '#422006',
+                            accent: '#ca8a04'
+                        },
+                        layout: 'compact',
+                        customFields: [
+                            {
+                                name: 'Max Pressure',
+                                type: 'text',
+                                icon: 'fa-tachometer-alt',
+                                value: '500 tons'
+                            },
+                            {
+                                name: 'Oil Type',
+                                type: 'text',
+                                icon: 'fa-oil-can',
+                                value: 'HLP-46 Hydraulic'
+                            },
+                            {
+                                name: 'Service Manual',
+                                type: 'url',
+                                icon: 'fa-file-pdf',
+                                value: 'https://intranet.thaiparker.co.th/manuals/hp500'
+                            }
+                        ]
+                    });
                     
-                    document.getElementById('ManufactureDate').value = formatDateForInput(manufactureDate);
-                    document.getElementById('PurchaseDate').value = formatDateForInput(purchaseDate);
-                    document.getElementById('WarrantyExpiration').value = formatDateForInput(warrantyDate);
-                    
-                    // Set colors
-                    document.getElementById('bg-color-picker').value = '#fffbeb';
-                    document.getElementById('text-color-picker').value = '#451a03';
-                    document.getElementById('accent-color-picker').value = '#ea580c';
-                    
-                    // Update text inputs
-                    document.querySelector('input[asp-for="BackgroundColor"]').value = '#fffbeb';
-                    document.querySelector('input[asp-for="TextColor"]').value = '#451a03';
-                    document.querySelector('input[asp-for="AccentColor"]').value = '#ea580c';
-                    
-                    showNotification('Safety equipment template applied', 'success');
+                } else if (type === 'it') {
+                    setupCommonFields({
+                        name: 'Network Switch 48-Port',
+                        category: 'IT Equipment',
+                        manufacturer: 'Cisco',
+                        model: 'C9300-48P',
+                        serial: 'FDO2413Z1AB',
+                        location: 'Server Room, Rack 3, Unit 24',
+                        maintenance: 'Monthly firmware updates. Dust cleaning quarterly. UPS check annually.',
+                        ageMonths: 12,
+                        warrantyYears: 5,
+                        colors: {
+                            bg: '#ecfdf5',
+                            text: '#134e4a',
+                            accent: '#0d9488'
+                        },
+                        layout: 'standard',
+                        customFields: [
+                            {
+                                name: 'IP Address',
+                                type: 'text',
+                                icon: 'fa-network-wired',
+                                value: '10.10.50.1'
+                            },
+                            {
+                                name: 'Managed By',
+                                type: 'text',
+                                icon: 'fa-user-shield',
+                                value: 'IT Infrastructure Team'
+                            },
+                            {
+                                name: 'Power Draw',
+                                type: 'text',
+                                icon: 'fa-plug',
+                                value: '750W PoE+'
+                            },
+                            {
+                                name: 'Documentation',
+                                type: 'url',
+                                icon: 'fa-file-code',
+                                value: 'https://intranet.thaiparker.co.th/it/network/switches'
+                            }
+                        ]
+                    });
                 }
                 
                 // Update validation icons
@@ -1257,9 +2004,9 @@
             
             // Update tag preview on form input
             function updateTagPreview() {
-                const bgColor = document.getElementById('bg-color-picker').value || '#ffffff';
-                const textColor = document.getElementById('text-color-picker').value || '#000000';
-                const accentColor = document.getElementById('accent-color-picker').value || '#0284c7';
+                const bgColor = document.getElementById('BackgroundColor').value || '#ffffff';
+                const textColor = document.getElementById('TextColor').value || '#000000';
+                const accentColor = document.getElementById('AccentColor').value || '#0284c7';
                 
                 const name = document.getElementById('ProductName').value || 'Product Name';
                 const category = document.getElementById('Category').value || 'Product Category';
@@ -1291,58 +2038,78 @@
                     preview.style.backgroundColor = bgColor;
                     preview.style.color = textColor;
                     
-                    const nameElement = document.getElementById('preview-name');
-                    if (nameElement) {
-                        nameElement.textContent = name;
-                        nameElement.style.color = accentColor;
+                    // Get active layout
+                    const activeLayout = document.querySelector('.layout-option.active');
+                    const layoutType = activeLayout ? activeLayout.getAttribute('data-layout') : 'standard';
+                    
+                    // For standard layout, update individual elements
+                    if (layoutType === 'standard') {
+                        const content = preview.querySelector('div');
+                        if (content) {
+                            content.className = 'p-6 h-full flex flex-col';
+                            content.innerHTML = `
+                                <div class="mb-4">
+                                    <span id="preview-category" class="px-2 py-1 text-xs font-semibold rounded-full" style="background-color: ${accentColor}; color: ${bgColor}">
+                                        ${category}
+                                    </span>
+                                    <h3 id="preview-name" class="text-xl font-bold mt-2" style="color: ${accentColor}">${name}</h3>
+                                    <p id="preview-manufacturer" class="text-md">${manufacturer}</p>
+                                    <div class="flex items-center space-x-2 mt-1 text-sm">
+                                        <span class="font-semibold">Model:</span>
+                                        <span id="preview-model">${model}</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2 text-sm">
+                                        <span class="font-semibold">Serial:</span>
+                                        <span id="preview-serial">${serial}</span>
+                                    </div>
+                                </div>
+                                <div class="space-y-2 mt-2 text-sm">
+                                    <p class="flex items-center">
+                                        <i class="fas fa-map-marker-alt mr-3" style="color: ${accentColor}"></i>
+                                        <span class="font-medium">Location:</span>&nbsp;<span id="preview-location">${location}</span>
+                                    </p>
+                                    <p class="flex items-center">
+                                        <i class="fas fa-calendar-day mr-3" style="color: ${accentColor}"></i>
+                                        <span class="font-medium">Manufactured:</span>&nbsp;<span id="preview-mfgdate">${mfgDate}</span>
+                                    </p>
+                                    <p class="flex items-center">
+                                        <i class="fas fa-calendar-check mr-3" style="color: ${accentColor}"></i>
+                                        <span class="font-medium">Warranty Until:</span>&nbsp;<span id="preview-warranty">${warrantyDate}</span>
+                                    </p>
+                                    <p class="flex items-center">
+                                        <i class="fas fa-tools mr-3" style="color: ${accentColor}"></i>
+                                        <span class="font-medium">Maintenance:</span>&nbsp;<span id="preview-maintenance">${maintenance}</span>
+                                    </p>
+                                    <div id="preview-custom-fields" class="space-y-2 border-t border-gray-100 pt-2 mt-2 ${customFields.length === 0 ? 'hidden' : ''}">
+                                        <!-- Custom fields will be dynamically added here -->
+                                    </div>
+                                </div>
+                            `;
+                        }
                     }
                     
-                    const categoryElement = document.getElementById('preview-category');
-                    if (categoryElement) {
-                        categoryElement.textContent = category;
-                        categoryElement.style.backgroundColor = accentColor;
-                        categoryElement.style.color = bgColor;
-                    }
+                    // Update custom fields
+                    updateCustomFieldsPreview();
                     
-                    const manufacturerElement = document.getElementById('preview-manufacturer');
-                    if (manufacturerElement) {
-                        manufacturerElement.textContent = manufacturer;
-                    }
-                    
-                    const modelElement = document.getElementById('preview-model');
-                    if (modelElement) {
-                        modelElement.textContent = model;
-                    }
-                    
-                    const serialElement = document.getElementById('preview-serial');
-                    if (serialElement) {
-                        serialElement.textContent = serial;
-                    }
-                    
-                    const locationElement = document.getElementById('preview-location');
-                    if (locationElement) {
-                        locationElement.textContent = location;
-                    }
-                    
-                    const mfgDateElement = document.getElementById('preview-mfgdate');
-                    if (mfgDateElement) {
-                        mfgDateElement.textContent = mfgDate;
-                    }
-                    
-                    const warrantyElement = document.getElementById('preview-warranty');
-                    if (warrantyElement) {
-                        warrantyElement.textContent = warrantyDate;
-                    }
-                    
-                    const maintenanceElement = document.getElementById('preview-maintenance');
-                    if (maintenanceElement) {
-                        maintenanceElement.textContent = maintenance;
-                    }
-                    
-                    // Update icons
-                    preview.querySelectorAll('i').forEach(icon => {
+                    // Update icons color
+                    const icons = preview.querySelectorAll('i:not(.fa-qrcode)');
+                    icons.forEach(icon => {
                         icon.style.color = accentColor;
                     });
+                    
+                    // Update QR code colors
+                    const qrFgColor = document.getElementById('qr-fg-color').value;
+                    const qrBgColor = document.getElementById('qr-bg-color').value;
+                    
+                    // Update QR code preview (in a real implementation, this would generate an actual QR code)
+                    const qrPreview = document.querySelector('.qr-preview');
+                    if (qrPreview) {
+                        qrPreview.style.backgroundColor = qrBgColor;
+                        const qrIcon = qrPreview.querySelector('.fa-qrcode');
+                        if (qrIcon) {
+                            qrIcon.style.color = qrFgColor;
+                        }
+                    }
                 }
             }
             
@@ -1382,6 +2149,8 @@
             
             // Form validation on submit
             document.getElementById('product-form').addEventListener('submit', function(e) {
+                e.preventDefault(); // In this demo, we prevent form submission
+                
                 let isValid = true;
                 const requiredFields = this.querySelectorAll('[required]');
                 
@@ -1399,8 +2168,6 @@
                 });
                 
                 if (!isValid) {
-                    e.preventDefault();
-                    
                     // Find which step has errors
                     let stepWithError = 1;
                     const step1Errors = document.querySelectorAll('.form-section[data-step="1"] .border-red-500').length > 0;
@@ -1413,7 +2180,7 @@
                     }
                     
                     // Go to the step with errors
-                    goToStep(stepWithError);
+                    window.goToStep(stepWithError);
                     
                     // Focus first invalid field
                     const firstInvalid = document.querySelector(`.form-section[data-step="${stepWithError}"] .border-red-500`);
@@ -1425,25 +2192,8 @@
                     return;
                 }
                 
-                // Make sure QR colors are updated before submit
-                updateQrColors();
-                
-                // Ensure color values are set from color pickers
-                const bgColorPicker = document.getElementById('bg-color-picker');
-                const textColorPicker = document.getElementById('text-color-picker');
-                const accentColorPicker = document.getElementById('accent-color-picker');
-                
-                if (bgColorPicker) {
-                    document.querySelector('input[asp-for="BackgroundColor"]').value = bgColorPicker.value;
-                }
-                
-                if (textColorPicker) {
-                    document.querySelector('input[asp-for="TextColor"]').value = textColorPicker.value;
-                }
-                
-                if (accentColorPicker) {
-                    document.querySelector('input[asp-for="AccentColor"]').value = accentColorPicker.value;
-                }
+                // Success notification for demo purposes
+                showNotification('Product tag created successfully! In a real app, this would save to database.', 'success');
             });
         });
         
