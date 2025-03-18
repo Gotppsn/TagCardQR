@@ -904,947 +904,947 @@
             // Card flip functionality
             initCardFlip();
             
-            // Tab switching functionality
-            initTabSwitching();
-            
-            // Share functionality
-            initShareModal();
-            
-            // Reminder functionality
-            initReminders();
-            
-            // Document functionality
-            initDocuments();
-            
-            // History functionality
-            initHistory();
-            
-            // Copy to clipboard functionality
-            initCopyToClipboard();
-            
-            // Toast notifications
-            initToastNotifications();
+ // Tab switching functionality
+        initTabSwitching();
+        
+        // Share functionality
+        initShareModal();
+        
+        // Reminder functionality
+        initReminders();
+        
+        // Document functionality
+        initDocuments();
+        
+        // History functionality
+        initHistory();
+        
+        // Copy to clipboard functionality
+        initCopyToClipboard();
+        
+        // Toast notifications
+        initToastNotifications();
+    });
+    
+    function initCardFlip() {
+        const flipCard = document.getElementById('flip-card');
+        const flipCardBack = document.getElementById('flip-card-back');
+        const cardContainer = document.querySelector('.card-flip-container');
+        
+        if (flipCard && cardContainer) {
+            flipCard.addEventListener('click', function() {
+                cardContainer.classList.add('flipped');
+            });
+        }
+        
+        if (flipCardBack && cardContainer) {
+            flipCardBack.addEventListener('click', function() {
+                cardContainer.classList.remove('flipped');
+            });
+        }
+    }
+    
+    function initTabSwitching() {
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        tabButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab');
+                
+                // Remove active class from all buttons
+                tabButtons.forEach(btn => {
+                    btn.classList.remove('text-primary-600', 'border-b-2', 'border-primary-500');
+                    btn.classList.add('text-gray-500', 'hover:text-gray-700');
+                });
+                
+                // Add active class to clicked button
+                this.classList.add('text-primary-600', 'border-b-2', 'border-primary-500');
+                this.classList.remove('text-gray-500', 'hover:text-gray-700');
+                
+                // Hide all tab contents
+                tabContents.forEach(content => {
+                    content.classList.add('hidden');
+                });
+                
+                // Show corresponding tab content
+                document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+                
+                // Load tab-specific content if needed
+                if (tabId === 'history') {
+                    loadHistoryData();
+                } else if (tabId === 'documents') {
+                    loadDocumentsData();
+                }
+            });
         });
+    }
+    
+    function initShareModal() {
+        const shareButton = document.getElementById('share-button');
+        const shareModal = document.getElementById('share-modal');
+        const closeShareModal = document.getElementById('close-share-modal');
+        const copyLinkBtn = document.getElementById('copy-link-btn');
+        const shareButtons = document.querySelectorAll('.share-btn');
         
-        function initCardFlip() {
-            const flipCard = document.getElementById('flip-card');
-            const flipCardBack = document.getElementById('flip-card-back');
-            const cardContainer = document.querySelector('.card-flip-container');
-            
-            if (flipCard && cardContainer) {
-                flipCard.addEventListener('click', function() {
-                    cardContainer.classList.add('flipped');
-                });
-            }
-            
-            if (flipCardBack && cardContainer) {
-                flipCardBack.addEventListener('click', function() {
-                    cardContainer.classList.remove('flipped');
-                });
-            }
-        }
-        
-        function initTabSwitching() {
-            const tabButtons = document.querySelectorAll('.tab-button');
-            const tabContents = document.querySelectorAll('.tab-content');
-            
-            tabButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const tabId = this.getAttribute('data-tab');
-                    
-                    // Remove active class from all buttons
-                    tabButtons.forEach(btn => {
-                        btn.classList.remove('text-primary-600', 'border-b-2', 'border-primary-500');
-                        btn.classList.add('text-gray-500', 'hover:text-gray-700');
-                    });
-                    
-                    // Add active class to clicked button
-                    this.classList.add('text-primary-600', 'border-b-2', 'border-primary-500');
-                    this.classList.remove('text-gray-500', 'hover:text-gray-700');
-                    
-                    // Hide all tab contents
-                    tabContents.forEach(content => {
-                        content.classList.add('hidden');
-                    });
-                    
-                    // Show corresponding tab content
-                    document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-                    
-                    // Load tab-specific content if needed
-                    if (tabId === 'history') {
-                        loadHistoryData();
-                    } else if (tabId === 'documents') {
-                        loadDocumentsData();
-                    }
-                });
+        if (shareButton && shareModal) {
+            shareButton.addEventListener('click', function() {
+                shareModal.classList.remove('hidden');
             });
         }
         
-        function initShareModal() {
-            const shareButton = document.getElementById('share-button');
-            const shareModal = document.getElementById('share-modal');
-            const closeShareModal = document.getElementById('close-share-modal');
-            const copyLinkBtn = document.getElementById('copy-link-btn');
-            const shareButtons = document.querySelectorAll('.share-btn');
+        if (closeShareModal && shareModal) {
+            closeShareModal.addEventListener('click', function() {
+                shareModal.classList.add('hidden');
+            });
             
-            if (shareButton && shareModal) {
-                shareButton.addEventListener('click', function() {
-                    shareModal.classList.remove('hidden');
-                });
-            }
-            
-            if (closeShareModal && shareModal) {
-                closeShareModal.addEventListener('click', function() {
+            // Close modal when clicking outside
+            shareModal.addEventListener('click', function(e) {
+                if (e.target === shareModal) {
                     shareModal.classList.add('hidden');
-                });
-                
-                // Close modal when clicking outside
-                shareModal.addEventListener('click', function(e) {
-                    if (e.target === shareModal) {
-                        shareModal.classList.add('hidden');
-                    }
-                });
-            }
-            
-            if (copyLinkBtn) {
-                copyLinkBtn.addEventListener('click', function() {
-                    const shareLink = document.getElementById('share-link');
-                    copyToClipboard(shareLink.value);
-                    showToast('Link copied', 'Share link has been copied to clipboard', 'success');
-                });
-            }
-            
-            // Share buttons
-            shareButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const shareType = this.getAttribute('data-type');
-                    const shareUrl = document.getElementById('share-link').value;
-                    const shareTitle = `${document.title} - Product Information`;
-                    
-                    let shareLink = '';
-                    
-                    switch (shareType) {
-                        case 'facebook':
-                            shareLink = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
-                            break;
-                        case 'twitter':
-                            shareLink = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareTitle)}`;
-                            break;
-                        case 'whatsapp':
-                            shareLink = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareTitle + ' ' + shareUrl)}`;
-                            break;
-                    }
-                    
-                    if (shareLink) {
-                        window.open(shareLink, '_blank');
-                    }
-                });
-            });
-        }
-        
-        function initReminders() {
-            const addReminderBtn = document.getElementById('add-reminder');
-            const reminderModal = document.getElementById('reminder-modal');
-            const closeReminderModal = document.getElementById('close-reminder-modal');
-            const cancelReminderBtn = document.getElementById('cancel-reminder');
-            const reminderForm = document.getElementById('reminder-form');
-            
-            // Setup default due date (tomorrow)
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            document.getElementById('reminder-date').valueAsDate = tomorrow;
-            
-            if (addReminderBtn && reminderModal) {
-                addReminderBtn.addEventListener('click', function() {
-                    // Reset form to add mode
-                    document.getElementById('reminder-id').value = '0';
-                    document.getElementById('reminder-title').value = '';
-                    document.getElementById('reminder-notes').value = '';
-                    document.getElementById('reminder-repeat').value = 'never';
-                    document.getElementById('reminder-modal-title').textContent = 'Add Maintenance Reminder';
-                    
-                    // Set default date to tomorrow
-                    document.getElementById('reminder-date').valueAsDate = tomorrow;
-                    
-                    reminderModal.classList.remove('hidden');
-                });
-            }
-            
-            if (closeReminderModal && reminderModal) {
-                closeReminderModal.addEventListener('click', function() {
-                    reminderModal.classList.add('hidden');
-                });
-                
-                // Close modal when clicking outside
-                reminderModal.addEventListener('click', function(e) {
-                    if (e.target === reminderModal) {
-                        reminderModal.classList.add('hidden');
-                    }
-                });
-            }
-            
-            if (cancelReminderBtn && reminderModal) {
-                cancelReminderBtn.addEventListener('click', function() {
-                    reminderModal.classList.add('hidden');
-                });
-            }
-            
-            if (reminderForm) {
-                reminderForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    
-                    const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
-                    
-                    const data = {
-                        Id: parseInt(document.getElementById('reminder-id').value) || 0,
-                        CardId: parseInt(document.getElementById('card-id').value),
-                        Title: document.getElementById('reminder-title').value,
-                        DueDate: document.getElementById('reminder-date').value,
-                        Notes: document.getElementById('reminder-notes').value,
-                        RepeatFrequency: document.getElementById('reminder-repeat').value
-                    };
-                    
-                    fetch('/Card/SaveReminder', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'RequestVerificationToken': token
-                        },
-                        body: JSON.stringify(data)
-                    })
-                    .then(response => response.json())
-                    .then(result => {
-                        if (result.success) {
-                            reminderModal.classList.add('hidden');
-                            loadReminders();
-                            showToast('Reminder saved', 'Your maintenance reminder has been scheduled', 'success');
-                        } else {
-                            showToast('Error', result.error || 'Failed to save reminder', 'error');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error saving reminder:', error);
-                        showToast('Error', 'Network error. Please try again.', 'error');
-                    });
-                });
-            }
-            
-            // Initial load of reminders
-            loadReminders();
-            
-            // Setup event delegation for reminder actions
-            document.addEventListener('click', function(e) {
-                // Edit reminder
-                if (e.target.closest('.reminder-edit')) {
-                    const button = e.target.closest('.reminder-edit');
-                    const reminderId = button.getAttribute('data-id');
-                    
-                    fetch(`/api/Reminder/${reminderId}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            // Fill form with reminder data
-                            document.getElementById('reminder-id').value = data.id;
-                            document.getElementById('reminder-title').value = data.title;
-                            document.getElementById('reminder-date').value = data.dueDate.substring(0, 10); // YYYY-MM-DD format
-                            document.getElementById('reminder-notes').value = data.notes || '';
-                            document.getElementById('reminder-repeat').value = data.repeatFrequency || 'never';
-                            document.getElementById('reminder-modal-title').textContent = 'Edit Maintenance Reminder';
-                            
-                            // Show modal
-                            reminderModal.classList.remove('hidden');
-                        })
-                        .catch(error => {
-                            console.error('Error fetching reminder:', error);
-                            showToast('Error', 'Could not load reminder details', 'error');
-                        });
-                }
-                
-                // Delete reminder
-                if (e.target.closest('.reminder-delete')) {
-                    const button = e.target.closest('.reminder-delete');
-                    const reminderId = button.getAttribute('data-id');
-                    
-                    // Show delete confirmation
-                    showDeleteConfirmation('reminder', reminderId, 'Are you sure you want to delete this reminder?');
                 }
             });
         }
         
-        function loadReminders() {
-            const cardId = document.getElementById('card-id').value;
-            const remindersList = document.getElementById('reminders-list');
+        if (copyLinkBtn) {
+            copyLinkBtn.addEventListener('click', function() {
+                const shareLink = document.getElementById('share-link');
+                copyToClipboard(shareLink.value);
+                showToast('Link copied', 'Share link has been copied to clipboard', 'success');
+            });
+        }
+        
+        // Share buttons
+        shareButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const shareType = this.getAttribute('data-type');
+                const shareUrl = document.getElementById('share-link').value;
+                const shareTitle = `${document.title} - Product Information`;
+                
+                let shareLink = '';
+                
+                switch (shareType) {
+                    case 'facebook':
+                        shareLink = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
+                        break;
+                    case 'twitter':
+                        shareLink = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareTitle)}`;
+                        break;
+                    case 'whatsapp':
+                        shareLink = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareTitle + ' ' + shareUrl)}`;
+                        break;
+                }
+                
+                if (shareLink) {
+                    window.open(shareLink, '_blank');
+                }
+            });
+        });
+    }
+    
+    function initReminders() {
+        const addReminderBtn = document.getElementById('add-reminder');
+        const reminderModal = document.getElementById('reminder-modal');
+        const closeReminderModal = document.getElementById('close-reminder-modal');
+        const cancelReminderBtn = document.getElementById('cancel-reminder');
+        const reminderForm = document.getElementById('reminder-form');
+        
+        // Setup default due date (tomorrow)
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        document.getElementById('reminder-date').valueAsDate = tomorrow;
+        
+        if (addReminderBtn && reminderModal) {
+            addReminderBtn.addEventListener('click', function() {
+                // Reset form to add mode
+                document.getElementById('reminder-id').value = '0';
+                document.getElementById('reminder-title').value = '';
+                document.getElementById('reminder-notes').value = '';
+                document.getElementById('reminder-repeat').value = 'never';
+                document.getElementById('reminder-modal-title').textContent = 'Add Maintenance Reminder';
+                
+                // Set default date to tomorrow
+                document.getElementById('reminder-date').valueAsDate = tomorrow;
+                
+                reminderModal.classList.remove('hidden');
+            });
+        }
+        
+        if (closeReminderModal && reminderModal) {
+            closeReminderModal.addEventListener('click', function() {
+                reminderModal.classList.add('hidden');
+            });
             
-            // Show loading indicator
-            remindersList.innerHTML = '<div class="p-3 text-center"><i class="fas fa-spinner fa-spin mr-2"></i> Loading reminders...</div>';
-            
-            fetch(`/Card/GetCardReminders/${cardId}`)
+            // Close modal when clicking outside
+            reminderModal.addEventListener('click', function(e) {
+                if (e.target === reminderModal) {
+                    reminderModal.classList.add('hidden');
+                }
+            });
+        }
+        
+        if (cancelReminderBtn && reminderModal) {
+            cancelReminderBtn.addEventListener('click', function() {
+                reminderModal.classList.add('hidden');
+            });
+        }
+        
+        if (reminderForm) {
+            reminderForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
+                
+                const data = {
+                    Id: parseInt(document.getElementById('reminder-id').value) || 0,
+                    CardId: parseInt(document.getElementById('card-id').value),
+                    Title: document.getElementById('reminder-title').value,
+                    DueDate: document.getElementById('reminder-date').value,
+                    Notes: document.getElementById('reminder-notes').value,
+                    RepeatFrequency: document.getElementById('reminder-repeat').value
+                };
+                
+                fetch('/Card/SaveReminder', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': token
+                    },
+                    body: JSON.stringify(data)
+                })
                 .then(response => response.json())
-                .then(data => {
-                    // Clear loading indicator
-                    remindersList.innerHTML = '';
-                    
-                    if (data && data.length > 0) {
-                        // Add reminders to the list
-                        data.forEach(reminder => {
-                            const dueDate = new Date(reminder.dueDate);
-                            const isPastDue = dueDate < new Date();
-                            
-                            const reminderEl = document.createElement('div');
-                            reminderEl.className = `p-2 ${isPastDue ? 'bg-red-50 border-red-200' : 'bg-gray-50 border-gray-200'} rounded-lg border flex justify-between items-center`;
-                            reminderEl.innerHTML = `
-                                <div>
-                                    <span class="text-sm font-medium ${isPastDue ? 'text-red-800' : 'text-gray-800'}">${reminder.title}</span>
-                                    <div class="text-xs ${isPastDue ? 'text-red-500' : 'text-gray-500'}">Due: ${formatDate(dueDate)}</div>
-                                    ${reminder.notes ? `<div class="text-xs text-gray-500 mt-1">${reminder.notes}</div>` : ''}
-                                </div>
-                                <div class="flex space-x-1">
-                                    <button class="p-1 text-gray-400 hover:text-blue-600 reminder-edit" data-id="${reminder.id}">
-                                        <i class="fas fa-pen"></i>
-                                    </button>
-                                    <button class="p-1 text-gray-400 hover:text-red-600 reminder-delete" data-id="${reminder.id}">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
-                                </div>
-                            `;
-                            
-                            remindersList.appendChild(reminderEl);
-                        });
+                .then(result => {
+                    if (result.success) {
+                        reminderModal.classList.add('hidden');
+                        loadReminders();
+                        showToast('Reminder saved', 'Your maintenance reminder has been scheduled', 'success');
                     } else {
-                        // No reminders message
-                        const noReminders = document.createElement('div');
-                        noReminders.className = 'p-3 text-center text-gray-500 text-sm';
-                        noReminders.textContent = 'No reminders scheduled yet';
-                        remindersList.appendChild(noReminders);
+                        showToast('Error', result.error || 'Failed to save reminder', 'error');
                     }
                 })
                 .catch(error => {
-                    console.error('Error loading reminders:', error);
-                    remindersList.innerHTML = '<div class="p-3 text-center text-red-500">Failed to load reminders. Please try again.</div>';
+                    console.error('Error saving reminder:', error);
+                    showToast('Error', 'Network error. Please try again.', 'error');
                 });
+            });
         }
         
-        function initDocuments() {
-            const addDocumentBtn = document.getElementById('add-document-btn');
-            const addFirstDocumentBtn = document.getElementById('add-first-document');
-            const documentUploadSection = document.getElementById('document-upload-section');
-            const cancelUploadBtn = document.getElementById('cancel-upload');
-            const documentForm = document.getElementById('document-upload-form');
-            const browseDocumentBtn = document.getElementById('browse-document');
-            const documentFileInput = document.getElementById('document-file');
-            const documentDropArea = document.getElementById('document-drop-area');
-            const filePreview = document.getElementById('file-preview');
-            const removeFileBtn = document.getElementById('remove-file');
-            
-            // Show upload section on click
-            if (addDocumentBtn && documentUploadSection) {
-                addDocumentBtn.addEventListener('click', function() {
-                    documentUploadSection.classList.remove('hidden');
-                });
-            }
-            
-            if (addFirstDocumentBtn && documentUploadSection) {
-                addFirstDocumentBtn.addEventListener('click', function() {
-                    documentUploadSection.classList.remove('hidden');
-                });
-            }
-            
-            // Hide upload section on cancel
-            if (cancelUploadBtn && documentUploadSection) {
-                cancelUploadBtn.addEventListener('click', function() {
-                    documentUploadSection.classList.add('hidden');
-                    documentForm.reset();
-                    filePreview.classList.add('hidden');
-                });
-            }
-            
-            // Trigger file input on browse click
-            if (browseDocumentBtn && documentFileInput) {
-                browseDocumentBtn.addEventListener('click', function() {
-                    documentFileInput.click();
-                });
-            }
-            
-            // Handle file selection
-            if (documentFileInput && filePreview) {
-                documentFileInput.addEventListener('change', function() {
-                    if (this.files && this.files[0]) {
-                        handleFileSelection(this.files[0]);
-                    }
-                });
-            }
-            
-            // Handle drag and drop
-            if (documentDropArea) {
-                documentDropArea.addEventListener('dragover', function(e) {
-                    e.preventDefault();
-                    this.classList.add('border-primary-500');
-                });
+        // Initial load of reminders
+        loadReminders();
+        
+        // Setup event delegation for reminder actions
+        document.addEventListener('click', function(e) {
+            // Edit reminder
+            if (e.target.closest('.reminder-edit')) {
+                const button = e.target.closest('.reminder-edit');
+                const reminderId = button.getAttribute('data-id');
                 
-                documentDropArea.addEventListener('dragleave', function(e) {
-                    e.preventDefault();
-                    this.classList.remove('border-primary-500');
-                });
-                
-                documentDropArea.addEventListener('drop', function(e) {
-                    e.preventDefault();
-                    this.classList.remove('border-primary-500');
-                    
-                    if (e.dataTransfer.files.length > 0) {
-                        documentFileInput.files = e.dataTransfer.files;
-                        handleFileSelection(e.dataTransfer.files[0]);
-                    }
-                });
-            }
-            
-            // Remove selected file
-            if (removeFileBtn) {
-                removeFileBtn.addEventListener('click', function() {
-                    documentFileInput.value = '';
-                    filePreview.classList.add('hidden');
-                });
-            }
-            
-            // Handle form submission
-            if (documentForm) {
-                documentForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    
-                    // Show loading spinner
-                    document.getElementById('upload-text').textContent = 'Uploading...';
-                    document.getElementById('upload-spinner').classList.remove('hidden');
-                    
-                    const formData = new FormData(this);
-                    
-                    fetch('/Card/UploadDocument', {
-                        method: 'POST',
-                        body: formData
-                    })
+                fetch(`/api/Reminder/${reminderId}`)
                     .then(response => response.json())
                     .then(data => {
-                        // Hide loading spinner
-                        document.getElementById('upload-text').textContent = 'Upload Document';
-                        document.getElementById('upload-spinner').classList.add('hidden');
+                        // Fill form with reminder data
+                        document.getElementById('reminder-id').value = data.id;
+                        document.getElementById('reminder-title').value = data.title;
+                        document.getElementById('reminder-date').value = data.dueDate.substring(0, 10); // YYYY-MM-DD format
+                        document.getElementById('reminder-notes').value = data.notes || '';
+                        document.getElementById('reminder-repeat').value = data.repeatFrequency || 'never';
+                        document.getElementById('reminder-modal-title').textContent = 'Edit Maintenance Reminder';
                         
-                        if (data.success) {
-                            // Reset form
-                            documentForm.reset();
-                            filePreview.classList.add('hidden');
-                            
-                            // Hide upload section
-                            documentUploadSection.classList.add('hidden');
-                            
-                            // Refresh documents
-                            loadDocumentsData();
-                            
-                            // Show success toast
-                            showToast('Document uploaded', 'Your document has been uploaded successfully', 'success');
-                        } else {
-                            showToast('Error', data.error || 'Failed to upload document', 'error');
-                        }
+                        // Show modal
+                        reminderModal.classList.remove('hidden');
                     })
                     .catch(error => {
-                        console.error('Error uploading document:', error);
-                        
-                        // Hide loading spinner
-                        document.getElementById('upload-text').textContent = 'Upload Document';
-                        document.getElementById('upload-spinner').classList.add('hidden');
-                        
-                        showToast('Error', 'Failed to upload document. Please try again.', 'error');
+                        console.error('Error fetching reminder:', error);
+                        showToast('Error', 'Could not load reminder details', 'error');
                     });
-                });
             }
             
-            // Load documents on init
-            loadDocumentsData();
-            
-            // Event delegation for document actions
-            document.addEventListener('click', function(e) {
-                // Delete document
-                if (e.target.closest('.document-delete')) {
-                    const button = e.target.closest('.document-delete');
-                    const documentId = button.getAttribute('data-id');
-                    
-                    // Show delete confirmation
-                    showDeleteConfirmation('document', documentId, 'Are you sure you want to delete this document?');
-                }
-            });
-        }
-        
-        function handleFileSelection(file) {
-            const fileName = document.getElementById('file-name');
-            const fileIcon = document.getElementById('file-icon');
-            const filePreview = document.getElementById('file-preview');
-            
-            if (file) {
-                // Show file preview
-                fileName.textContent = file.name;
-                filePreview.classList.remove('hidden');
+            // Delete reminder
+            if (e.target.closest('.reminder-delete')) {
+                const button = e.target.closest('.reminder-delete');
+                const reminderId = button.getAttribute('data-id');
                 
-                // Set appropriate icon based on file type
-                if (file.type.startsWith('image/')) {
-                    fileIcon.className = 'fas fa-file-image text-blue-500 mr-2';
-                } else if (file.type.includes('pdf')) {
-                    fileIcon.className = 'fas fa-file-pdf text-red-500 mr-2';
-                } else if (file.type.includes('excel') || file.type.includes('spreadsheet') || file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
-                    fileIcon.className = 'fas fa-file-excel text-green-500 mr-2';
-                } else if (file.type.includes('word') || file.type.includes('document') || file.name.endsWith('.docx') || file.name.endsWith('.doc')) {
-                    fileIcon.className = 'fas fa-file-word text-blue-500 mr-2';
+                // Show delete confirmation
+                showDeleteConfirmation('reminder', reminderId, 'Are you sure you want to delete this reminder?');
+            }
+        });
+    }
+    
+    function loadReminders() {
+        const cardId = document.getElementById('card-id').value;
+        const remindersList = document.getElementById('reminders-list');
+        
+        // Show loading indicator
+        remindersList.innerHTML = '<div class="p-3 text-center"><i class="fas fa-spinner fa-spin mr-2"></i> Loading reminders...</div>';
+        
+        fetch(`/Card/GetCardReminders/${cardId}`)
+            .then(response => response.json())
+            .then(data => {
+                // Clear loading indicator
+                remindersList.innerHTML = '';
+                
+                if (data && data.length > 0) {
+                    // Add reminders to the list
+                    data.forEach(reminder => {
+                        const dueDate = new Date(reminder.dueDate);
+                        const isPastDue = dueDate < new Date();
+                        
+                        const reminderEl = document.createElement('div');
+                        reminderEl.className = `p-2 ${isPastDue ? 'bg-red-50 border-red-200' : 'bg-gray-50 border-gray-200'} rounded-lg border flex justify-between items-center`;
+                        reminderEl.innerHTML = `
+                            <div>
+                                <span class="text-sm font-medium ${isPastDue ? 'text-red-800' : 'text-gray-800'}">${reminder.title}</span>
+                                <div class="text-xs ${isPastDue ? 'text-red-500' : 'text-gray-500'}">Due: ${formatDate(dueDate)}</div>
+                                ${reminder.notes ? `<div class="text-xs text-gray-500 mt-1">${reminder.notes}</div>` : ''}
+                            </div>
+                            <div class="flex space-x-1">
+                                <button class="p-1 text-gray-400 hover:text-blue-600 reminder-edit" data-id="${reminder.id}">
+                                    <i class="fas fa-pen"></i>
+                                </button>
+                                <button class="p-1 text-gray-400 hover:text-red-600 reminder-delete" data-id="${reminder.id}">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        `;
+                        
+                        remindersList.appendChild(reminderEl);
+                    });
                 } else {
-                    fileIcon.className = 'fas fa-file text-gray-500 mr-2';
+                    // No reminders message
+                    const noReminders = document.createElement('div');
+                    noReminders.className = 'p-3 text-center text-gray-500 text-sm';
+                    noReminders.textContent = 'No reminders scheduled yet';
+                    remindersList.appendChild(noReminders);
                 }
-            }
+            })
+            .catch(error => {
+                console.error('Error loading reminders:', error);
+                remindersList.innerHTML = '<div class="p-3 text-center text-red-500">Failed to load reminders. Please try again.</div>';
+            });
+    }
+    
+    function initDocuments() {
+        const addDocumentBtn = document.getElementById('add-document-btn');
+        const addFirstDocumentBtn = document.getElementById('add-first-document');
+        const documentUploadSection = document.getElementById('document-upload-section');
+        const cancelUploadBtn = document.getElementById('cancel-upload');
+        const documentForm = document.getElementById('document-upload-form');
+        const browseDocumentBtn = document.getElementById('browse-document');
+        const documentFileInput = document.getElementById('document-file');
+        const documentDropArea = document.getElementById('document-drop-area');
+        const filePreview = document.getElementById('file-preview');
+        const removeFileBtn = document.getElementById('remove-file');
+        
+        // Show upload section on click
+        if (addDocumentBtn && documentUploadSection) {
+            addDocumentBtn.addEventListener('click', function() {
+                documentUploadSection.classList.remove('hidden');
+            });
         }
         
-        function loadDocumentsData() {
-            const cardId = document.getElementById('card-id').value;
-            const documentsLoading = document.getElementById('documents-loading');
-            const documentItems = document.getElementById('document-items');
-            const noDocuments = document.getElementById('no-documents');
+        if (addFirstDocumentBtn && documentUploadSection) {
+            addFirstDocumentBtn.addEventListener('click', function() {
+                documentUploadSection.classList.remove('hidden');
+            });
+        }
+        
+        // Hide upload section on cancel
+        if (cancelUploadBtn && documentUploadSection) {
+            cancelUploadBtn.addEventListener('click', function() {
+                documentUploadSection.classList.add('hidden');
+                documentForm.reset();
+                filePreview.classList.add('hidden');
+            });
+        }
+        
+        // Trigger file input on browse click
+        if (browseDocumentBtn && documentFileInput) {
+            browseDocumentBtn.addEventListener('click', function() {
+                documentFileInput.click();
+            });
+        }
+        
+        // Handle file selection
+        if (documentFileInput && filePreview) {
+            documentFileInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    handleFileSelection(this.files[0]);
+                }
+            });
+        }
+        
+        // Handle drag and drop
+        if (documentDropArea) {
+            documentDropArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('border-primary-500');
+            });
             
-            // Show loading
-            documentsLoading.classList.remove('hidden');
-            documentItems.classList.add('hidden');
-            noDocuments.classList.add('hidden');
+            documentDropArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                this.classList.remove('border-primary-500');
+            });
             
-            fetch(`/Card/GetCardDocuments/${cardId}`)
+            documentDropArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('border-primary-500');
+                
+                if (e.dataTransfer.files.length > 0) {
+                    documentFileInput.files = e.dataTransfer.files;
+                    handleFileSelection(e.dataTransfer.files[0]);
+                }
+            });
+        }
+        
+        // Remove selected file
+        if (removeFileBtn) {
+            removeFileBtn.addEventListener('click', function() {
+                documentFileInput.value = '';
+                filePreview.classList.add('hidden');
+            });
+        }
+        
+        // Handle form submission
+        if (documentForm) {
+            documentForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Show loading spinner
+                document.getElementById('upload-text').textContent = 'Uploading...';
+                document.getElementById('upload-spinner').classList.remove('hidden');
+                
+                const formData = new FormData(this);
+                
+                fetch('/Card/UploadDocument', {
+                    method: 'POST',
+                    body: formData
+                })
                 .then(response => response.json())
                 .then(data => {
-                    // Hide loading
-                    documentsLoading.classList.add('hidden');
+                    // Hide loading spinner
+                    document.getElementById('upload-text').textContent = 'Upload Document';
+                    document.getElementById('upload-spinner').classList.add('hidden');
                     
-                    if (data && data.length > 0) {
-                        // Show document items
-                        documentItems.classList.remove('hidden');
-                        documentItems.innerHTML = '';
+                    if (data.success) {
+                        // Reset form
+                        documentForm.reset();
+                        filePreview.classList.add('hidden');
                         
-                        // Add documents to the list
-                        data.forEach(doc => {
-                            // Format file size
-                            const fileSize = formatFileSize(doc.fileSize);
-                            
-                            // Format date
-                            const uploadDate = new Date(doc.uploadedAt);
-                            const daysAgo = Math.floor((new Date() - uploadDate) / (1000 * 60 * 60 * 24));
-                            const dateText = daysAgo === 0 ? 'today' : daysAgo === 1 ? 'yesterday' : `${daysAgo} days ago`;
-                            
-                            // File icon
-                            let fileIcon = 'fa-file';
-                            let iconColor = 'text-gray-500';
-                            
-                            if (doc.fileType) {
-                                if (doc.fileType.includes('pdf')) {
-                                    fileIcon = 'fa-file-pdf';
-                                    iconColor = 'text-red-600';
-                                } else if (doc.fileType.includes('image')) {
-                                    fileIcon = 'fa-file-image';
-                                    iconColor = 'text-blue-600';
-                                } else if (doc.fileType.includes('excel') || doc.fileType.includes('spreadsheet')) {
-                                    fileIcon = 'fa-file-excel';
-                                    iconColor = 'text-green-600';
-                                } else if (doc.fileType.includes('word') || doc.fileType.includes('document')) {
-                                    fileIcon = 'fa-file-word';
-                                    iconColor = 'text-blue-600';
-                                }
-                            } else if (doc.fileName) {
-                                // Fallback to extension
-                                const ext = doc.fileName.split('.').pop().toLowerCase();
-                                if (ext === 'pdf') {
-                                    fileIcon = 'fa-file-pdf';
-                                    iconColor = 'text-red-600';
-                                } else if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg'].includes(ext)) {
-                                    fileIcon = 'fa-file-image';
-                                    iconColor = 'text-blue-600';
-                                } else if (['xls', 'xlsx', 'csv'].includes(ext)) {
-                                    fileIcon = 'fa-file-excel';
-                                    iconColor = 'text-green-600';
-                                } else if (['doc', 'docx', 'rtf'].includes(ext)) {
-                                    fileIcon = 'fa-file-word';
-                                    iconColor = 'text-blue-600';
-                                }
-                            }
-                            
-                            const docEl = document.createElement('div');
-                            docEl.className = 'document-item p-4 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-between';
-                            docEl.innerHTML = `
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0">
-                                        <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center ${iconColor}">
-                                            <i class="fas ${fileIcon}"></i>
-                                        </div>
-                                    </div>
-                                    <div class="ml-4">
-                                        <div class="font-medium text-gray-800">${doc.title}</div>
-                                        <div class="text-xs text-gray-500">${doc.documentType} • ${fileSize} • Uploaded ${dateText}</div>
-                                        ${doc.description ? `<div class="text-xs text-gray-500 mt-1">${doc.description}</div>` : ''}
-                                    </div>
-                                </div>
-                                <div class="flex items-center space-x-2">
-                                    <a href="/Card/DownloadDocument/${doc.id}" class="p-2 text-gray-400 hover:text-primary-600" target="_blank">
-                                        <i class="fas fa-download"></i>
-                                    </a>
-                                    <button type="button" class="p-2 text-gray-400 hover:text-red-600 document-delete" data-id="${doc.id}">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            `;
-                            
-                            documentItems.appendChild(docEl);
-                        });
+                        // Hide upload section
+                        documentUploadSection.classList.add('hidden');
+                        
+                        // Refresh documents
+                        loadDocumentsData();
+                        
+                        // Show success toast
+                        showToast('Document uploaded', 'Your document has been uploaded successfully', 'success');
                     } else {
-                        // Show no documents message
-                        noDocuments.classList.remove('hidden');
+                        showToast('Error', data.error || 'Failed to upload document', 'error');
                     }
                 })
                 .catch(error => {
-                    console.error('Error loading documents:', error);
-                    documentsLoading.classList.add('hidden');
-                    documentItems.innerHTML = '<div class="p-3 text-center text-red-500">Failed to load documents. Please try again.</div>';
+                    console.error('Error uploading document:', error);
+                    
+                    // Hide loading spinner
+                    document.getElementById('upload-text').textContent = 'Upload Document';
+                    document.getElementById('upload-spinner').classList.add('hidden');
+                    
+                    showToast('Error', 'Failed to upload document. Please try again.', 'error');
+                });
+            });
+        }
+        
+        // Load documents on init
+        loadDocumentsData();
+        
+        // Event delegation for document actions
+        document.addEventListener('click', function(e) {
+            // Delete document
+            if (e.target.closest('.document-delete')) {
+                const button = e.target.closest('.document-delete');
+                const documentId = button.getAttribute('data-id');
+                
+                // Show delete confirmation
+                showDeleteConfirmation('document', documentId, 'Are you sure you want to delete this document?');
+            }
+        });
+    }
+    
+    function handleFileSelection(file) {
+        const fileName = document.getElementById('file-name');
+        const fileIcon = document.getElementById('file-icon');
+        const filePreview = document.getElementById('file-preview');
+        
+        if (file) {
+            // Show file preview
+            fileName.textContent = file.name;
+            filePreview.classList.remove('hidden');
+            
+            // Set appropriate icon based on file type
+            if (file.type.startsWith('image/')) {
+                fileIcon.className = 'fas fa-file-image text-blue-500 mr-2';
+            } else if (file.type.includes('pdf')) {
+                fileIcon.className = 'fas fa-file-pdf text-red-500 mr-2';
+            } else if (file.type.includes('excel') || file.type.includes('spreadsheet') || file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+                fileIcon.className = 'fas fa-file-excel text-green-500 mr-2';
+            } else if (file.type.includes('word') || file.type.includes('document') || file.name.endsWith('.docx') || file.name.endsWith('.doc')) {
+                fileIcon.className = 'fas fa-file-word text-blue-500 mr-2';
+            } else {
+                fileIcon.className = 'fas fa-file text-gray-500 mr-2';
+            }
+        }
+    }
+    
+    function loadDocumentsData() {
+        const cardId = document.getElementById('card-id').value;
+        const documentsLoading = document.getElementById('documents-loading');
+        const documentItems = document.getElementById('document-items');
+        const noDocuments = document.getElementById('no-documents');
+        
+        // Show loading
+        documentsLoading.classList.remove('hidden');
+        documentItems.classList.add('hidden');
+        noDocuments.classList.add('hidden');
+        
+        fetch(`/Card/GetCardDocuments/${cardId}`)
+            .then(response => response.json())
+            .then(data => {
+                // Hide loading
+                documentsLoading.classList.add('hidden');
+                
+                if (data && data.length > 0) {
+                    // Show document items
                     documentItems.classList.remove('hidden');
-                });
-        }
-        
-        function initHistory() {
-            // History is loaded when tab is clicked
-        }
-        
-        function loadHistoryData() {
-            const cardId = document.getElementById('card-id').value;
-            const historyLoading = document.getElementById('history-loading');
-            const historyItems = document.getElementById('history-items');
-            const noHistory = document.getElementById('no-history');
-            
-            // Show loading
-            historyLoading.classList.remove('hidden');
-            historyItems.classList.add('hidden');
-            noHistory.classList.add('hidden');
-            
-            fetch(`/Card/GetCardHistory/${cardId}`)
-                .then(response => response.json())
-                .then(data => {
-                    // Hide loading
-                    historyLoading.classList.add('hidden');
+                    documentItems.innerHTML = '';
                     
-                    if (data && data.length > 0) {
-                        // Show history items
-                        historyItems.classList.remove('hidden');
-                        historyItems.innerHTML = '';
+                    // Add documents to the list
+                    data.forEach(doc => {
+                        // Format file size
+                        const fileSize = formatFileSize(doc.fileSize);
                         
-                        // Add history items to the list
-                        data.forEach(item => {
-                            const changedAt = new Date(item.changedAt);
-                            
-                            // Determine icon and color
-                            let iconClass = 'fa-edit';
-                            let bgClass = 'bg-blue-100';
-                            let iconColor = 'text-blue-600';
-                            
-                            if (item.fieldName === 'Creation') {
-                                iconClass = 'fa-plus';
-                                bgClass = 'bg-green-100';
-                                iconColor = 'text-green-600';
-                            } else if (item.fieldName.toLowerCase().includes('delet')) {
-                                iconClass = 'fa-trash';
-                                bgClass = 'bg-red-100';
+                        // Format date
+                        const uploadDate = new Date(doc.uploadedAt);
+                        const daysAgo = Math.floor((new Date() - uploadDate) / (1000 * 60 * 60 * 24));
+                        const dateText = daysAgo === 0 ? 'today' : daysAgo === 1 ? 'yesterday' : `${daysAgo} days ago`;
+                        
+                        // File icon
+                        let fileIcon = 'fa-file';
+                        let iconColor = 'text-gray-500';
+                        
+                        if (doc.fileType) {
+                            if (doc.fileType.includes('pdf')) {
+                                fileIcon = 'fa-file-pdf';
                                 iconColor = 'text-red-600';
+                            } else if (doc.fileType.includes('image')) {
+                                fileIcon = 'fa-file-image';
+                                iconColor = 'text-blue-600';
+                            } else if (doc.fileType.includes('excel') || doc.fileType.includes('spreadsheet')) {
+                                fileIcon = 'fa-file-excel';
+                                iconColor = 'text-green-600';
+                            } else if (doc.fileType.includes('word') || doc.fileType.includes('document')) {
+                                fileIcon = 'fa-file-word';
+                                iconColor = 'text-blue-600';
                             }
-                            
-                            const historyEl = document.createElement('div');
-                            historyEl.className = 'p-4 border border-gray-100 rounded-lg';
-                            historyEl.innerHTML = `
-                                <div class="flex">
-                                    <div class="flex-shrink-0">
-                                        <div class="w-10 h-10 ${bgClass} rounded-full flex items-center justify-center ${iconColor}">
-                                            <i class="fas ${iconClass}"></i>
-                                        </div>
-                                    </div>
-                                    <div class="ml-4 flex-1">
-                                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center">
-                                            <div class="font-medium text-gray-800">
-                                                ${item.fieldName === 'Creation' ? 'Product Created' : `${item.fieldName} Updated`}
-                                            </div>
-                                            <div class="text-sm text-gray-500 mt-1 sm:mt-0">
-                                                ${formatDateTime(changedAt)}
-                                            </div>
-                                        </div>
-                                        ${item.fieldName !== 'Creation' ? `
-                                        <div class="text-sm mt-2">
-                                            <span class="text-gray-700">From:</span> 
-                                            <span class="text-red-500">${item.oldValue || '(empty)'}</span>
-                                        </div>
-                                        <div class="text-sm mt-1">
-                                            <span class="text-gray-700">To:</span> 
-                                            <span class="text-green-500">${item.newValue || '(empty)'}</span>
-                                        </div>` : `
-                                        <div class="text-sm text-gray-600 mt-2">${item.newValue}</div>`}
-                                        <div class="text-xs text-gray-500 mt-2">by ${item.changedBy}</div>
+                        } else if (doc.fileName) {
+                            // Fallback to extension
+                            const ext = doc.fileName.split('.').pop().toLowerCase();
+                            if (ext === 'pdf') {
+                                fileIcon = 'fa-file-pdf';
+                                iconColor = 'text-red-600';
+                            } else if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg'].includes(ext)) {
+                                fileIcon = 'fa-file-image';
+                                iconColor = 'text-blue-600';
+                            } else if (['xls', 'xlsx', 'csv'].includes(ext)) {
+                                fileIcon = 'fa-file-excel';
+                                iconColor = 'text-green-600';
+                            } else if (['doc', 'docx', 'rtf'].includes(ext)) {
+                                fileIcon = 'fa-file-word';
+                                iconColor = 'text-blue-600';
+                            }
+                        }
+                        
+                        const docEl = document.createElement('div');
+                        docEl.className = 'document-item p-4 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-between';
+                        docEl.innerHTML = `
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center ${iconColor}">
+                                        <i class="fas ${fileIcon}"></i>
                                     </div>
                                 </div>
-                            `;
-                            
-                            historyItems.appendChild(historyEl);
-                        });
+                                <div class="ml-4">
+                                    <div class="font-medium text-gray-800">${doc.title}</div>
+                                    <div class="text-xs text-gray-500">${doc.documentType} • ${fileSize} • Uploaded ${dateText}</div>
+                                    ${doc.description ? `<div class="text-xs text-gray-500 mt-1">${doc.description}</div>` : ''}
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <a href="/Card/DownloadDocument/${doc.id}" class="p-2 text-gray-400 hover:text-primary-600" target="_blank">
+                                    <i class="fas fa-download"></i>
+                                </a>
+                                <button type="button" class="p-2 text-gray-400 hover:text-red-600 document-delete" data-id="${doc.id}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        `;
                         
-                        // Show load more button if needed
-                        if (data.length >= 10) {
-                            document.getElementById('load-more-history').classList.remove('hidden');
-                        }
-                    } else {
-                        // Show no history message
-                        noHistory.classList.remove('hidden');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading history:', error);
-                    historyLoading.classList.add('hidden');
-                    historyItems.innerHTML = '<div class="p-3 text-center text-red-500">Failed to load history. Please try again.</div>';
+                        documentItems.appendChild(docEl);
+                    });
+                } else {
+                    // Show no documents message
+                    noDocuments.classList.remove('hidden');
+                }
+            })
+            .catch(error => {
+                console.error('Error loading documents:', error);
+                documentsLoading.classList.add('hidden');
+                documentItems.innerHTML = '<div class="p-3 text-center text-red-500">Failed to load documents. Please try again.</div>';
+                documentItems.classList.remove('hidden');
+            });
+    }
+    
+    function initHistory() {
+        // History is loaded when tab is clicked
+    }
+    
+    function loadHistoryData() {
+        const cardId = document.getElementById('card-id').value;
+        const historyLoading = document.getElementById('history-loading');
+        const historyItems = document.getElementById('history-items');
+        const noHistory = document.getElementById('no-history');
+        
+        // Show loading
+        historyLoading.classList.remove('hidden');
+        historyItems.classList.add('hidden');
+        noHistory.classList.add('hidden');
+        
+        fetch(`/Card/GetCardHistory/${cardId}`)
+            .then(response => response.json())
+            .then(data => {
+                // Hide loading
+                historyLoading.classList.add('hidden');
+                
+                if (data && data.length > 0) {
+                    // Show history items
                     historyItems.classList.remove('hidden');
-                });
-        }
-        
-        function initCopyToClipboard() {
-            const copyTextButtons = document.querySelectorAll('.copy-text-btn');
-            const copySectionButtons = document.querySelectorAll('.copy-section');
-            const copyQrBtn = document.getElementById('copy-qr-btn');
-            
-            copyTextButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const text = this.getAttribute('data-text');
-                    copyToClipboard(text);
-                    showToast('Copied to clipboard', text, 'success');
-                });
-            });
-            
-            copySectionButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const sectionId = this.getAttribute('data-section');
-                    const section = document.getElementById(sectionId);
+                    historyItems.innerHTML = '';
                     
-                    if (section) {
-                        const sectionText = section.innerText;
-                        copyToClipboard(sectionText);
-                        showToast('Section copied', 'Information has been copied to clipboard', 'success');
-                    }
-                });
-            });
-            
-            if (copyQrBtn) {
-                copyQrBtn.addEventListener('click', function() {
-                    const qrCodeImage = document.querySelector('.card-back img').src;
-                    
-                    try {
-                        // For modern browsers
-                        if (navigator.clipboard && navigator.clipboard.write) {
-                            fetch(qrCodeImage)
-                                .then(res => res.blob())
-                                .then(blob => {
-                                    const item = new ClipboardItem({ [blob.type]: blob });
-                                    return navigator.clipboard.write([item]);
-                                })
-                                .then(() => {
-                                    showToast('QR code copied', 'QR code image has been copied to clipboard', 'success');
-                                })
-                                .catch(err => {
-                                    console.error('Failed to copy QR code:', err);
-                                    // Fallback to copying URL
-                                    copyToClipboard(qrCodeImage);
-                                    showToast('QR Code URL copied', 'Could not copy image directly', 'info');
-                                });
-                        } else {
-                            // Fallback for unsupported browsers
-                            copyToClipboard(qrCodeImage);
-                            showToast('QR Code URL copied', 'Image copying not supported in your browser', 'info');
+                    // Add history items to the list
+                    data.forEach(item => {
+                        const changedAt = new Date(item.changedAt);
+                        
+                        // Determine icon and color
+                        let iconClass = 'fa-edit';
+                        let bgClass = 'bg-blue-100';
+                        let iconColor = 'text-blue-600';
+                        
+                        if (item.fieldName === 'Creation') {
+                            iconClass = 'fa-plus';
+                            bgClass = 'bg-green-100';
+                            iconColor = 'text-green-600';
+                        } else if (item.fieldName.toLowerCase().includes('delet')) {
+                            iconClass = 'fa-trash';
+                            bgClass = 'bg-red-100';
+                            iconColor = 'text-red-600';
                         }
-                    } catch (err) {
-                        console.error('Error copying QR code:', err);
-                        copyToClipboard(qrCodeImage);
-                        showToast('QR Code URL copied', 'Image copying failed', 'info');
+                        
+                        const historyEl = document.createElement('div');
+                        historyEl.className = 'p-4 border border-gray-100 rounded-lg';
+                        historyEl.innerHTML = `
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <div class="w-10 h-10 ${bgClass} rounded-full flex items-center justify-center ${iconColor}">
+                                        <i class="fas ${iconClass}"></i>
+                                    </div>
+                                </div>
+                                <div class="ml-4 flex-1">
+                                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center">
+                                        <div class="font-medium text-gray-800">
+                                            ${item.fieldName === 'Creation' ? 'Product Created' : `${item.fieldName} Updated`}
+                                        </div>
+                                        <div class="text-sm text-gray-500 mt-1 sm:mt-0">
+                                            ${formatDateTime(changedAt)}
+                                        </div>
+                                    </div>
+                                    ${item.fieldName !== 'Creation' ? `
+                                    <div class="text-sm mt-2">
+                                        <span class="text-gray-700">From:</span> 
+                                        <span class="text-red-500">${item.oldValue || '(empty)'}</span>
+                                    </div>
+                                    <div class="text-sm mt-1">
+                                        <span class="text-gray-700">To:</span> 
+                                        <span class="text-green-500">${item.newValue || '(empty)'}</span>
+                                    </div>` : `
+                                    <div class="text-sm text-gray-600 mt-2">${item.newValue}</div>`}
+                                    <div class="text-xs text-gray-500 mt-2">by ${item.changedBy}</div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        historyItems.appendChild(historyEl);
+                    });
+                    
+                    // Show load more button if needed
+                    if (data.length >= 10) {
+                        document.getElementById('load-more-history').classList.remove('hidden');
                     }
-                });
-            }
-        }
+                } else {
+                    // Show no history message
+                    noHistory.classList.remove('hidden');
+                }
+            })
+            .catch(error => {
+                console.error('Error loading history:', error);
+                historyLoading.classList.add('hidden');
+                historyItems.innerHTML = '<div class="p-3 text-center text-red-500">Failed to load history. Please try again.</div>';
+                historyItems.classList.remove('hidden');
+            });
+    }
+    
+    function initCopyToClipboard() {
+        const copyTextButtons = document.querySelectorAll('.copy-text-btn');
+        const copySectionButtons = document.querySelectorAll('.copy-section');
+        const copyQrBtn = document.getElementById('copy-qr-btn');
         
-        function copyToClipboard(text) {
-            // Create temp element for copying
-            const tempElement = document.createElement('textarea');
-            tempElement.value = text;
-            document.body.appendChild(tempElement);
-            tempElement.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempElement);
-        }
+        copyTextButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const text = this.getAttribute('data-text');
+                copyToClipboard(text);
+                showToast('Copied to clipboard', text, 'success');
+            });
+        });
         
-        function initToastNotifications() {
-            const toast = document.getElementById('toast-notification');
-            const closeToast = document.getElementById('close-toast');
-            
-            if (closeToast && toast) {
-                closeToast.addEventListener('click', function() {
-                    toast.classList.add('translate-y-20', 'opacity-0');
-                    setTimeout(() => {
-                        toast.classList.add('hidden');
-                    }, 300);
-                });
-            }
-        }
+        copySectionButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const sectionId = this.getAttribute('data-section');
+                const section = document.getElementById(sectionId);
+                
+                if (section) {
+                    const sectionText = section.innerText;
+                    copyToClipboard(sectionText);
+                    showToast('Section copied', 'Information has been copied to clipboard', 'success');
+                }
+            });
+        });
         
-        function showToast(message, description = '', type = 'success') {
-            const toast = document.getElementById('toast-notification');
-            const toastMessage = document.getElementById('toast-message');
-            const toastDescription = document.getElementById('toast-description');
-            const toastIcon = document.getElementById('toast-icon');
-            const toastIconSymbol = document.getElementById('toast-icon-symbol');
-            
-            toastMessage.textContent = message;
-            toastDescription.textContent = description;
-            
-            // Set icon and colors based on type
-            if (type === 'success') {
-                toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-green-100';
-                toastIconSymbol.className = 'fas fa-check text-green-500';
-            } else if (type === 'error') {
-                toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-red-100';
-                toastIconSymbol.className = 'fas fa-times text-red-500';
-            } else if (type === 'warning') {
-                toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-yellow-100';
-                toastIconSymbol.className = 'fas fa-exclamation text-yellow-500';
-            } else if (type === 'info') {
-                toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-blue-100';
-                toastIconSymbol.className = 'fas fa-info text-blue-500';
-            }
-            
-            // Show toast
-            toast.classList.remove('hidden');
-            // Use a small delay to ensure the transition works
-            setTimeout(() => {
-                toast.classList.remove('translate-y-20', 'opacity-0');
-            }, 10);
-            
-            // Auto hide after 5 seconds
-            setTimeout(() => {
+        if (copyQrBtn) {
+            copyQrBtn.addEventListener('click', function() {
+                const qrCodeImage = document.querySelector('.card-back img').src;
+                
+                try {
+                    // For modern browsers
+                    if (navigator.clipboard && navigator.clipboard.write) {
+                        fetch(qrCodeImage)
+                            .then(res => res.blob())
+                            .then(blob => {
+                                const item = new ClipboardItem({ [blob.type]: blob });
+                                return navigator.clipboard.write([item]);
+                            })
+                            .then(() => {
+                                showToast('QR code copied', 'QR code image has been copied to clipboard', 'success');
+                            })
+                            .catch(err => {
+                                console.error('Failed to copy QR code:', err);
+                                // Fallback to copying URL
+                                copyToClipboard(qrCodeImage);
+                                showToast('QR Code URL copied', 'Could not copy image directly', 'info');
+                            });
+                    } else {
+                        // Fallback for unsupported browsers
+                        copyToClipboard(qrCodeImage);
+                        showToast('QR Code URL copied', 'Image copying not supported in your browser', 'info');
+                    }
+                } catch (err) {
+                    console.error('Error copying QR code:', err);
+                    copyToClipboard(qrCodeImage);
+                    showToast('QR Code URL copied', 'Image copying failed', 'info');
+                }
+            });
+        }
+    }
+    
+    function copyToClipboard(text) {
+        // Create temp element for copying
+        const tempElement = document.createElement('textarea');
+        tempElement.value = text;
+        document.body.appendChild(tempElement);
+        tempElement.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempElement);
+    }
+    
+    function initToastNotifications() {
+        const toast = document.getElementById('toast-notification');
+        const closeToast = document.getElementById('close-toast');
+        
+        if (closeToast && toast) {
+            closeToast.addEventListener('click', function() {
                 toast.classList.add('translate-y-20', 'opacity-0');
                 setTimeout(() => {
                     toast.classList.add('hidden');
                 }, 300);
-            }, 5000);
-        }
-        
-        function showDeleteConfirmation(type, id, message) {
-            const deleteModal = document.getElementById('delete-modal');
-            const deleteMessage = document.getElementById('delete-message');
-            const cancelDeleteBtn = document.getElementById('cancel-delete');
-            const confirmDeleteBtn = document.getElementById('confirm-delete');
-            
-            // Set message
-            deleteMessage.textContent = message;
-            
-            // Set delete action and show modal
-            deleteModal.classList.remove('hidden');
-            
-            // Configure confirm button
-            const handleConfirm = function() {
-                deleteModal.classList.add('hidden');
-                
-                if (type === 'reminder') {
-                    deleteReminder(id);
-                } else if (type === 'document') {
-                    deleteDocument(id);
-                }
-                
-                // Remove event listeners
-                confirmDeleteBtn.removeEventListener('click', handleConfirm);
-                cancelDeleteBtn.removeEventListener('click', handleCancel);
-                deleteModal.removeEventListener('click', handleOutsideClick);
-            };
-            
-            // Configure cancel button
-            const handleCancel = function() {
-                deleteModal.classList.add('hidden');
-                
-                // Remove event listeners
-                confirmDeleteBtn.removeEventListener('click', handleConfirm);
-                cancelDeleteBtn.removeEventListener('click', handleCancel);
-                deleteModal.removeEventListener('click', handleOutsideClick);
-            };
-            
-            // Handle outside click
-            const handleOutsideClick = function(e) {
-                if (e.target === deleteModal) {
-                    handleCancel();
-                }
-            };
-            
-            // Add event listeners
-            confirmDeleteBtn.addEventListener('click', handleConfirm);
-            cancelDeleteBtn.addEventListener('click', handleCancel);
-            deleteModal.addEventListener('click', handleOutsideClick);
-        }
-        
-        function deleteReminder(id) {
-            fetch('/Card/DeleteReminder', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `id=${id}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Refresh reminders list
-                    loadReminders();
-                    showToast('Reminder deleted', 'The reminder has been removed', 'success');
-                } else {
-                    showToast('Error', data.error || 'Failed to delete reminder', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error deleting reminder:', error);
-                showToast('Error', 'Failed to delete reminder. Please try again.', 'error');
             });
         }
+    }
+    
+    function showToast(message, description = '', type = 'success') {
+        const toast = document.getElementById('toast-notification');
+        const toastMessage = document.getElementById('toast-message');
+        const toastDescription = document.getElementById('toast-description');
+        const toastIcon = document.getElementById('toast-icon');
+        const toastIconSymbol = document.getElementById('toast-icon-symbol');
         
-        function deleteDocument(id) {
-            fetch('/Card/DeleteDocument', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `id=${id}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Refresh documents list
-                    loadDocumentsData();
-                    showToast('Document deleted', 'The document has been removed', 'success');
-                } else {
-                    showToast('Error', data.error || 'Failed to delete document', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error deleting document:', error);
-                showToast('Error', 'Failed to delete document. Please try again.', 'error');
-            });
+        toastMessage.textContent = message;
+        toastDescription.textContent = description;
+        
+        // Set icon and colors based on type
+        if (type === 'success') {
+            toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-green-100';
+            toastIconSymbol.className = 'fas fa-check text-green-500';
+        } else if (type === 'error') {
+            toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-red-100';
+            toastIconSymbol.className = 'fas fa-times text-red-500';
+        } else if (type === 'warning') {
+            toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-yellow-100';
+            toastIconSymbol.className = 'fas fa-exclamation text-yellow-500';
+        } else if (type === 'info') {
+            toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-blue-100';
+            toastIconSymbol.className = 'fas fa-info text-blue-500';
         }
         
-        // Helper functions
-        function formatDate(date) {
-            const options = { year: 'numeric', month: 'short', day: 'numeric' };
-            return date.toLocaleDateString('en-US', options);
-        }
+        // Show toast
+        toast.classList.remove('hidden');
+        // Use a small delay to ensure the transition works
+        setTimeout(() => {
+            toast.classList.remove('translate-y-20', 'opacity-0');
+        }, 10);
         
-        function formatDateTime(date) {
-            const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-            return date.toLocaleDateString('en-US', options);
-        }
+        // Auto hide after 5 seconds
+        setTimeout(() => {
+            toast.classList.add('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 300);
+        }, 5000);
+    }
+    
+    function showDeleteConfirmation(type, id, message) {
+        const deleteModal = document.getElementById('delete-modal');
+        const deleteMessage = document.getElementById('delete-message');
+        const cancelDeleteBtn = document.getElementById('cancel-delete');
+        const confirmDeleteBtn = document.getElementById('confirm-delete');
         
-        function formatFileSize(bytes) {
-            if (!bytes || bytes === 0) return '0 Bytes';
+        // Set message
+        deleteMessage.textContent = message;
+        
+        // Set delete action and show modal
+        deleteModal.classList.remove('hidden');
+        
+        // Configure confirm button
+        const handleConfirm = function() {
+            deleteModal.classList.add('hidden');
             
-            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(1024));
+            if (type === 'reminder') {
+                deleteReminder(id);
+            } else if (type === 'document') {
+                deleteDocument(id);
+            }
             
-            return parseFloat((bytes / Math.pow(1024, i)).toFixed(2)) + ' ' + sizes[i];
-        }
-    </script>
+            // Remove event listeners
+            confirmDeleteBtn.removeEventListener('click', handleConfirm);
+            cancelDeleteBtn.removeEventListener('click', handleCancel);
+            deleteModal.removeEventListener('click', handleOutsideClick);
+        };
+        
+        // Configure cancel button
+        const handleCancel = function() {
+            deleteModal.classList.add('hidden');
+            
+            // Remove event listeners
+            confirmDeleteBtn.removeEventListener('click', handleConfirm);
+            cancelDeleteBtn.removeEventListener('click', handleCancel);
+            deleteModal.removeEventListener('click', handleOutsideClick);
+        };
+        
+        // Handle outside click
+        const handleOutsideClick = function(e) {
+            if (e.target === deleteModal) {
+                handleCancel();
+            }
+        };
+        
+        // Add event listeners
+        confirmDeleteBtn.addEventListener('click', handleConfirm);
+        cancelDeleteBtn.addEventListener('click', handleCancel);
+        deleteModal.addEventListener('click', handleOutsideClick);
+    }
+    
+    function deleteReminder(id) {
+        fetch('/Card/DeleteReminder', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `id=${id}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Refresh reminders list
+                loadReminders();
+                showToast('Reminder deleted', 'The reminder has been removed', 'success');
+            } else {
+                showToast('Error', data.error || 'Failed to delete reminder', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting reminder:', error);
+            showToast('Error', 'Failed to delete reminder. Please try again.', 'error');
+        });
+    }
+    
+    function deleteDocument(id) {
+        fetch('/Card/DeleteDocument', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `id=${id}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Refresh documents list
+                loadDocumentsData();
+                showToast('Document deleted', 'The document has been removed', 'success');
+            } else {
+                showToast('Error', data.error || 'Failed to delete document', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting document:', error);
+            showToast('Error', 'Failed to delete document. Please try again.', 'error');
+        });
+    }
+    
+    // Helper functions
+    function formatDate(date) {
+        const options = { year: 'numeric', month: 'short', day: 'numeric' };
+        return date.toLocaleDateString('en-US', options);
+    }
+    
+    function formatDateTime(date) {
+        const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+        return date.toLocaleDateString('en-US', options);
+    }
+    
+    function formatFileSize(bytes) {
+        if (!bytes || bytes === 0) return '0 Bytes';
+        
+        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(1024));
+        
+        return parseFloat((bytes / Math.pow(1024, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+</script>
 }
