@@ -395,7 +395,7 @@
                                     <span class="text-red-500 ml-1">*</span>
                                 </label>
                                 <div class="relative">
-                                    <input asp-for="ManufactureDate" type="date" class="form-input pl-9" required>
+                                    <input asp-for="ManufactureDate" type="date" class="form-input pl-9" required value="@DateTime.Now.ToString("yyyy-MM-dd")">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-calendar-day text-gray-400"></i>
                                     </div>
@@ -409,7 +409,7 @@
                                     <span class="text-red-500 ml-1">*</span>
                                 </label>
                                 <div class="relative">
-                                    <input asp-for="PurchaseDate" type="date" class="form-input pl-9" required>
+                                    <input asp-for="PurchaseDate" type="date" class="form-input pl-9" required value="@DateTime.Now.ToString("yyyy-MM-dd")">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-shopping-cart text-gray-400"></i>
                                     </div>
@@ -423,7 +423,7 @@
                                     <span class="text-red-500 ml-1">*</span>
                                 </label>
                                 <div class="relative">
-                                    <input asp-for="WarrantyExpiration" type="date" class="form-input pl-9 warranty-input" required>
+                                    <input asp-for="WarrantyExpiration" type="date" class="form-input pl-9 warranty-input" required value="@DateTime.Now.AddYears(1).ToString("yyyy-MM-dd")">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-shield-alt text-gray-400"></i>
                                     </div>
@@ -881,7 +881,7 @@
                                 </div>
                                 <div class="form-group mt-2">
                                     <div class="flex items-center">
-                                        <input type="checkbox" class="field-editable mr-2" id="field-editable-checkbox">
+                                        <input type="checkbox" class="field-editable mr-2" id="field-editable-checkbox" checked>
                                         <label for="field-editable-checkbox" class="text-sm">Make this field editable</label>
                                     </div>
                                 </div>
@@ -986,12 +986,37 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle category change to show/hide relevant fields
     document.getElementById('category-select').addEventListener('change', function() {
         updateFieldVisibility(this.value);
+        updateTagPreview();
     });
 
     // Initialize form submission
     document.getElementById('product-form').addEventListener('submit', function(e) {
         e.preventDefault();
-        saveCard();
+        
+        // Update QR colors before submission
+        updateQrColors();
+        
+        // Validate form
+        if (validateForm()) {
+            saveCard();
+        }
+    });
+    
+    // Add input event listeners to all form fields for live preview updates
+    document.querySelectorAll('input, textarea, select').forEach(input => {
+        input.addEventListener('input', updateTagPreview);
+        input.addEventListener('change', updateTagPreview);
+    });
+    
+    // Add specific event listener for color pickers
+    document.querySelectorAll('input[type="color"]').forEach(colorPicker => {
+        colorPicker.addEventListener('input', function() {
+            updateTagPreview();
+            if (this.id === 'qr-fg-color' || this.id === 'qr-bg-color') {
+                updateQrColors();
+                generateQRCode();
+            }
+        });
     });
     
     // Template toast functions
@@ -1016,6 +1041,58 @@ document.addEventListener('DOMContentLoaded', function() {
             toast.classList.add('hidden');
         }, 300);
     };
+    
+    // Validate entire form
+    function validateForm() {
+        let isValid = true;
+        const requiredFields = document.querySelectorAll('[required]');
+        
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                field.classList.add('border-red-500');
+                isValid = false;
+                
+                // Show the appropriate step if there's an error
+                const step = field.closest('.form-section');
+                if (step && step.classList.contains('hidden')) {
+                    const stepNumber = step.getAttribute('data-step');
+                    showStep(parseInt(stepNumber));
+                }
+            } else {
+                field.classList.remove('border-red-500');
+            }
+        });
+        
+        if (!isValid) {
+            showNotification('Please fill in all required fields', 'error');
+        }
+        
+        return isValid;
+    }
+    
+    // Show a specific step
+    function showStep(stepNumber) {
+        const formSections = document.querySelectorAll('.form-section');
+        formSections.forEach(section => {
+            section.classList.add('hidden');
+        });
+        
+        document.querySelector(`.form-section[data-step="${stepNumber}"]`).classList.remove('hidden');
+        
+        // Update step indicator
+        document.querySelector('.step-indicator').textContent = `Step ${stepNumber} of 3`;
+        
+        // Update step circles
+        const steps = document.querySelectorAll('.step');
+        steps.forEach(step => {
+            step.classList.remove('active');
+        });
+        
+        document.querySelector(`.step[data-step="${stepNumber}"]`).classList.add('active');
+        
+        // Update form progress
+        updateFormProgress(stepNumber);
+    }
     
     // Save card data to local storage for testing
     function saveCard() {
@@ -1053,14 +1130,19 @@ document.addEventListener('DOMContentLoaded', function() {
         // QR code data would typically contain a URL or ID to access the product details
         const qrData = `PRODUCT:${productName}:${Date.now()}`;
         
-        new QRCode(qrElement, {
-            text: qrData,
-            width: 128,
-            height: 128,
-            colorDark: qrFgColor,
-            colorLight: qrBgColor,
-            correctLevel: QRCode.CorrectLevel.H
-        });
+        try {
+            new QRCode(qrElement, {
+                text: qrData,
+                width: 128,
+                height: 128,
+                colorDark: qrFgColor,
+                colorLight: qrBgColor,
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        } catch (error) {
+            console.error('Error generating QR code:', error);
+            qrElement.innerHTML = '<i class="fas fa-exclamation-triangle text-red-500 text-xl"></i><p class="text-xs text-red-500 mt-2">Error generating QR code</p>';
+        }
     }
     
     // QR code color change event listeners
@@ -1151,6 +1233,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const templateType = document.getElementById('templateTypeHidden').value;
         if (templateType) {
             updateFieldVisibility(templateType);
+        } else {
+            // Default to category value if no template type is set
+            const categoryValue = document.getElementById('category-select').value;
+            updateFieldVisibility(categoryValue);
         }
     }
     
@@ -1336,6 +1422,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const bgColorText = document.getElementById('BackgroundColor');
         const bgColorPreview = document.getElementById('bg-color-preview');
         
+        // For the color picker that's hidden, we need to handle the preview div click
+        bgColorPreview.addEventListener('click', function() {
+            bgColorPicker.click();
+        });
+        
         bgColorPicker.addEventListener('input', function() {
             bgColorText.value = this.value;
             bgColorPreview.style.backgroundColor = this.value;
@@ -1343,9 +1434,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         bgColorText.addEventListener('input', function() {
-            bgColorPicker.value = this.value;
-            bgColorPreview.style.backgroundColor = this.value;
-            updateTagPreview();
+            try {
+                bgColorPicker.value = this.value;
+                bgColorPreview.style.backgroundColor = this.value;
+                updateTagPreview();
+            } catch (e) {
+                // Invalid color value, ignore
+            }
         });
         
         // Text color
@@ -1358,8 +1453,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         textColorText.addEventListener('input', function() {
-            textColorPicker.value = this.value;
-            updateTagPreview();
+            try {
+                textColorPicker.value = this.value;
+                updateTagPreview();
+            } catch (e) {
+                // Invalid color value, ignore
+            }
         });
         
         // Accent color
@@ -1372,8 +1471,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         accentColorText.addEventListener('input', function() {
-            accentColorPicker.value = this.value;
-            updateTagPreview();
+            try {
+                accentColorPicker.value = this.value;
+                updateTagPreview();
+            } catch (e) {
+                // Invalid color value, ignore
+            }
         });
         
         // QR code colors
@@ -1389,9 +1492,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         qrFgColorText.addEventListener('input', function() {
-            qrFgColor.value = this.value;
-            updateQrColors();
-            generateQRCode();
+            try {
+                qrFgColor.value = this.value;
+                updateQrColors();
+                generateQRCode();
+            } catch (e) {
+                // Invalid color value, ignore
+            }
         });
         
         qrBgColor.addEventListener('input', function() {
@@ -1401,9 +1508,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         qrBgColorText.addEventListener('input', function() {
-            qrBgColor.value = this.value;
-            updateQrColors();
-            generateQRCode();
+            try {
+                qrBgColor.value = this.value;
+                updateQrColors();
+                generateQRCode();
+            } catch (e) {
+                // Invalid color value, ignore
+            }
         });
         
         // Color presets
@@ -1558,7 +1669,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 // Update file input
-                imageInput.files = files;
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                imageInput.files = dataTransfer.files;
                 
                 // Show preview
                 const reader = new FileReader();
@@ -2746,6 +2859,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const location = document.getElementById('Location');
         if (location && location.value) {
             previewLocation.textContent = location.value;
+        } else {
+            previewLocation.textContent = "Not specified";
         }
         
         const mfgDate = document.getElementById('ManufactureDate');
@@ -2763,6 +2878,8 @@ document.addEventListener('DOMContentLoaded', function() {
             previewMaintenance.textContent = maintenance.value.length > 40 ? 
                 maintenance.value.substring(0, 40) + '...' : 
                 maintenance.value;
+        } else {
+            previewMaintenance.textContent = "No maintenance info";
         }
         
         // Update custom fields
@@ -2773,7 +2890,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const fieldValue = field.value;
                 
                 const fieldElement = document.createElement('div');
-                fieldElement.className = 'flex items-center space-x-2 text-sm';
+                fieldElement.className = 'flex items-center space-x-2 text-sm mt-1';
                 fieldElement.innerHTML = `
                     <span class="font-semibold">${fieldName}:</span>
                     <span>${fieldValue}</span>
