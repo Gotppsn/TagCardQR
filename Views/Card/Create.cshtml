@@ -48,7 +48,7 @@
             <!-- Template Gallery -->
             <div class="px-6 pt-4 pb-2">
                 <h3 class="text-sm font-medium text-gray-700 mb-3">Quick Start Templates</h3>
-                <div class="grid grid-cols-3 gap-3">
+                <div class="grid grid-cols-3 gap-3 mb-4">
                     <div class="template-card cursor-pointer border rounded-lg p-2 hover:border-primary-500 transition-all" data-template="chemical">
                         <div class="aspect-w-16 aspect-h-10 bg-blue-50 rounded mb-2 p-2 flex items-center justify-center">
                             <i class="fas fa-flask text-blue-500 text-xl"></i>
@@ -68,12 +68,34 @@
                         <p class="text-xs text-center">Safety Equipment</p>
                     </div>
                 </div>
+                
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="template-card cursor-pointer border rounded-lg p-2 hover:border-primary-500 transition-all" data-template="electronic">
+                        <div class="aspect-w-16 aspect-h-10 bg-green-50 rounded mb-2 p-2 flex items-center justify-center">
+                            <i class="fas fa-microchip text-green-500 text-xl"></i>
+                        </div>
+                        <p class="text-xs text-center">Electronic Device</p>
+                    </div>
+                    <div class="template-card cursor-pointer border rounded-lg p-2 hover:border-primary-500 transition-all" data-template="machinery">
+                        <div class="aspect-w-16 aspect-h-10 bg-yellow-50 rounded mb-2 p-2 flex items-center justify-center">
+                            <i class="fas fa-cogs text-yellow-600 text-xl"></i>
+                        </div>
+                        <p class="text-xs text-center">Industrial Machinery</p>
+                    </div>
+                    <div class="template-card cursor-pointer border rounded-lg p-2 hover:border-primary-500 transition-all" data-template="design">
+                        <div class="aspect-w-16 aspect-h-10 bg-red-50 rounded mb-2 p-2 flex items-center justify-center">
+                            <i class="fas fa-paint-brush text-red-500 text-xl"></i>
+                        </div>
+                        <p class="text-xs text-center">Design Template</p>
+                    </div>
+                </div>
             </div>
             
         <form asp-action="Create" method="post" id="product-form" enctype="multipart/form-data">
-            <!-- Add hidden fields for QR colors -->
+            <!-- Add hidden fields for QR colors and template type -->
             <input type="hidden" name="QrFgColor" id="qrFgColorHidden" value="#000000" />
             <input type="hidden" name="QrBgColor" id="qrBgColorHidden" value="#FFFFFF" />
+            <input type="hidden" name="TemplateType" id="templateTypeHidden" value="" />
                 <div class="card-body">
                     <!-- Step 1: Basic Information -->
                     <div class="form-section" data-step="1">
@@ -107,12 +129,15 @@
                                         <span class="text-red-500 ml-1">*</span>
                                     </label>
                                     <div class="relative">
-                                        <select asp-for="Category" class="form-input pl-9">
+                                        <select asp-for="Category" class="form-input pl-9" id="category-select">
                                             <option value="Rust Coating Chemical">Rust Coating Chemical</option>
                                             <option value="Application Equipment">Application Equipment</option>
                                             <option value="Lab Equipment">Lab Equipment</option>
                                             <option value="Office Equipment">Office Equipment</option>
                                             <option value="Safety Equipment">Safety Equipment</option>
+                                            <option value="Electronic Device">Electronic Device</option>
+                                            <option value="Industrial Machinery">Industrial Machinery</option>
+                                            <option value="Design Asset">Design Asset</option>
                                             <option value="Quality Control">Quality Control</option>
                                             <option value="Other">Other</option>
                                         </select>
@@ -121,6 +146,59 @@
                                         </div>
                                     </div>
                                     <span asp-validation-for="Category" class="form-error"></span>
+                                </div>
+
+                                <!-- Custom field for Chemical Products -->
+                                <div class="form-group field-group chemical-field" style="display: none;">
+                                    <label for="ChemicalType" class="form-label">
+                                        Chemical Type
+                                        <span class="text-red-500 ml-1">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <select id="ChemicalType" name="ChemicalType" class="form-input pl-9">
+                                            <option value="Acid">Acid</option>
+                                            <option value="Alkali">Alkali</option>
+                                            <option value="Solvent">Solvent</option>
+                                            <option value="Coating">Coating</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <i class="fas fa-flask text-gray-400"></i>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Custom field for Design Assets -->
+                                <div class="form-group field-group design-field" style="display: none;">
+                                    <label for="DesignType" class="form-label">
+                                        Design Type
+                                        <span class="text-red-500 ml-1">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <select id="DesignType" name="DesignType" class="form-input pl-9">
+                                            <option value="Graphic">Graphic Design</option>
+                                            <option value="Product">Product Design</option>
+                                            <option value="Template">Design Template</option>
+                                            <option value="Prototype">Prototype</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <i class="fas fa-paint-brush text-gray-400"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Custom field for Electronics -->
+                                <div class="form-group field-group electronic-field" style="display: none;">
+                                    <label for="PowerRequirement" class="form-label">
+                                        Power Requirement
+                                    </label>
+                                    <div class="relative">
+                                        <input type="text" id="PowerRequirement" name="PowerRequirement" class="form-input pl-9" placeholder="220V, 50Hz, 100W">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <i class="fas fa-bolt text-gray-400"></i>
+                                        </div>
+                                    </div>
                                 </div>
                                 
                                 <div class="form-group">
@@ -165,6 +243,32 @@
                                         </div>
                                     </div>
                                     <span asp-validation-for="SerialNumber" class="form-error"></span>
+                                </div>
+
+                                <!-- Custom field for Safety Equipment -->
+                                <div class="form-group field-group safety-field" style="display: none;">
+                                    <label for="SafetyStandard" class="form-label">
+                                        Safety Standard
+                                    </label>
+                                    <div class="relative">
+                                        <input type="text" id="SafetyStandard" name="SafetyStandard" class="form-input pl-9" placeholder="ISO 9001, ANSI Z87.1">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <i class="fas fa-shield-alt text-gray-400"></i>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Custom field for Machinery -->
+                                <div class="form-group field-group machinery-field" style="display: none;">
+                                    <label for="OperatingCapacity" class="form-label">
+                                        Operating Capacity
+                                    </label>
+                                    <div class="relative">
+                                        <input type="text" id="OperatingCapacity" name="OperatingCapacity" class="form-input pl-9" placeholder="500 kg/hour">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <i class="fas fa-tachometer-alt text-gray-400"></i>
+                                        </div>
+                                    </div>
                                 </div>
                                 
                                 <div class="form-group">
@@ -215,11 +319,35 @@
                                 <span asp-validation-for="Location" class="form-error"></span>
                             </div>
                             
+                            <!-- Chemical Storage Conditions (Only for chemical products) -->
+                            <div class="form-group field-group chemical-field" style="display: none;">
+                                <label for="StorageConditions" class="form-label">Storage Conditions</label>
+                                <div class="relative">
+                                    <textarea id="StorageConditions" name="StorageConditions" class="form-input h-20 pl-9" 
+                                              placeholder="Store at 10-15°C, away from direct sunlight, in a well-ventilated area"></textarea>
+                                    <div class="absolute top-3 left-0 pl-3 flex items-start pointer-events-none">
+                                        <i class="fas fa-temperature-low text-gray-400"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Design Dimensions (Only for design templates) -->
+                            <div class="form-group field-group design-field" style="display: none;">
+                                <label for="Dimensions" class="form-label">Dimensions</label>
+                                <div class="relative">
+                                    <input type="text" id="Dimensions" name="Dimensions" class="form-input pl-9" 
+                                          placeholder="1920x1080px, 300DPI">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-ruler-combined text-gray-400"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            
                             <div class="form-group">
                                 <label asp-for="MaintenanceInfo" class="form-label">Maintenance Information</label>
                                 <div class="relative">
                                     <textarea asp-for="MaintenanceInfo" class="form-input h-20 pl-9" 
-                                              placeholder="Store at 10-15°C, away from direct sunlight"></textarea>
+                                              placeholder="Regular maintenance requirements and recommendations"></textarea>
                                     <div class="absolute top-3 left-0 pl-3 flex items-start pointer-events-none">
                                         <i class="fas fa-wrench text-gray-400"></i>
                                     </div>
@@ -258,17 +386,34 @@
                             </div>
                             
                             <div class="form-group">
-                                <label asp-for="WarrantyExpiration" class="form-label">
+                                <label asp-for="WarrantyExpiration" class="form-label warranty-label">
                                     Warranty Until
                                     <span class="text-red-500 ml-1">*</span>
                                 </label>
                                 <div class="relative">
-                                    <input asp-for="WarrantyExpiration" type="date" class="form-input pl-9" required>
+                                    <input asp-for="WarrantyExpiration" type="date" class="form-input pl-9 warranty-input" required>
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-shield-alt text-gray-400"></i>
                                     </div>
                                 </div>
                                 <span asp-validation-for="WarrantyExpiration" class="form-error"></span>
+                            </div>
+                        </div>
+
+                        <!-- License field (Only for design templates) -->
+                        <div class="form-group field-group design-field mt-4" style="display: none;">
+                            <label for="LicenseInfo" class="form-label">License Information</label>
+                            <div class="relative">
+                                <select id="LicenseInfo" name="LicenseInfo" class="form-input pl-9">
+                                    <option value="Internal Use Only">Internal Use Only</option>
+                                    <option value="Company Licensed">Company Licensed</option>
+                                    <option value="Perpetual License">Perpetual License</option>
+                                    <option value="Royalty Free">Royalty Free</option>
+                                    <option value="Rights Managed">Rights Managed</option>
+                                </select>
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-copyright text-gray-400"></i>
+                                </div>
                             </div>
                         </div>
                         
@@ -493,6 +638,8 @@
                                 <span class="font-semibold">Serial:</span>
                                 <span id="preview-serial">SN12345</span>
                             </div>
+                            <!-- Custom field previews -->
+                            <div id="preview-custom-fields" class="mt-2 text-sm"></div>
                         </div>
                         <div class="space-y-2 mt-auto text-sm">
                             <p class="flex items-center">
@@ -503,12 +650,12 @@
                                 <i class="fas fa-calendar-day mr-3" style="color: #0284c7"></i>
                                 <span class="font-medium">Manufactured:</span>&nbsp;<span id="preview-mfgdate">Jan 1, 2025</span>
                             </p>
-                            <p class="flex items-center">
+                            <p class="flex items-center warranty-preview">
                                 <i class="fas fa-calendar-check mr-3" style="color: #0284c7"></i>
                                 <span class="font-medium">Warranty Until:</span>&nbsp;<span id="preview-warranty">Jan 1, 2026</span>
                             </p>
                             <p class="flex items-center">
-                                <i class="fas fa-tools mr-3" style="color: #0284c7"></i>
+                                <i class="fas fa-wrench mr-3" style="color: #0284c7"></i>
                                 <span class="font-medium">Maintenance:</span>&nbsp;<span id="preview-maintenance">Maintenance information</span>
                             </p>
                         </div>
@@ -565,7 +712,74 @@
             initializeCardLayouts();
             initializeImageUpload();
             initializeTemplates();
+            initializeFieldVisibility();
             updateTagPreview();
+            
+            // Handle category change to show/hide relevant fields
+            document.getElementById('category-select').addEventListener('change', function() {
+                updateFieldVisibility(this.value);
+            });
+            
+            // Initialize field visibility based on template type
+            function initializeFieldVisibility() {
+                // Get the initial template type from the hidden field
+                const templateType = document.getElementById('templateTypeHidden').value;
+                if (templateType) {
+                    updateFieldVisibility(templateType);
+                }
+            }
+            
+            // Show/hide fields based on category/template type
+            function updateFieldVisibility(category) {
+                // Hide all custom fields first
+                const fieldGroups = document.querySelectorAll('.field-group');
+                fieldGroups.forEach(field => {
+                    field.style.display = 'none';
+                });
+                
+                // Show fields based on category
+                switch(category.toLowerCase()) {
+                    case 'chemical':
+                    case 'rust coating chemical':
+                        document.querySelectorAll('.chemical-field').forEach(field => {
+                            field.style.display = 'block';
+                        });
+                        break;
+                    case 'safety':
+                    case 'safety equipment':
+                        document.querySelectorAll('.safety-field').forEach(field => {
+                            field.style.display = 'block';
+                        });
+                        break;
+                    case 'electronic':
+                    case 'electronic device':
+                        document.querySelectorAll('.electronic-field').forEach(field => {
+                            field.style.display = 'block';
+                        });
+                        break;
+                    case 'machinery':
+                    case 'industrial machinery':
+                        document.querySelectorAll('.machinery-field').forEach(field => {
+                            field.style.display = 'block';
+                        });
+                        break;
+                    case 'design':
+                    case 'design asset':
+                        document.querySelectorAll('.design-field').forEach(field => {
+                            field.style.display = 'block';
+                        });
+                        
+                        // For design assets, change "Warranty" to "License Expiration"
+                        document.querySelector('.warranty-label').innerHTML = 'License Expiration <span class="text-red-500 ml-1">*</span>';
+                        document.querySelector('.warranty-preview .font-medium').textContent = 'License Until:';
+                        break;
+                    default:
+                        // For other categories, ensure warranty label is correct
+                        document.querySelector('.warranty-label').innerHTML = 'Warranty Until <span class="text-red-500 ml-1">*</span>';
+                        document.querySelector('.warranty-preview .font-medium').textContent = 'Warranty Until:';
+                        break;
+                }
+            }
             
             // Step navigation
             function initializeSteps() {
@@ -966,12 +1180,13 @@
                                     <span class="font-semibold">Model:</span>
                                     <span id="preview-model">${document.getElementById('ModelNumber').value || 'MODEL-XXX'}</span>
                                 </div>
+                                <div id="preview-custom-fields" class="mt-2 text-sm"></div>
                                 <div class="space-y-2 mt-auto text-sm">
                                     <p class="flex items-center">
                                         <i class="fas fa-map-marker-alt mr-3" style="color: ${document.getElementById('accent-color-picker').value}"></i>
                                         <span class="font-medium">Location:</span>&nbsp;<span id="preview-location">${document.getElementById('Location').value || 'Storage Location'}</span>
                                     </p>
-                                    <p class="flex items-center">
+                                    <p class="flex items-center warranty-preview">
                                         <i class="fas fa-calendar-check mr-3" style="color: ${document.getElementById('accent-color-picker').value}"></i>
                                         <span class="font-medium">Warranty:</span>&nbsp;<span id="preview-warranty">${formatDate(document.getElementById('WarrantyExpiration').value) || 'Jan 1, 2026'}</span>
                                     </p>
@@ -1007,6 +1222,7 @@
                                         <i class="fas fa-map-marker-alt mr-2" style="color: ${document.getElementById('accent-color-picker').value}"></i>
                                         ${document.getElementById('Location').value || 'Storage Location'}
                                     </p>
+                                    <div id="preview-custom-fields" class="mt-1 text-xs"></div>
                                 </div>
                             </div>
                             <div class="w-1/3 bg-gray-50 rounded-r-lg flex items-center justify-center">
@@ -1023,6 +1239,9 @@
                     // Standard layout
                     updateTagPreview();
                 }
+                
+                // Update custom fields in preview based on active template
+                updateCustomFieldsPreview();
             }
             
             // Image upload handling
@@ -1119,118 +1338,268 @@
                         
                         // Apply template
                         applyTemplate(templateType);
+                        
+                        // Store template type
+                        document.getElementById('templateTypeHidden').value = templateType;
                     });
+                });
+            }
+            
+            // Update preview with custom fields
+            function updateCustomFieldsPreview() {
+                const customFieldsPreview = document.querySelectorAll('#preview-custom-fields');
+                if (customFieldsPreview.length === 0) return;
+                
+                let customFieldsHTML = '';
+                const accentColor = document.getElementById('accent-color-picker').value;
+                
+                // Get template type
+                const category = document.getElementById('category-select').value.toLowerCase();
+                
+                // Check if custom fields are visible and add to preview
+                // Chemical type
+                if (document.querySelector('.chemical-field').style.display !== 'none') {
+                    const chemicalType = document.getElementById('ChemicalType');
+                    if (chemicalType && chemicalType.value) {
+                        customFieldsHTML += `
+                            <p class="flex items-center">
+                                <i class="fas fa-flask mr-2" style="color: ${accentColor}"></i>
+                                <span class="font-medium">Type:</span>&nbsp;${chemicalType.value}
+                            </p>
+                        `;
+                    }
+                    
+                    const storageConditions = document.getElementById('StorageConditions');
+                    if (storageConditions && storageConditions.value) {
+                        customFieldsHTML += `
+                            <p class="flex items-center">
+                                <i class="fas fa-temperature-low mr-2" style="color: ${accentColor}"></i>
+                                <span class="font-medium">Storage:</span>&nbsp;${storageConditions.value}
+                            </p>
+                        `;
+                    }
+                }
+                
+                // Safety standards
+                if (document.querySelector('.safety-field').style.display !== 'none') {
+                    const safetyStandard = document.getElementById('SafetyStandard');
+                    if (safetyStandard && safetyStandard.value) {
+                        customFieldsHTML += `
+                            <p class="flex items-center">
+                                <i class="fas fa-shield-alt mr-2" style="color: ${accentColor}"></i>
+                                <span class="font-medium">Standard:</span>&nbsp;${safetyStandard.value}
+                            </p>
+                        `;
+                    }
+                }
+                
+                // Electronic device
+                if (document.querySelector('.electronic-field').style.display !== 'none') {
+                    const powerRequirement = document.getElementById('PowerRequirement');
+                    if (powerRequirement && powerRequirement.value) {
+                        customFieldsHTML += `
+                            <p class="flex items-center">
+                                <i class="fas fa-bolt mr-2" style="color: ${accentColor}"></i>
+                                <span class="font-medium">Power:</span>&nbsp;${powerRequirement.value}
+                            </p>
+                        `;
+                    }
+                }
+                
+                // Machinery
+                if (document.querySelector('.machinery-field').style.display !== 'none') {
+                    const operatingCapacity = document.getElementById('OperatingCapacity');
+                    if (operatingCapacity && operatingCapacity.value) {
+                        customFieldsHTML += `
+                            <p class="flex items-center">
+                                <i class="fas fa-tachometer-alt mr-2" style="color: ${accentColor}"></i>
+                                <span class="font-medium">Capacity:</span>&nbsp;${operatingCapacity.value}
+                            </p>
+                        `;
+                    }
+                }
+                
+                // Design assets
+                if (document.querySelector('.design-field').style.display !== 'none') {
+                    const designType = document.getElementById('DesignType');
+                    if (designType && designType.value) {
+                        customFieldsHTML += `
+                            <p class="flex items-center">
+                                <i class="fas fa-paint-brush mr-2" style="color: ${accentColor}"></i>
+                                <span class="font-medium">Type:</span>&nbsp;${designType.value}
+                            </p>
+                        `;
+                    }
+                    
+                    const dimensions = document.getElementById('Dimensions');
+                    if (dimensions && dimensions.value) {
+                        customFieldsHTML += `
+                            <p class="flex items-center">
+                                <i class="fas fa-ruler-combined mr-2" style="color: ${accentColor}"></i>
+                                <span class="font-medium">Size:</span>&nbsp;${dimensions.value}
+                            </p>
+                        `;
+                    }
+                    
+                    const licenseInfo = document.getElementById('LicenseInfo');
+                    if (licenseInfo && licenseInfo.value) {
+                        customFieldsHTML += `
+                            <p class="flex items-center">
+                                <i class="fas fa-copyright mr-2" style="color: ${accentColor}"></i>
+                                <span class="font-medium">License:</span>&nbsp;${licenseInfo.value}
+                            </p>
+                        `;
+                    }
+                }
+                
+                // Update all custom fields previews
+                customFieldsPreview.forEach(el => {
+                    el.innerHTML = customFieldsHTML;
                 });
             }
             
             // Apply predefined templates
             function applyTemplate(type) {
-                if (type === 'chemical') {
-                    document.getElementById('ProductName').value = 'RustShield Pro 5000';
-                    document.getElementById('Category').value = 'Rust Coating Chemical';
-                    document.getElementById('Manufacturer').value = 'ChemTech Industries';
-                    document.getElementById('ModelNumber').value = 'RS-5000-X';
-                    document.getElementById('SerialNumber').value = 'CT20250001';
-                    document.getElementById('Location').value = 'Chemical Storage Room A';
-                    document.getElementById('MaintenanceInfo').value = 'Store at 10-15°C, away from direct sunlight';
-                    
-                    // Set dates
-                    const today = new Date();
-                    const manufactureDate = new Date(today);
-                    manufactureDate.setMonth(manufactureDate.getMonth() - 2);
-                    
-                    const purchaseDate = new Date(today);
-                    purchaseDate.setMonth(purchaseDate.getMonth() - 1);
-                    
-                    const warrantyDate = new Date(today);
-                    warrantyDate.setFullYear(warrantyDate.getFullYear() + 2);
-                    
-                    document.getElementById('ManufactureDate').value = formatDateForInput(manufactureDate);
-                    document.getElementById('PurchaseDate').value = formatDateForInput(purchaseDate);
-                    document.getElementById('WarrantyExpiration').value = formatDateForInput(warrantyDate);
-                    
-                    // Set colors
-                    document.getElementById('bg-color-picker').value = '#ffffff';
-                    document.getElementById('text-color-picker').value = '#1e293b';
-                    document.getElementById('accent-color-picker').value = '#0284c7';
-                    
-                    // Update text inputs
-                    document.querySelector('input[asp-for="BackgroundColor"]').value = '#ffffff';
-                    document.querySelector('input[asp-for="TextColor"]').value = '#1e293b';
-                    document.querySelector('input[asp-for="AccentColor"]').value = '#0284c7';
-                    
-                    showNotification('Chemical product template applied', 'success');
-                } else if (type === 'equipment') {
-                    document.getElementById('ProductName').value = 'Industrial Spray Booth';
-                    document.getElementById('Category').value = 'Application Equipment';
-                    document.getElementById('Manufacturer').value = 'SprayTech';
-                    document.getElementById('ModelNumber').value = 'SB-2000';
-                    document.getElementById('SerialNumber').value = 'ST2024789';
-                    document.getElementById('Location').value = 'Building 2, Bay 4';
-                    document.getElementById('MaintenanceInfo').value = 'Filter replacement every 3 months';
-                    
-                    // Set dates
-                    const today = new Date();
-                    const manufactureDate = new Date(today);
-                    manufactureDate.setMonth(manufactureDate.getMonth() - 4);
-                    
-                    const purchaseDate = new Date(today);
-                    purchaseDate.setMonth(purchaseDate.getMonth() - 3);
-                    
-                    const warrantyDate = new Date(today);
-                    warrantyDate.setFullYear(warrantyDate.getFullYear() + 2);
-                    
-                    document.getElementById('ManufactureDate').value = formatDateForInput(manufactureDate);
-                    document.getElementById('PurchaseDate').value = formatDateForInput(purchaseDate);
-                    document.getElementById('WarrantyExpiration').value = formatDateForInput(warrantyDate);
-                    
-                    // Set colors
-                    document.getElementById('bg-color-picker').value = '#f8fafc';
-                    document.getElementById('text-color-picker').value = '#334155';
-                    document.getElementById('accent-color-picker').value = '#6366f1';
-                    
-                    // Update text inputs
-                    document.querySelector('input[asp-for="BackgroundColor"]').value = '#f8fafc';
-                    document.querySelector('input[asp-for="TextColor"]').value = '#334155';
-                    document.querySelector('input[asp-for="AccentColor"]').value = '#6366f1';
-                    
-                    showNotification('Equipment template applied', 'success');
-                } else if (type === 'safety') {
-                    document.getElementById('ProductName').value = 'Emergency Eye Wash Station';
-                    document.getElementById('Category').value = 'Safety Equipment';
-                    document.getElementById('Manufacturer').value = 'SafetyFirst Inc.';
-                    document.getElementById('ModelNumber').value = 'EW-100';
-                    document.getElementById('SerialNumber').value = 'SF20245582';
-                    document.getElementById('Location').value = 'Chemical Processing Area';
-                    document.getElementById('MaintenanceInfo').value = 'Weekly testing required. Monthly full inspection.';
-                    
-                    // Set dates
-                    const today = new Date();
-                    const manufactureDate = new Date(today);
-                    manufactureDate.setMonth(manufactureDate.getMonth() - 6);
-                    
-                    const purchaseDate = new Date(today);
-                    purchaseDate.setMonth(purchaseDate.getMonth() - 5);
-                    
-                    const warrantyDate = new Date(today);
-                    warrantyDate.setFullYear(warrantyDate.getFullYear() + 5);
-                    
-                    document.getElementById('ManufactureDate').value = formatDateForInput(manufactureDate);
-                    document.getElementById('PurchaseDate').value = formatDateForInput(purchaseDate);
-                    document.getElementById('WarrantyExpiration').value = formatDateForInput(warrantyDate);
-                    
-                    // Set colors
-                    document.getElementById('bg-color-picker').value = '#fffbeb';
-                    document.getElementById('text-color-picker').value = '#451a03';
-                    document.getElementById('accent-color-picker').value = '#ea580c';
-                    
-                    // Update text inputs
-                    document.querySelector('input[asp-for="BackgroundColor"]').value = '#fffbeb';
-                    document.querySelector('input[asp-for="TextColor"]').value = '#451a03';
-                    document.querySelector('input[asp-for="AccentColor"]').value = '#ea580c';
-                    
-                    showNotification('Safety equipment template applied', 'success');
+                // First update category based on template type
+                const categorySelect = document.getElementById('category-select');
+                
+                switch(type) {
+                    case 'chemical':
+                        categorySelect.value = 'Rust Coating Chemical';
+                        document.getElementById('ProductName').value = 'RustShield Pro 5000';
+                        document.getElementById('Manufacturer').value = 'ChemTech Industries';
+                        document.getElementById('ModelNumber').value = 'RS-5000-X';
+                        document.getElementById('SerialNumber').value = 'CT20250001';
+                        document.getElementById('Location').value = 'Chemical Storage Room A';
+                        document.getElementById('MaintenanceInfo').value = 'Store at 10-15°C, away from direct sunlight';
+                        
+                        // Set custom fields
+                        document.getElementById('ChemicalType').value = 'Coating';
+                        document.getElementById('StorageConditions').value = 'Store at 10-15°C, away from direct sunlight, in a well-ventilated area';
+                        
+                        // Set colors
+                        document.getElementById('bg-color-picker').value = '#ffffff';
+                        document.getElementById('text-color-picker').value = '#1e293b';
+                        document.getElementById('accent-color-picker').value = '#0284c7';
+                        break;
+                        
+                    case 'equipment':
+                        categorySelect.value = 'Application Equipment';
+                        document.getElementById('ProductName').value = 'Industrial Spray Booth';
+                        document.getElementById('Manufacturer').value = 'SprayTech';
+                        document.getElementById('ModelNumber').value = 'SB-2000';
+                        document.getElementById('SerialNumber').value = 'ST2024789';
+                        document.getElementById('Location').value = 'Building 2, Bay 4';
+                        document.getElementById('MaintenanceInfo').value = 'Filter replacement every 3 months';
+                        
+                        // Set colors
+                        document.getElementById('bg-color-picker').value = '#f8fafc';
+                        document.getElementById('text-color-picker').value = '#334155';
+                        document.getElementById('accent-color-picker').value = '#6366f1';
+                        break;
+                        
+                    case 'safety':
+                        categorySelect.value = 'Safety Equipment';
+                        document.getElementById('ProductName').value = 'Emergency Eye Wash Station';
+                        document.getElementById('Manufacturer').value = 'SafetyFirst Inc.';
+                        document.getElementById('ModelNumber').value = 'EW-100';
+                        document.getElementById('SerialNumber').value = 'SF20245582';
+                        document.getElementById('Location').value = 'Chemical Processing Area';
+                        document.getElementById('MaintenanceInfo').value = 'Weekly testing required. Monthly full inspection.';
+                        
+                        // Set custom fields
+                        document.getElementById('SafetyStandard').value = 'ANSI Z358.1, ISO 9001';
+                        
+                        // Set colors
+                        document.getElementById('bg-color-picker').value = '#fffbeb';
+                        document.getElementById('text-color-picker').value = '#451a03';
+                        document.getElementById('accent-color-picker').value = '#ea580c';
+                        break;
+                        
+                    case 'electronic':
+                        categorySelect.value = 'Electronic Device';
+                        document.getElementById('ProductName').value = 'Digital Control System';
+                        document.getElementById('Manufacturer').value = 'ElectroTech Inc.';
+                        document.getElementById('ModelNumber').value = 'DCS-X500';
+                        document.getElementById('SerialNumber').value = 'ET2025001';
+                        document.getElementById('Location').value = 'Control Room B';
+                        document.getElementById('MaintenanceInfo').value = 'Annual calibration required. Keep ventilated.';
+                        
+                        // Set custom fields
+                        document.getElementById('PowerRequirement').value = '220V, 50Hz, 300W';
+                        
+                        // Set colors
+                        document.getElementById('bg-color-picker').value = '#f0fdfa';
+                        document.getElementById('text-color-picker').value = '#134e4a';
+                        document.getElementById('accent-color-picker').value = '#0d9488';
+                        break;
+                        
+                    case 'machinery':
+                        categorySelect.value = 'Industrial Machinery';
+                        document.getElementById('ProductName').value = 'Conveyor Belt System';
+                        document.getElementById('Manufacturer').value = 'MachTech Heavy Industries';
+                        document.getElementById('ModelNumber').value = 'CBS-400';
+                        document.getElementById('SerialNumber').value = 'MT2024105';
+                        document.getElementById('Location').value = 'Production Line 3';
+                        document.getElementById('MaintenanceInfo').value = 'Monthly belt inspection. Lubrication every 500 hours.';
+                        
+                        // Set custom fields
+                        document.getElementById('OperatingCapacity').value = '750 kg/hour';
+                        
+                        // Set colors
+                        document.getElementById('bg-color-picker').value = '#fef3c7';
+                        document.getElementById('text-color-picker').value = '#78350f';
+                        document.getElementById('accent-color-picker').value = '#d97706';
+                        break;
+                        
+                    case 'design':
+                        categorySelect.value = 'Design Asset';
+                        document.getElementById('ProductName').value = 'Corporate Identity Package';
+                        document.getElementById('Manufacturer').value = 'DesignWorks Studio';
+                        document.getElementById('ModelNumber').value = 'CIP-2025';
+                        document.getElementById('SerialNumber').value = 'DW2025042';
+                        document.getElementById('Location').value = 'Digital Asset Library';
+                        document.getElementById('MaintenanceInfo').value = 'Annual review for brand consistency.';
+                        
+                        // Set custom fields
+                        document.getElementById('DesignType').value = 'Graphic';
+                        document.getElementById('Dimensions').value = 'Multiple formats, 300DPI';
+                        document.getElementById('LicenseInfo').value = 'Company Licensed';
+                        
+                        // Set colors
+                        document.getElementById('bg-color-picker').value = '#fdf2f8';
+                        document.getElementById('text-color-picker').value = '#831843';
+                        document.getElementById('accent-color-picker').value = '#db2777';
+                        break;
                 }
+                
+                // Set dates - common for all templates
+                const today = new Date();
+                const manufactureDate = new Date(today);
+                manufactureDate.setMonth(manufactureDate.getMonth() - 2);
+                
+                const purchaseDate = new Date(today);
+                purchaseDate.setMonth(purchaseDate.getMonth() - 1);
+                
+                const warrantyDate = new Date(today);
+                warrantyDate.setFullYear(warrantyDate.getFullYear() + 2);
+                
+                document.getElementById('ManufactureDate').value = formatDateForInput(manufactureDate);
+                document.getElementById('PurchaseDate').value = formatDateForInput(purchaseDate);
+                document.getElementById('WarrantyExpiration').value = formatDateForInput(warrantyDate);
+                
+                // Update text inputs for colors
+                document.querySelector('input[asp-for="BackgroundColor"]').value = document.getElementById('bg-color-picker').value;
+                document.querySelector('input[asp-for="TextColor"]').value = document.getElementById('text-color-picker').value;
+                document.querySelector('input[asp-for="AccentColor"]').value = document.getElementById('accent-color-picker').value;
+                
+                // Update field visibility based on template
+                updateFieldVisibility(type);
+                
+                // Update preview
+                updateTagPreview();
+                
+                showNotification(`${type.charAt(0).toUpperCase() + type.slice(1)} template applied`, 'success');
                 
                 // Update validation icons
                 document.querySelectorAll('[required]').forEach(field => {
@@ -1250,9 +1619,6 @@
                         }
                     }
                 });
-                
-                // Update preview
-                updateTagPreview();
             }
             
             // Update tag preview on form input
@@ -1262,7 +1628,7 @@
                 const accentColor = document.getElementById('accent-color-picker').value || '#0284c7';
                 
                 const name = document.getElementById('ProductName').value || 'Product Name';
-                const category = document.getElementById('Category').value || 'Product Category';
+                const category = document.getElementById('category-select').value || 'Product Category';
                 const manufacturer = document.getElementById('Manufacturer').value || 'Manufacturer';
                 const model = document.getElementById('ModelNumber').value || 'MODEL-XXX';
                 const serial = document.getElementById('SerialNumber').value || 'SN12345';
@@ -1343,6 +1709,9 @@
                     preview.querySelectorAll('i').forEach(icon => {
                         icon.style.color = accentColor;
                     });
+                    
+                    // Update custom fields in preview
+                    updateCustomFieldsPreview();
                 }
             }
             
@@ -1371,7 +1740,7 @@
                         counter.classList.remove('text-orange-500');
                     }
                     
-                    if (input.value.length >= maxLength) {
+if (input.value.length >= maxLength) {
                         counter.classList.add('text-red-500');
                         counter.classList.remove('text-orange-500');
                     } else {
