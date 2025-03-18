@@ -77,6 +77,7 @@
                     </div>
                 </div>
                 
+                <!-- Initial Templates Container (limited to 3) -->
                 <div id="template-container" class="grid grid-cols-3 gap-3 mb-4">
                     <!-- Chemical Template -->
                     <div class="template-card cursor-pointer border rounded-lg overflow-hidden hover:border-primary-500 hover:shadow transition-all relative group" data-template="chemical" data-category="chemical">
@@ -140,7 +141,10 @@
                             </span>
                         </div>
                     </div>
-                    
+                </div>
+                
+                <!-- Hidden Templates Container -->
+                <div id="expanded-template-container" class="grid grid-cols-3 gap-3 mb-4 hidden">
                     <!-- Electronic Template -->
                     <div class="template-card cursor-pointer border rounded-lg overflow-hidden hover:border-primary-500 hover:shadow transition-all relative group" data-template="electronic" data-category="equipment">
                         <div class="absolute top-1 right-1 flex template-actions opacity-0 group-hover:opacity-100 z-10">
@@ -203,6 +207,14 @@
                             </span>
                         </div>
                     </div>
+                </div>
+                
+                <!-- Load More Button -->
+                <div class="text-center mt-2 mb-4">
+                    <button type="button" id="load-more-templates" class="text-sm text-primary-600 hover:text-primary-700 px-3 py-1 border border-primary-200 rounded-full hover:bg-primary-50 transition-all">
+                        <span class="load-more-text"><i class="fas fa-chevron-down mr-1"></i> Load More Templates</span>
+                        <span class="show-less-text hidden"><i class="fas fa-chevron-up mr-1"></i> Show Less</span>
+                    </button>
                 </div>
                 
                 <!-- Recently Used Templates -->
@@ -652,65 +664,64 @@
                 </h3>
                 <div class="preview-controls flex gap-2">
                     <button type="button" class="text-sm text-gray-600 hover:text-gray-800 flex items-center p-1 hover:bg-gray-100 rounded transition-colors" id="rotate-preview">
-                        <i class="fas fa-sync-alt mr-1"></i> Rotate
-                    </button>
-                    <button type="button" class="text-sm text-gray-600 hover:text-gray-800 flex items-center p-1 hover:bg-gray-100 rounded transition-colors" id="zoom-preview">
-                        <i class="fas fa-search-plus mr-1"></i> Zoom
+                        <i class="fas fa-sync-alt mr-1"></i> Flip Card
                     </button>
                 </div>
             </div>
             
             <div class="card shadow-lg transition-all duration-300" id="card-preview-container">
-                <div class="business-card" id="tag-preview" style="background-color: #ffffff; color: #000000">
-                    <div class="p-6 h-full flex flex-col relative">
-                        <!-- Template indicator badge -->
-                        <div class="absolute -top-8 right-0 transform translate-y-12 transition-transform duration-300 opacity-70 hover:opacity-100">
-                            <div class="template-badge px-2 py-1 bg-white text-primary-600 text-xs font-medium rounded-t-lg shadow-sm">
-                                <i id="preview-template-icon" class="fas fa-none mr-1"></i>
-                                <span id="preview-template-name">No Template</span>
+                <div class="card-flip-container">
+                    <!-- Front of card -->
+                    <div class="business-card card-side card-front" id="tag-preview" style="background-color: #ffffff; color: #000000">
+                        <div class="p-6 h-full flex flex-col relative">
+                            <!-- Template indicator badge -->
+                            <div class="absolute -top-8 right-0 transform translate-y-12 transition-transform duration-300 opacity-70 hover:opacity-100">
+                                <div class="template-badge px-2 py-1 bg-white text-primary-600 text-xs font-medium rounded-t-lg shadow-sm">
+                                    <i id="preview-template-icon" class="fas fa-none mr-1"></i>
+                                    <span id="preview-template-name">No Template</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <span id="preview-category" class="px-2 py-1 text-xs font-semibold rounded-full inline-block" style="background-color: #0284c7; color: #ffffff">
+                                    Product Category
+                                </span>
+                                <h3 id="preview-name" class="text-xl font-bold mt-2" style="color: #0284c7">Product Name</h3>
+                                <p id="preview-manufacturer" class="text-md">Manufacturer</p>
+                                <div id="preview-custom-fields" class="mt-2 text-sm"></div>
+                            </div>
+                            <div class="space-y-2 mt-auto text-sm">
+                                <p class="flex items-center">
+                                    <i class="fas fa-map-marker-alt mr-3" style="color: #0284c7"></i>
+                                    <span class="font-medium">Location:</span>&nbsp;<span id="preview-location">Storage Location</span>
+                                </p>
+                                <p class="flex items-center">
+                                    <i class="fas fa-calendar-day mr-3" style="color: #0284c7"></i>
+                                    <span class="font-medium">Manufactured:</span>&nbsp;<span id="preview-mfgdate">Jan 1, 2025</span>
+                                </p>
+                                <p class="flex items-center warranty-preview">
+                                    <i class="fas fa-calendar-check mr-3" style="color: #0284c7"></i>
+                                    <span class="font-medium">Warranty Until:</span>&nbsp;<span id="preview-warranty">Jan 1, 2026</span>
+                                </p>
+                                <p class="flex items-center">
+                                    <i class="fas fa-wrench mr-3" style="color: #0284c7"></i>
+                                    <span class="font-medium">Maintenance:</span>&nbsp;<span id="preview-maintenance">Maintenance information</span>
+                                </p>
                             </div>
                         </div>
-                        
-                        <div class="mb-4">
-                            <span id="preview-category" class="px-2 py-1 text-xs font-semibold rounded-full inline-block" style="background-color: #0284c7; color: #ffffff">
-                                Product Category
-                            </span>
-                            <h3 id="preview-name" class="text-xl font-bold mt-2" style="color: #0284c7">Product Name</h3>
-                            <p id="preview-manufacturer" class="text-md">Manufacturer</p>
-                            <div id="preview-custom-fields" class="mt-2 text-sm"></div>
-                        </div>
-                        <div class="space-y-2 mt-auto text-sm">
-                            <p class="flex items-center">
-                                <i class="fas fa-map-marker-alt mr-3" style="color: #0284c7"></i>
-                                <span class="font-medium">Location:</span>&nbsp;<span id="preview-location">Storage Location</span>
-                            </p>
-                            <p class="flex items-center">
-                                <i class="fas fa-calendar-day mr-3" style="color: #0284c7"></i>
-                                <span class="font-medium">Manufactured:</span>&nbsp;<span id="preview-mfgdate">Jan 1, 2025</span>
-                            </p>
-                            <p class="flex items-center warranty-preview">
-                                <i class="fas fa-calendar-check mr-3" style="color: #0284c7"></i>
-                                <span class="font-medium">Warranty Until:</span>&nbsp;<span id="preview-warranty">Jan 1, 2026</span>
-                            </p>
-                            <p class="flex items-center">
-                                <i class="fas fa-wrench mr-3" style="color: #0284c7"></i>
-                                <span class="font-medium">Maintenance:</span>&nbsp;<span id="preview-maintenance">Maintenance information</span>
-                            </p>
-                        </div>
                     </div>
-                </div>
-            </div>
-            
-            <div class="card p-4">
-                <h4 class="text-sm font-medium mb-3 flex items-center">
-                    <i class="fas fa-qrcode text-primary-400 mr-2"></i> QR Code Preview
-                </h4>
-                <div class="flex justify-center">
-                    <div class="qr-preview p-3 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow transition-all">
-                        <div class="w-32 h-32 bg-gray-50 flex items-center justify-center rounded" id="qr-code-display">
-                            <i class="fas fa-qrcode text-gray-400 text-4xl"></i>
+                    
+                    <!-- Back of card (QR Code) -->
+                    <div class="business-card card-side card-back" style="background-color: #ffffff;">
+                        <div class="p-6 h-full flex flex-col items-center justify-center">
+                            <div class="qr-preview p-3 bg-white border border-gray-200 rounded-lg shadow-sm">
+                                <div class="w-40 h-40 bg-white flex items-center justify-center rounded" id="card-qr-code-display">
+                                    <i class="fas fa-qrcode text-gray-400 text-4xl"></i>
+                                </div>
+                                <p class="text-center text-sm mt-2 text-gray-700 font-medium" id="qr-product-name">Product Name</p>
+                                <p class="text-center text-xs mt-1 text-gray-500">Scan for product details</p>
+                            </div>
                         </div>
-                        <p class="text-center text-xs mt-2 text-gray-500">Scan for product details</p>
                     </div>
                 </div>
             </div>
@@ -881,8 +892,8 @@
                                 </div>
                                 <div class="form-group mt-2">
                                     <div class="flex items-center">
-                                        <input type="checkbox" class="field-editable mr-2" id="field-editable-checkbox" checked>
-                                        <label for="field-editable-checkbox" class="text-sm">Make this field editable</label>
+                                        <input type="checkbox" class="field-required mr-2" id="field-required-checkbox" checked>
+                                        <label for="field-required-checkbox" class="text-sm">Required</label>
                                     </div>
                                 </div>
                             </div>
@@ -980,6 +991,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeFieldVisibility();
     initializeTemplateModal();
     initializeTemplateTabs();
+    initializeLoadMoreTemplates();
     updateTagPreview();
     generateQRCode();
     
@@ -1018,6 +1030,30 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+    
+    // Initialize Load More Templates button
+    function initializeLoadMoreTemplates() {
+        const loadMoreBtn = document.getElementById('load-more-templates');
+        const expandedContainer = document.getElementById('expanded-template-container');
+        const loadMoreText = document.querySelector('.load-more-text');
+        const showLessText = document.querySelector('.show-less-text');
+        
+        loadMoreBtn.addEventListener('click', function() {
+            const isExpanded = !expandedContainer.classList.contains('hidden');
+            
+            if (isExpanded) {
+                // Hide expanded templates
+                expandedContainer.classList.add('hidden');
+                loadMoreText.classList.remove('hidden');
+                showLessText.classList.add('hidden');
+            } else {
+                // Show expanded templates
+                expandedContainer.classList.remove('hidden');
+                loadMoreText.classList.add('hidden');
+                showLessText.classList.remove('hidden');
+            }
+        });
+    }
     
     // Template toast functions
     window.showTemplateToast = function(templateName) {
@@ -1120,12 +1156,15 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Generate QR Code
     function generateQRCode() {
-        const qrElement = document.getElementById('qr-code-display');
+        const qrElement = document.getElementById('card-qr-code-display');
         qrElement.innerHTML = '';
         
         const productName = document.getElementById('ProductName').value || 'Sample Product';
         const qrFgColor = document.getElementById('qr-fg-color').value || '#000000';
         const qrBgColor = document.getElementById('qr-bg-color').value || '#FFFFFF';
+        
+        // Update QR product name on back of card
+        document.getElementById('qr-product-name').textContent = productName;
         
         // QR code data would typically contain a URL or ID to access the product details
         const qrData = `PRODUCT:${productName}:${Date.now()}`;
@@ -1133,8 +1172,8 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             new QRCode(qrElement, {
                 text: qrData,
-                width: 128,
-                height: 128,
+                width: 160,
+                height: 160,
                 colorDark: qrFgColor,
                 colorLight: qrBgColor,
                 correctLevel: QRCode.CorrectLevel.H
@@ -1568,22 +1607,13 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
         
-        // Preview controls
+        // Setup card flip functionality
         const rotateBtn = document.getElementById('rotate-preview');
-        const zoomBtn = document.getElementById('zoom-preview');
-        const previewContainer = document.getElementById('card-preview-container');
+        const cardFlipContainer = document.querySelector('.card-flip-container');
         
-        if (rotateBtn) {
-            rotateBtn.addEventListener('click', function() {
-                previewContainer.classList.toggle('rotate-90');
-            });
-        }
-        
-        if (zoomBtn) {
-            zoomBtn.addEventListener('click', function() {
-                previewContainer.classList.toggle('scale-125');
-            });
-        }
+        rotateBtn.addEventListener('click', function() {
+            cardFlipContainer.classList.toggle('flipped');
+        });
     }
     
     // Initialize image upload
@@ -2020,8 +2050,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Create fields based on template definition
         template.fields.forEach(field => {
-            // Check if field is editable
-            const isEditable = field.editable !== false; // Default to true if not specified
+            // Check if field is required
+            const isRequired = field.required !== false; // Default to true if not specified
             
             const fieldDiv = document.createElement('div');
             fieldDiv.className = 'form-group';
@@ -2029,10 +2059,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const label = document.createElement('label');
             label.className = 'form-label';
-            label.innerHTML = `${field.name} <span class="text-red-500 ml-1">*</span>`;
-            if (!isEditable) {
-                label.innerHTML += ' <span class="ml-2 px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">Fixed</span>';
-            }
+            label.innerHTML = `${field.name} ${isRequired ? '<span class="text-red-500 ml-1">*</span>' : ''}`;
             label.setAttribute('for', `custom-${field.name.replace(/\s+/g, '-').toLowerCase()}`);
             
             const inputWrapper = document.createElement('div');
@@ -2065,28 +2092,10 @@ document.addEventListener('DOMContentLoaded', function() {
             // Add common attributes
             input.id = `custom-${field.name.replace(/\s+/g, '-').toLowerCase()}`;
             input.name = `custom-${field.name.replace(/\s+/g, '-').toLowerCase()}`;
-            input.required = true;
             
-            // Set readonly if not editable
-            if (!isEditable) {
-                input.readOnly = true;
-                input.classList.add('bg-gray-50');
-                
-                // Set a default value for non-editable fields
-                if (field.defaultValue) {
-                    input.value = field.defaultValue;
-                } else {
-                    // Generate a suitable default value based on field type
-                    if (field.type === 'date') {
-                        input.value = new Date().toISOString().split('T')[0];
-                    } else if (field.type === 'number') {
-                        input.value = '0';
-                    } else if (field.type === 'select') {
-                        // First option is selected by default
-                    } else {
-                        input.value = field.placeholder || `${field.name} Value`;
-                    }
-                }
+            // Set required if specified
+            if (isRequired) {
+                input.required = true;
             }
             
             if (field.placeholder) input.placeholder = field.placeholder;
@@ -2294,8 +2303,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (firstRow.querySelector('.field-options-input')) {
                     firstRow.querySelector('.field-options-input').value = '';
                 }
-                if (firstRow.querySelector('.field-editable')) {
-                    firstRow.querySelector('.field-editable').checked = true;
+                if (firstRow.querySelector('.field-required')) {
+                    firstRow.querySelector('.field-required').checked = true;
                 }
             }
             
@@ -2385,10 +2394,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     fieldRow.querySelector('.field-icon').value = field.icon || 'tag';
                     fieldRow.querySelector('.field-placeholder').value = field.placeholder || '';
                     
-                    // Set editable checkbox if present
-                    const editableCheckbox = fieldRow.querySelector('.field-editable');
-                    if (editableCheckbox) {
-                        editableCheckbox.checked = field.editable !== false; // Default to true if not specified
+                    // Set required checkbox if present
+                    const requiredCheckbox = fieldRow.querySelector('.field-required');
+                    if (requiredCheckbox) {
+                        requiredCheckbox.checked = field.required !== false; // Default to true if not specified
                     }
                     
                     // Handle options for select type
@@ -2416,8 +2425,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     template.icon = 'flask';
                     template.bgColor = '#f0f9ff';
                     template.fields = [
-                        { name: 'Manufacturer', type: 'text', icon: 'industry', placeholder: 'ChemTech Industries', editable: true },
-                        { name: 'Chemical Type', type: 'select', icon: 'flask', options: ['Acid', 'Alkali', 'Solvent', 'Coating', 'Other'], editable: true }
+                        { name: 'Manufacturer', type: 'text', icon: 'industry', placeholder: 'ChemTech Industries', required: true },
+                        { name: 'Chemical Type', type: 'select', icon: 'flask', options: ['Acid', 'Alkali', 'Solvent', 'Coating', 'Other'], required: true }
                     ];
                     break;
                 case 'equipment':
@@ -2426,8 +2435,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     template.icon = 'tools';
                     template.bgColor = '#f5f3ff';
                     template.fields = [
-                        { name: 'Manufacturer', type: 'text', icon: 'industry', placeholder: 'SprayTech', editable: true },
-                        { name: 'Equipment Type', type: 'select', icon: 'tools', options: ['Manual', 'Semi-Automatic', 'Automatic', 'Robotic'], editable: false }
+                        { name: 'Manufacturer', type: 'text', icon: 'industry', placeholder: 'SprayTech', required: true },
+                        { name: 'Equipment Type', type: 'select', icon: 'tools', options: ['Manual', 'Semi-Automatic', 'Automatic', 'Robotic'], required: true }
                     ];
                     break;
                 case 'safety':
@@ -2436,8 +2445,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     template.icon = 'hard-hat';
                     template.bgColor = '#fff7ed';
                     template.fields = [
-                        { name: 'Manufacturer', type: 'text', icon: 'industry', placeholder: 'SafetyFirst Inc.', editable: true },
-                        { name: 'Safety Standard', type: 'text', icon: 'shield-alt', placeholder: 'ANSI Z358.1, ISO 9001', editable: false }
+                        { name: 'Manufacturer', type: 'text', icon: 'industry', placeholder: 'SafetyFirst Inc.', required: true },
+                        { name: 'Safety Standard', type: 'text', icon: 'shield-alt', placeholder: 'ANSI Z358.1, ISO 9001', required: true }
                     ];
                     break;
                 case 'electronic':
@@ -2446,8 +2455,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     template.icon = 'microchip';
                     template.bgColor = '#f0fdf4';
                     template.fields = [
-                        { name: 'Manufacturer', type: 'text', icon: 'industry', placeholder: 'ElectroTech Inc.', editable: true },
-                        { name: 'Power Requirement', type: 'text', icon: 'bolt', placeholder: '220V, 50Hz, 100W', editable: false }
+                        { name: 'Manufacturer', type: 'text', icon: 'industry', placeholder: 'ElectroTech Inc.', required: true },
+                        { name: 'Power Requirement', type: 'text', icon: 'bolt', placeholder: '220V, 50Hz, 100W', required: true }
                     ];
                     break;
                 case 'machinery':
@@ -2456,8 +2465,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     template.icon = 'cogs';
                     template.bgColor = '#fef3c7';
                     template.fields = [
-                        { name: 'Manufacturer', type: 'text', icon: 'industry', placeholder: 'MachTech Heavy Industries', editable: true },
-                        { name: 'Operating Capacity', type: 'text', icon: 'tachometer-alt', placeholder: '500 kg/hour', editable: false }
+                        { name: 'Manufacturer', type: 'text', icon: 'industry', placeholder: 'MachTech Heavy Industries', required: true },
+                        { name: 'Operating Capacity', type: 'text', icon: 'tachometer-alt', placeholder: '500 kg/hour', required: true }
                     ];
                     break;
                 case 'design':
@@ -2466,8 +2475,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     template.icon = 'paint-brush';
                     template.bgColor = '#fdf2f8';
                     template.fields = [
-                        { name: 'Creator/Studio', type: 'text', icon: 'user-tie', placeholder: 'DesignWorks Studio', editable: true },
-                        { name: 'Design Type', type: 'select', icon: 'paint-brush', options: ['Graphic', 'Product', 'Template', 'Prototype', 'Other'], editable: false }
+                        { name: 'Creator/Studio', type: 'text', icon: 'user-tie', placeholder: 'DesignWorks Studio', required: true },
+                        { name: 'Design Type', type: 'select', icon: 'paint-brush', options: ['Graphic', 'Product', 'Template', 'Prototype', 'Other'], required: true }
                     ];
                     break;
             }
@@ -2686,8 +2695,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                     <div class="form-group mt-2">
                         <div class="flex items-center">
-                            <input type="checkbox" class="field-editable mr-2" id="field-editable-checkbox-${Date.now()}" checked>
-                            <label for="field-editable-checkbox-${Date.now()}" class="text-sm">Make this field editable</label>
+                            <input type="checkbox" class="field-required mr-2" id="field-required-checkbox-${Date.now()}" checked>
+                            <label for="field-required-checkbox-${Date.now()}" class="text-sm">Required</label>
                         </div>
                     </div>
                 </div>
@@ -2758,7 +2767,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const fieldType = fieldRow.querySelector('.field-type').value;
                 const fieldIcon = fieldRow.querySelector('.field-icon').value;
                 const fieldPlaceholder = fieldRow.querySelector('.field-placeholder').value;
-                const fieldEditable = fieldRow.querySelector('.field-editable')?.checked;
+                const fieldRequired = fieldRow.querySelector('.field-required')?.checked;
                 
                 let options = null;
                 if (fieldType === 'select') {
@@ -2774,7 +2783,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     icon: fieldIcon,
                     placeholder: fieldPlaceholder,
                     options: options,
-                    editable: fieldEditable
+                    required: fieldRequired
                 });
             });
             
@@ -2840,10 +2849,14 @@ document.addEventListener('DOMContentLoaded', function() {
             icon.style.color = accentColor;
         });
         
+        // Also update the back of the card
+        document.querySelector('.card-back').style.backgroundColor = bgColor;
+        
         // Update content
         const productName = document.getElementById('ProductName');
         if (productName && productName.value) {
             previewName.textContent = productName.value;
+            document.getElementById('qr-product-name').textContent = productName.value;
         }
         
         const category = document.getElementById('category-select');
@@ -2892,8 +2905,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const fieldElement = document.createElement('div');
                 fieldElement.className = 'flex items-center space-x-2 text-sm mt-1';
                 fieldElement.innerHTML = `
-                    <span class="font-semibold">${fieldName}:</span>
-                    <span>${fieldValue}</span>
+                    <span class="font-semibold">${fieldName}:</span>&nbsp;<span>${fieldValue}</span>
                 `;
                 
                 previewCustomFields.appendChild(fieldElement);
@@ -2902,7 +2914,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Update layout
         const layout = document.getElementById('layoutHidden').value;
-        preview.className = 'business-card';
+        preview.className = 'business-card card-side card-front';
         
         switch (layout) {
             case 'modern':
