@@ -1,6 +1,7 @@
 // Path: Models/IssueReport.cs
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CardTagManager.Models
 {
@@ -11,6 +12,7 @@ namespace CardTagManager.Models
         [Required]
         public int CardId { get; set; }
         
+        [ForeignKey("CardId")]
         public Card Card { get; set; }
         
         [Required]
@@ -46,6 +48,7 @@ namespace CardTagManager.Models
         
         public DateTime? ResolvedAt { get; set; }
         
-        public string Resolution { get; set; }
+        // Added default empty string to fix validation error
+        public string Resolution { get; set; } = string.Empty;
     }
 }

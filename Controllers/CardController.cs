@@ -1094,9 +1094,16 @@ namespace CardTagManager.Controllers
         {
             try
             {
+                // Remove validation errors for navigation properties
+                ModelState.Remove("Card");
+                
                 if (!ModelState.IsValid)
                 {
-                    return BadRequest(new { success = false, error = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).FirstOrDefault() });
+                    var errors = string.Join("; ", ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage));
+                        
+                    return BadRequest(new { success = false, error = errors });
                 }
 
                 // Set creation timestamp
@@ -1104,6 +1111,10 @@ namespace CardTagManager.Controllers
                 
                 // Set initial status
                 issueReport.Status = "Open";
+                
+                // Ensure Resolution has a value
+                if (string.IsNullOrEmpty(issueReport.Resolution))
+                    issueReport.Resolution = string.Empty;
                 
                 // Add to database
                 _context.IssueReports.Add(issueReport);
@@ -1153,5 +1164,23 @@ namespace CardTagManager.Controllers
                 return StatusCode(500, new { error = "An error occurred while retrieving maintenance history." });
             }
         }        
+        [HttpGet]
+        public async Task<IActionResult> GetCardIssues(int id)
+        {
+            try
+            {
+                var issues = await _context.IssueReports
+                    .Where(i => i.CardId == id)
+                    .OrderByDescending(i => i.CreatedAt)
+                    .ToListAsync();
+
+                return Json(issues);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving issues for card {id}");
+                return StatusCode(500, new { error = "An error occurred while retrieving issues." });
+            }
+        }
     }
 }
