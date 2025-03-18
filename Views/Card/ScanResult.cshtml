@@ -1246,6 +1246,7 @@
                 
                 // Reset all filter tags
                 document.getElementById('active-filters').classList.add('hidden');
+                document.getElementById('filter-tags').innerHTML = '';
                 
                 // Reset all results visibility
                 resetFilters();
@@ -1345,122 +1346,10 @@
         }
         
         // Delete scan record functionality
-        const deleteButtons = document.querySelectorAll('.delete-scan');
-        const deleteModal = document.getElementById('delete-modal');
-        const cancelDeleteBtn = document.getElementById('cancel-delete');
-        const confirmDeleteBtn = document.getElementById('confirm-delete');
-        const deleteItemDetails = document.getElementById('delete-item-details');
-        
-        if (deleteButtons && deleteModal) {
-            deleteButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    
-                    const id = this.getAttribute('data-id');
-                    const row = this.closest('tr.scan-result-row');
-                    const card = document.querySelector(`.scan-result-card[data-id="${row.getAttribute('data-id')}"]`);
-                    
-                    // Populate delete modal with details
-                    deleteItemDetails.innerHTML = `
-                        <p><strong>Product:</strong> ${row.getAttribute('data-product')}</p>
-                        <p><strong>Scan Time:</strong> ${new Date(row.getAttribute('data-time')).toLocaleString()}</p>
-                        <p><strong>Location:</strong> ${row.getAttribute('data-location')}</p>
-                        <p><strong>Result:</strong> ${row.getAttribute('data-result')}</p>
-                    `;
-                    
-                    // Store the row and card references for deletion
-                    confirmDeleteBtn.setAttribute('data-row-id', row.getAttribute('data-id'));
-                    
-                    // Show the modal
-                    deleteModal.classList.remove('hidden');
-                });
-            });
-            
-            cancelDeleteBtn.addEventListener('click', function() {
-                deleteModal.classList.add('hidden');
-            });
-            
-            confirmDeleteBtn.addEventListener('click', function() {
-                const id = this.getAttribute('data-row-id');
-                
-                // Find and remove the row and card
-                const row = document.querySelector(`.scan-result-row[data-id="${id}"]`);
-                const card = document.querySelector(`.scan-result-card[data-id="${id}"]`);
-                
-                if (row) row.remove();
-                if (card) card.remove();
-                
-                // Hide the modal
-                deleteModal.classList.add('hidden');
-                
-                // Show toast notification
-                showToast('Record deleted', 'Scan record has been permanently deleted', 'success');
-                
-                // Update result count
-                const remainingRows = document.querySelectorAll('.scan-result-row');
-                const resultCount = document.getElementById('result-count');
-                if (resultCount) {
-                    resultCount.innerHTML = `Showing <span class="font-medium text-gray-700">${remainingRows.length}</span> results`;
-                }
-                
-                // Update counters
-                const totalCounter = document.getElementById('total-scans-counter');
-                if (totalCounter) {
-                    const currentCount = parseInt(totalCounter.querySelector('.animate-counter').textContent);
-                    totalCounter.querySelector('.animate-counter').textContent = currentCount - 1;
-                }
-            });
-            
-            // Close modal when clicking outside
-            deleteModal.addEventListener('click', function(e) {
-                if (e.target === deleteModal) {
-                    deleteModal.classList.add('hidden');
-                }
-            });
-        }
+        initializeDeleteFunctionality();
         
         // Export menu toggle
-        const exportMenuBtn = document.getElementById('export-menu-btn');
-        const exportMenu = document.getElementById('export-menu');
-        
-        if (exportMenuBtn && exportMenu) {
-            exportMenuBtn.addEventListener('click', function() {
-                exportMenu.classList.toggle('hidden');
-                exportMenu.classList.toggle('scale-95');
-                exportMenu.classList.toggle('scale-100');
-            });
-            
-            // Close menu when clicking outside
-            document.addEventListener('click', function(e) {
-                if (!exportMenuBtn.contains(e.target) && !exportMenu.contains(e.target)) {
-                    exportMenu.classList.add('hidden');
-                    exportMenu.classList.add('scale-95');
-                    exportMenu.classList.remove('scale-100');
-                }
-            });
-            
-            // Export buttons
-            document.getElementById('export-csv').addEventListener('click', function() {
-                showToast('Export started', 'Exporting to CSV file...', 'success');
-                exportMenu.classList.add('hidden');
-            });
-            
-            document.getElementById('export-pdf').addEventListener('click', function() {
-                showToast('Export started', 'Exporting to PDF file...', 'success');
-                exportMenu.classList.add('hidden');
-            });
-            
-            document.getElementById('export-excel').addEventListener('click', function() {
-                showToast('Export started', 'Exporting to Excel file...', 'success');
-                exportMenu.classList.add('hidden');
-            });
-            
-            document.getElementById('print-results').addEventListener('click', function() {
-                showToast('Preparing print view', 'Opening print dialog...', 'info');
-                exportMenu.classList.add('hidden');
-                setTimeout(() => { window.print(); }, 1000);
-            });
-        }
+        initializeExportMenu();
     }
     
     // Initialize issue reports tab functionality
@@ -1513,6 +1402,7 @@
                 
                 // Reset all filter tags
                 document.getElementById('active-issue-filters').classList.add('hidden');
+                document.getElementById('issue-filter-tags').innerHTML = '';
                 
                 // Reset all issues visibility
                 resetIssueFilters();
@@ -1545,11 +1435,85 @@
                 this.classList.remove('bg-gray-200', 'text-gray-700');
                 this.classList.add('bg-primary-600', 'text-white');
                 
-                // Apply time filter
-                const filter = this.getAttribute('data-time-filter');
-                applyTimeFilter(filter);
+                // Apply status filter
+                const filter = this.getAttribute('data-status-filter');
+                applyStatusFilter(filter);
             });
         });
+        
+        // Initialize update status modal
+        initUpdateStatusModal();
+        
+        // Initial load of issue data
+        loadIssueData();
+    }
+    
+    // Initialize analytics tab functionality
+    function initAnalyticsTab() {
+        // Load sample data for analytics charts
+        // In a real implementation, this would fetch data from an API
+        function loadAnalyticsData() {
+            const productsIssueTable = document.getElementById('products-issue-table');
+            if (!productsIssueTable) return;
+            
+            // Sample data for the products with issues table
+            const sampleData = [
+                { productName: "RustShield Pro 5000", totalIssues: 5, openIssues: 2, commonIssue: "Performance Issues", lastReported: "2025-03-15" },
+                { productName: "Industrial Spray Booth", totalIssues: 3, openIssues: 1, commonIssue: "Maintenance Required", lastReported: "2025-03-10" },
+                { productName: "Precision Lab Scale", totalIssues: 2, openIssues: 0, commonIssue: "Calibration Issues", lastReported: "2025-03-01" },
+                { productName: "Emergency Eyewash Station", totalIssues: 1, openIssues: 1, commonIssue: "Safety Concern", lastReported: "2025-03-17" }
+            ];
+            
+            // Populate the table
+            productsIssueTable.innerHTML = '';
+            sampleData.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-6 py-4">
+                        <div class="text-sm font-medium text-gray-900">${item.productName}</div>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-500">${item.totalIssues}</td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${item.openIssues > 0 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}">
+                            ${item.openIssues}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-500">${item.commonIssue}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">${formatDate(new Date(item.lastReported))}</td>
+                `;
+                productsIssueTable.appendChild(row);
+            });
+        }
+        
+        // Period buttons for analytics charts
+        const periodBtns = document.querySelectorAll('.period-btn');
+        if (periodBtns) {
+            periodBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Update button styles
+                    periodBtns.forEach(b => {
+                        b.classList.remove('bg-primary-100', 'text-primary-600');
+                        b.classList.add('bg-gray-100', 'text-gray-600');
+                    });
+                    
+                    this.classList.remove('bg-gray-100', 'text-gray-600');
+                    this.classList.add('bg-primary-100', 'text-primary-600');
+                    
+                    // In a real implementation, this would fetch data for the selected period
+                    const period = this.getAttribute('data-period');
+                    showToast('Analytics period changed', `Showing data for the last ${period}`, 'info');
+                });
+            });
+        }
+    }
+    
+    // Shared functionality for all tabs
+    function initSharedFunctionality() {
+        // Initialize modals
+        initializeModals();
+        
+        // Initialize toast notifications
+        initializeToastNotifications();
     }
     
     function applyTimeFilter(filter) {
@@ -1612,71 +1576,430 @@
         if (filter === 'week') filterText = 'This week';
         if (filter === 'month') filterText = 'This month';
         
-        showToast('Time filter applied', 'info', `Showing ${visibleCount} results from ${filterText}`);
+        showToast('Time filter applied', `Showing ${visibleCount} results from ${filterText}`, 'info');
     }
     
-    function initializeViewToggle() {
-        const viewTableBtn = document.getElementById('view-table');
-        const viewCardsBtn = document.getElementById('view-cards');
-        const tableView = document.getElementById('table-view');
-        const cardView = document.getElementById('card-view');
+    function applyStatusFilter(filter) {
+        const issueItems = document.querySelectorAll('.issue-item');
+        let visibleCount = 0;
         
-        if (viewTableBtn && viewCardsBtn && tableView && cardView) {
-            viewTableBtn.addEventListener('click', function() {
-                // Update button styles
-                viewTableBtn.classList.remove('bg-gray-50', 'text-gray-500');
-                viewTableBtn.classList.add('bg-white', 'text-primary-600');
-                viewCardsBtn.classList.remove('bg-white', 'text-primary-600');
-                viewCardsBtn.classList.add('bg-gray-50', 'text-gray-500');
+        issueItems.forEach(item => {
+            const status = item.getAttribute('data-status');
+            
+            if (filter === 'all' || status === filter) {
+                item.style.display = '';
+                visibleCount++;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+        
+        // Update issues count
+        const issuesCount = document.getElementById('issues-count');
+        if (issuesCount) {
+            issuesCount.textContent = `Showing ${visibleCount} issues`;
+        }
+        
+        // Show toast notification
+        showToast('Status filter applied', `Showing ${visibleCount} ${filter === 'all' ? 'issues' : filter + ' issues'}`, 'info');
+    }
+    
+    function filterResults(searchTerm) {
+        const tableRows = document.querySelectorAll('.scan-result-row');
+        const cardItems = document.querySelectorAll('.scan-result-card');
+        let visibleCount = 0;
+        
+        tableRows.forEach(row => {
+            const product = row.getAttribute('data-product').toLowerCase();
+            const location = row.getAttribute('data-location').toLowerCase();
+            const result = row.getAttribute('data-result').toLowerCase();
+            const device = row.getAttribute('data-device').toLowerCase();
+            
+            if (product.includes(searchTerm) || location.includes(searchTerm) || 
+                result.includes(searchTerm) || device.includes(searchTerm)) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        
+        cardItems.forEach(card => {
+            const product = card.getAttribute('data-product').toLowerCase();
+            const location = card.getAttribute('data-location').toLowerCase();
+            const result = card.getAttribute('data-result').toLowerCase();
+            const device = card.getAttribute('data-device').toLowerCase();
+            
+            if (product.includes(searchTerm) || location.includes(searchTerm) || 
+                result.includes(searchTerm) || device.includes(searchTerm)) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        
+        // Update result count
+        const resultCount = document.getElementById('result-count');
+        if (resultCount) {
+            resultCount.innerHTML = `Showing <span class="font-medium text-gray-700">${visibleCount}</span> results`;
+        }
+    }
+    
+    function filterIssues(searchTerm) {
+        const issueItems = document.querySelectorAll('.issue-item');
+        let visibleCount = 0;
+        
+        issueItems.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            
+            if (text.includes(searchTerm)) {
+                item.style.display = '';
+                visibleCount++;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+        
+        // Update issues count
+        const issuesCount = document.getElementById('issues-count');
+        if (issuesCount) {
+            issuesCount.textContent = `Showing ${visibleCount} issues`;
+        }
+    }
+    
+    function resetFilters() {
+        const tableRows = document.querySelectorAll('.scan-result-row');
+        const cardItems = document.querySelectorAll('.scan-result-card');
+        
+        tableRows.forEach(row => {
+            row.style.display = '';
+        });
+        
+        cardItems.forEach(card => {
+            card.style.display = '';
+        });
+        
+        // Update result count
+        const resultCount = document.getElementById('result-count');
+        if (resultCount) {
+            resultCount.innerHTML = `Showing <span class="font-medium text-gray-700">${tableRows.length}</span> results`;
+        }
+        
+        // Update time filter buttons
+        const timeFilterBtns = document.querySelectorAll('.time-filter-btn');
+        timeFilterBtns.forEach(btn => {
+            btn.classList.remove('bg-primary-600', 'text-white');
+            btn.classList.add('bg-gray-200', 'text-gray-700');
+            
+            if (btn.getAttribute('data-time-filter') === 'all') {
+                btn.classList.remove('bg-gray-200', 'text-gray-700');
+                btn.classList.add('bg-primary-600', 'text-white');
+            }
+        });
+    }
+    
+    function resetIssueFilters() {
+        const issueItems = document.querySelectorAll('.issue-item');
+        
+        issueItems.forEach(item => {
+            item.style.display = '';
+        });
+        
+        // Update issues count
+        const issuesCount = document.getElementById('issues-count');
+        if (issuesCount) {
+            issuesCount.textContent = `Showing ${issueItems.length} issues`;
+        }
+        
+        // Update status filter buttons
+        const statusFilterBtns = document.querySelectorAll('.status-filter-btn');
+        statusFilterBtns.forEach(btn => {
+            btn.classList.remove('bg-primary-600', 'text-white');
+            btn.classList.add('bg-gray-200', 'text-gray-700');
+            
+            if (btn.getAttribute('data-status-filter') === 'all') {
+                btn.classList.remove('bg-gray-200', 'text-gray-700');
+                btn.classList.add('bg-primary-600', 'text-white');
+            }
+        });
+    }
+    
+    function applyAdvancedFilters(dateFrom, dateTo, resultFilter, locationFilter) {
+        const tableRows = document.querySelectorAll('.scan-result-row');
+        const cardItems = document.querySelectorAll('.scan-result-card');
+        let visibleCount = 0;
+        
+        // Create filter tags container
+        const filterTags = document.getElementById('filter-tags');
+        filterTags.innerHTML = '';
+        
+        // Create filter tags
+        const activeFilters = [];
+        
+        if (dateFrom) {
+            const fromDate = new Date(dateFrom);
+            activeFilters.push({ type: 'date-from', value: formatDate(fromDate), display: `From: ${formatDate(fromDate)}` });
+        }
+        
+        if (dateTo) {
+            const toDate = new Date(dateTo);
+            activeFilters.push({ type: 'date-to', value: formatDate(toDate), display: `To: ${formatDate(toDate)}` });
+        }
+        
+        if (resultFilter) {
+            activeFilters.push({ type: 'result', value: resultFilter, display: `Result: ${resultFilter}` });
+        }
+        
+        if (locationFilter) {
+            activeFilters.push({ type: 'location', value: locationFilter, display: `Location: ${locationFilter}` });
+        }
+        
+        // Create filter tag elements
+        activeFilters.forEach(filter => {
+            const tag = document.createElement('div');
+            tag.className = 'px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full flex items-center';
+            tag.innerHTML = `
+                ${filter.display}
+                <button class="ml-1 text-blue-600 hover:text-blue-800" data-filter-type="${filter.type}" data-filter-value="${filter.value}">
+                    <i class="fas fa-times-circle"></i>
+                </button>
+            `;
+            
+            tag.querySelector('button').addEventListener('click', function() {
+                const filterType = this.getAttribute('data-filter-type');
                 
-                // Show table view, hide card view
-                tableView.classList.remove('hidden');
-                cardView.classList.add('hidden');
+                // Remove the filter
+                if (filterType === 'date-from') {
+                    document.getElementById('date-from').value = '';
+                } else if (filterType === 'date-to') {
+                    document.getElementById('date-to').value = '';
+                } else if (filterType === 'result') {
+                    document.getElementById('result-filter').value = '';
+                } else if (filterType === 'location') {
+                    document.getElementById('location-filter').value = '';
+                }
                 
-                // Show toast notification
-                showToast('Table view activated', 'info', 'Displaying results in table format');
+                // Re-apply filters
+                applyAdvancedFilters(
+                    document.getElementById('date-from').value,
+                    document.getElementById('date-to').value,
+                    document.getElementById('result-filter').value,
+                    document.getElementById('location-filter').value
+                );
             });
             
-            viewCardsBtn.addEventListener('click', function() {
-                // Update button styles
-                viewCardsBtn.classList.remove('bg-gray-50', 'text-gray-500');
-                viewCardsBtn.classList.add('bg-white', 'text-primary-600');
-                viewTableBtn.classList.remove('bg-white', 'text-primary-600');
-                viewTableBtn.classList.add('bg-gray-50', 'text-gray-500');
-                
-                // Show card view, hide table view
-                cardView.classList.remove('hidden');
-                tableView.classList.add('hidden');
-                
-                // Show toast notification
-                showToast('Card view activated', 'info', 'Displaying results in card format');
-            });
+            filterTags.appendChild(tag);
+        });
+        
+        // Show or hide active filters section
+        if (activeFilters.length > 0) {
+            document.getElementById('active-filters').classList.remove('hidden');
+        } else {
+            document.getElementById('active-filters').classList.add('hidden');
+            resetFilters();
+            return;
         }
+        
+        // Apply filters
+        tableRows.forEach(row => {
+            const rowTime = new Date(row.getAttribute('data-time'));
+            const rowResult = row.getAttribute('data-result');
+            const rowLocation = row.getAttribute('data-location');
+            
+            let showRow = true;
+            
+            if (dateFrom && new Date(dateFrom) > rowTime) {
+                showRow = false;
+            }
+            
+            if (dateTo && new Date(dateTo) < rowTime) {
+                showRow = false;
+            }
+            
+            if (resultFilter && resultFilter !== rowResult) {
+                showRow = false;
+            }
+            
+            if (locationFilter && locationFilter !== rowLocation) {
+                showRow = false;
+            }
+            
+            if (showRow) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        
+        // Apply same filters to card items
+        cardItems.forEach(card => {
+            const cardTime = new Date(card.getAttribute('data-time'));
+            const cardResult = card.getAttribute('data-result');
+            const cardLocation = card.getAttribute('data-location');
+            
+            let showCard = true;
+            
+            if (dateFrom && new Date(dateFrom) > cardTime) {
+                showCard = false;
+            }
+            
+            if (dateTo && new Date(dateTo) < cardTime) {
+                showCard = false;
+            }
+            
+            if (resultFilter && resultFilter !== cardResult) {
+                showCard = false;
+            }
+            
+            if (locationFilter && locationFilter !== cardLocation) {
+                showCard = false;
+            }
+            
+            if (showCard) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        
+        // Update result count
+        const resultCount = document.getElementById('result-count');
+        if (resultCount) {
+            resultCount.innerHTML = `Showing <span class="font-medium text-gray-700">${visibleCount}</span> results`;
+        }
+        
+        // Show toast notification
+        showToast('Filters applied', `Showing ${visibleCount} filtered results`, 'info');
     }
     
-    function initializeTableSorting() {
-        const sortableHeaders = document.querySelectorAll('.sortable');
+    function applyIssueAdvancedFilters(statusFilter, priorityFilter, typeFilter, dateFrom, dateTo) {
+        const issueItems = document.querySelectorAll('.issue-item');
+        let visibleCount = 0;
         
-        if (sortableHeaders) {
-            sortableHeaders.forEach(header => {
-                header.addEventListener('click', function() {
-                    const column = this.getAttribute('data-sort');
-                    const direction = this.classList.contains('sort-asc') ? 'desc' : 'asc';
-                    
-                    // Update header classes
-                    sortableHeaders.forEach(h => {
-                        h.classList.remove('sort-asc', 'sort-desc');
-                        h.querySelector('i').className = 'fas fa-sort ml-1 text-gray-400';
-                    });
-                    
-                    this.classList.add(`sort-${direction}`);
-                    this.querySelector('i').className = `fas fa-sort-${direction} ml-1 text-primary-600`;
-                    
-                    // Sort the table
-                    sortTable(column, direction);
-                });
-            });
+        // Create filter tags container
+        const filterTags = document.getElementById('issue-filter-tags');
+        filterTags.innerHTML = '';
+        
+        // Create filter tags
+        const activeFilters = [];
+        
+        if (statusFilter) {
+            activeFilters.push({ type: 'status', value: statusFilter, display: `Status: ${statusFilter}` });
         }
+        
+        if (priorityFilter) {
+            activeFilters.push({ type: 'priority', value: priorityFilter, display: `Priority: ${priorityFilter}` });
+        }
+        
+        if (typeFilter) {
+            activeFilters.push({ type: 'type', value: typeFilter, display: `Type: ${typeFilter}` });
+        }
+        
+        if (dateFrom) {
+            const fromDate = new Date(dateFrom);
+            activeFilters.push({ type: 'date-from', value: formatDate(fromDate), display: `From: ${formatDate(fromDate)}` });
+        }
+        
+        if (dateTo) {
+            const toDate = new Date(dateTo);
+            activeFilters.push({ type: 'date-to', value: formatDate(toDate), display: `To: ${formatDate(toDate)}` });
+        }
+        
+        // Create filter tag elements
+        activeFilters.forEach(filter => {
+            const tag = document.createElement('div');
+            tag.className = 'px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full flex items-center';
+            tag.innerHTML = `
+                ${filter.display}
+                <button class="ml-1 text-blue-600 hover:text-blue-800" data-filter-type="${filter.type}" data-filter-value="${filter.value}">
+                    <i class="fas fa-times-circle"></i>
+                </button>
+            `;
+            
+            tag.querySelector('button').addEventListener('click', function() {
+                const filterType = this.getAttribute('data-filter-type');
+                
+                // Remove the filter
+                if (filterType === 'status') {
+                    document.getElementById('status-filter').value = '';
+                } else if (filterType === 'priority') {
+                    document.getElementById('priority-filter').value = '';
+                } else if (filterType === 'type') {
+                    document.getElementById('issue-type-filter').value = '';
+                } else if (filterType === 'date-from') {
+                    document.getElementById('issue-date-from').value = '';
+                } else if (filterType === 'date-to') {
+                    document.getElementById('issue-date-to').value = '';
+                }
+                
+                // Re-apply filters
+                applyIssueAdvancedFilters(
+                    document.getElementById('status-filter').value,
+                    document.getElementById('priority-filter').value,
+                    document.getElementById('issue-type-filter').value,
+                    document.getElementById('issue-date-from').value,
+                    document.getElementById('issue-date-to').value
+                );
+            });
+            
+            filterTags.appendChild(tag);
+        });
+        
+        // Show or hide active filters section
+        if (activeFilters.length > 0) {
+            document.getElementById('active-issue-filters').classList.remove('hidden');
+        } else {
+            document.getElementById('active-issue-filters').classList.add('hidden');
+            resetIssueFilters();
+            return;
+        }
+        
+        // Apply filters
+        issueItems.forEach(item => {
+            const itemDate = new Date(item.getAttribute('data-date'));
+            const itemStatus = item.getAttribute('data-status');
+            const itemPriority = item.getAttribute('data-priority');
+            const itemType = item.getAttribute('data-type');
+            
+            let showItem = true;
+            
+            if (statusFilter && statusFilter !== itemStatus) {
+                showItem = false;
+            }
+            
+            if (priorityFilter && priorityFilter !== itemPriority) {
+                showItem = false;
+            }
+            
+            if (typeFilter && typeFilter !== itemType) {
+                showItem = false;
+            }
+            
+            if (dateFrom && new Date(dateFrom) > itemDate) {
+                showItem = false;
+            }
+            
+            if (dateTo && new Date(dateTo) < itemDate) {
+                showItem = false;
+            }
+            
+            if (showItem) {
+                item.style.display = '';
+                visibleCount++;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+        
+        // Update issues count
+        const issuesCount = document.getElementById('issues-count');
+        if (issuesCount) {
+            issuesCount.textContent = `Showing ${visibleCount} issues`;
+        }
+        
+        // Show toast notification
+        showToast('Filters applied', `Showing ${visibleCount} filtered issues`, 'info');
     }
     
     function sortTable(column, direction) {
@@ -1707,7 +2030,7 @@
         });
         
         // Show toast notification
-        showToast('Table sorted', 'info', `Sorted by ${column} in ${direction === 'asc' ? 'ascending' : 'descending'} order`);
+        showToast('Table sorted', `Sorted by ${column} in ${direction === 'asc' ? 'ascending' : 'descending'} order`, 'info');
     }
     
     function initializeDeleteFunctionality() {
@@ -1779,14 +2102,14 @@
                         updateCounters();
                         
                         // Show toast notification
-                        showToast('Record deleted', 'success', 'Scan record has been permanently deleted');
+                        showToast('Record deleted', 'Scan record has been permanently deleted', 'success');
                     } else {
-                        showToast('Error', 'error', data.error || 'Failed to delete record');
+                        showToast('Error', data.error || 'Failed to delete record', 'error');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showToast('Error', 'error', 'Failed to delete record. Please try again.');
+                    showToast('Error', 'Failed to delete record. Please try again.', 'error');
                 })
                 .finally(() => {
                     // Hide the modal
@@ -1881,7 +2204,7 @@
             });
             
             document.getElementById('print-results').addEventListener('click', function() {
-                showToast('Preparing print view', 'info', 'Opening print dialog...');
+                showToast('Preparing print view', 'Opening print dialog...', 'info');
                 exportMenu.classList.add('hidden');
                 setTimeout(() => { window.print(); }, 1000);
             });
@@ -1896,7 +2219,7 @@
                 // Simulate refresh delay
                 setTimeout(() => {
                     this.querySelector('i').classList.remove('animate-spin');
-                    showToast('Data refreshed', 'success', 'Scan results updated');
+                    showToast('Data refreshed', 'Scan results updated', 'success');
                     
                     // In a real app, you would reload the data here
                     // location.reload();
@@ -1910,7 +2233,7 @@
         const rows = document.querySelectorAll('.scan-result-row:not([style*="display: none"])');
         
         if (rows.length === 0) {
-            showToast('Export failed', 'error', 'No data to export');
+            showToast('Export failed', 'No data to export', 'error');
             return;
         }
         
@@ -1926,11 +2249,11 @@
         // In a real application, you would send this data to a server endpoint
         // For this example, we'll just simulate a successful export
         
-        showToast('Export started', 'success', `Exporting ${rows.length} records to ${format.toUpperCase()}`);
+        showToast('Export started', `Exporting ${rows.length} records to ${format.toUpperCase()}`, 'success');
         
         // Simulate export completion after a delay
         setTimeout(() => {
-            showToast('Export completed', 'success', `${format.toUpperCase()} file has been generated`);
+            showToast('Export completed', `${format.toUpperCase()} file has been generated`, 'success');
         }, 2000);
     }
     
@@ -1969,30 +2292,142 @@
         const settingsBtn = document.getElementById('settings-btn');
         if (settingsBtn) {
             settingsBtn.addEventListener('click', function() {
-                showToast('Settings', 'info', 'Settings panel would open here');
+                showToast('Settings', 'Settings panel would open here', 'info');
+            });
+        }
+    }
+    
+    function initUpdateStatusModal() {
+        const updateStatusModal = document.getElementById('update-status-modal');
+        const cancelStatusUpdateBtn = document.getElementById('cancel-status-update');
+        const confirmStatusUpdateBtn = document.getElementById('confirm-status-update');
+        const newStatusSelect = document.getElementById('new-status');
+        const resolutionContainer = document.getElementById('resolution-container');
+        
+        if (updateStatusModal) {
+            // Close modal handlers
+            if (cancelStatusUpdateBtn) {
+                cancelStatusUpdateBtn.addEventListener('click', function() {
+                    updateStatusModal.classList.add('hidden');
+                });
+            }
+            
+            // Show/hide resolution notes based on status
+            if (newStatusSelect && resolutionContainer) {
+                newStatusSelect.addEventListener('change', function() {
+                    if (this.value === 'Resolved' || this.value === 'Closed') {
+                        resolutionContainer.classList.remove('hidden');
+                    } else {
+                        resolutionContainer.classList.add('hidden');
+                    }
+                });
+            }
+            
+            // Handle status update submission
+            if (confirmStatusUpdateBtn) {
+                confirmStatusUpdateBtn.addEventListener('click', function() {
+                    const issueId = this.getAttribute('data-issue-id');
+                    const newStatus = newStatusSelect.value;
+                    const resolutionNotes = document.getElementById('resolution-notes').value;
+                    
+                    if (!issueId) {
+                        showToast('Error', 'No issue selected for update', 'error');
+                        return;
+                    }
+                    
+                    // Get the CSRF token
+                    const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
+                    
+                    // Create request data
+                    const data = {
+                        id: parseInt(issueId),
+                        status: newStatus,
+                        resolution: resolutionNotes
+                    };
+                    
+                    // Send update request
+                    fetch('/Card/UpdateIssueStatus', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': token
+                        },
+                        body: JSON.stringify(data)
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(errorData => {
+                                throw new Error(errorData.error || 'Server error');
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(result => {
+                        if (result.success) {
+                            // Close the modal
+                            updateStatusModal.classList.add('hidden');
+                            
+                            // Show success toast
+                            showToast('Status updated', `Issue status changed to ${newStatus}`, 'success');
+                            
+                            // Reload the issues data
+                            loadIssueData();
+                        } else {
+                            showToast('Error', result.error || 'Failed to update status', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error updating status:', error);
+                        showToast('Error', error.message || 'Failed to update status', 'error');
+                    });
+                });
+            }
+            
+            // Close modal when clicking outside
+            updateStatusModal.addEventListener('click', function(e) {
+                if (e.target === updateStatusModal) {
+                    updateStatusModal.classList.add('hidden');
+                }
             });
         }
         
-        // Analytics period buttons
-        const periodBtns = document.querySelectorAll('.period-btn');
-        if (periodBtns) {
-            periodBtns.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    // Update button styles
-                    periodBtns.forEach(b => {
-                        b.classList.remove('bg-primary-100', 'text-primary-600');
-                        b.classList.add('bg-gray-100', 'text-gray-600');
-                    });
+        // Delegate click event for issue status update buttons
+        document.addEventListener('click', function(e) {
+            const updateStatusBtn = e.target.closest('.update-status-btn');
+            if (!updateStatusBtn) return;
+            
+            const issueId = updateStatusBtn.getAttribute('data-id');
+            const issueItem = updateStatusBtn.closest('.issue-item');
+            
+            if (issueItem && issueId) {
+                // Populate issue details
+                const issueDetails = document.getElementById('issue-details');
+                const issueType = issueItem.getAttribute('data-type');
+                const issuePriority = issueItem.getAttribute('data-priority');
+                const issueStatus = issueItem.getAttribute('data-status');
+                
+                issueDetails.innerHTML = `
+                    <p><strong>Issue Type:</strong> ${issueType}</p>
+                    <p><strong>Priority:</strong> ${issuePriority}</p>
+                    <p><strong>Current Status:</strong> ${issueStatus}</p>
+                `;
+                
+                // Set current status
+                if (newStatusSelect) {
+                    newStatusSelect.value = issueStatus;
                     
-                    this.classList.remove('bg-gray-100', 'text-gray-600');
-                    this.classList.add('bg-primary-100', 'text-primary-600');
-                    
-                    // Show toast notification
-                    const period = this.getAttribute('data-period');
-                    showToast('Analytics period changed', 'info', `Showing data for the last ${period}`);
-                });
-            });
-        }
+                    // Trigger change event to show/hide resolution notes
+                    const event = new Event('change');
+                    newStatusSelect.dispatchEvent(event);
+                }
+                
+                // Set issue ID for submission
+                confirmStatusUpdateBtn.setAttribute('data-issue-id', issueId);
+                
+                // Show the modal
+                updateStatusModal.classList.remove('hidden');
+            }
+        });
     }
     
     function initializeToastNotifications() {
@@ -2009,7 +2444,7 @@
         }
     }
     
-    function showToast(message, type = 'success', description = '') {
+    function showToast(message, description = '', type = 'success') {
         const toast = document.getElementById('toast-notification');
         const toastMessage = document.getElementById('toast-message');
         const toastDescription = document.getElementById('toast-description');
@@ -2019,7 +2454,7 @@
         toastMessage.textContent = message;
         toastDescription.textContent = description;
         
-        // Set icon based on type
+        // Set icon and colors based on type
         if (type === 'success') {
             toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-green-100';
             toastIconSymbol.className = 'fas fa-check text-green-500';
@@ -2029,7 +2464,7 @@
         } else if (type === 'warning') {
             toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-yellow-100';
             toastIconSymbol.className = 'fas fa-exclamation text-yellow-500';
-        } else {
+        } else if (type === 'info') {
             toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-blue-100';
             toastIconSymbol.className = 'fas fa-info text-blue-500';
         }
@@ -2048,6 +2483,187 @@
                 toast.classList.add('hidden');
             }, 300);
         }, 5000);
+    }
+    
+    // Load issue data
+    function loadIssueData() {
+        const issuesContainer = document.getElementById('issues-content');
+        if (!issuesContainer) return;
+        
+        // Show loading state
+        issuesContainer.innerHTML = `
+            <div class="text-center py-8">
+                <div class="w-16 h-16 mx-auto rounded-full bg-primary-50 flex items-center justify-center">
+                    <i class="fas fa-spinner fa-spin text-primary-500 text-xl"></i>
+                </div>
+                <p class="mt-4 text-gray-500">Loading issues...</p>
+            </div>
+        `;
+        
+        // Update issue counters
+        fetch('/Card/GetAllIssues')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(issues => {
+                // Update issue counters
+                const totalIssues = issues.length;
+                const openIssues = issues.filter(i => i.status === 'Open').length;
+                const inProgressIssues = issues.filter(i => i.status === 'In Progress').length;
+                const resolvedIssues = issues.filter(i => i.status === 'Resolved').length;
+                
+                document.getElementById('total-issues-counter').querySelector('.animate-counter').textContent = totalIssues;
+                document.getElementById('open-issues-counter').querySelector('.animate-counter').textContent = openIssues;
+                document.getElementById('inprogress-issues-counter').querySelector('.animate-counter').textContent = inProgressIssues;
+                document.getElementById('resolved-issues-counter').querySelector('.animate-counter').textContent = resolvedIssues;
+                
+                // Update issues count
+                const issuesCount = document.getElementById('issues-count');
+                if (issuesCount) {
+                    issuesCount.textContent = `Showing ${totalIssues} issues`;
+                }
+                
+                if (issues && issues.length > 0) {
+                    // Clear loading spinner
+                    issuesContainer.innerHTML = '';
+                    
+                    // Sort issues by date (newest first)
+                    issues.sort((a, b) => new Date(b.reportDate) - new Date(a.reportDate));
+                    
+                    // Create issues list
+                    const issuesList = document.createElement('div');
+                    issuesList.className = 'space-y-4';
+                    
+                    issues.forEach(issue => {
+                        // Determine status color
+                        let statusColor = '';
+                        let statusIcon = '';
+                        
+                        if (issue.status === 'Open') {
+                            statusColor = 'bg-yellow-100 text-yellow-800';
+                            statusIcon = 'fa-exclamation-circle text-yellow-500';
+                        } else if (issue.status === 'In Progress') {
+                            statusColor = 'bg-blue-100 text-blue-800';
+                            statusIcon = 'fa-tools text-blue-500';
+                        } else if (issue.status === 'Resolved') {
+                            statusColor = 'bg-green-100 text-green-800';
+                            statusIcon = 'fa-check-circle text-green-500';
+                        } else if (issue.status === 'Closed') {
+                            statusColor = 'bg-gray-100 text-gray-800';
+                            statusIcon = 'fa-archive text-gray-500';
+                        }
+                        
+                        // Determine priority style
+                        let priorityStyle = '';
+                        if (issue.priority === 'Low') {
+                            priorityStyle = 'bg-green-50 text-green-700';
+                        } else if (issue.priority === 'Medium') {
+                            priorityStyle = 'bg-blue-50 text-blue-700';
+                        } else if (issue.priority === 'High') {
+                            priorityStyle = 'bg-orange-50 text-orange-700';
+                        } else if (issue.priority === 'Critical') {
+                            priorityStyle = 'bg-red-50 text-red-700';
+                        }
+                        
+                        const reportDate = new Date(issue.reportDate);
+                        const resolvedDate = issue.resolvedAt ? new Date(issue.resolvedAt) : null;
+                        
+                        const issueItem = document.createElement('div');
+                        issueItem.className = 'issue-item p-4 bg-white border border-gray-200 rounded-lg shadow-sm';
+                        issueItem.setAttribute('data-id', issue.id);
+                        issueItem.setAttribute('data-status', issue.status);
+                        issueItem.setAttribute('data-priority', issue.priority);
+                        issueItem.setAttribute('data-type', issue.issueType);
+                        issueItem.setAttribute('data-date', issue.reportDate);
+                        
+                        issueItem.innerHTML = `
+                            <div class="flex flex-col md:flex-row md:items-start gap-4">
+                                <div class="flex-shrink-0">
+                                    <div class="w-10 h-10 rounded-full ${statusColor.replace('text-', 'bg-').replace('800', '100')} flex items-center justify-center">
+                                        <i class="fas ${statusIcon}"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow">
+                                    <div class="flex flex-wrap gap-2 mb-2">
+                                        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColor}">${issue.status}</span>
+                                        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium ${priorityStyle}">${issue.priority}</span>
+                                        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">${issue.issueType}</span>
+                                    </div>
+                                    <div class="mb-2">
+                                        <p class="text-sm font-medium">Product: ${issue.cardName || `Product #${issue.cardId}`}</p>
+                                    </div>
+                                    <p class="text-sm text-gray-600 mb-3">${issue.description}</p>
+                                    <div class="flex flex-wrap justify-between items-end">
+                                        <div class="text-xs text-gray-500">
+                                            <p>Reported on ${formatDate(reportDate)} by ${issue.reporterName}</p>
+                                            ${resolvedDate ? `<p>Resolved on ${formatDate(resolvedDate)}</p>` : ''}
+                                        </div>
+                                        <div class="mt-2 md:mt-0">
+                                            <button type="button" class="update-status-btn px-3 py-1 text-xs bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition-colors" data-id="${issue.id}">
+                                                ${issue.status === 'Open' || issue.status === 'In Progress' ? 'Update Status' : 'View Details'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                    ${issue.resolution ? `
+                                    <div class="mt-3 pt-3 border-t border-gray-100">
+                                        <p class="text-xs font-medium text-gray-700">Resolution:</p>
+                                        <p class="text-xs text-gray-600">${issue.resolution}</p>
+                                    </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        `;
+                        
+                        issuesList.appendChild(issueItem);
+                    });
+                    
+                    issuesContainer.appendChild(issuesList);
+                } else {
+                    // No issues found
+                    issuesContainer.innerHTML = `
+                        <div class="text-center py-8">
+                            <div class="w-16 h-16 mx-auto rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
+                                <i class="fas fa-clipboard-check text-2xl"></i>
+                            </div>
+                            <p class="text-lg font-medium text-gray-700 mt-4">No Issue Reports</p>
+                            <p class="text-gray-500 mt-2 max-w-md mx-auto">There are currently no reported issues for any products.</p>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error loading issues:', error);
+                
+                issuesContainer.innerHTML = `
+                    <div class="text-center py-8">
+                        <div class="w-16 h-16 mx-auto rounded-full bg-red-100 flex items-center justify-center text-red-500">
+                            <i class="fas fa-exclamation-triangle text-2xl"></i>
+                        </div>
+                        <p class="text-lg font-medium text-gray-700 mt-4">Error Loading Issues</p>
+                        <p class="text-red-500 mt-2">${error.message}</p>
+                        <button id="retry-load-issues" class="mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+                            Retry
+                        </button>
+                    </div>
+                `;
+                
+                // Add retry button handler
+                const retryBtn = document.getElementById('retry-load-issues');
+                if (retryBtn) {
+                    retryBtn.addEventListener('click', loadIssueData);
+                }
+            });
+    }
+    
+    function formatDate(date) {
+        return date.toLocaleDateString(undefined, { 
+            year: 'numeric', 
+            month: 'short', 
+            day: 'numeric' 
+        });
     }
 </script>
 }
