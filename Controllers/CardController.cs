@@ -1059,5 +1059,24 @@ namespace CardTagManager.Controllers
                 return RedirectToAction("Details", new { id = id });
             }
         }        
+        [HttpGet]
+        public async Task<IActionResult> GetCardHistory(int id)
+        {
+            try
+            {
+                var history = await _context.CardHistories
+                    .Where(h => h.CardId == id)
+                    .OrderByDescending(h => h.ChangedAt)
+                    .Take(10)
+                    .ToListAsync();
+                
+                return Json(history);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving history for card {id}");
+                return StatusCode(500, new { error = "An error occurred while retrieving history." });
+            }
+        }
     }
 }
