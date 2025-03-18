@@ -6,7 +6,7 @@
 
 <div class="mb-6">
     <a asp-action="Index" class="inline-flex items-center text-primary-600 hover:text-primary-700 transition-colors group">
-        <i class="fas fa-arrow-left mr-2 group-hover:-translate-x-1 transition-transform duration-200"></i> Back to Library
+        <i class="fas fa-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i> Back to Library
     </a>
 </div>
 
@@ -18,14 +18,14 @@
             <div class="step-label text-sm font-medium mt-1">Basic Info</div>
         </div>
         <div class="step-connector h-1 flex-grow bg-gray-200 mx-2 relative">
-            <div class="absolute inset-0 bg-primary-600 step-progress transition-all duration-300" style="width: 0%"></div>
+            <div class="absolute inset-0 bg-primary-600 step-progress" style="width: 0%"></div>
         </div>
         <div class="step" data-step="2">
             <div class="step-circle bg-gray-200 text-gray-600 h-8 w-8 rounded-full flex items-center justify-center shadow-sm">2</div>
             <div class="step-label text-sm font-medium mt-1">Details</div>
         </div>
         <div class="step-connector h-1 flex-grow bg-gray-200 mx-2 relative">
-            <div class="absolute inset-0 bg-primary-600 step-progress transition-all duration-300" style="width: 0%"></div>
+            <div class="absolute inset-0 bg-primary-600 step-progress" style="width: 0%"></div>
         </div>
         <div class="step" data-step="3">
             <div class="step-circle bg-gray-200 text-gray-600 h-8 w-8 rounded-full flex items-center justify-center shadow-sm">3</div>
@@ -37,12 +37,12 @@
 <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 fade-in">
     <!-- Form Section (3 columns) -->
     <div class="lg:col-span-3">
-        <div class="card shadow-md hover:shadow-lg transition-all">
-            <div class="card-header bg-gradient-to-r from-blue-500 to-primary-500 text-white rounded-t-lg">
-                <h2 class="text-xl font-bold flex items-center">
-                    <i class="fas fa-plus-circle mr-2"></i> Add New Product
+        <div class="card">
+            <div class="card-header">
+                <h2 class="text-xl font-bold text-gray-800 flex items-center">
+                    <i class="fas fa-plus-circle text-primary-500 mr-2"></i> Add New Product
                 </h2>
-                <p class="text-sm text-blue-100 mt-1">Fill in the details for your product tag</p>
+                <p class="text-sm text-gray-500 mt-1">Fill in the details for your product tag</p>
             </div>
             
             <!-- Template Gallery -->
@@ -474,7 +474,7 @@
                                 <div class="layout-option border rounded-lg p-2 cursor-pointer hover:border-primary-500 hover:shadow-md transition-all active" data-layout="standard">
                                     <input type="hidden" name="Layout" id="layoutHidden" value="standard" />
                                     <div class="bg-gray-50 rounded mb-1 flex items-center justify-center p-3">
-                                        <div class="w-full aspect-[1.4142] bg-white rounded shadow-sm p-1">
+                                        <div class="w-full aspect-w-16 aspect-h-10 bg-white rounded shadow-sm p-1">
                                             <div class="flex">
                                                 <div class="flex-grow">
                                                     <div class="w-1/2 h-2 bg-gray-300 rounded mb-1"></div>
@@ -494,7 +494,7 @@
                                 </div>
                                 <div class="layout-option border rounded-lg p-2 cursor-pointer hover:border-primary-500 hover:shadow-md transition-all" data-layout="modern">
                                     <div class="bg-gray-50 rounded mb-1 flex items-center justify-center p-3">
-                                        <div class="w-full aspect-[1.4142] bg-white rounded shadow-sm p-1">
+                                        <div class="w-full aspect-w-16 aspect-h-10 bg-white rounded shadow-sm p-1">
                                             <div class="flex flex-col">
                                                 <div class="h-1/3 w-full bg-gray-300 rounded-t"></div>
                                                 <div class="p-1 flex">
@@ -516,7 +516,7 @@
                                 </div>
                                 <div class="layout-option border rounded-lg p-2 cursor-pointer hover:border-primary-500 hover:shadow-md transition-all" data-layout="compact">
                                     <div class="bg-gray-50 rounded mb-1 flex items-center justify-center p-3">
-                                        <div class="w-full aspect-[1.4142] bg-white rounded shadow-sm p-1">
+                                        <div class="w-full aspect-w-16 aspect-h-10 bg-white rounded shadow-sm p-1">
                                             <div class="flex">
                                                 <div class="flex-grow p-1">
                                                     <div class="w-3/4 h-2 bg-gray-300 rounded mb-1"></div>
@@ -629,7 +629,7 @@
                     </div>
                 </div>
                 
-                <div class="card-footer bg-gradient-to-r from-gray-50 to-gray-100">
+                <div class="card-footer">
                     <div class="flex justify-between items-center">
                         <div class="text-sm text-gray-500">
                             <span class="text-red-500">*</span> Required fields
@@ -660,12 +660,12 @@
                 </div>
             </div>
             
-            <div class="card shadow-lg hover:shadow-xl transition-all duration-300" id="card-preview-container">
+            <div class="card shadow-lg transition-all duration-300" id="card-preview-container">
                 <div class="business-card" id="tag-preview" style="background-color: #ffffff; color: #000000">
                     <div class="p-6 h-full flex flex-col relative">
                         <!-- Template indicator badge -->
                         <div class="absolute -top-8 right-0 transform translate-y-12 transition-transform duration-300 opacity-70 hover:opacity-100">
-                            <div class="template-badge px-2 py-1 bg-white text-primary-600 text-xs font-medium rounded-t-lg shadow-sm border border-gray-100">
+                            <div class="template-badge px-2 py-1 bg-white text-primary-600 text-xs font-medium rounded-t-lg shadow-sm">
                                 <i id="preview-template-icon" class="fas fa-none mr-1"></i>
                                 <span id="preview-template-name">No Template</span>
                             </div>
@@ -701,7 +701,7 @@
                 </div>
             </div>
             
-            <div class="card p-4 hover:shadow-md transition-all">
+            <div class="card p-4">
                 <h4 class="text-sm font-medium mb-3 flex items-center">
                     <i class="fas fa-qrcode text-primary-400 mr-2"></i> QR Code Preview
                 </h4>
@@ -983,27 +983,6 @@ document.addEventListener('DOMContentLoaded', function() {
     updateTagPreview();
     generateQRCode();
     
-    // Set initial dates to current values
-    const today = new Date();
-    const manufactureDate = document.getElementById('ManufactureDate');
-    const purchaseDate = document.getElementById('PurchaseDate');
-    const warrantyExpiration = document.getElementById('WarrantyExpiration');
-    
-    if (manufactureDate && !manufactureDate.value) {
-        manufactureDate.valueAsDate = today;
-    }
-    
-    if (purchaseDate && !purchaseDate.value) {
-        purchaseDate.valueAsDate = today;
-    }
-    
-    if (warrantyExpiration && !warrantyExpiration.value) {
-        // Set warranty to 1 year from today
-        const nextYear = new Date(today);
-        nextYear.setFullYear(today.getFullYear() + 1);
-        warrantyExpiration.valueAsDate = nextYear;
-    }
-    
     // Handle category change to show/hide relevant fields
     document.getElementById('category-select').addEventListener('change', function() {
         updateFieldVisibility(this.value);
@@ -1012,73 +991,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize form submission
     document.getElementById('product-form').addEventListener('submit', function(e) {
         e.preventDefault();
-        
-        // Validate form
-        if (!validateForm()) {
-            return;
-        }
-        
         saveCard();
     });
-    
-    // Validate entire form before submission
-    function validateForm() {
-        let isValid = true;
-        const requiredFields = document.querySelectorAll('[required]');
-        
-        requiredFields.forEach(field => {
-            if (!field.value.trim()) {
-                field.classList.add('border-red-500');
-                isValid = false;
-                
-                // Find the form section containing this field
-                const formSection = field.closest('.form-section');
-                if (formSection && formSection.classList.contains('hidden')) {
-                    // Get step number and switch to it
-                    const stepNumber = formSection.getAttribute('data-step');
-                    goToStep(parseInt(stepNumber));
-                }
-            } else {
-                field.classList.remove('border-red-500');
-            }
-        });
-        
-        if (!isValid) {
-            showNotification('Please fill in all required fields', 'error');
-            
-            // Focus the first invalid field
-            const firstInvalidField = document.querySelector('[required].border-red-500');
-            if (firstInvalidField) {
-                firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                firstInvalidField.focus();
-            }
-        }
-        
-        return isValid;
-    }
-    
-    // Go to a specific step
-    function goToStep(stepNumber) {
-        // Hide all sections
-        document.querySelectorAll('.form-section').forEach(section => {
-            section.classList.add('hidden');
-        });
-        
-        // Show target section
-        document.querySelector(`.form-section[data-step="${stepNumber}"]`).classList.remove('hidden');
-        
-        // Update step indicator
-        document.querySelector('.step-indicator').textContent = `Step ${stepNumber} of 3`;
-        
-        // Update step circles
-        document.querySelectorAll('.step').forEach(step => {
-            step.classList.remove('active');
-        });
-        document.querySelector(`.step[data-step="${stepNumber}"]`).classList.add('active');
-        
-        // Update form progress
-        updateFormProgress(stepNumber);
-    }
     
     // Template toast functions
     window.showTemplateToast = function(templateName) {
@@ -1113,10 +1027,6 @@ document.addEventListener('DOMContentLoaded', function() {
         cardData.id = Date.now(); // Use timestamp as unique ID
         cardData.createdDate = new Date().toISOString();
         
-        // Generate QR code data
-        const qrData = `PRODUCT:${cardData.ProductName}:${cardData.id}`;
-        cardData.qrCodeData = qrData;
-        
         // Save to local storage
         const savedCards = JSON.parse(localStorage.getItem('cardTags') || '[]');
         savedCards.push(cardData);
@@ -1140,25 +1050,17 @@ document.addEventListener('DOMContentLoaded', function() {
         const qrFgColor = document.getElementById('qr-fg-color').value || '#000000';
         const qrBgColor = document.getElementById('qr-bg-color').value || '#FFFFFF';
         
-        // Update hidden fields
-        updateQrColors();
-        
         // QR code data would typically contain a URL or ID to access the product details
         const qrData = `PRODUCT:${productName}:${Date.now()}`;
         
-        try {
-            new QRCode(qrElement, {
-                text: qrData,
-                width: 128,
-                height: 128,
-                colorDark: qrFgColor,
-                colorLight: qrBgColor,
-                correctLevel: QRCode.CorrectLevel.H
-            });
-        } catch (error) {
-            console.error('QR Code generation error:', error);
-            qrElement.innerHTML = '<div class="text-center text-red-500"><i class="fas fa-exclamation-circle text-xl mb-2"></i><br>Error generating QR code</div>';
-        }
+        new QRCode(qrElement, {
+            text: qrData,
+            width: 128,
+            height: 128,
+            colorDark: qrFgColor,
+            colorLight: qrBgColor,
+            correctLevel: QRCode.CorrectLevel.H
+        });
     }
     
     // QR code color change event listeners
@@ -1474,6 +1376,36 @@ document.addEventListener('DOMContentLoaded', function() {
             updateTagPreview();
         });
         
+        // QR code colors
+        const qrFgColor = document.getElementById('qr-fg-color');
+        const qrFgColorText = document.getElementById('qr-fg-color-text');
+        const qrBgColor = document.getElementById('qr-bg-color');
+        const qrBgColorText = document.getElementById('qr-bg-color-text');
+        
+        qrFgColor.addEventListener('input', function() {
+            qrFgColorText.value = this.value;
+            updateQrColors();
+            generateQRCode();
+        });
+        
+        qrFgColorText.addEventListener('input', function() {
+            qrFgColor.value = this.value;
+            updateQrColors();
+            generateQRCode();
+        });
+        
+        qrBgColor.addEventListener('input', function() {
+            qrBgColorText.value = this.value;
+            updateQrColors();
+            generateQRCode();
+        });
+        
+        qrBgColorText.addEventListener('input', function() {
+            qrBgColor.value = this.value;
+            updateQrColors();
+            generateQRCode();
+        });
+        
         // Color presets
         document.querySelectorAll('.color-preset').forEach(preset => {
             preset.addEventListener('click', function() {
@@ -1543,7 +1475,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
- // Initialize image upload
+    // Initialize image upload
     function initializeImageUpload() {
         const dropzone = document.getElementById('dropzone');
         const imageInput = document.getElementById('product-image');
@@ -1626,9 +1558,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 // Update file input
-                const dataTransfer = new DataTransfer();
-                dataTransfer.items.add(file);
-                imageInput.files = dataTransfer.files;
+                imageInput.files = files;
                 
                 // Show preview
                 const reader = new FileReader();
@@ -1702,20 +1632,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Show template applied notification
         showTemplateToast(templateName);
-        
-        // Set category based on template
-        const category = document.querySelector(`.template-card[data-template="${templateId}"]`)?.getAttribute('data-category');
-        if (category) {
-            // Find corresponding option in category select and select it
-            const categorySelect = document.getElementById('category-select');
-            for (let i = 0; i < categorySelect.options.length; i++) {
-                if (categorySelect.options[i].value.toLowerCase() === category.toLowerCase() ||
-                    categorySelect.options[i].text.toLowerCase() === category.toLowerCase()) {
-                    categorySelect.selectedIndex = i;
-                    break;
-                }
-            }
-        }
         
         // Generate updated QR code
         generateQRCode();
@@ -2078,9 +1994,6 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Add to container
             container.appendChild(fieldDiv);
-            
-            // Add event listener to update preview
-            input.addEventListener('input', updateTagPreview);
         });
         
         // Add a manufacturer field if not present
@@ -2105,10 +2018,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             `;
             container.appendChild(manufacturerField);
-            
-            // Add event listener to update preview
-            const manufacturerInput = manufacturerField.querySelector('input');
-            manufacturerInput.addEventListener('input', updateTagPreview);
         }
     }
     
@@ -2136,7 +2045,6 @@ document.addEventListener('DOMContentLoaded', function() {
             // Update the existing card
             existingCard.querySelector('i.fas').className = `fas fa-${template.icon} text-${getColorClass(template.icon)} text-2xl`;
             existingCard.querySelector('h4').textContent = template.name;
-            existingCard.querySelector('p').textContent = template.category;
             return;
         }
         
@@ -2172,11 +2080,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (e.target.closest('.edit-template-btn')) return;
             
             applyTemplate(template.id);
-        });
-        
-        // Add edit button event listener
-        card.querySelector('.edit-template-btn').addEventListener('click', function() {
-            openTemplateModal('edit', template.id);
         });
         
         // Add to template container
@@ -2230,6 +2133,17 @@ document.addEventListener('DOMContentLoaded', function() {
         const closeDeleteBtn = document.getElementById('close-delete-modal');
         const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
         const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+        
+        // Handle edit template button clicks
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('edit-template-btn') || e.target.closest('.edit-template-btn')) {
+                const btn = e.target.classList.contains('edit-template-btn') ? e.target : e.target.closest('.edit-template-btn');
+                const templateId = btn.getAttribute('data-template');
+                
+                // Open modal in edit mode
+                openTemplateModal('edit', templateId);
+            }
+        });
         
         // Open modal
         createBtn.addEventListener('click', function() {
@@ -2316,7 +2230,6 @@ document.addEventListener('DOMContentLoaded', function() {
             // Set template ID for editing
             document.getElementById('template-edit-id').value = template.id;
             document.getElementById('delete-template-id').value = template.id;
-            document.getElementById('delete-template-name').textContent = template.name;
             
             // Populate basic fields
             document.getElementById('template-name').value = template.name || '';
@@ -2511,93 +2424,11 @@ document.addEventListener('DOMContentLoaded', function() {
             addCustomField();
         });
         
-        // Add a new custom field row
-        function addCustomField() {
-            const customFields = document.getElementById('custom-fields');
-            const fieldId = Date.now();
-            const newField = document.createElement('div');
-            newField.className = 'custom-field-row flex items-start gap-2 p-3 border border-gray-100 rounded-lg bg-gray-50 hover:bg-white hover:shadow-sm transition-all';
-            newField.innerHTML = `
-                <div class="flex-grow">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <div class="form-group mb-2">
-                            <label class="form-label text-sm">Field Name <span class="text-red-500">*</span></label>
-                            <input type="text" class="form-input py-2 text-sm field-name" placeholder="E.g., Lab ID" required>
-                        </div>
-                        <div class="form-group mb-2">
-                            <label class="form-label text-sm">Field Type <span class="text-red-500">*</span></label>
-                            <select class="form-input py-2 text-sm field-type">
-                                <option value="text">Text</option>
-                                <option value="select">Dropdown</option>
-                                <option value="number">Number</option>
-                                <option value="date">Date</option>
-                                <option value="textarea">Text Area</option>
-                            </select>
-                        </div>
-                        <div class="form-group mb-2">
-                            <label class="form-label text-sm">Icon</label>
-                            <select class="form-input py-2 text-sm field-icon">
-                                <option value="tag">Tag</option>
-                                <option value="info-circle">Info</option>
-                                <option value="check-circle">Check</option>
-                                <option value="flag">Flag</option>
-                                <option value="clipboard">Clipboard</option>
-                                <option value="calendar">Calendar</option>
-                                <option value="user">User</option>
-                                <option value="link">Link</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="field-options hidden mt-2">
-                        <label class="form-label text-sm">Options (comma separated)</label>
-                        <input type="text" class="form-input py-2 text-sm field-options-input" placeholder="Option 1, Option 2, Option 3">
-                    </div>
-                    <div class="form-group mt-2">
-                        <label class="form-label text-sm">Placeholder</label>
-                        <input type="text" class="form-input py-2 text-sm field-placeholder" placeholder="Enter placeholder text">
-                    </div>
-                    <div class="form-group mt-2">
-                        <div class="flex items-center">
-                            <input type="checkbox" class="field-editable mr-2" id="field-editable-checkbox-${fieldId}" checked>
-                            <label for="field-editable-checkbox-${fieldId}" class="text-sm">Make this field editable</label>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex-shrink-0 mt-6">
-                    <button type="button" class="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full transition-colors remove-field-btn">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            `;
-            
-            customFields.appendChild(newField);
-            
-            // Add event listener for field type change
-            const fieldType = newField.querySelector('.field-type');
-            fieldType.addEventListener('change', function() {
-                const fieldOptions = newField.querySelector('.field-options');
-                if (this.value === 'select') {
-                    fieldOptions.classList.remove('hidden');
-                } else {
-                    fieldOptions.classList.add('hidden');
-                }
-            });
-            
-            // Add event listener for remove button
-            const removeBtn = newField.querySelector('.remove-field-btn');
-            removeBtn.addEventListener('click', function() {
-                if (customFields.querySelectorAll('.custom-field-row').length > 1) {
-                    newField.remove();
-                } else {
-                    showNotification('You must have at least one custom field', 'error');
-                }
-            });
-        }
-        
         // Remove field
         customFields.addEventListener('click', function(e) {
-            if (e.target.closest('.remove-field-btn')) {
-                const fieldRow = e.target.closest('.custom-field-row');
+            if (e.target.classList.contains('remove-field-btn') || e.target.closest('.remove-field-btn')) {
+                const btn = e.target.classList.contains('remove-field-btn') ? e.target : e.target.closest('.remove-field-btn');
+                const fieldRow = btn.closest('.custom-field-row');
                 
                 // Don't remove if it's the last field
                 if (customFields.querySelectorAll('.custom-field-row').length > 1) {
@@ -2630,8 +2461,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (!templateId) return;
             
-            // Set template name in confirmation modal
+            // Confirm deletion
             document.getElementById('delete-template-name').textContent = templateName;
+            document.getElementById('delete-template-id').value = templateId;
             
             // Hide template modal
             closeModal();
@@ -2695,6 +2527,77 @@ document.addEventListener('DOMContentLoaded', function() {
             saveCustomTemplate();
         });
         
+        // Add a new custom field row
+        function addCustomField() {
+            const customFields = document.getElementById('custom-fields');
+            const newField = document.createElement('div');
+            newField.className = 'custom-field-row flex items-start gap-2 p-3 border border-gray-100 rounded-lg bg-gray-50 hover:bg-white hover:shadow-sm transition-all';
+            newField.innerHTML = `
+                <div class="flex-grow">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div class="form-group mb-2">
+                            <label class="form-label text-sm">Field Name <span class="text-red-500">*</span></label>
+                            <input type="text" class="form-input py-2 text-sm field-name" placeholder="E.g., Lab ID" required>
+                        </div>
+                        <div class="form-group mb-2">
+                            <label class="form-label text-sm">Field Type <span class="text-red-500">*</span></label>
+                            <select class="form-input py-2 text-sm field-type">
+                                <option value="text">Text</option>
+                                <option value="select">Dropdown</option>
+                                <option value="number">Number</option>
+                                <option value="date">Date</option>
+                                <option value="textarea">Text Area</option>
+                            </select>
+                        </div>
+                        <div class="form-group mb-2">
+                            <label class="form-label text-sm">Icon</label>
+                            <select class="form-input py-2 text-sm field-icon">
+                                <option value="tag">Tag</option>
+                                <option value="info-circle">Info</option>
+                                <option value="check-circle">Check</option>
+                                <option value="flag">Flag</option>
+                                <option value="clipboard">Clipboard</option>
+                                <option value="calendar">Calendar</option>
+                                <option value="user">User</option>
+                                <option value="link">Link</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="field-options hidden mt-2">
+                        <label class="form-label text-sm">Options (comma separated)</label>
+                        <input type="text" class="form-input py-2 text-sm field-options-input" placeholder="Option 1, Option 2, Option 3">
+                    </div>
+                    <div class="form-group mt-2">
+                        <label class="form-label text-sm">Placeholder</label>
+                        <input type="text" class="form-input py-2 text-sm field-placeholder" placeholder="Enter placeholder text">
+                    </div>
+                    <div class="form-group mt-2">
+                        <div class="flex items-center">
+                            <input type="checkbox" class="field-editable mr-2" id="field-editable-checkbox-${Date.now()}" checked>
+                            <label for="field-editable-checkbox-${Date.now()}" class="text-sm">Make this field editable</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex-shrink-0 mt-6">
+                    <button type="button" class="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full transition-colors remove-field-btn">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+            
+            customFields.appendChild(newField);
+            
+            // Add event listener for field type change
+            newField.querySelector('.field-type').addEventListener('change', function() {
+                const fieldOptions = newField.querySelector('.field-options');
+                if (this.value === 'select') {
+                    fieldOptions.classList.remove('hidden');
+                } else {
+                    fieldOptions.classList.add('hidden');
+                }
+            });
+        }
+        
         // Save custom template
         function saveCustomTemplate() {
             const form = document.getElementById('template-form');
@@ -2703,7 +2606,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Validate required fields
             let isValid = true;
-            const requiredInputs = form.querySelectorAll('input[required]');
+            const requiredInputs = form.querySelectorAll('[required]');
             requiredInputs.forEach(input => {
                 if (!input.value.trim()) {
                     input.classList.add('border-red-500');
@@ -2828,47 +2731,31 @@ document.addEventListener('DOMContentLoaded', function() {
         const productName = document.getElementById('ProductName');
         if (productName && productName.value) {
             previewName.textContent = productName.value;
-            document.title = productName.value + ' - TagCardQR Manager';
-        } else {
-            previewName.textContent = 'Product Name';
         }
         
         const category = document.getElementById('category-select');
         if (category && category.value) {
             previewCategory.textContent = category.value;
-        } else {
-            previewCategory.textContent = 'Product Category';
         }
         
         const manufacturer = document.getElementById('Manufacturer');
         if (manufacturer && manufacturer.value) {
             previewManufacturer.textContent = manufacturer.value;
-        } else {
-            previewManufacturer.textContent = 'Manufacturer';
         }
         
         const location = document.getElementById('Location');
         if (location && location.value) {
             previewLocation.textContent = location.value;
-        } else {
-            previewLocation.textContent = 'Storage Location';
         }
         
         const mfgDate = document.getElementById('ManufactureDate');
         if (mfgDate && mfgDate.value) {
             previewMfgDate.textContent = new Date(mfgDate.value).toLocaleDateString();
-        } else {
-            previewMfgDate.textContent = new Date().toLocaleDateString();
         }
         
         const warranty = document.getElementById('WarrantyExpiration');
         if (warranty && warranty.value) {
             previewWarranty.textContent = new Date(warranty.value).toLocaleDateString();
-        } else {
-            // Set to 1 year from today by default
-            const nextYear = new Date();
-            nextYear.setFullYear(nextYear.getFullYear() + 1);
-            previewWarranty.textContent = nextYear.toLocaleDateString();
         }
         
         const maintenance = document.getElementById('MaintenanceInfo');
@@ -2876,17 +2763,13 @@ document.addEventListener('DOMContentLoaded', function() {
             previewMaintenance.textContent = maintenance.value.length > 40 ? 
                 maintenance.value.substring(0, 40) + '...' : 
                 maintenance.value;
-        } else {
-            previewMaintenance.textContent = 'Maintenance information';
         }
         
         // Update custom fields
         previewCustomFields.innerHTML = '';
         document.querySelectorAll('[id^="custom-"]').forEach(field => {
             if (field.value) {
-                const fieldId = field.id;
-                // Extract field name from ID by replacing 'custom-' and converting dashes to spaces
-                const fieldName = fieldId.replace('custom-', '').replace(/-/g, ' ');
+                const fieldName = field.id.replace('custom-', '').replace(/-/g, ' ');
                 const fieldValue = field.value;
                 
                 const fieldElement = document.createElement('div');
@@ -2907,77 +2790,20 @@ document.addEventListener('DOMContentLoaded', function() {
         switch (layout) {
             case 'modern':
                 preview.classList.add('modern-layout');
-                // Add modern layout specific styles
-                preview.querySelector('.p-6').innerHTML = `
-                    <div class="h-1/3 w-full bg-${getBackgroundClass(accentColor)} rounded-t-lg" style="background-color: ${accentColor}"></div>
-                    <div class="p-4 flex h-2/3">
-                        <div>
-                            <span id="preview-category" class="px-2 py-1 text-xs font-semibold rounded-full inline-block" style="background-color: ${accentColor}; color: ${bgColor}">
-                                ${previewCategory.textContent}
-                            </span>
-                            <h3 id="preview-name" class="text-xl font-bold mt-2" style="color: ${accentColor}">${previewName.textContent}</h3>
-                            <p id="preview-manufacturer" class="text-md">${previewManufacturer.textContent}</p>
-                            <div id="preview-custom-fields" class="mt-2 text-sm">${previewCustomFields.innerHTML}</div>
-                        </div>
-                        <div class="qr-preview ml-auto flex flex-col items-center justify-center">
-                            <div class="w-16 h-16 bg-white p-1 rounded shadow-sm">
-                                <div class="w-full h-full bg-white flex items-center justify-center">
-                                    <i class="fas fa-qrcode text-gray-300 text-xl"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
                 break;
-                
             case 'compact':
                 preview.classList.add('compact-layout');
-                // Add compact layout specific styles
-                preview.querySelector('.p-6').innerHTML = `
-                    <div class="flex h-full">
-                        <div class="flex-grow p-4">
-                            <span id="preview-category" class="px-2 py-1 text-xs font-semibold rounded-full inline-block" style="background-color: ${accentColor}; color: ${bgColor}">
-                                ${previewCategory.textContent}
-                            </span>
-                            <h3 id="preview-name" class="text-xl font-bold mt-2" style="color: ${accentColor}">${previewName.textContent}</h3>
-                            <p id="preview-manufacturer" class="text-sm">${previewManufacturer.textContent}</p>
-                            <div id="preview-custom-fields" class="mt-2 text-xs">${previewCustomFields.innerHTML}</div>
-                            <div class="space-y-1 mt-3 text-xs">
-                                <p class="flex items-center">
-                                    <i class="fas fa-map-marker-alt mr-2" style="color: ${accentColor}"></i>
-                                    <span class="font-medium">Location:</span>&nbsp;<span id="preview-location">${previewLocation.textContent}</span>
-                                </p>
-                                <p class="flex items-center">
-                                    <i class="fas fa-calendar-day mr-2" style="color: ${accentColor}"></i>
-                                    <span class="font-medium">Manufactured:</span>&nbsp;<span id="preview-mfgdate">${previewMfgDate.textContent}</span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="w-1/3 bg-gray-50 flex flex-col items-center justify-center p-2">
-                            <div class="w-20 h-20 bg-white p-1 rounded shadow-sm mb-2">
-                                <div class="w-full h-full bg-white flex items-center justify-center">
-                                    <i class="fas fa-qrcode text-gray-300 text-2xl"></i>
-                                </div>
-                            </div>
-                            <span class="text-xs text-center">Scan for details</span>
-                        </div>
-                    </div>
-                `;
                 break;
-                
-            default: // standard layout
-                // No need to change anything, the standard layout is already applied
+            default:
+                preview.classList.add('standard-layout');
                 break;
         }
-        
-        // Update QR code
-        generateQRCode();
     }
     
     // Notification system
     window.showNotification = function(message, type = 'success') {
         const toast = document.createElement('div');
-        toast.className = 'fixed bottom-4 right-4 bg-white shadow-lg rounded-lg p-4 transform translate-y-20 opacity-0 transition-all duration-300 z-50 max-w-sm border border-gray-100';
+        toast.className = 'fixed bottom-4 right-4 bg-white shadow-lg rounded-lg p-4 transform translate-y-0 opacity-0 transition-all duration-300 z-50 max-w-sm border border-gray-100';
         
         let iconClass, iconColor, bgColor;
         if (type === 'success') {
@@ -3014,13 +2840,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // Animate in
         setTimeout(() => {
             toast.classList.replace('opacity-0', 'opacity-100');
-            toast.classList.replace('translate-y-20', 'translate-y-0');
+            toast.classList.replace('translate-y-0', 'translate-y-[-20px]');
         }, 10);
         
         // Automatically remove after 3 seconds
         setTimeout(() => {
             toast.classList.replace('opacity-100', 'opacity-0');
-            toast.classList.replace('translate-y-0', 'translate-y-20');
+            toast.classList.replace('translate-y-[-20px]', 'translate-y-20');
             
             // Remove from DOM after animation
             setTimeout(() => {
@@ -3029,697 +2855,5 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 3000);
     };
 });
-
-// Initialize templates
-function initializeTemplates() {
-    const templateCards = document.querySelectorAll('.template-card');
-    const templateTypeHidden = document.getElementById('templateTypeHidden');
-    
-    // Load custom templates from localStorage
-    const customTemplates = getCustomTemplates();
-    customTemplates.forEach(template => {
-        addTemplateCard(template);
-    });
-    
-    // Template card click handler
-    templateCards.forEach(card => {
-        card.addEventListener('click', function(e) {
-            if (e.target.closest('.edit-template-btn')) return;
-            const templateId = this.getAttribute('data-template');
-            applyTemplate(templateId);
-        });
-    });
-}
-
-// Apply template function
-function applyTemplate(templateId) {
-    document.getElementById('templateTypeHidden').value = templateId;
-    
-    // Update template cards UI
-    const templateCards = document.querySelectorAll('.template-card');
-    templateCards.forEach(card => {
-        card.classList.remove('border-primary-500');
-        if (card.getAttribute('data-template') === templateId) {
-            card.classList.add('border-primary-500');
-        }
-    });
-    
-    // Update field visibility based on template
-    updateFieldVisibility(templateId);
-    
-    // Update preview with template info
-    const templateName = document.querySelector(`.template-card[data-template="${templateId}"] h4`)?.textContent || templateId;
-    const templateIcon = document.querySelector(`.template-card[data-template="${templateId}"] i.fas`)?.className.replace('text-2xl', '').trim() || 'fas fa-none';
-    
-    document.getElementById('preview-template-name').textContent = templateName;
-    document.getElementById('preview-template-icon').className = templateIcon;
-    
-    // Set category based on template
-    const category = document.querySelector(`.template-card[data-template="${templateId}"]`)?.getAttribute('data-category');
-    if (category) {
-        const categorySelect = document.getElementById('category-select');
-        for (let i = 0; i < categorySelect.options.length; i++) {
-            if (categorySelect.options[i].value.toLowerCase() === category.toLowerCase() ||
-                categorySelect.options[i].text.toLowerCase() === category.toLowerCase()) {
-                categorySelect.selectedIndex = i;
-                break;
-            }
-        }
-    }
-    
-    showTemplateToast(templateName);
-    generateQRCode();
-}
-
-// Show/hide fields based on category/template type
-function updateFieldVisibility(category) {
-    // Hide all custom fields first
-    document.querySelectorAll('.field-group').forEach(field => {
-        field.style.display = 'none';
-    });
-    
-    // Clear template fields container
-    const templateFieldsContainer = document.getElementById('template-fields-container');
-    templateFieldsContainer.innerHTML = '';
-    
-    switch(category.toLowerCase()) {
-        case 'chemical':
-        case 'rust coating chemical':
-            generateTemplateFields('chemical', templateFieldsContainer);
-            document.querySelectorAll('.chemical-field').forEach(field => {
-                field.style.display = 'block';
-            });
-            break;
-        case 'safety':
-        case 'safety equipment':
-            generateTemplateFields('safety', templateFieldsContainer);
-            document.querySelectorAll('.safety-field').forEach(field => {
-                field.style.display = 'block';
-            });
-            break;
-        case 'electronic':
-        case 'electronic device':
-            generateTemplateFields('electronic', templateFieldsContainer);
-            document.querySelectorAll('.electronic-field').forEach(field => {
-                field.style.display = 'block';
-            });
-            break;
-        case 'machinery':
-        case 'industrial machinery':
-            generateTemplateFields('machinery', templateFieldsContainer);
-            document.querySelectorAll('.machinery-field').forEach(field => {
-                field.style.display = 'block';
-            });
-            break;
-        case 'design':
-        case 'design asset':
-            generateTemplateFields('design', templateFieldsContainer);
-            document.querySelectorAll('.design-field').forEach(field => {
-                field.style.display = 'block';
-            });
-            
-            // For design assets, change warranty to license
-            document.querySelector('.warranty-label').innerHTML = 'License Expiration <span class="text-red-500 ml-1">*</span>';
-            document.querySelector('.warranty-preview .font-medium').textContent = 'License Until:';
-            break;
-        default:
-            // Reset warranty label for other types
-            document.querySelector('.warranty-label').innerHTML = 'Warranty Until <span class="text-red-500 ml-1">*</span>';
-            document.querySelector('.warranty-preview .font-medium').textContent = 'Warranty Until:';
-            
-            // Check if it's a custom template
-            const customTemplates = getCustomTemplates();
-            const customTemplate = customTemplates.find(t => t.category.toLowerCase() === category.toLowerCase() || t.id === category);
-            if (customTemplate) {
-                displayCustomTemplateFields(customTemplate, templateFieldsContainer);
-            } else {
-                generateDefaultFields(templateFieldsContainer);
-            }
-            break;
-    }
-    
-    updateTagPreview();
-}
-
-// Generate default template fields
-function generateDefaultFields(container) {
-    container.innerHTML = `
-        <div class="form-group">
-            <label for="Manufacturer" class="form-label">
-                Manufacturer
-                <span class="text-red-500 ml-1">*</span>
-            </label>
-            <div class="relative">
-                <input id="Manufacturer" name="Manufacturer" class="form-input pl-9" required placeholder="Manufacturer Name">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <i class="fas fa-industry text-gray-400"></i>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-// Generate template-specific fields
-function generateTemplateFields(type, container) {
-    switch(type) {
-        case 'chemical':
-            container.innerHTML = `
-                <div class="form-group">
-                    <label for="Manufacturer" class="form-label">
-                        Manufacturer
-                        <span class="text-red-500 ml-1">*</span>
-                    </label>
-                    <div class="relative">
-                        <input id="Manufacturer" name="Manufacturer" class="form-input pl-9" required placeholder="ChemTech Industries">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="fas fa-industry text-gray-400"></i>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="ChemicalType" class="form-label">
-                        Chemical Type
-                        <span class="text-red-500 ml-1">*</span>
-                    </label>
-                    <div class="relative">
-                        <select id="ChemicalType" name="ChemicalType" class="form-input pl-9" required>
-                            <option value="Acid">Acid</option>
-                            <option value="Alkali">Alkali</option>
-                            <option value="Solvent">Solvent</option>
-                            <option value="Coating">Coating</option>
-                            <option value="Other">Other</option>
-                        </select>
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="fas fa-flask text-gray-400"></i>
-                        </div>
-                    </div>
-                </div>
-            `;
-            break;
-        case 'safety':
-            container.innerHTML = `
-                <div class="form-group">
-                    <label for="Manufacturer" class="form-label">
-                        Manufacturer
-                        <span class="text-red-500 ml-1">*</span>
-                    </label>
-                    <div class="relative">
-                        <input id="Manufacturer" name="Manufacturer" class="form-input pl-9" required placeholder="SafetyFirst Inc.">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="fas fa-industry text-gray-400"></i>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="SafetyStandard" class="form-label">
-                        Safety Standard
-                        <span class="text-red-500 ml-1">*</span>
-                    </label>
-                    <div class="relative">
-                        <input id="SafetyStandard" name="SafetyStandard" class="form-input pl-9" required placeholder="ISO 9001, ANSI Z87.1">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="fas fa-shield-alt text-gray-400"></i>
-                        </div>
-                    </div>
-                </div>
-            `;
-            break;
-        case 'electronic':
-            container.innerHTML = `
-                <div class="form-group">
-                    <label for="Manufacturer" class="form-label">
-                        Manufacturer
-                        <span class="text-red-500 ml-1">*</span>
-                    </label>
-                    <div class="relative">
-                        <input id="Manufacturer" name="Manufacturer" class="form-input pl-9" required placeholder="ElectroTech Inc.">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="fas fa-industry text-gray-400"></i>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="PowerRequirement" class="form-label">
-                        Power Requirement
-                        <span class="text-red-500 ml-1">*</span>
-                    </label>
-                    <div class="relative">
-                        <input id="PowerRequirement" name="PowerRequirement" class="form-input pl-9" required placeholder="220V, 50Hz, 100W">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="fas fa-bolt text-gray-400"></i>
-                        </div>
-                    </div>
-                </div>
-            `;
-            break;
-        case 'machinery':
-            container.innerHTML = `
-                <div class="form-group">
-                    <label for="Manufacturer" class="form-label">
-                        Manufacturer
-                        <span class="text-red-500 ml-1">*</span>
-                    </label>
-                    <div class="relative">
-                        <input id="Manufacturer" name="Manufacturer" class="form-input pl-9" required placeholder="MachTech Heavy Industries">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="fas fa-industry text-gray-400"></i>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="OperatingCapacity" class="form-label">
-                        Operating Capacity
-                        <span class="text-red-500 ml-1">*</span>
-                    </label>
-                    <div class="relative">
-                        <input id="OperatingCapacity" name="OperatingCapacity" class="form-input pl-9" required placeholder="500 kg/hour">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="fas fa-tachometer-alt text-gray-400"></i>
-                        </div>
-                    </div>
-                </div>
-            `;
-            break;
-        case 'design':
-            container.innerHTML = `
-                <div class="form-group">
-                    <label for="Manufacturer" class="form-label">
-                        Creator/Studio
-                        <span class="text-red-500 ml-1">*</span>
-                    </label>
-                    <div class="relative">
-                        <input id="Manufacturer" name="Manufacturer" class="form-input pl-9" required placeholder="DesignWorks Studio">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="fas fa-user-tie text-gray-400"></i>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="DesignType" class="form-label">
-                        Design Type
-                        <span class="text-red-500 ml-1">*</span>
-                    </label>
-                    <div class="relative">
-                        <select id="DesignType" name="DesignType" class="form-input pl-9" required>
-                            <option value="Graphic">Graphic Design</option>
-                            <option value="Product">Product Design</option>
-                            <option value="Template">Design Template</option>
-                            <option value="Prototype">Prototype</option>
-                            <option value="Other">Other</option>
-                        </select>
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="fas fa-paint-brush text-gray-400"></i>
-                        </div>
-                    </div>
-                </div>
-            `;
-            break;
-        default:
-            generateDefaultFields(container);
-            break;
-    }
-}
-
-// Display custom template fields
-function displayCustomTemplateFields(template, container) {
-    container.innerHTML = '';
-    
-    if (!template.fields || template.fields.length === 0) {
-        generateDefaultFields(container);
-        return;
-    }
-    
-    template.fields.forEach(field => {
-        const isEditable = field.editable !== false;
-        
-        const fieldDiv = document.createElement('div');
-        fieldDiv.className = 'form-group';
-        fieldDiv.setAttribute('data-field-name', field.name);
-        
-        const label = document.createElement('label');
-        label.className = 'form-label';
-        label.innerHTML = `${field.name} <span class="text-red-500 ml-1">*</span>`;
-        if (!isEditable) {
-            label.innerHTML += ' <span class="ml-2 px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">Fixed</span>';
-        }
-        label.setAttribute('for', `custom-${field.name.replace(/\s+/g, '-').toLowerCase()}`);
-        
-        const inputWrapper = document.createElement('div');
-        inputWrapper.className = 'relative';
-        
-        let input;
-        if (field.type === 'textarea') {
-            input = document.createElement('textarea');
-            input.className = 'form-input pl-9 h-20';
-        } else if (field.type === 'select') {
-            input = document.createElement('select');
-            input.className = 'form-input pl-9';
-            
-            if (field.options) {
-                field.options.forEach(option => {
-                    const optionEl = document.createElement('option');
-                    optionEl.value = option;
-                    optionEl.textContent = option;
-                    input.appendChild(optionEl);
-                });
-            }
-        } else {
-            input = document.createElement('input');
-            input.className = 'form-input pl-9';
-            input.type = field.type || 'text';
-        }
-        
-        input.id = `custom-${field.name.replace(/\s+/g, '-').toLowerCase()}`;
-        input.name = `custom-${field.name.replace(/\s+/g, '-').toLowerCase()}`;
-        input.required = true;
-        
-        if (!isEditable) {
-            input.readOnly = true;
-            input.classList.add('bg-gray-50');
-            
-            if (field.defaultValue) {
-                input.value = field.defaultValue;
-            } else {
-                if (field.type === 'date') {
-                    input.value = new Date().toISOString().split('T')[0];
-                } else if (field.type === 'number') {
-                    input.value = '0';
-                } else if (field.type !== 'select') {
-                    input.value = field.placeholder || `${field.name} Value`;
-                }
-            }
-        }
-        
-        if (field.placeholder) input.placeholder = field.placeholder;
-        
-        const iconWrapper = document.createElement('div');
-        iconWrapper.className = 'absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none';
-        
-        const icon = document.createElement('i');
-        icon.className = `fas fa-${field.icon || 'tag'} text-gray-400`;
-        
-        iconWrapper.appendChild(icon);
-        inputWrapper.appendChild(input);
-        inputWrapper.appendChild(iconWrapper);
-        fieldDiv.appendChild(label);
-        fieldDiv.appendChild(inputWrapper);
-        
-        container.appendChild(fieldDiv);
-        
-        input.addEventListener('input', updateTagPreview);
-    });
-    
-    // Add manufacturer field if not present
-    const hasManufacturer = template.fields.some(f => 
-        f.name.toLowerCase() === 'manufacturer' || 
-        f.name.toLowerCase() === 'creator/studio'
-    );
-    
-    if (!hasManufacturer) {
-        const manufacturerField = document.createElement('div');
-        manufacturerField.className = 'form-group';
-        manufacturerField.innerHTML = `
-            <label for="Manufacturer" class="form-label">
-                Manufacturer
-                <span class="text-red-500 ml-1">*</span>
-            </label>
-            <div class="relative">
-                <input id="Manufacturer" name="Manufacturer" class="form-input pl-9" required placeholder="Manufacturer Name">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <i class="fas fa-industry text-gray-400"></i>
-                </div>
-            </div>
-        `;
-        container.appendChild(manufacturerField);
-        
-        manufacturerField.querySelector('input').addEventListener('input', updateTagPreview);
-    }
-}
-
-// Get custom templates from localStorage
-function getCustomTemplates() {
-    const templatesJson = localStorage.getItem('customTemplates');
-    if (templatesJson) {
-        try {
-            return JSON.parse(templatesJson);
-        } catch (e) {
-            console.error('Error parsing custom templates:', e);
-            return [];
-        }
-    }
-    return [];
-}
-
-// Add template card to the gallery
-function addTemplateCard(template) {
-    const templateContainer = document.getElementById('template-container');
-    
-    // Check if this template card already exists
-    const existingCard = document.querySelector(`.template-card[data-template="${template.id}"]`);
-    if (existingCard) {
-        // Update the existing card
-        existingCard.querySelector('i.fas').className = `fas fa-${template.icon} text-${getColorClass(template.icon)} text-2xl`;
-        existingCard.querySelector('h4').textContent = template.name;
-        existingCard.querySelector('p').textContent = template.category;
-        return;
-    }
-    
-    // Create new template card
-    const card = document.createElement('div');
-    card.className = 'template-card cursor-pointer border rounded-lg overflow-hidden hover:border-primary-500 hover:shadow transition-all relative group';
-    card.setAttribute('data-template', template.id);
-    card.setAttribute('data-category', 'custom');
-    
-    card.innerHTML = `
-        <div class="absolute top-1 right-1 flex template-actions opacity-0 group-hover:opacity-100 z-10">
-            <button type="button" class="edit-template-btn p-1 text-gray-500 hover:text-primary-600 bg-white rounded-full shadow-sm" data-template="${template.id}">
-                <i class="fas fa-edit"></i>
-            </button>
-        </div>
-        <div class="h-20 bg-${getBackgroundClass(template.bgColor)} flex items-center justify-center">
-            <i class="fas fa-${template.icon} text-${getColorClass(template.icon)} text-2xl"></i>
-        </div>
-        <div class="p-2 bg-white border-t border-gray-100">
-            <h4 class="font-medium text-sm text-gray-800">${template.name}</h4>
-            <p class="text-xs text-gray-500 mt-0.5">${template.category}</p>
-        </div>
-        <div class="absolute inset-0 bg-primary-500 bg-opacity-0 hover:bg-opacity-10 transition-all flex items-center justify-center">
-            <span class="bg-white text-primary-600 px-2 py-1 rounded-full text-xs font-medium opacity-0 group-hover:opacity-100 transform scale-0 group-hover:scale-100 transition-all shadow-sm">
-                Select Template
-            </span>
-        </div>
-    `;
-    
-    // Add event listeners
-    card.addEventListener('click', function(e) {
-        if (e.target.closest('.edit-template-btn')) return;
-        applyTemplate(template.id);
-    });
-    
-    card.querySelector('.edit-template-btn').addEventListener('click', function() {
-        openTemplateModal('edit', template.id);
-    });
-    
-    templateContainer.appendChild(card);
-    
-    // Add to category dropdown
-    const categorySelect = document.getElementById('category-select');
-    const optionExists = Array.from(categorySelect.options).some(opt => 
-        opt.value.toLowerCase() === template.category.toLowerCase());
-    
-    if (!optionExists) {
-        const option = document.createElement('option');
-        option.value = template.category;
-        option.textContent = template.category;
-        categorySelect.appendChild(option);
-    }
-}
-
-// Helper functions for template colors
-function getBackgroundClass(bgColor) {
-    if (bgColor === '#f0f9ff') return 'blue-50';
-    if (bgColor === '#f0fdf4') return 'green-50';
-    if (bgColor === '#fef3c7') return 'yellow-50';
-    if (bgColor === '#fdf2f8') return 'red-50';
-    if (bgColor === '#faf5ff') return 'purple-50';
-    return 'gray-50';
-}
-
-function getColorClass(icon) {
-    if (['flask', 'vial'].includes(icon)) return 'blue-500';
-    if (['leaf', 'seedling'].includes(icon)) return 'green-500';
-    if (['cogs', 'tools', 'wrench'].includes(icon)) return 'yellow-600';
-    if (['microchip', 'laptop'].includes(icon)) return 'green-500';
-    if (['paint-brush', 'palette'].includes(icon)) return 'red-500';
-    if (['shield-alt', 'hard-hat'].includes(icon)) return 'orange-500';
-    return 'primary-500';
-}
-
-// Initialize template modal
-function initializeTemplateModal() {
-    const createBtn = document.getElementById('create-template-btn');
-    const modal = document.getElementById('create-template-modal');
-    const closeBtn = document.getElementById('close-template-modal');
-    const cancelBtn = document.getElementById('cancel-template-btn');
-    const saveBtn = document.getElementById('save-template-btn');
-    const deleteBtn = document.getElementById('delete-template-btn');
-    const addFieldBtn = document.getElementById('add-field-btn');
-    const customFields = document.getElementById('custom-fields');
-    const deleteModal = document.getElementById('delete-template-modal');
-    const closeDeleteBtn = document.getElementById('close-delete-modal');
-    const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
-    const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
-    
-    // Open modal
-    createBtn.addEventListener('click', function() {
-        openTemplateModal('create');
-    });
-    
-    // Close modal functions
-    function closeModal() {
-        modal.querySelector('.bg-white').classList.remove('opacity-100', 'scale-100');
-        modal.querySelector('.bg-white').classList.add('opacity-0', 'scale-95');
-        setTimeout(() => {
-            modal.classList.add('hidden');
-        }, 300);
-    }
-    
-    closeBtn.addEventListener('click', closeModal);
-    cancelBtn.addEventListener('click', closeModal);
-    
-    // Close delete modal
-    function closeDeleteModal() {
-        deleteModal.querySelector('.bg-white').classList.remove('opacity-100', 'scale-100');
-        deleteModal.querySelector('.bg-white').classList.add('opacity-0', 'scale-95');
-        setTimeout(() => {
-            deleteModal.classList.add('hidden');
-        }, 300);
-    }
-    
-    closeDeleteBtn.addEventListener('click', closeDeleteModal);
-    cancelDeleteBtn.addEventListener('click', closeDeleteModal);
-    
-    // Icon selection
-    document.querySelectorAll('.icon-option').forEach(option => {
-        option.addEventListener('click', function() {
-            document.querySelectorAll('.icon-option').forEach(opt => {
-                opt.classList.remove('border-primary-500', 'active');
-                opt.querySelector('i').classList.remove('text-primary-500');
-                opt.querySelector('i').classList.add('text-gray-500');
-            });
-            
-            this.classList.add('border-primary-500', 'active');
-            this.querySelector('i').classList.remove('text-gray-500');
-            this.querySelector('i').classList.add('text-primary-500');
-            
-            document.getElementById('template-icon').value = this.getAttribute('data-icon');
-        });
-    });
-    
-    // Connect color inputs
-    const templateBgColor = document.getElementById('template-bg-color');
-    const templateBgColorText = document.getElementById('template-bg-color-text');
-    
-    templateBgColor.addEventListener('input', function() {
-        templateBgColorText.value = this.value;
-    });
-    
-    templateBgColorText.addEventListener('input', function() {
-        templateBgColor.value = this.value;
-    });
-    
-    // Add new field
-    addFieldBtn.addEventListener('click', addCustomField);
-    
-    // Remove field
-    customFields.addEventListener('click', function(e) {
-        if (e.target.closest('.remove-field-btn')) {
-            const fieldRow = e.target.closest('.custom-field-row');
-            
-            if (customFields.querySelectorAll('.custom-field-row').length > 1) {
-                fieldRow.remove();
-            } else {
-                showNotification('You must have at least one custom field', 'error');
-            }
-        }
-    });
-    
-    // Field type change
-    customFields.addEventListener('change', function(e) {
-        if (e.target.classList.contains('field-type')) {
-            const fieldType = e.target.value;
-            const fieldRow = e.target.closest('.custom-field-row');
-            const optionsDiv = fieldRow.querySelector('.field-options');
-            
-            if (fieldType === 'select') {
-                optionsDiv.classList.remove('hidden');
-            } else {
-                optionsDiv.classList.add('hidden');
-            }
-        }
-    });
-    
-    // Delete template button
-    deleteBtn.addEventListener('click', function() {
-        const templateId = document.getElementById('template-edit-id').value;
-        const templateName = document.getElementById('template-name').value;
-        
-        if (!templateId) return;
-        
-        document.getElementById('delete-template-name').textContent = templateName;
-        document.getElementById('delete-template-id').value = templateId;
-        
-        closeModal();
-        
-        deleteModal.classList.remove('hidden');
-        setTimeout(() => {
-            deleteModal.querySelector('.bg-white').classList.remove('opacity-0', 'scale-95');
-            deleteModal.querySelector('.bg-white').classList.add('opacity-100', 'scale-100');
-        }, 10);
-    });
-    
-    // Confirm template deletion
-    confirmDeleteBtn.addEventListener('click', function() {
-        const templateId = document.getElementById('delete-template-id').value;
-        
-        if (!templateId) return;
-        
-        if (['chemical', 'equipment', 'safety', 'electronic', 'machinery', 'design'].includes(templateId)) {
-            showNotification('Built-in templates cannot be deleted', 'error');
-            closeDeleteModal();
-            return;
-        }
-        
-        const customTemplates = getCustomTemplates();
-        const templateIndex = customTemplates.findIndex(t => t.id === templateId);
-        
-        if (templateIndex === -1) {
-            closeDeleteModal();
-            return;
-        }
-        
-        const templateName = customTemplates[templateIndex].name;
-        
-        customTemplates.splice(templateIndex, 1);
-        localStorage.setItem('customTemplates', JSON.stringify(customTemplates));
-        
-        const templateCard = document.querySelector(`.template-card[data-template="${templateId}"]`);
-        if (templateCard) {
-            templateCard.remove();
-        }
-        
-        closeDeleteModal();
-        showNotification(`Template "${templateName}" deleted successfully`, 'success');
-    });
-    
-    // Save template
-    saveBtn.addEventListener('click', saveCustomTemplate);
-}
-}
 </script>
 }
