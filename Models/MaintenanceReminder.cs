@@ -5,7 +5,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CardTagManager.Models
 {
-// Path: Models/MaintenanceReminder.cs
 public class MaintenanceReminder
 {
     public int Id { get; set; }
@@ -26,13 +25,13 @@ public class MaintenanceReminder
     public string Notes { get; set; }
     
     [StringLength(20)]
-    public string RepeatFrequency { get; set; } = "never"; // never, daily, weekly, monthly, quarterly, yearly
+    public string RepeatFrequency { get; set; } = "never";
     
     public DateTime CreatedAt { get; set; } = DateTime.Now;
     
     public DateTime UpdatedAt { get; set; } = DateTime.Now;
     
     [StringLength(100)]
-    public string CreatedBy { get; set; }
+    public string CreatedBy { get; set; } = string.Empty;
 }
 }

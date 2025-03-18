@@ -839,9 +839,9 @@ namespace CardTagManager.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SaveReminder([FromBody] MaintenanceReminder reminder)
         {
-            // Remove Card validation error - critical fix
+            // Remove validation errors for navigation properties and other problematic fields
             ModelState.Remove("Card");
-
+            
             if (!ModelState.IsValid)
             {
                 return BadRequest(new { success = false, error = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).FirstOrDefault() });
@@ -851,11 +851,11 @@ namespace CardTagManager.Controllers
             {
                 if (reminder.Id == 0)
                 {
-                    // New reminder
+                    // New reminder - set all required fields explicitly
                     reminder.CreatedAt = DateTime.Now;
                     reminder.UpdatedAt = DateTime.Now;
-                    reminder.CreatedBy = User.Identity?.Name ?? "System";
-
+                    reminder.CreatedBy = User.Identity?.Name ?? "System"; // Set CreatedBy here
+                    
                     _context.MaintenanceReminders.Add(reminder);
                 }
                 else
@@ -869,6 +869,7 @@ namespace CardTagManager.Controllers
                     existingReminder.Notes = reminder.Notes;
                     existingReminder.RepeatFrequency = reminder.RepeatFrequency;
                     existingReminder.UpdatedAt = DateTime.Now;
+                    // Don't update CreatedBy for existing reminders
 
                     _context.Update(existingReminder);
                 }

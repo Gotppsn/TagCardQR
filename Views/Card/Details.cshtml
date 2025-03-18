@@ -1094,15 +1094,19 @@
                 e.preventDefault();
                 
                 const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
+                const username = '@User.Identity?.Name' || 'System'; // Get username from Razor
                 
                 const data = {
                     Id: parseInt(document.getElementById('reminder-id').value) || 0,
                     CardId: parseInt(document.getElementById('card-id').value),
                     Title: document.getElementById('reminder-title').value,
                     DueDate: document.getElementById('reminder-date').value,
-                    Notes: document.getElementById('reminder-notes').value,
-                    RepeatFrequency: document.getElementById('reminder-repeat').value
+                    Notes: document.getElementById('reminder-notes').value || "",
+                    RepeatFrequency: document.getElementById('reminder-repeat').value,
+                    CreatedBy: username // Add CreatedBy field
                 };
+                
+                console.log('Sending reminder data:', data);
                 
                 fetch('/Card/SaveReminder', {
                     method: 'POST',
@@ -1112,8 +1116,16 @@
                     },
                     body: JSON.stringify(data)
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(errorData => {
+                            throw new Error(errorData.error || 'Server error');
+                        });
+                    }
+                    return response.json();
+                })
                 .then(result => {
+                    console.log('Response:', result);
                     if (result.success) {
                         reminderModal.classList.add('hidden');
                         loadReminders();
@@ -1124,7 +1136,7 @@
                 })
                 .catch(error => {
                     console.error('Error saving reminder:', error);
-                    showToast('Error', 'Network error. Please try again.', 'error');
+                    showToast('Error', error.message || 'Network error. Please try again.', 'error');
                 });
             });
         }
