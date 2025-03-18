@@ -26,8 +26,8 @@ namespace CardTagManager.Controllers
         private readonly ILogger<CardController> _logger;
 
         public CardController(
-            ApplicationDbContext context, 
-            QrCodeService qrCodeService, 
+            ApplicationDbContext context,
+            QrCodeService qrCodeService,
             FileUploadService fileUploadService,
             ILogger<CardController> logger)
         {
@@ -67,7 +67,7 @@ namespace CardTagManager.Controllers
                 // Use QR colors from the card database values
                 string qrFgColor = card.QrFgColor ?? "#000000";
                 string qrBgColor = card.QrBgColor ?? "#FFFFFF";
-                
+
                 // Also store in TempData for subsequent requests
                 TempData["QrFgColor"] = qrFgColor;
                 TempData["QrBgColor"] = qrBgColor;
@@ -90,7 +90,7 @@ namespace CardTagManager.Controllers
         public IActionResult Create()
         {
             var card = new Card();
-            
+
             // Pre-fill user information from claims
             if (User.Identity.IsAuthenticated)
             {
@@ -100,7 +100,7 @@ namespace CardTagManager.Controllers
                 card.UserFullName = User.FindFirstValue("FullName") ?? "";
                 card.PlantName = User.FindFirstValue("PlantName") ?? "";
             }
-            
+
             return View(card);
         }
 
@@ -112,7 +112,7 @@ namespace CardTagManager.Controllers
             try
             {
                 _logger.LogInformation($"Creating card: {card.ProductName}, Category: {card.Category}");
-                
+
                 // Set user information from claims
                 if (User.Identity.IsAuthenticated)
                 {
@@ -122,42 +122,42 @@ namespace CardTagManager.Controllers
                     card.UserFullName = User.FindFirstValue("FullName") ?? "";
                     card.PlantName = User.FindFirstValue("PlantName") ?? "";
                 }
-                
+
                 // Verify background colors are set
                 if (string.IsNullOrEmpty(card.BackgroundColor))
                     card.BackgroundColor = "#ffffff";
-                
+
                 if (string.IsNullOrEmpty(card.TextColor))
                     card.TextColor = "#000000";
-                
+
                 if (string.IsNullOrEmpty(card.AccentColor))
                     card.AccentColor = "#0284c7";
-                
+
                 // Verify QR colors are set
                 if (string.IsNullOrEmpty(card.QrFgColor))
                     card.QrFgColor = "#000000";
-                    
+
                 if (string.IsNullOrEmpty(card.QrBgColor))
                     card.QrBgColor = "#FFFFFF";
-                    
+
                 // Verify layout is set
                 if (string.IsNullOrEmpty(card.Layout))
                     card.Layout = "standard";
-                
+
                 // Remove specific validation errors before checking model state
                 if (ModelState.ContainsKey("ImageFile"))
                     ModelState.Remove("ImageFile");
-                    
+
                 if (ModelState.ContainsKey("Email"))
                     ModelState.Remove("Email");
-                
+
                 if (!ModelState.IsValid)
                 {
                     // Log validation errors
                     var errors = string.Join("; ", ModelState.Values
                         .SelectMany(v => v.Errors)
                         .Select(e => e.ErrorMessage));
-                    
+
                     _logger.LogWarning($"Model validation failed: {errors}");
                     return View(card);
                 }
@@ -193,19 +193,19 @@ namespace CardTagManager.Controllers
                 // Set creation timestamps explicitly
                 card.CreatedAt = DateTime.Now;
                 card.UpdatedAt = DateTime.Now;
-                
+
                 // Store QR color preferences in TempData for the session
                 TempData["QrFgColor"] = card.QrFgColor;
                 TempData["QrBgColor"] = card.QrBgColor;
-                
+
                 try
                 {
                     // Add the card to the context
                     _context.Cards.Add(card);
-                    
+
                     // Save the changes to the database
                     await _context.SaveChangesAsync();
-                    
+
                     // Add history record for creation
                     var createHistory = new CardHistory
                     {
@@ -216,10 +216,10 @@ namespace CardTagManager.Controllers
                         ChangedAt = DateTime.Now,
                         ChangedBy = User.Identity.Name
                     };
-                    
+
                     _context.CardHistories.Add(createHistory);
                     await _context.SaveChangesAsync();
-                    
+
                     _logger.LogInformation($"Card saved successfully with ID: {card.Id}");
                     TempData["SuccessMessage"] = $"Product '{card.ProductName}' created successfully.";
                     return RedirectToAction(nameof(Index));
@@ -235,7 +235,7 @@ namespace CardTagManager.Controllers
                 _logger.LogError(ex, "Unexpected error in Create action");
                 ModelState.AddModelError(string.Empty, "An unexpected error occurred: " + ex.Message);
             }
-            
+
             // If we got this far, something failed, redisplay form
             return View(card);
         }
@@ -248,28 +248,28 @@ namespace CardTagManager.Controllers
             {
                 return NotFound();
             }
-            
+
             // Use QR colors from the card database values
             string qrFgColor = card.QrFgColor ?? "#000000";
             string qrBgColor = card.QrBgColor ?? "#FFFFFF";
-            
+
             // Also store in TempData for subsequent requests
             TempData["QrFgColor"] = qrFgColor;
             TempData["QrBgColor"] = qrBgColor;
-            
+
             // Get edit history
             var history = await _context.CardHistories
                 .Where(ch => ch.CardId == id)
                 .OrderByDescending(ch => ch.ChangedAt)
                 .Take(5)
                 .ToListAsync();
-                
+
             ViewBag.History = history;
-            
+
             // Generate QR code for preview with custom colors
             string qrCodeData = GenerateCardQrData(card);
             ViewBag.QrCodeImage = _qrCodeService.GenerateQrCodeAsBase64(qrCodeData, qrFgColor, qrBgColor);
-            
+
             return View(card);
         }
 
@@ -286,29 +286,29 @@ namespace CardTagManager.Controllers
             // Remove specific validation errors before checking model state
             if (ModelState.ContainsKey("ImageFile"))
                 ModelState.Remove("ImageFile");
-                
+
             if (ModelState.ContainsKey("Email"))
                 ModelState.Remove("Email");
-            
+
             if (!ModelState.IsValid)
             {
                 // Generate QR code for preview if validation fails
                 string qrCodeData = GenerateCardQrData(card);
                 ViewBag.QrCodeImage = _qrCodeService.GenerateQrCodeAsBase64(
-                    qrCodeData, 
-                    card.QrFgColor ?? "#000000", 
+                    qrCodeData,
+                    card.QrFgColor ?? "#000000",
                     card.QrBgColor ?? "#FFFFFF"
                 );
-                
+
                 // Get edit history for the view
                 var history = await _context.CardHistories
                     .Where(ch => ch.CardId == id)
                     .OrderByDescending(ch => ch.ChangedAt)
                     .Take(5)
                     .ToListAsync();
-                    
+
                 ViewBag.History = history;
-                
+
                 return View(card);
             }
 
@@ -320,7 +320,7 @@ namespace CardTagManager.Controllers
                 {
                     return NotFound();
                 }
-                
+
                 // Keep the user information from the database
                 card.Username = existingCard.Username;
                 card.Department = existingCard.Department;
@@ -328,28 +328,28 @@ namespace CardTagManager.Controllers
                 card.UserFullName = existingCard.UserFullName;
                 card.PlantName = existingCard.PlantName;
                 card.CreatedAt = existingCard.CreatedAt;
-                
+
                 // Verify background colors are set
                 if (string.IsNullOrEmpty(card.BackgroundColor))
                     card.BackgroundColor = existingCard.BackgroundColor ?? "#ffffff";
-                
+
                 if (string.IsNullOrEmpty(card.TextColor))
                     card.TextColor = existingCard.TextColor ?? "#000000";
-                
+
                 if (string.IsNullOrEmpty(card.AccentColor))
                     card.AccentColor = existingCard.AccentColor ?? "#0284c7";
-                
+
                 // Verify QR colors are set
                 if (string.IsNullOrEmpty(card.QrFgColor))
                     card.QrFgColor = existingCard.QrFgColor ?? "#000000";
-                    
+
                 if (string.IsNullOrEmpty(card.QrBgColor))
                     card.QrBgColor = existingCard.QrBgColor ?? "#FFFFFF";
-                    
+
                 // Verify layout is set
                 if (string.IsNullOrEmpty(card.Layout))
                     card.Layout = existingCard.Layout ?? "standard";
-                
+
                 // Handle image upload if a file was provided
                 if (ImageFile != null && ImageFile.Length > 0)
                 {
@@ -360,7 +360,7 @@ namespace CardTagManager.Controllers
                         {
                             await _fileUploadService.DeleteFile(existingCard.ImagePath);
                         }
-                        
+
                         var fileResponse = await _fileUploadService.UploadFile(ImageFile);
                         if (fileResponse.IsSuccess)
                         {
@@ -370,48 +370,48 @@ namespace CardTagManager.Controllers
                         else
                         {
                             ModelState.AddModelError("ImageFile", "Failed to upload image: " + fileResponse.ErrorMessage);
-                            
+
                             // Generate QR code for preview if error
                             string qrCodeData = GenerateCardQrData(card);
                             ViewBag.QrCodeImage = _qrCodeService.GenerateQrCodeAsBase64(
-                                qrCodeData, 
-                                card.QrFgColor ?? "#000000", 
+                                qrCodeData,
+                                card.QrFgColor ?? "#000000",
                                 card.QrBgColor ?? "#FFFFFF"
                             );
-                            
+
                             // Get edit history for the view
                             var history = await _context.CardHistories
                                 .Where(ch => ch.CardId == id)
                                 .OrderByDescending(ch => ch.ChangedAt)
                                 .Take(5)
                                 .ToListAsync();
-                                
+
                             ViewBag.History = history;
-                            
+
                             return View(card);
                         }
                     }
                     catch (Exception ex)
                     {
                         ModelState.AddModelError("ImageFile", "Error uploading image: " + ex.Message);
-                        
+
                         // Generate QR code for preview if error
                         string qrCodeData = GenerateCardQrData(card);
                         ViewBag.QrCodeImage = _qrCodeService.GenerateQrCodeAsBase64(
-                            qrCodeData, 
-                            card.QrFgColor ?? "#000000", 
+                            qrCodeData,
+                            card.QrFgColor ?? "#000000",
                             card.QrBgColor ?? "#FFFFFF"
                         );
-                        
+
                         // Get edit history for the view
                         var history = await _context.CardHistories
                             .Where(ch => ch.CardId == id)
                             .OrderByDescending(ch => ch.ChangedAt)
                             .Take(5)
                             .ToListAsync();
-                            
+
                         ViewBag.History = history;
-                        
+
                         return View(card);
                     }
                 }
@@ -427,17 +427,17 @@ namespace CardTagManager.Controllers
 
                 // Track changes for history
                 var changedProperties = new List<CardHistory>();
-                
+
                 // Define properties to track (excluding system-managed properties)
                 var propertiesToTrack = typeof(Card).GetProperties()
-                    .Where(p => 
-                        p.Name != "Id" && 
-                        p.Name != "CreatedAt" && 
+                    .Where(p =>
+                        p.Name != "Id" &&
+                        p.Name != "CreatedAt" &&
                         p.Name != "UpdatedAt" &&
-                        p.Name != "Username" && 
-                        p.Name != "Department" && 
-                        p.Name != "Email" && 
-                        p.Name != "UserFullName" && 
+                        p.Name != "Username" &&
+                        p.Name != "Department" &&
+                        p.Name != "Email" &&
+                        p.Name != "UserFullName" &&
                         p.Name != "PlantName")
                     .ToList();
 
@@ -445,7 +445,7 @@ namespace CardTagManager.Controllers
                 {
                     var oldValue = prop.GetValue(existingCard)?.ToString();
                     var newValue = prop.GetValue(card)?.ToString();
-                    
+
                     if (oldValue != newValue)
                     {
                         changedProperties.Add(new CardHistory
@@ -462,15 +462,15 @@ namespace CardTagManager.Controllers
 
                 card.UpdatedAt = DateTime.Now;
                 _context.Update(card);
-                
+
                 // Add change history if any properties changed
                 if (changedProperties.Any())
                 {
                     await _context.CardHistories.AddRangeAsync(changedProperties);
                 }
-                
+
                 await _context.SaveChangesAsync();
-                
+
                 TempData["SuccessMessage"] = $"Product '{card.ProductName}' updated successfully.";
                 return RedirectToAction(nameof(Details), new { id = card.Id });
             }
@@ -495,15 +495,15 @@ namespace CardTagManager.Controllers
             {
                 return NotFound();
             }
-            
+
             // Use QR colors from card database values
             string qrFgColor = card.QrFgColor ?? "#000000";
             string qrBgColor = card.QrBgColor ?? "#FFFFFF";
-            
+
             // Store in TempData for subsequent requests
             TempData["QrFgColor"] = qrFgColor;
             TempData["QrBgColor"] = qrBgColor;
-            
+
             // Generate QR code for preview with custom colors
             string qrCodeData = GenerateCardQrData(card);
             ViewBag.QrCodeImage = _qrCodeService.GenerateQrCodeAsBase64(qrCodeData, qrFgColor, qrBgColor);
@@ -533,17 +533,17 @@ namespace CardTagManager.Controllers
                             _logger.LogWarning(ex, $"Failed to delete image file: {card.ImagePath}");
                         }
                     }
-                    
+
                     // Delete history records
                     var histories = await _context.CardHistories.Where(h => h.CardId == id).ToListAsync();
                     if (histories.Any())
                     {
                         _context.CardHistories.RemoveRange(histories);
                     }
-                    
+
                     _context.Cards.Remove(card);
                     await _context.SaveChangesAsync();
-                    
+
                     TempData["SuccessMessage"] = $"Product '{card.ProductName}' deleted successfully.";
                 }
                 return RedirectToAction(nameof(Index));
@@ -568,7 +568,7 @@ namespace CardTagManager.Controllers
             // Use QR colors from card database values
             string qrFgColor = card.QrFgColor ?? "#000000";
             string qrBgColor = card.QrBgColor ?? "#FFFFFF";
-            
+
             // Store in TempData for subsequent requests
             TempData["QrFgColor"] = qrFgColor;
             TempData["QrBgColor"] = qrBgColor;
@@ -591,7 +591,7 @@ namespace CardTagManager.Controllers
             {
                 string qrFgColor = card.QrFgColor ?? "#000000";
                 string qrBgColor = card.QrBgColor ?? "#FFFFFF";
-                
+
                 string qrCodeData = GenerateCardQrData(card);
                 qrCodes[card.Id] = _qrCodeService.GenerateQrCodeAsBase64(qrCodeData, qrFgColor, qrBgColor);
             }
@@ -613,7 +613,7 @@ namespace CardTagManager.Controllers
             // Use QR colors from card database values
             string qrFgColor = card.QrFgColor ?? "#000000";
             string qrBgColor = card.QrBgColor ?? "#FFFFFF";
-            
+
             // Store in TempData for subsequent requests
             TempData["QrFgColor"] = qrFgColor;
             TempData["QrBgColor"] = qrBgColor;
@@ -655,10 +655,10 @@ namespace CardTagManager.Controllers
                     ScanResult = "Success"
                 }
             };
-            
+
             return View(demoResults);
         }
-        
+
         // GET: Card/ScanShow/5 - Shows card info for mobile scan view
         public async Task<IActionResult> ScanShow(int id)
         {
@@ -667,15 +667,15 @@ namespace CardTagManager.Controllers
             {
                 return NotFound();
             }
-            
+
             // Use QR colors from card database values
             string qrFgColor = card.QrFgColor ?? "#000000";
             string qrBgColor = card.QrBgColor ?? "#FFFFFF";
-            
+
             // Store in TempData for subsequent requests
             TempData["QrFgColor"] = qrFgColor;
             TempData["QrBgColor"] = qrBgColor;
-            
+
             // Generate QR code for mobile view with custom colors
             string qrCodeData = GenerateCardQrData(card);
             ViewBag.QrCodeImage = _qrCodeService.GenerateQrCodeAsBase64(qrCodeData, qrFgColor, qrBgColor);
@@ -685,7 +685,7 @@ namespace CardTagManager.Controllers
 
             return View(card);
         }
-        
+
         // GET: Card/DownloadData/5 - Generate downloadable card data file
         public async Task<IActionResult> DownloadData(int id)
         {
@@ -711,7 +711,8 @@ namespace CardTagManager.Controllers
                 CreatedBy = card.Username,
                 Department = card.Department,
                 LastUpdated = card.UpdatedAt.ToString("yyyy-MM-dd HH:mm:ss"),
-                Appearance = new {
+                Appearance = new
+                {
                     Layout = card.Layout,
                     BackgroundColor = card.BackgroundColor,
                     TextColor = card.TextColor,
@@ -733,7 +734,7 @@ namespace CardTagManager.Controllers
             // Return the data as a downloadable file
             return File(System.Text.Encoding.UTF8.GetBytes(jsonData), "application/json", fileName);
         }
-        
+
         // GET: Card/DownloadQrCode/5 - Download QR code as image file
         public async Task<IActionResult> DownloadQrCode(int id)
         {
@@ -750,7 +751,7 @@ namespace CardTagManager.Controllers
             // Generate QR code for download with custom colors
             string qrCodeData = GenerateCardQrData(card);
             string qrCodeBase64 = _qrCodeService.GenerateQrCodeAsBase64(qrCodeData, qrFgColor, qrBgColor);
-            
+
             // Convert base64 to bytes (strip data URI prefix)
             string base64Data = qrCodeBase64.Split(',')[1];
             byte[] qrBytes = Convert.FromBase64String(base64Data);
@@ -759,7 +760,7 @@ namespace CardTagManager.Controllers
             string fileName = $"{card.ProductName.Replace(" ", "_")}_QR.png";
             return File(qrBytes, "image/png", fileName);
         }
-        
+
         // GET: Card/History/5 - View complete edit history for a card
         public async Task<IActionResult> History(int id)
         {
@@ -768,12 +769,12 @@ namespace CardTagManager.Controllers
             {
                 return NotFound();
             }
-            
+
             var history = await _context.CardHistories
                 .Where(h => h.CardId == id)
                 .OrderByDescending(h => h.ChangedAt)
                 .ToListAsync();
-                
+
             ViewBag.Card = card;
             return View(history);
         }
@@ -783,10 +784,10 @@ namespace CardTagManager.Controllers
         {
             // Get the base URL dynamically
             string baseUrl = $"{Request.Scheme}://{Request.Host}";
-            
+
             // Create a URL to the ScanShow action
             string scanUrl = $"{baseUrl}/Card/ScanShow/{card.Id}";
-            
+
             // Return just the URL so QR code scanners will open it
             return scanUrl;
         }
@@ -803,12 +804,12 @@ namespace CardTagManager.Controllers
             {
                 return NotFound();
             }
-            
+
             var reminders = await _context.MaintenanceReminders
                 .Where(r => r.CardId == id)
                 .OrderBy(r => r.DueDate)
                 .ToListAsync();
-            
+
             ViewBag.Card = card;
             return View(reminders);
         }
@@ -823,7 +824,7 @@ namespace CardTagManager.Controllers
                     .Where(r => r.CardId == id)
                     .OrderBy(r => r.DueDate)
                     .ToListAsync();
-                
+
                 return Json(reminders);
             }
             catch (Exception ex)
@@ -850,30 +851,30 @@ namespace CardTagManager.Controllers
                     reminder.CreatedAt = DateTime.Now;
                     reminder.UpdatedAt = DateTime.Now;
                     reminder.CreatedBy = User.Identity.Name;
-                    
+
                     _context.MaintenanceReminders.Add(reminder);
                 }
                 else
                 {
                     // Update existing reminder
                     var existingReminder = await _context.MaintenanceReminders.FindAsync(reminder.Id);
-                    
+
                     if (existingReminder == null)
                     {
                         return NotFound();
                     }
-                    
+
                     existingReminder.Title = reminder.Title;
                     existingReminder.DueDate = reminder.DueDate;
                     existingReminder.Notes = reminder.Notes;
                     existingReminder.RepeatFrequency = reminder.RepeatFrequency;
                     existingReminder.UpdatedAt = DateTime.Now;
-                    
+
                     _context.Update(existingReminder);
                 }
-                
+
                 await _context.SaveChangesAsync();
-                
+
                 return Json(new { success = true, message = "Reminder saved successfully" });
             }
             catch (Exception ex)
@@ -890,15 +891,15 @@ namespace CardTagManager.Controllers
             try
             {
                 var reminder = await _context.MaintenanceReminders.FindAsync(id);
-                
+
                 if (reminder == null)
                 {
                     return NotFound();
                 }
-                
+
                 _context.MaintenanceReminders.Remove(reminder);
                 await _context.SaveChangesAsync();
-                
+
                 return Json(new { success = true, message = "Reminder deleted successfully" });
             }
             catch (Exception ex)
@@ -916,12 +917,12 @@ namespace CardTagManager.Controllers
             {
                 return NotFound();
             }
-            
+
             var documents = await _context.CardDocuments
                 .Where(d => d.CardId == id)
                 .OrderByDescending(d => d.UploadedAt)
                 .ToListAsync();
-            
+
             ViewBag.Card = card;
             return View(documents);
         }
@@ -936,7 +937,7 @@ namespace CardTagManager.Controllers
                     .Where(d => d.CardId == id)
                     .OrderByDescending(d => d.UploadedAt)
                     .ToListAsync();
-                
+
                 return Json(documents);
             }
             catch (Exception ex)
@@ -948,52 +949,60 @@ namespace CardTagManager.Controllers
 
         // POST: Card/UploadDocument
         [HttpPost]
-        public async Task<IActionResult> UploadDocument([FromForm] CardDocument document)
+        public async Task<IActionResult> UploadDocument()
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            if (document.DocumentFile == null || document.DocumentFile.Length == 0)
-            {
-                return BadRequest(new { error = "No file was uploaded." });
-            }
-
             try
             {
+                // Get form data
+                var cardId = int.Parse(Request.Form["CardId"]);
+                var title = Request.Form["Title"].ToString();
+                var documentType = Request.Form["DocumentType"].ToString();
+                var description = Request.Form["Description"].ToString();
+                var documentFile = Request.Form.Files["DocumentFile"];
+
+                if (documentFile == null || documentFile.Length == 0)
+                {
+                    return Json(new { success = false, error = "No file was uploaded." });
+                }
+
+                // Validate inputs
+                if (string.IsNullOrEmpty(title) || cardId <= 0)
+                {
+                    return Json(new { success = false, error = "Missing required fields." });
+                }
+
                 // Upload file using FileUploadService
-                var fileResponse = await _fileUploadService.UploadFile(document.DocumentFile, "CardDocuments");
-                
+                var fileResponse = await _fileUploadService.UploadFile(documentFile, "CardDocuments");
+
                 if (!fileResponse.IsSuccess)
                 {
-                    return BadRequest(new { error = fileResponse.ErrorMessage });
+                    return Json(new { success = false, error = fileResponse.ErrorMessage });
                 }
-                
+
                 // Create new document record
                 var newDocument = new CardDocument
                 {
-                    CardId = document.CardId,
-                    Title = document.Title,
-                    DocumentType = document.DocumentType,
-                    Description = document.Description,
+                    CardId = cardId,
+                    Title = title,
+                    DocumentType = documentType,
+                    Description = description,
                     FilePath = fileResponse.FileUrl,
-                    FileName = document.DocumentFile.FileName,
-                    FileSize = document.DocumentFile.Length,
-                    FileType = document.DocumentFile.ContentType,
+                    FileName = documentFile.FileName,
+                    FileSize = documentFile.Length,
+                    FileType = documentFile.ContentType,
                     UploadedAt = DateTime.Now,
-                    UploadedBy = User.Identity.Name
+                    UploadedBy = User.Identity?.Name ?? "Anonymous"
                 };
-                
+
                 _context.CardDocuments.Add(newDocument);
                 await _context.SaveChangesAsync();
-                
+
                 return Json(new { success = true, document = newDocument });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error uploading document");
-                return StatusCode(500, new { error = "An error occurred while uploading the document." });
+                return Json(new { success = false, error = $"An error occurred: {ex.Message}" });
             }
         }
 
@@ -1004,12 +1013,12 @@ namespace CardTagManager.Controllers
             try
             {
                 var document = await _context.CardDocuments.FindAsync(id);
-                
+
                 if (document == null)
                 {
                     return NotFound();
                 }
-                
+
                 // Delete file using FileUploadService
                 if (!string.IsNullOrEmpty(document.FilePath))
                 {
@@ -1022,10 +1031,10 @@ namespace CardTagManager.Controllers
                         _logger.LogWarning(ex, $"Failed to delete file: {document.FilePath}");
                     }
                 }
-                
+
                 _context.CardDocuments.Remove(document);
                 await _context.SaveChangesAsync();
-                
+
                 return Json(new { success = true, message = "Document deleted successfully" });
             }
             catch (Exception ex)
@@ -1041,15 +1050,15 @@ namespace CardTagManager.Controllers
             try
             {
                 var document = await _context.CardDocuments.FindAsync(id);
-                
+
                 if (document == null)
                 {
                     return NotFound();
                 }
-                
+
                 // For actual file download, you would use the document.FilePath to retrieve the file
                 // This is a simplified implementation and may need to be customized based on your storage solution
-                
+
                 // Redirect to the file URL
                 return Redirect(document.FilePath);
             }
@@ -1058,7 +1067,7 @@ namespace CardTagManager.Controllers
                 _logger.LogError(ex, $"Error downloading document {id}");
                 return RedirectToAction("Details", new { id = id });
             }
-        }        
+        }
         [HttpGet]
         public async Task<IActionResult> GetCardHistory(int id)
         {
@@ -1069,7 +1078,7 @@ namespace CardTagManager.Controllers
                     .OrderByDescending(h => h.ChangedAt)
                     .Take(10)
                     .ToListAsync();
-                
+
                 return Json(history);
             }
             catch (Exception ex)
