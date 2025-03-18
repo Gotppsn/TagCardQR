@@ -1,3 +1,4 @@
+// Path: Data/ApplicationDbContext.cs
 using CardTagManager.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,6 +13,8 @@ namespace CardTagManager.Data
 
         public DbSet<Card> Cards { get; set; }
         public DbSet<CardHistory> CardHistories { get; set; }
+        public DbSet<MaintenanceReminder> MaintenanceReminders { get; set; }
+        public DbSet<CardDocument> CardDocuments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -56,7 +59,39 @@ namespace CardTagManager.Data
             modelBuilder.Entity<CardHistory>()
                 .HasOne(ch => ch.Card)
                 .WithMany()
-                .HasForeignKey(ch => ch.CardId);                
+                .HasForeignKey(ch => ch.CardId);
+                
+            // Configure MaintenanceReminder
+            modelBuilder.Entity<MaintenanceReminder>()
+                .HasKey(r => r.Id);
+
+            modelBuilder.Entity<MaintenanceReminder>()
+                .HasOne(r => r.Card)
+                .WithMany()
+                .HasForeignKey(r => r.CardId)
+                .OnDelete(DeleteBehavior.Cascade);
+                
+            modelBuilder.Entity<MaintenanceReminder>()
+                .Property(r => r.CreatedAt)
+                .HasDefaultValueSql("GETDATE()");
+                
+            modelBuilder.Entity<MaintenanceReminder>()
+                .Property(r => r.UpdatedAt)
+                .HasDefaultValueSql("GETDATE()");
+                
+            // Configure CardDocument
+            modelBuilder.Entity<CardDocument>()
+                .HasKey(d => d.Id);
+                
+            modelBuilder.Entity<CardDocument>()
+                .HasOne(d => d.Card)
+                .WithMany()
+                .HasForeignKey(d => d.CardId)
+                .OnDelete(DeleteBehavior.Cascade);
+                
+            modelBuilder.Entity<CardDocument>()
+                .Property(d => d.UploadedAt)
+                .HasDefaultValueSql("GETDATE()");
         }
     }
 }

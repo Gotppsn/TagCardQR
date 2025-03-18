@@ -1200,19 +1200,22 @@
             loadReminders();
         }
         
-        function loadReminders() {
-            const cardId = document.getElementById('card-id').value;
-            const remindersList = document.getElementById('reminders-list');
-            
-            // Get reminders from localStorage
-            let reminders = JSON.parse(localStorage.getItem('cardReminders') || '[]');
-            
-            // Filter to this card's reminders
-            reminders = reminders.filter(r => r.cardId === cardId);
-            
-            // Sort by due date
-            reminders.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
-            
+ function loadReminders() {
+    const cardId = document.getElementById('card-id').value;
+    const remindersList = document.getElementById('reminders-list');
+    
+    // Show loading indicator
+    remindersList.innerHTML = '<div class="p-3 text-center"><i class="fas fa-spinner fa-spin mr-2"></i> Loading reminders...</div>';
+    
+    // Fetch reminders from the API
+    fetch(`/Card/GetCardReminders/${cardId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to load reminders');
+            }
+            return response.json();
+        })
+        .then(reminders => {
             // Clear current reminders
             remindersList.innerHTML = '';
             
@@ -1249,186 +1252,268 @@
                 noReminders.textContent = 'No reminders scheduled yet';
                 remindersList.appendChild(noReminders);
             }
+        })
+        .catch(error => {
+            console.error('Error loading reminders:', error);
+            remindersList.innerHTML = '<div class="p-3 text-center text-red-500">Failed to load reminders. Please try again.</div>';
+        });
+}
+
+function saveReminder(reminder) {
+    // Create form data for the request
+    const formData = new FormData();
+    formData.append('Id', reminder.id === '0' ? 0 : reminder.id);
+    formData.append('CardId', reminder.cardId);
+    formData.append('Title', reminder.title);
+    formData.append('DueDate', reminder.dueDate);
+    formData.append('Notes', reminder.notes || '');
+    formData.append('RepeatFrequency', reminder.repeat || 'never');
+    
+    // Send the request to the server
+    fetch('/Card/SaveReminder', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to save reminder');
         }
-        
-        function editReminder(reminderId) {
-            // Get reminders from localStorage
-            let reminders = JSON.parse(localStorage.getItem('cardReminders') || '[]');
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            // Refresh the reminders list
+            loadReminders();
             
-            // Find the reminder
-            const reminder = reminders.find(r => r.id === reminderId);
-            
-            if (reminder) {
-                // Set form values
-                document.getElementById('reminder-id').value = reminder.id;
-                document.getElementById('reminder-title').value = reminder.title;
-                document.getElementById('reminder-date').value = reminder.dueDate;
-                document.getElementById('reminder-notes').value = reminder.notes || '';
-                document.getElementById('reminder-repeat').value = reminder.repeat || 'never';
-                
-                // Open modal
-                document.getElementById('reminder-modal').classList.remove('hidden');
-            }
+            // Show success toast
+            showToast('Reminder saved', 'Your maintenance reminder has been scheduled', 'success');
+        } else {
+            showToast('Error', data.error || 'Failed to save reminder', 'error');
         }
-        
-        function deleteReminder(reminderId) {
-            // Get reminders from localStorage
-            let reminders = JSON.parse(localStorage.getItem('cardReminders') || '[]');
-            
-            // Filter out the one to delete
-            reminders = reminders.filter(r => r.id !== reminderId);
-            
-            // Save back to localStorage
-            localStorage.setItem('cardReminders', JSON.stringify(reminders));
-            
+    })
+    .catch(error => {
+        console.error('Error saving reminder:', error);
+        showToast('Error', 'Failed to save reminder. Please try again.', 'error');
+    });
+}
+
+function deleteReminder(reminderId) {
+    // Send delete request to the server
+    fetch('/Card/DeleteReminder', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `id=${reminderId}`
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to delete reminder');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
             // Refresh the reminders list
             loadReminders();
             
             // Show success toast
             showToast('Reminder deleted', 'The maintenance reminder has been removed', 'success');
+        } else {
+            showToast('Error', data.error || 'Failed to delete reminder', 'error');
         }
-        
-        function initDocuments() {
-            const addDocumentBtn = document.getElementById('add-document-btn');
-            const documentUploadSection = document.getElementById('document-upload-section');
-            const cancelUploadBtn = document.getElementById('cancel-upload');
-            const documentForm = document.getElementById('document-upload-form');
-            const browseDocumentBtn = document.getElementById('browse-document');
-            const documentFileInput = document.getElementById('document-file');
-            const filePreview = document.getElementById('file-preview');
-            const fileName = document.getElementById('file-name');
-            const fileIcon = document.getElementById('file-icon');
-            const removeFileBtn = document.getElementById('remove-file');
-            const documentDropArea = document.getElementById('document-drop-area');
-            const addFirstDocumentBtn = document.getElementById('add-first-document');
-            
-            if (addDocumentBtn && documentUploadSection) {
-                addDocumentBtn.addEventListener('click', function() {
-                    documentUploadSection.classList.remove('hidden');
-                });
+    })
+    .catch(error => {
+        console.error('Error deleting reminder:', error);
+        showToast('Error', 'Failed to delete reminder. Please try again.', 'error');
+    });
+}
+
+// For documents
+function loadDocumentsData() {
+    // Show loading state
+    document.getElementById('documents-loading').classList.remove('hidden');
+    document.getElementById('document-items').classList.add('hidden');
+    document.getElementById('no-documents').classList.add('hidden');
+    
+    const cardId = document.getElementById('card-id').value;
+    
+    // Fetch documents from the API
+    fetch(`/Card/GetCardDocuments/${cardId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to load documents');
             }
+            return response.json();
+        })
+        .then(documents => {
+            // Hide loading state
+            document.getElementById('documents-loading').classList.add('hidden');
             
-            if (addFirstDocumentBtn && documentUploadSection) {
-                addFirstDocumentBtn.addEventListener('click', function() {
-                    documentUploadSection.classList.remove('hidden');
-                });
-            }
+            // Get the container
+            const documentItems = document.getElementById('document-items');
+            documentItems.innerHTML = '';
             
-            if (cancelUploadBtn && documentUploadSection) {
-                cancelUploadBtn.addEventListener('click', function() {
-                    documentUploadSection.classList.add('hidden');
-                    documentForm.reset();
-                    filePreview.classList.add('hidden');
-                });
-            }
-            
-            if (browseDocumentBtn && documentFileInput) {
-                browseDocumentBtn.addEventListener('click', function() {
-                    documentFileInput.click();
-                });
-            }
-            
-            if (documentFileInput && filePreview) {
-                documentFileInput.addEventListener('change', function() {
-                    handleFileSelection(this.files[0]);
-                });
-            }
-            
-            if (removeFileBtn && documentFileInput) {
-                removeFileBtn.addEventListener('click', function() {
-                    documentFileInput.value = '';
-                    filePreview.classList.add('hidden');
-                });
-            }
-            
-            // Drag and drop functionality
-            if (documentDropArea) {
-                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                    documentDropArea.addEventListener(eventName, preventDefaults, false);
-                });
+            if (documents.length > 0) {
+                // Show document items
+                documentItems.classList.remove('hidden');
                 
-                function preventDefaults(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
-                
-                ['dragenter', 'dragover'].forEach(eventName => {
-                    documentDropArea.addEventListener(eventName, highlight, false);
-                });
-                
-                ['dragleave', 'drop'].forEach(eventName => {
-                    documentDropArea.addEventListener(eventName, unhighlight, false);
-                });
-                
-                function highlight() {
-                    documentDropArea.classList.add('bg-blue-50', 'border-blue-300');
-                }
-                
-                function unhighlight() {
-                    documentDropArea.classList.remove('bg-blue-50', 'border-blue-300');
-                }
-                
-                documentDropArea.addEventListener('drop', function(e) {
-                    const dt = e.dataTransfer;
-                    const file = dt.files[0];
+                // Add documents to the list
+                documents.forEach(doc => {
+                    const uploadDate = new Date(doc.uploadedAt);
+                    const daysAgo = Math.floor((new Date() - uploadDate) / (1000 * 60 * 60 * 24));
                     
-                    handleFileSelection(file);
-                });
-            }
-            
-            // Document form submission
-            if (documentForm) {
-                documentForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
+                    // Get file icon
+                    let fileIcon = 'fa-file';
+                    let iconColor = 'text-gray-600';
                     
-                    const title = document.getElementById('document-title').value;
-                    const type = document.getElementById('document-type').value;
-                    const description = document.getElementById('document-description').value;
-                    const file = documentFileInput.files[0];
-                    
-                    if (!file) {
-                        showToast('Missing file', 'Please select a file to upload', 'error');
-                        return;
+                    if (doc.fileType && doc.fileType.startsWith('image/')) {
+                        fileIcon = 'fa-file-image';
+                        iconColor = 'text-blue-600';
+                    } else if (doc.fileType && doc.fileType.includes('pdf')) {
+                        fileIcon = 'fa-file-pdf';
+                        iconColor = 'text-red-600';
+                    } else if (doc.fileType && (doc.fileType.includes('excel') || doc.fileType.includes('spreadsheet')) || (doc.fileName && (doc.fileName.endsWith('.xlsx') || doc.fileName.endsWith('.xls')))) {
+                        fileIcon = 'fa-file-excel';
+                        iconColor = 'text-green-600';
+                    } else if (doc.fileType && (doc.fileType.includes('word') || doc.fileType.includes('document')) || (doc.fileName && (doc.fileName.endsWith('.docx') || doc.fileName.endsWith('.doc')))) {
+                        fileIcon = 'fa-file-word';
+                        iconColor = 'text-blue-600';
                     }
                     
-                    // Show loading state
-                    document.getElementById('upload-text').textContent = 'Uploading...';
-                    document.getElementById('upload-spinner').classList.remove('hidden');
+                    // Format file size
+                    const fileSize = formatFileSize(doc.fileSize);
                     
-                    // For demo purposes, we'll use a setTimeout to simulate upload
-                    // In a real app, you would submit to the server
-                    setTimeout(() => {
-                        // Simulate saving with localStorage
-                        const cardId = document.getElementById('card-id').value;
-                        
-                        saveDocument({
-                            id: Date.now().toString(),
-                            cardId: cardId,
-                            title: title,
-                            type: type,
-                            description: description,
-                            fileName: file.name,
-                            fileSize: file.size,
-                            fileType: file.type,
-                            uploadedAt: new Date().toISOString()
-                        });
-                        
-                        // Reset form
-                        documentForm.reset();
-                        filePreview.classList.add('hidden');
-                        
-                        // Hide upload section
-                        documentUploadSection.classList.add('hidden');
-                        
-                        // Reset button state
-                        document.getElementById('upload-text').textContent = 'Upload Document';
-                        document.getElementById('upload-spinner').classList.add('hidden');
-                        
-                        // Show success message
-                        showToast('Document uploaded', 'Your document has been successfully uploaded', 'success');
-                    }, 1500);
+                    const docEl = document.createElement('div');
+                    docEl.className = 'document-item p-4 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-between';
+                    docEl.innerHTML = `
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center ${iconColor}">
+                                    <i class="fas ${fileIcon}"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <div class="font-medium text-gray-800">${doc.title}</div>
+                                <div class="text-xs text-gray-500">${doc.documentType} • ${fileSize} • Uploaded ${daysAgo === 0 ? 'today' : daysAgo === 1 ? 'yesterday' : daysAgo + ' days ago'}</div>
+                                ${doc.description ? `<div class="text-xs text-gray-500 mt-1">${doc.description}</div>` : ''}
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <a href="/Card/DownloadDocument/${doc.id}" class="p-2 text-gray-400 hover:text-primary-600 document-download" data-id="${doc.id}">
+                                <i class="fas fa-download"></i>
+                            </a>
+                            <button type="button" class="p-2 text-gray-400 hover:text-red-600 document-delete" data-id="${doc.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                    
+                    documentItems.appendChild(docEl);
                 });
+            } else {
+                // Show no documents message
+                document.getElementById('no-documents').classList.remove('hidden');
             }
+        })
+        .catch(error => {
+            console.error('Error loading documents:', error);
+            document.getElementById('documents-loading').classList.add('hidden');
+            document.getElementById('document-items').innerHTML = '<div class="p-3 text-center text-red-500">Failed to load documents. Please try again.</div>';
+            document.getElementById('document-items').classList.remove('hidden');
+        });
+}
+
+function deleteDocument(documentId) {
+    // Send delete request to the server
+    fetch('/Card/DeleteDocument', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `id=${documentId}`
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to delete document');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            // Refresh the documents list
+            loadDocumentsData();
+            
+            // Show success toast
+            showToast('Document deleted', 'The document has been removed', 'success');
+        } else {
+            showToast('Error', data.error || 'Failed to delete document', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error deleting document:', error);
+        showToast('Error', 'Failed to delete document. Please try again.', 'error');
+    });
+}
+
+// Update document form submission
+if (documentForm) {
+    documentForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        
+        // Show loading state
+        document.getElementById('upload-text').textContent = 'Uploading...';
+        document.getElementById('upload-spinner').classList.remove('hidden');
+        
+        fetch('/Card/UploadDocument', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to upload document');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Reset form
+                documentForm.reset();
+                filePreview.classList.add('hidden');
+                
+                // Hide upload section
+                documentUploadSection.classList.add('hidden');
+                
+                // Reset button state
+                document.getElementById('upload-text').textContent = 'Upload Document';
+                document.getElementById('upload-spinner').classList.add('hidden');
+                
+                // Refresh documents list
+                loadDocumentsData();
+                
+                // Show success message
+                showToast('Document uploaded', 'Your document has been successfully uploaded', 'success');
+            } else {
+                // Reset button state
+                document.getElementById('upload-text').textContent = 'Upload Document';
+                document.getElementById('upload-spinner').classList.add('hidden');
+                
+                showToast('Error', data.error || 'Failed to upload document', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error uploading document:', error);
+            
+            // Reset button state
+            document.getElementById('upload-text').textContent = 'Upload Document';
+            document.getElementById('upload-spinner').classList.add('hidden');
+            
+            showToast('Error', 'Failed to upload document. Please try again.', 'error');
+        });
+    });
+}
             
             // Initial load of documents
             loadDocumentsData();

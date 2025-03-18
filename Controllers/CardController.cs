@@ -795,5 +795,269 @@ namespace CardTagManager.Controllers
         {
             return _context.Cards.Any(e => e.Id == id);
         }
+
+        public async Task<IActionResult> Reminders(int id)
+        {
+            var card = await _context.Cards.FindAsync(id);
+            if (card == null)
+            {
+                return NotFound();
+            }
+            
+            var reminders = await _context.MaintenanceReminders
+                .Where(r => r.CardId == id)
+                .OrderBy(r => r.DueDate)
+                .ToListAsync();
+            
+            ViewBag.Card = card;
+            return View(reminders);
+        }
+
+        // GET: Card/GetCardReminders/5
+        [HttpGet]
+        public async Task<IActionResult> GetCardReminders(int id)
+        {
+            try
+            {
+                var reminders = await _context.MaintenanceReminders
+                    .Where(r => r.CardId == id)
+                    .OrderBy(r => r.DueDate)
+                    .ToListAsync();
+                
+                return Json(reminders);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving reminders for card {id}");
+                return StatusCode(500, new { error = "An error occurred while retrieving reminders." });
+            }
+        }
+
+        // POST: Card/SaveReminder
+        [HttpPost]
+        public async Task<IActionResult> SaveReminder(MaintenanceReminder reminder)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                if (reminder.Id == 0)
+                {
+                    // New reminder
+                    reminder.CreatedAt = DateTime.Now;
+                    reminder.UpdatedAt = DateTime.Now;
+                    reminder.CreatedBy = User.Identity.Name;
+                    
+                    _context.MaintenanceReminders.Add(reminder);
+                }
+                else
+                {
+                    // Update existing reminder
+                    var existingReminder = await _context.MaintenanceReminders.FindAsync(reminder.Id);
+                    
+                    if (existingReminder == null)
+                    {
+                        return NotFound();
+                    }
+                    
+                    existingReminder.Title = reminder.Title;
+                    existingReminder.DueDate = reminder.DueDate;
+                    existingReminder.Notes = reminder.Notes;
+                    existingReminder.RepeatFrequency = reminder.RepeatFrequency;
+                    existingReminder.UpdatedAt = DateTime.Now;
+                    
+                    _context.Update(existingReminder);
+                }
+                
+                await _context.SaveChangesAsync();
+                
+                return Json(new { success = true, message = "Reminder saved successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error saving reminder");
+                return StatusCode(500, new { error = "An error occurred while saving the reminder." });
+            }
+        }
+
+        // POST: Card/DeleteReminder
+        [HttpPost]
+        public async Task<IActionResult> DeleteReminder(int id)
+        {
+            try
+            {
+                var reminder = await _context.MaintenanceReminders.FindAsync(id);
+                
+                if (reminder == null)
+                {
+                    return NotFound();
+                }
+                
+                _context.MaintenanceReminders.Remove(reminder);
+                await _context.SaveChangesAsync();
+                
+                return Json(new { success = true, message = "Reminder deleted successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error deleting reminder {id}");
+                return StatusCode(500, new { error = "An error occurred while deleting the reminder." });
+            }
+        }
+
+        // GET: Card/Documents/5
+        public async Task<IActionResult> Documents(int id)
+        {
+            var card = await _context.Cards.FindAsync(id);
+            if (card == null)
+            {
+                return NotFound();
+            }
+            
+            var documents = await _context.CardDocuments
+                .Where(d => d.CardId == id)
+                .OrderByDescending(d => d.UploadedAt)
+                .ToListAsync();
+            
+            ViewBag.Card = card;
+            return View(documents);
+        }
+
+        // GET: Card/GetCardDocuments/5
+        [HttpGet]
+        public async Task<IActionResult> GetCardDocuments(int id)
+        {
+            try
+            {
+                var documents = await _context.CardDocuments
+                    .Where(d => d.CardId == id)
+                    .OrderByDescending(d => d.UploadedAt)
+                    .ToListAsync();
+                
+                return Json(documents);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving documents for card {id}");
+                return StatusCode(500, new { error = "An error occurred while retrieving documents." });
+            }
+        }
+
+        // POST: Card/UploadDocument
+        [HttpPost]
+        public async Task<IActionResult> UploadDocument([FromForm] CardDocument document)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (document.DocumentFile == null || document.DocumentFile.Length == 0)
+            {
+                return BadRequest(new { error = "No file was uploaded." });
+            }
+
+            try
+            {
+                // Upload file using FileUploadService
+                var fileResponse = await _fileUploadService.UploadFile(document.DocumentFile, "CardDocuments");
+                
+                if (!fileResponse.IsSuccess)
+                {
+                    return BadRequest(new { error = fileResponse.ErrorMessage });
+                }
+                
+                // Create new document record
+                var newDocument = new CardDocument
+                {
+                    CardId = document.CardId,
+                    Title = document.Title,
+                    DocumentType = document.DocumentType,
+                    Description = document.Description,
+                    FilePath = fileResponse.FileUrl,
+                    FileName = document.DocumentFile.FileName,
+                    FileSize = document.DocumentFile.Length,
+                    FileType = document.DocumentFile.ContentType,
+                    UploadedAt = DateTime.Now,
+                    UploadedBy = User.Identity.Name
+                };
+                
+                _context.CardDocuments.Add(newDocument);
+                await _context.SaveChangesAsync();
+                
+                return Json(new { success = true, document = newDocument });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error uploading document");
+                return StatusCode(500, new { error = "An error occurred while uploading the document." });
+            }
+        }
+
+        // POST: Card/DeleteDocument
+        [HttpPost]
+        public async Task<IActionResult> DeleteDocument(int id)
+        {
+            try
+            {
+                var document = await _context.CardDocuments.FindAsync(id);
+                
+                if (document == null)
+                {
+                    return NotFound();
+                }
+                
+                // Delete file using FileUploadService
+                if (!string.IsNullOrEmpty(document.FilePath))
+                {
+                    try
+                    {
+                        await _fileUploadService.DeleteFile(document.FilePath);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, $"Failed to delete file: {document.FilePath}");
+                    }
+                }
+                
+                _context.CardDocuments.Remove(document);
+                await _context.SaveChangesAsync();
+                
+                return Json(new { success = true, message = "Document deleted successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error deleting document {id}");
+                return StatusCode(500, new { error = "An error occurred while deleting the document." });
+            }
+        }
+
+        // GET: Card/DownloadDocument/5
+        public async Task<IActionResult> DownloadDocument(int id)
+        {
+            try
+            {
+                var document = await _context.CardDocuments.FindAsync(id);
+                
+                if (document == null)
+                {
+                    return NotFound();
+                }
+                
+                // For actual file download, you would use the document.FilePath to retrieve the file
+                // This is a simplified implementation and may need to be customized based on your storage solution
+                
+                // Redirect to the file URL
+                return Redirect(document.FilePath);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error downloading document {id}");
+                return RedirectToAction("Details", new { id = id });
+            }
+        }        
     }
 }
