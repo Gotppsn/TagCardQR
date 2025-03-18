@@ -40,7 +40,7 @@ namespace CardTagManager.Models
         [StringLength(20)]
         public string ReporterPhone { get; set; }
         
-        public bool FollowUp { get; set; }
+        // Removed FollowUp property as requested
         
         public string Status { get; set; } = "Open";
         

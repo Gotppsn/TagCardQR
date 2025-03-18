@@ -16,7 +16,6 @@ namespace CardTagManager.Data
         public DbSet<MaintenanceReminder> MaintenanceReminders { get; set; }
         public DbSet<CardDocument> CardDocuments { get; set; }
         public DbSet<IssueReport> IssueReports { get; set; }
-        public DbSet<ContactMessage> ContactMessages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -107,20 +106,6 @@ namespace CardTagManager.Data
                 
             modelBuilder.Entity<IssueReport>()
                 .Property(ir => ir.CreatedAt)
-                .HasDefaultValueSql("GETDATE()");
-                
-            // Configure ContactMessage
-            modelBuilder.Entity<ContactMessage>()
-                .HasKey(cm => cm.Id);
-                
-            modelBuilder.Entity<ContactMessage>()
-                .HasOne(cm => cm.Product)
-                .WithMany()
-                .HasForeignKey(cm => cm.ProductId)
-                .OnDelete(DeleteBehavior.Cascade);
-                
-            modelBuilder.Entity<ContactMessage>()
-                .Property(cm => cm.CreatedAt)
                 .HasDefaultValueSql("GETDATE()");
         }
     }

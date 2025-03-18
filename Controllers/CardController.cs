@@ -1111,47 +1111,11 @@ namespace CardTagManager.Controllers
                 // Log the issue
                 _logger.LogInformation($"New issue reported for card {issueReport.CardId}: {issueReport.IssueType} - {issueReport.Description}");
                 
-                // Send notification email (in a real application)
-                // await _emailService.SendIssueNotification(issueReport);
-                
                 return Json(new { success = true, message = "Issue reported successfully" });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error reporting issue");
-                return StatusCode(500, new { success = false, error = $"An error occurred: {ex.Message}" });
-            }
-        }
-
-        // POST: Card/SendContactMessage
-        [HttpPost]
-        public async Task<IActionResult> SendContactMessage([FromBody] ContactMessage message)
-        {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(new { success = false, error = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).FirstOrDefault() });
-                }
-
-                // Set creation timestamp
-                message.CreatedAt = DateTime.Now;
-                
-                // Add to database
-                _context.ContactMessages.Add(message);
-                await _context.SaveChangesAsync();
-                
-                // Log the message
-                _logger.LogInformation($"New contact message for product {message.ProductId}: {message.Subject}");
-                
-                // Send notification email (in a real application)
-                // await _emailService.SendContactMessageNotification(message);
-                
-                return Json(new { success = true, message = "Message sent successfully" });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error sending contact message");
                 return StatusCode(500, new { success = false, error = $"An error occurred: {ex.Message}" });
             }
         }
