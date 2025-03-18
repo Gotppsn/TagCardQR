@@ -835,54 +835,54 @@ namespace CardTagManager.Controllers
         }
 
         // POST: Card/SaveReminder
-        [HttpPost]
-        public async Task<IActionResult> SaveReminder(MaintenanceReminder reminder)
+[HttpPost]
+public async Task<IActionResult> SaveReminder([FromBody] MaintenanceReminder reminder)
+{
+    if (!ModelState.IsValid)
+    {
+        return BadRequest(ModelState);
+    }
+
+    try
+    {
+        if (reminder.Id == 0)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            // New reminder
+            reminder.CreatedAt = DateTime.Now;
+            reminder.UpdatedAt = DateTime.Now;
+            reminder.CreatedBy = User.Identity.Name;
 
-            try
-            {
-                if (reminder.Id == 0)
-                {
-                    // New reminder
-                    reminder.CreatedAt = DateTime.Now;
-                    reminder.UpdatedAt = DateTime.Now;
-                    reminder.CreatedBy = User.Identity.Name;
-
-                    _context.MaintenanceReminders.Add(reminder);
-                }
-                else
-                {
-                    // Update existing reminder
-                    var existingReminder = await _context.MaintenanceReminders.FindAsync(reminder.Id);
-
-                    if (existingReminder == null)
-                    {
-                        return NotFound();
-                    }
-
-                    existingReminder.Title = reminder.Title;
-                    existingReminder.DueDate = reminder.DueDate;
-                    existingReminder.Notes = reminder.Notes;
-                    existingReminder.RepeatFrequency = reminder.RepeatFrequency;
-                    existingReminder.UpdatedAt = DateTime.Now;
-
-                    _context.Update(existingReminder);
-                }
-
-                await _context.SaveChangesAsync();
-
-                return Json(new { success = true, message = "Reminder saved successfully" });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error saving reminder");
-                return StatusCode(500, new { error = "An error occurred while saving the reminder." });
-            }
+            _context.MaintenanceReminders.Add(reminder);
         }
+        else
+        {
+            // Update existing reminder
+            var existingReminder = await _context.MaintenanceReminders.FindAsync(reminder.Id);
+
+            if (existingReminder == null)
+            {
+                return NotFound();
+            }
+
+            existingReminder.Title = reminder.Title;
+            existingReminder.DueDate = reminder.DueDate;
+            existingReminder.Notes = reminder.Notes;
+            existingReminder.RepeatFrequency = reminder.RepeatFrequency;
+            existingReminder.UpdatedAt = DateTime.Now;
+
+            _context.Update(existingReminder);
+        }
+
+        await _context.SaveChangesAsync();
+
+        return Json(new { success = true, message = "Reminder saved successfully" });
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error saving reminder");
+        return StatusCode(500, new { error = $"Error: {ex.Message}" });
+    }
+}
 
         // POST: Card/DeleteReminder
         [HttpPost]

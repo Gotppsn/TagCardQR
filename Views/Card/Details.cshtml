@@ -1100,30 +1100,30 @@
                     const notes = document.getElementById('reminder-notes').value;
                     const repeatFrequency = document.getElementById('reminder-repeat').value;
                     
-                    // Create formData
-                    const formData = new FormData();
-                    formData.append('Id', reminderId);
-                    formData.append('CardId', cardId);
-                    formData.append('Title', title);
-                    formData.append('DueDate', dueDate);
-                    formData.append('Notes', notes);
-                    formData.append('RepeatFrequency', repeatFrequency);
+                    // Create JSON data - critical for proper model binding
+                    const data = {
+                        Id: parseInt(reminderId) || 0,
+                        CardId: parseInt(cardId),
+                        Title: title,
+                        DueDate: dueDate,
+                        Notes: notes,
+                        RepeatFrequency: repeatFrequency
+                    };
                     
-                    // Send POST request to server
+                    // Send JSON request to server
                     fetch('/Card/SaveReminder', {
                         method: 'POST',
-                        body: formData
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(data)
                     })
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            // Close modal
                             reminderModal.classList.add('hidden');
-                            
-                            // Refresh reminders list
                             loadReminders();
-                            
-                            // Show success toast
                             showToast('Reminder saved', 'Your maintenance reminder has been scheduled', 'success');
                         } else {
                             showToast('Error', data.error || 'Failed to save reminder', 'error');
