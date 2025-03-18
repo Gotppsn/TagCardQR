@@ -1,12 +1,10 @@
-@model CardTagManager.Models.Card
-
-@{
-    ViewData["Title"] = "Create New Product";
+@@{
+    ViewData["Title"] = "Create New Product Tag";
 }
 
 <div class="mb-6">
-    <a href="#" class="inline-flex items-center text-primary-600 hover:text-primary-700 transition-colors group">
-        <i class="fas fa-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i> Back to Library
+    <a href="javascript:history.back()" class="inline-flex items-center text-primary-600 hover:text-primary-700 transition-colors group">
+        <i class="fas fa-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i> Back to Tag Library
     </a>
 </div>
 
@@ -14,21 +12,21 @@
 <div class="form-progress mb-6">
     <div class="flex items-center justify-between max-w-2xl mx-auto">
         <div class="step active" data-step="1">
-            <div class="step-circle bg-primary-600 text-white h-8 w-8 rounded-full flex items-center justify-center">1</div>
+            <div class="step-circle bg-primary-600 text-white h-8 w-8 rounded-full flex items-center justify-center shadow-sm">1</div>
             <div class="step-label text-sm font-medium mt-1">Basic Info</div>
         </div>
         <div class="step-connector h-1 flex-grow bg-gray-200 mx-2 relative">
-            <div class="absolute inset-0 bg-primary-600 step-progress" style="width: 0%"></div>
+            <div class="absolute inset-0 bg-primary-600 step-progress transition-all duration-300" style="width: 0%"></div>
         </div>
         <div class="step" data-step="2">
-            <div class="step-circle bg-gray-200 text-gray-600 h-8 w-8 rounded-full flex items-center justify-center">2</div>
+            <div class="step-circle bg-gray-200 text-gray-600 h-8 w-8 rounded-full flex items-center justify-center shadow-sm">2</div>
             <div class="step-label text-sm font-medium mt-1">Details</div>
         </div>
         <div class="step-connector h-1 flex-grow bg-gray-200 mx-2 relative">
-            <div class="absolute inset-0 bg-primary-600 step-progress" style="width: 0%"></div>
+            <div class="absolute inset-0 bg-primary-600 step-progress transition-all duration-300" style="width: 0%"></div>
         </div>
         <div class="step" data-step="3">
-            <div class="step-circle bg-gray-200 text-gray-600 h-8 w-8 rounded-full flex items-center justify-center">3</div>
+            <div class="step-circle bg-gray-200 text-gray-600 h-8 w-8 rounded-full flex items-center justify-center shadow-sm">3</div>
             <div class="step-label text-sm font-medium mt-1">Appearance</div>
         </div>
     </div>
@@ -37,41 +35,54 @@
 <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 fade-in">
     <!-- Form Section (3 columns) -->
     <div class="lg:col-span-3">
-        <div class="card">
-            <div class="card-header">
-                <h2 class="text-xl font-bold text-gray-800 flex items-center">
-                    <i class="fas fa-plus-circle text-primary-500 mr-2"></i> Add New Product
-                </h2>
-                <p class="text-sm text-gray-500 mt-1">Fill in the details for your product tag</p>
+        <div class="card shadow hover:shadow-md transition-all duration-300">
+            <div class="card-header flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800 flex items-center">
+                        <i class="fas fa-tags text-primary-500 mr-2"></i> Create New Tag
+                    </h2>
+                    <p class="text-sm text-gray-500 mt-1">Design a custom product tag with QR code</p>
+                </div>
+                <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded-md text-xs font-medium">
+                    <i class="fas fa-pen-fancy mr-1"></i> Design Mode
+                </span>
             </div>
             
             <!-- Template Gallery -->
             <div class="px-6 pt-4 pb-2 border-b border-gray-100">
-                <h3 class="text-sm font-medium text-gray-700 mb-3">Quick Start Templates</h3>
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-sm font-medium text-gray-700">Quick Start Templates</h3>
+                    <span class="text-xs text-gray-500">Select a template to start with</span>
+                </div>
+                
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <div class="template-card cursor-pointer border rounded-lg p-2 hover:border-primary-500 transition-all" data-template="chemical">
-                        <div class="aspect-w-16 aspect-h-10 bg-blue-50 rounded mb-2 p-2 flex items-center justify-center">
+                    <div class="template-card cursor-pointer border rounded-lg p-2 hover:border-primary-500 hover:shadow-md transition-all duration-200 transform hover:-translate-y-1" data-template="chemical">
+                        <div class="aspect-w-16 aspect-h-10 bg-blue-50 rounded mb-2 p-2 flex items-center justify-center relative overflow-hidden">
                             <i class="fas fa-flask text-blue-500 text-xl"></i>
+                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
                         </div>
-                        <p class="text-xs text-center">Chemical Product</p>
+                        <p class="text-xs text-center font-medium">Chemical Product</p>
                     </div>
-                    <div class="template-card cursor-pointer border rounded-lg p-2 hover:border-primary-500 transition-all" data-template="equipment">
-                        <div class="aspect-w-16 aspect-h-10 bg-purple-50 rounded mb-2 p-2 flex items-center justify-center">
+                    <div class="template-card cursor-pointer border rounded-lg p-2 hover:border-primary-500 hover:shadow-md transition-all duration-200 transform hover:-translate-y-1" data-template="equipment">
+                        <div class="aspect-w-16 aspect-h-10 bg-purple-50 rounded mb-2 p-2 flex items-center justify-center relative overflow-hidden">
                             <i class="fas fa-tools text-purple-500 text-xl"></i>
+                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
                         </div>
-                        <p class="text-xs text-center">Equipment</p>
+                        <p class="text-xs text-center font-medium">Equipment</p>
                     </div>
-                    <div class="template-card cursor-pointer border rounded-lg p-2 hover:border-primary-500 transition-all" data-template="safety">
-                        <div class="aspect-w-16 aspect-h-10 bg-orange-50 rounded mb-2 p-2 flex items-center justify-center">
+                    <div class="template-card cursor-pointer border rounded-lg p-2 hover:border-primary-500 hover:shadow-md transition-all duration-200 transform hover:-translate-y-1" data-template="safety">
+                        <div class="aspect-w-16 aspect-h-10 bg-orange-50 rounded mb-2 p-2 flex items-center justify-center relative overflow-hidden">
                             <i class="fas fa-hard-hat text-orange-500 text-xl"></i>
+                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
                         </div>
-                        <p class="text-xs text-center">Safety Equipment</p>
+                        <p class="text-xs text-center font-medium">Safety Equipment</p>
                     </div>
-                    <div class="template-card cursor-pointer border rounded-lg p-2 hover:border-primary-500 transition-all" data-template="office">
-                        <div class="aspect-w-16 aspect-h-10 bg-green-50 rounded mb-2 p-2 flex items-center justify-center">
+                    <div class="template-card cursor-pointer border rounded-lg p-2 hover:border-primary-500 hover:shadow-md transition-all duration-200 transform hover:-translate-y-1" data-template="office">
+                        <div class="aspect-w-16 aspect-h-10 bg-green-50 rounded mb-2 p-2 flex items-center justify-center relative overflow-hidden">
                             <i class="fas fa-desktop text-green-500 text-xl"></i>
+                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
                         </div>
-                        <p class="text-xs text-center">Office Equipment</p>
+                        <p class="text-xs text-center font-medium">Office Equipment</p>
                     </div>
                 </div>
                 
@@ -79,29 +90,33 @@
                 <div class="hidden mt-4 pt-4 border-t border-gray-100" id="advanced-templates">
                     <h4 class="text-xs font-medium text-gray-600 mb-2">Industry-Specific Templates</h4>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        <div class="template-card cursor-pointer border rounded-lg p-2 hover:border-primary-500 transition-all" data-template="laboratory">
-                            <div class="aspect-w-16 aspect-h-10 bg-indigo-50 rounded mb-2 p-2 flex items-center justify-center">
+                        <div class="template-card cursor-pointer border rounded-lg p-2 hover:border-primary-500 hover:shadow-md transition-all duration-200 transform hover:-translate-y-1" data-template="laboratory">
+                            <div class="aspect-w-16 aspect-h-10 bg-indigo-50 rounded mb-2 p-2 flex items-center justify-center relative overflow-hidden">
                                 <i class="fas fa-vial text-indigo-500 text-xl"></i>
+                                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
                             </div>
-                            <p class="text-xs text-center">Laboratory</p>
+                            <p class="text-xs text-center font-medium">Laboratory</p>
                         </div>
-                        <div class="template-card cursor-pointer border rounded-lg p-2 hover:border-primary-500 transition-all" data-template="maintenance">
-                            <div class="aspect-w-16 aspect-h-10 bg-yellow-50 rounded mb-2 p-2 flex items-center justify-center">
+                        <div class="template-card cursor-pointer border rounded-lg p-2 hover:border-primary-500 hover:shadow-md transition-all duration-200 transform hover:-translate-y-1" data-template="maintenance">
+                            <div class="aspect-w-16 aspect-h-10 bg-yellow-50 rounded mb-2 p-2 flex items-center justify-center relative overflow-hidden">
                                 <i class="fas fa-wrench text-yellow-500 text-xl"></i>
+                                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
                             </div>
-                            <p class="text-xs text-center">Maintenance</p>
+                            <p class="text-xs text-center font-medium">Maintenance</p>
                         </div>
-                        <div class="template-card cursor-pointer border rounded-lg p-2 hover:border-primary-500 transition-all" data-template="it">
-                            <div class="aspect-w-16 aspect-h-10 bg-cyan-50 rounded mb-2 p-2 flex items-center justify-center">
+                        <div class="template-card cursor-pointer border rounded-lg p-2 hover:border-primary-500 hover:shadow-md transition-all duration-200 transform hover:-translate-y-1" data-template="it">
+                            <div class="aspect-w-16 aspect-h-10 bg-cyan-50 rounded mb-2 p-2 flex items-center justify-center relative overflow-hidden">
                                 <i class="fas fa-microchip text-cyan-500 text-xl"></i>
+                                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
                             </div>
-                            <p class="text-xs text-center">IT Asset</p>
+                            <p class="text-xs text-center font-medium">IT Asset</p>
                         </div>
-                        <div class="template-card cursor-pointer border rounded-lg p-2 hover:border-primary-500 transition-all" data-template="custom">
-                            <div class="aspect-w-16 aspect-h-10 bg-gray-50 rounded mb-2 p-2 flex items-center justify-center">
+                        <div class="template-card cursor-pointer border rounded-lg p-2 hover:border-primary-500 hover:shadow-md transition-all duration-200 transform hover:-translate-y-1" data-template="custom">
+                            <div class="aspect-w-16 aspect-h-10 bg-gray-50 rounded mb-2 p-2 flex items-center justify-center relative overflow-hidden">
                                 <i class="fas fa-plus text-gray-500 text-xl"></i>
+                                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
                             </div>
-                            <p class="text-xs text-center">Custom Template</p>
+                            <p class="text-xs text-center font-medium">Custom Template</p>
                         </div>
                     </div>
                 </div>
@@ -114,7 +129,7 @@
                 </button>
             </div>
             
-            <form id="product-form" enctype="multipart/form-data">
+            <form id="product-form" onsubmit="handleFormSubmit(event)">
                 <!-- Add hidden fields for QR colors -->
                 <input type="hidden" name="QrFgColor" id="qrFgColorHidden" value="#000000" />
                 <input type="hidden" name="QrBgColor" id="qrBgColorHidden" value="#FFFFFF" />
@@ -123,7 +138,7 @@
                     <div class="form-section" data-step="1">
                         <div class="flex justify-between items-center mb-4 pb-2 border-b">
                             <h3 class="text-md font-semibold text-gray-700">Basic Information</h3>
-                            <button type="button" id="add-custom-field" class="text-xs flex items-center text-primary-600 hover:text-primary-700 transition-colors">
+                            <button type="button" id="add-custom-field" class="inline-flex items-center text-xs text-primary-600 hover:text-primary-700 transition-colors px-2 py-1 rounded-md hover:bg-primary-50">
                                 <i class="fas fa-plus-circle mr-1"></i> Add Custom Field
                             </button>
                         </div>
@@ -138,10 +153,10 @@
                                     </label>
                                     <div class="relative">
                                         <input id="ProductName" name="ProductName" class="form-input pl-9" required 
-                                               placeholder="RustShield Pro 5000" maxlength="100"
-                                               oninput="countChars(this, 'name-counter', 100)">
-                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <i class="fas fa-tag text-gray-400"></i>
+                                               placeholder="Enter product name" maxlength="100"
+                                               oninput="countChars(this, 'name-counter', 100); updateTagPreview();">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                            <i class="fas fa-tag"></i>
                                         </div>
                                         <div class="validation-icon absolute inset-y-0 right-3 flex items-center hidden" id="name-valid">
                                             <i class="fas fa-check-circle text-green-500"></i>
@@ -156,17 +171,19 @@
                                         <span class="text-red-500 ml-1">*</span>
                                     </label>
                                     <div class="relative">
-                                        <select id="Category" name="Category" class="form-input pl-9">
+                                        <select id="Category" name="Category" class="form-input pl-9" onchange="updateTagPreview()">
+                                            <option value="">Select a category</option>
                                             <option value="Rust Coating Chemical">Rust Coating Chemical</option>
                                             <option value="Application Equipment">Application Equipment</option>
                                             <option value="Lab Equipment">Lab Equipment</option>
                                             <option value="Office Equipment">Office Equipment</option>
                                             <option value="Safety Equipment">Safety Equipment</option>
                                             <option value="Quality Control">Quality Control</option>
+                                            <option value="IT Equipment">IT Equipment</option>
                                             <option value="Other">Other</option>
                                         </select>
-                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <i class="fas fa-folder text-gray-400"></i>
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                            <i class="fas fa-folder"></i>
                                         </div>
                                     </div>
                                     <span class="form-error"></span>
@@ -178,9 +195,10 @@
                                         <span class="text-red-500 ml-1">*</span>
                                     </label>
                                     <div class="relative">
-                                        <input id="Manufacturer" name="Manufacturer" class="form-input pl-9" required placeholder="ChemTech Industries">
-                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <i class="fas fa-industry text-gray-400"></i>
+                                        <input id="Manufacturer" name="Manufacturer" class="form-input pl-9" required 
+                                               placeholder="Enter manufacturer name" oninput="updateTagPreview()">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                            <i class="fas fa-industry"></i>
                                         </div>
                                     </div>
                                     <span class="form-error"></span>
@@ -194,9 +212,10 @@
                                         <span class="text-red-500 ml-1">*</span>
                                     </label>
                                     <div class="relative">
-                                        <input id="ModelNumber" name="ModelNumber" class="form-input pl-9" required placeholder="RS-5000-X">
-                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <i class="fas fa-barcode text-gray-400"></i>
+                                        <input id="ModelNumber" name="ModelNumber" class="form-input pl-9" required 
+                                               placeholder="Enter model number" oninput="updateTagPreview()">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                            <i class="fas fa-barcode"></i>
                                         </div>
                                     </div>
                                     <span class="form-error"></span>
@@ -208,9 +227,10 @@
                                         <span class="text-red-500 ml-1">*</span>
                                     </label>
                                     <div class="relative">
-                                        <input id="SerialNumber" name="SerialNumber" class="form-input pl-9" required placeholder="CT20250001">
-                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <i class="fas fa-fingerprint text-gray-400"></i>
+                                        <input id="SerialNumber" name="SerialNumber" class="form-input pl-9" required 
+                                               placeholder="Enter serial number" oninput="updateTagPreview()">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                            <i class="fas fa-fingerprint"></i>
                                         </div>
                                     </div>
                                     <span class="form-error"></span>
@@ -243,7 +263,10 @@
                         
                         <!-- Custom Fields Container -->
                         <div id="custom-fields-container" class="mt-6 border-t border-gray-100 pt-4">
-                            <h4 class="text-sm font-medium text-gray-600 mb-3">Custom Fields</h4>
+                            <div class="flex justify-between items-center mb-3">
+                                <h4 class="text-sm font-medium text-gray-600">Custom Fields</h4>
+                                <span class="text-xs text-gray-500">Drag to reorder</span>
+                            </div>
                             
                             <!-- Custom fields will be added here dynamically -->
                             <div class="custom-fields-list space-y-4">
@@ -256,16 +279,16 @@
                                                 <h5 class="text-sm font-medium custom-field-label">Custom Field</h5>
                                             </div>
                                             <div class="flex items-center space-x-2">
-                                                <button type="button" class="text-gray-500 hover:text-gray-700 edit-custom-field">
+                                                <button type="button" class="text-gray-500 hover:text-gray-700 edit-custom-field p-1 rounded hover:bg-gray-100">
                                                     <i class="fas fa-pencil-alt"></i>
                                                 </button>
-                                                <button type="button" class="text-red-500 hover:text-red-700 remove-custom-field">
+                                                <button type="button" class="text-red-500 hover:text-red-700 remove-custom-field p-1 rounded hover:bg-red-50">
                                                     <i class="fas fa-trash-alt"></i>
                                                 </button>
                                             </div>
                                         </div>
                                         <div class="relative">
-                                            <input type="text" class="form-input custom-field-input" name="custom_fields[0][value]" placeholder="Enter value">
+                                            <input type="text" class="form-input custom-field-input" name="custom_fields[0][value]" placeholder="Enter value" oninput="updateTagPreview()">
                                             <input type="hidden" class="custom-field-key" name="custom_fields[0][key]" value="">
                                             <input type="hidden" class="custom-field-type" name="custom_fields[0][type]" value="text">
                                             <input type="hidden" class="custom-field-icon" name="custom_fields[0][icon]" value="fa-star">
@@ -305,9 +328,10 @@
                             <div class="form-group">
                                 <label for="Location" class="form-label">Location</label>
                                 <div class="relative">
-                                    <input id="Location" name="Location" class="form-input pl-9" placeholder="Chemical Storage Room A">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <i class="fas fa-map-marker-alt text-gray-400"></i>
+                                    <input id="Location" name="Location" class="form-input pl-9" 
+                                           placeholder="Where is this product located?" oninput="updateTagPreview()">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                        <i class="fas fa-map-marker-alt"></i>
                                     </div>
                                 </div>
                                 <span class="form-error"></span>
@@ -317,9 +341,9 @@
                                 <label for="MaintenanceInfo" class="form-label">Maintenance Information</label>
                                 <div class="relative">
                                     <textarea id="MaintenanceInfo" name="MaintenanceInfo" class="form-input h-20 pl-9" 
-                                              placeholder="Store at 10-15°C, away from direct sunlight"></textarea>
-                                    <div class="absolute top-3 left-0 pl-3 flex items-start pointer-events-none">
-                                        <i class="fas fa-wrench text-gray-400"></i>
+                                              placeholder="Enter maintenance instructions or requirements" oninput="updateTagPreview()"></textarea>
+                                    <div class="absolute top-3 left-0 pl-3 flex items-start pointer-events-none text-gray-400">
+                                        <i class="fas fa-wrench"></i>
                                     </div>
                                 </div>
                                 <span class="form-error"></span>
@@ -333,9 +357,9 @@
                                     <span class="text-red-500 ml-1">*</span>
                                 </label>
                                 <div class="relative">
-                                    <input id="ManufactureDate" name="ManufactureDate" type="date" class="form-input pl-9" required>
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <i class="fas fa-calendar-day text-gray-400"></i>
+                                    <input id="ManufactureDate" name="ManufactureDate" type="date" class="form-input pl-9" required onchange="updateTagPreview()">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                        <i class="fas fa-calendar-day"></i>
                                     </div>
                                 </div>
                                 <span class="form-error"></span>
@@ -347,9 +371,9 @@
                                     <span class="text-red-500 ml-1">*</span>
                                 </label>
                                 <div class="relative">
-                                    <input id="PurchaseDate" name="PurchaseDate" type="date" class="form-input pl-9" required>
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <i class="fas fa-shopping-cart text-gray-400"></i>
+                                    <input id="PurchaseDate" name="PurchaseDate" type="date" class="form-input pl-9" required onchange="updateTagPreview()">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                        <i class="fas fa-shopping-cart"></i>
                                     </div>
                                 </div>
                                 <span class="form-error"></span>
@@ -361,9 +385,9 @@
                                     <span class="text-red-500 ml-1">*</span>
                                 </label>
                                 <div class="relative">
-                                    <input id="WarrantyExpiration" name="WarrantyExpiration" type="date" class="form-input pl-9" required>
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <i class="fas fa-shield-alt text-gray-400"></i>
+                                    <input id="WarrantyExpiration" name="WarrantyExpiration" type="date" class="form-input pl-9" required onchange="updateTagPreview()">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                        <i class="fas fa-shield-alt"></i>
                                     </div>
                                 </div>
                                 <span class="form-error"></span>
@@ -458,15 +482,14 @@
                                 <label for="BackgroundColor" class="form-label">Background Color</label>
                                 <div class="color-picker-wrapper">
                                 <div class="flex">
-                                    <input type="color" class="color-input hidden" id="bg-color-picker">
-                                    <div class="color-preview w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer" id="bg-color-preview" style="background-color: #ffffff"></div>
-                                    <input id="BackgroundColor" name="BackgroundColor" type="text" class="form-input ml-2 flex-grow" placeholder="#ffffff" value="#ffffff">
+                                    <input type="color" class="color-input w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer" id="bg-color-picker" value="#ffffff" oninput="updateTagPreview()">
+                                    <input id="BackgroundColor" name="BackgroundColor" type="text" class="form-input ml-2 flex-grow" placeholder="#ffffff" value="#ffffff" oninput="updateColorPicker('bg-color-picker', this.value); updateTagPreview()">
                                 </div>
                                     <div class="color-presets mt-2 flex flex-wrap gap-2">
                                         <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#ffffff" style="background-color: #ffffff;"></span>
                                         <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#f8fafc" style="background-color: #f8fafc;"></span>
                                         <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#f0f9ff" style="background-color: #f0f9ff;"></span>
-                                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#1e293b" style="background-color: #1e293b;"></span>
+                                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#ecfdf5" style="background-color: #ecfdf5;"></span>
                                     </div>
                                 </div>
                                 <span class="form-error"></span>
@@ -476,13 +499,13 @@
                                 <label for="TextColor" class="form-label">Text Color</label>
                                 <div class="color-picker-wrapper">
                                     <div class="flex">
-                                        <input type="color" class="color-input w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer" id="text-color-picker" value="#000000">
-                                        <input id="TextColor" name="TextColor" type="text" class="form-input ml-2 flex-grow" placeholder="#000000" value="#000000">
+                                        <input type="color" class="color-input w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer" id="text-color-picker" value="#000000" oninput="updateTagPreview()">
+                                        <input id="TextColor" name="TextColor" type="text" class="form-input ml-2 flex-grow" placeholder="#000000" value="#000000" oninput="updateColorPicker('text-color-picker', this.value); updateTagPreview()">
                                     </div>
                                     <div class="color-presets mt-2 flex flex-wrap gap-2">
                                         <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#000000" style="background-color: #000000;"></span>
                                         <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#1e293b" style="background-color: #1e293b;"></span>
-                                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#ffffff" style="background-color: #ffffff;"></span>
+                                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#334155" style="background-color: #334155;"></span>
                                         <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#64748b" style="background-color: #64748b;"></span>
                                     </div>
                                 </div>
@@ -493,8 +516,8 @@
                                 <label for="AccentColor" class="form-label">Accent Color</label>
                                 <div class="color-picker-wrapper">
                                     <div class="flex">
-                                        <input type="color" class="color-input w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer" id="accent-color-picker" value="#0284c7">
-                                        <input id="AccentColor" name="AccentColor" type="text" class="form-input ml-2 flex-grow" placeholder="#0284c7" value="#0284c7">
+                                        <input type="color" class="color-input w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer" id="accent-color-picker" value="#0284c7" oninput="updateTagPreview()">
+                                        <input id="AccentColor" name="AccentColor" type="text" class="form-input ml-2 flex-grow" placeholder="#0284c7" value="#0284c7" oninput="updateColorPicker('accent-color-picker', this.value); updateTagPreview()">
                                     </div>
                                     <div class="color-presets mt-2 flex flex-wrap gap-2">
                                         <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#0284c7" style="background-color: #0284c7;"></span>
@@ -507,21 +530,21 @@
                             </div>
                         </div>
                         
-                        <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                        <div class="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-100">
                             <h4 class="text-sm font-medium mb-3">QR Code Options</h4>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label class="text-xs text-gray-600 block mb-1">Foreground Color</label>
                                     <div class="flex">
-                                        <input type="color" class="w-10 h-10 border border-gray-300 rounded-lg cursor-pointer" value="#000000" id="qr-fg-color">
-                                        <input type="text" class="form-input ml-2 flex-grow text-sm" value="#000000" id="qr-fg-color-text">
+                                        <input type="color" class="w-10 h-10 border border-gray-300 rounded-lg cursor-pointer" value="#000000" id="qr-fg-color" oninput="updateQrColors()">
+                                        <input type="text" class="form-input ml-2 flex-grow text-sm" value="#000000" id="qr-fg-color-text" oninput="updateQrColors(true)">
                                     </div>
                                 </div>
                                 <div>
                                     <label class="text-xs text-gray-600 block mb-1">Background Color</label>
                                     <div class="flex">
-                                        <input type="color" class="w-10 h-10 border border-gray-300 rounded-lg cursor-pointer" value="#ffffff" id="qr-bg-color">
-                                        <input type="text" class="form-input ml-2 flex-grow text-sm" value="#ffffff" id="qr-bg-color-text">
+                                        <input type="color" class="w-10 h-10 border border-gray-300 rounded-lg cursor-pointer" value="#ffffff" id="qr-bg-color" oninput="updateQrColors()">
+                                        <input type="text" class="form-input ml-2 flex-grow text-sm" value="#ffffff" id="qr-bg-color-text" oninput="updateQrColors(true)">
                                     </div>
                                 </div>
                             </div>
@@ -562,7 +585,7 @@
         <div class="sticky top-6 space-y-4">
             <div class="flex justify-between items-center mb-2">
                 <h3 class="text-lg font-bold text-gray-800 flex items-center">
-                    <i class="fas fa-eye text-primary-500 mr-2"></i> Tag Preview
+                    <i class="fas fa-eye text-primary-500 mr-2"></i> Live Preview
                 </h3>
                 <div class="preview-controls flex gap-2">
                     <button type="button" class="text-sm text-gray-600 hover:text-gray-800 flex items-center p-1 hover:bg-gray-100 rounded transition-colors" id="rotate-preview">
@@ -622,11 +645,25 @@
             <div class="card p-4">
                 <h4 class="text-sm font-medium mb-3">QR Code Preview</h4>
                 <div class="flex justify-center">
-                    <div class="qr-preview p-3 bg-white border border-gray-200 rounded-lg shadow-sm">
-                        <div class="w-32 h-32 bg-gray-100 flex items-center justify-center">
-                            <i class="fas fa-qrcode text-gray-400 text-4xl"></i>
+                    <div id="qr-code-container" class="p-3 bg-white border border-gray-200 rounded-lg shadow-sm relative">
+                        <div class="relative">
+                            <div id="qr-code" class="w-32 h-32 flex items-center justify-center bg-white">
+                                <canvas id="qr-canvas" width="128" height="128"></canvas>
+                                <div class="absolute inset-0 flex items-center justify-center qr-loading">
+                                    <i class="fas fa-qrcode text-gray-300 text-4xl"></i>
+                                </div>
+                            </div>
+                            <div class="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 qr-hover-info bg-white bg-opacity-90 rounded">
+                                <div class="text-center">
+                                    <i class="fas fa-search-plus text-primary-500 mb-1"></i>
+                                    <p class="text-xs text-gray-600">Scan to view details</p>
+                                </div>
+                            </div>
                         </div>
                         <p class="text-center text-xs mt-2 text-gray-500">Scan for product details</p>
+                        <div class="absolute -top-8 right-2 p-2 rounded-full bg-gray-50 shadow-sm text-xs text-gray-500 opacity-0 transition-opacity qr-info">
+                            <i class="fas fa-info-circle"></i> Product QR Code
+                        </div>
                     </div>
                 </div>
             </div>
@@ -756,11 +793,30 @@
     </div>
 </div>
 
+<!-- Success Notification Toast -->
+<div id="success-toast" class="fixed right-4 bottom-4 bg-white rounded-lg shadow-lg border-l-4 border-green-500 p-4 transform translate-y-20 opacity-0 transition-all duration-300 z-50 max-w-sm hidden">
+    <div class="flex items-center">
+        <div class="flex-shrink-0 mr-3">
+            <i class="fas fa-check-circle text-green-500 text-2xl"></i>
+        </div>
+        <div>
+            <h4 class="text-sm font-medium text-gray-800">Success!</h4>
+            <p class="text-sm text-gray-600" id="toast-message">Your product tag has been created successfully.</p>
+        </div>
+        <button class="ml-auto text-gray-400 hover:text-gray-500" onclick="hideToast()">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+</div>
+
 @section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script>
-        // Define global variables for custom fields
-        let customFieldsCount = 0;
-        let customFields = [];
+        // Function to update QR color values to hidden fields
+        function updateQrColors() {
+            document.getElementById('qrFgColorHidden').value = document.getElementById('qr-fg-color').value || '#000000';
+            document.getElementById('qrBgColorHidden').value = document.getElementById('qr-bg-color').value || '#FFFFFF';
+        }
         
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize all form components
@@ -769,7 +825,6 @@
             initializeCardLayouts();
             initializeImageUpload();
             initializeTemplates();
-            initializeCustomFields();
             updateTagPreview();
             
             // Step navigation
@@ -843,8 +898,6 @@
                     const formTop = document.getElementById('product-form').getBoundingClientRect().top + window.pageYOffset - 100;
                     window.scrollTo({top: formTop, behavior: 'smooth'});
                 }
-                
-                window.goToStep = goToStep; // Make accessible globally for use in other functions
                 
                 // Next step buttons
                 nextButtons.forEach(button => {
@@ -1031,7 +1084,7 @@
                 });
                 
                 // Connect text inputs to color pickers
-                const textColorInputs = document.querySelectorAll('input[type="text"][id$="Color"]');
+                const textColorInputs = document.querySelectorAll('input[type="text"][asp-for]');
                 textColorInputs.forEach(input => {
                     if (input.id.includes('Color')) {
                         input.addEventListener('input', function() {
@@ -1080,24 +1133,24 @@
                 if (qrFgColor && qrFgColorText) {
                     qrFgColor.addEventListener('input', function() {
                         qrFgColorText.value = this.value;
-                        document.getElementById('qrFgColorHidden').value = this.value;
+                        updateQrColors();
                     });
                     
                     qrFgColorText.addEventListener('input', function() {
                         qrFgColor.value = this.value;
-                        document.getElementById('qrFgColorHidden').value = this.value;
+                        updateQrColors();
                     });
                 }
                 
                 if (qrBgColor && qrBgColorText) {
                     qrBgColor.addEventListener('input', function() {
                         qrBgColorText.value = this.value;
-                        document.getElementById('qrBgColorHidden').value = this.value;
+                        updateQrColors();
                     });
                     
                     qrBgColorText.addEventListener('input', function() {
                         qrBgColor.value = this.value;
-                        document.getElementById('qrBgColorHidden').value = this.value;
+                        updateQrColors();
                     });
                 }
             }
@@ -1182,15 +1235,9 @@
                                         <i class="fas fa-calendar-check mr-3" style="color: ${document.getElementById('accent-color-picker').value}"></i>
                                         <span class="font-medium">Warranty:</span>&nbsp;<span id="preview-warranty">${formatDate(document.getElementById('WarrantyExpiration').value) || 'Jan 1, 2026'}</span>
                                     </p>
-                                    <div id="preview-custom-fields" class="space-y-2 border-t border-gray-100 pt-2 mt-2">
-                                        <!-- Custom fields will be dynamically added here -->
-                                    </div>
                                 </div>
                             </div>
                         `;
-                        
-                        // Update custom fields in preview
-                        updateCustomFieldsPreview();
                     }
                 } else if (layoutType === 'compact') {
                     // Compact layout with side QR
@@ -1199,7 +1246,7 @@
                         content.className = 'h-full flex';
                         content.innerHTML = `
                             <div class="flex-grow p-4">
-                                <span id="preview-category" class="px-2 py-1 text-xs font-semibold rounded-full" style="background-color: ${document.getElementById('accent-color-picker').value}; color: ${document.getElementById('bg-color-picker').value || '#ffffff'}">
+                                <span id="preview-category" class="px-2 py-1 text-xs font-semibold rounded-full" style="background-color: ${document.getElementById('accent-color-picker').value}; color: ${document.getElementById('bg-color-picker').value}">
                                     ${document.getElementById('Category').value || 'Product Category'}
                                 </span>
                                 <h3 id="preview-name" class="text-lg font-bold mt-2" style="color: ${document.getElementById('accent-color-picker').value}">${document.getElementById('ProductName').value || 'Product Name'}</h3>
@@ -1220,9 +1267,6 @@
                                         <i class="fas fa-map-marker-alt mr-2" style="color: ${document.getElementById('accent-color-picker').value}"></i>
                                         ${document.getElementById('Location').value || 'Storage Location'}
                                     </p>
-                                    <div id="preview-custom-fields" class="space-y-1 mt-2 pt-2 border-t border-gray-100">
-                                        <!-- Custom fields will be dynamically added here -->
-                                    </div>
                                 </div>
                             </div>
                             <div class="w-1/3 bg-gray-50 rounded-r-lg flex items-center justify-center">
@@ -1234,9 +1278,6 @@
                                 </div>
                             </div>
                         `;
-                        
-                        // Update custom fields in preview
-                        updateCustomFieldsPreview();
                     }
                 } else {
                     // Standard layout
@@ -1324,302 +1365,9 @@
                 }
             }
             
-            // Initialize custom fields
-            function initializeCustomFields() {
-                const addCustomFieldBtn = document.getElementById('add-custom-field');
-                const addFirstCustomFieldBtn = document.getElementById('add-first-custom-field');
-                const customFieldsContainer = document.getElementById('custom-fields-container');
-                const customFieldsList = document.querySelector('.custom-fields-list');
-                const customFieldsEmpty = document.getElementById('custom-fields-empty');
-                const customFieldTemplate = document.getElementById('custom-field-template');
-                const customFieldModal = document.getElementById('custom-field-modal');
-                const closeModalBtn = document.getElementById('close-modal');
-                const cancelCustomFieldBtn = document.getElementById('cancel-custom-field');
-                const customFieldForm = document.getElementById('custom-field-form');
-                const iconOptions = document.querySelectorAll('.icon-option');
-                
-                // Add custom field button click
-                addCustomFieldBtn.addEventListener('click', function() {
-                    openCustomFieldModal();
-                });
-                
-                addFirstCustomFieldBtn.addEventListener('click', function() {
-                    openCustomFieldModal();
-                });
-                
-                // Close modal buttons
-                closeModalBtn.addEventListener('click', closeCustomFieldModal);
-                cancelCustomFieldBtn.addEventListener('click', closeCustomFieldModal);
-                
-                // Close modal when clicking outside
-                customFieldModal.addEventListener('click', function(e) {
-                    if (e.target === customFieldModal) {
-                        closeCustomFieldModal();
-                    }
-                });
-                
-                // Icon selection
-                iconOptions.forEach(option => {
-                    option.addEventListener('click', function() {
-                        iconOptions.forEach(opt => opt.classList.remove('bg-primary-100', 'active'));
-                        this.classList.add('bg-primary-100', 'active');
-                        document.getElementById('custom-field-icon').value = this.getAttribute('data-icon');
-                    });
-                });
-                
-                // Custom field form submission
-                customFieldForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    
-                    const fieldName = document.getElementById('custom-field-name').value;
-                    const fieldType = document.getElementById('custom-field-type').value;
-                    const fieldIcon = document.getElementById('custom-field-icon').value;
-                    const fieldDefault = document.getElementById('custom-field-default').value;
-                    const editIndex = parseInt(document.getElementById('edit-field-index').value);
-                    
-                    if (editIndex >= 0) {
-                        // Update existing field
-                        updateCustomField(editIndex, fieldName, fieldType, fieldIcon, fieldDefault);
-                    } else {
-                        // Add new field
-                        addCustomField(fieldName, fieldType, fieldIcon, fieldDefault);
-                    }
-                    
-                    closeCustomFieldModal();
-                    updateTagPreview();
-                });
-                
-                // Open custom field modal
-                function openCustomFieldModal(fieldIndex = -1) {
-                    // Clear the form
-                    customFieldForm.reset();
-                    document.getElementById('edit-field-index').value = fieldIndex;
-                    
-                    // Reset icon selection
-                    iconOptions.forEach(opt => opt.classList.remove('bg-primary-100', 'active'));
-                    iconOptions[0].classList.add('bg-primary-100', 'active');
-                    document.getElementById('custom-field-icon').value = 'fa-star';
-                    
-                    // Set title
-                    document.getElementById('modal-title').textContent = fieldIndex >= 0 ? 'Edit Custom Field' : 'Add Custom Field';
-                    
-                    // If editing, populate form with existing field data
-                    if (fieldIndex >= 0) {
-                        const field = customFields[fieldIndex];
-                        document.getElementById('custom-field-name').value = field.name;
-                        document.getElementById('custom-field-type').value = field.type;
-                        document.getElementById('custom-field-default').value = field.value;
-                        document.getElementById('custom-field-icon').value = field.icon;
-                        
-                        // Select the corresponding icon
-                        iconOptions.forEach(opt => {
-                            if (opt.getAttribute('data-icon') === field.icon) {
-                                opt.classList.add('bg-primary-100', 'active');
-                            }
-                        });
-                    }
-                    
-                    // Show the modal
-                    customFieldModal.classList.remove('hidden');
-                }
-                
-                // Close custom field modal
-                function closeCustomFieldModal() {
-                    customFieldModal.classList.add('hidden');
-                }
-                
-                // Add custom field
-                function addCustomField(name, type, icon, defaultValue = '') {
-                    // Create new field
-                    const fieldId = `custom-field-${customFieldsCount}`;
-                    const field = {
-                        id: fieldId,
-                        name: name,
-                        type: type,
-                        icon: icon,
-                        value: defaultValue
-                    };
-                    
-                    // Add to fields array
-                    customFields.push(field);
-                    
-                    // Create DOM element
-                    const newField = customFieldTemplate.cloneNode(true);
-                    newField.id = fieldId;
-                    newField.classList.remove('hidden');
-                    
-                    // Set field content
-                    newField.querySelector('.custom-field-label').textContent = name;
-                    newField.querySelector('.custom-field-input').name = `custom_fields[${customFieldsCount}][value]`;
-                    newField.querySelector('.custom-field-input').value = defaultValue;
-                    newField.querySelector('.custom-field-input').placeholder = `Enter ${name}`;
-                    
-                    // Set field type
-                    newField.querySelector('.custom-field-input').type = type === 'number' ? 'number' : 
-                                                                         type === 'date' ? 'date' : 
-                                                                         type === 'email' ? 'email' : 
-                                                                         type === 'url' ? 'url' : 
-                                                                         type === 'phone' ? 'tel' : 'text';
-                    
-                    // Set hidden values
-                    newField.querySelector('.custom-field-key').name = `custom_fields[${customFieldsCount}][key]`;
-                    newField.querySelector('.custom-field-key').value = name.toLowerCase().replace(/\s+/g, '_');
-                    
-                    newField.querySelector('.custom-field-type').name = `custom_fields[${customFieldsCount}][type]`;
-                    newField.querySelector('.custom-field-type').value = type;
-                    
-                    newField.querySelector('.custom-field-icon').name = `custom_fields[${customFieldsCount}][icon]`;
-                    newField.querySelector('.custom-field-icon').value = icon;
-                    
-                    // Set icon
-                    newField.querySelector('.custom-field-icon-display i').className = `fas ${icon}`;
-                    
-                    // Add event listeners
-                    newField.querySelector('.edit-custom-field').addEventListener('click', function() {
-                        const fieldIndex = customFields.findIndex(f => f.id === fieldId);
-                        if (fieldIndex >= 0) {
-                            openCustomFieldModal(fieldIndex);
-                        }
-                    });
-                    
-                    newField.querySelector('.remove-custom-field').addEventListener('click', function() {
-                        const fieldIndex = customFields.findIndex(f => f.id === fieldId);
-                        if (fieldIndex >= 0) {
-                            customFields.splice(fieldIndex, 1);
-                            newField.remove();
-                            
-                            // Show empty state if no fields
-                            if (customFields.length === 0) {
-                                customFieldsEmpty.classList.remove('hidden');
-                            }
-                            
-                            updateTagPreview();
-                        }
-                    });
-                    
-                    // Add input change handler to update preview
-                    newField.querySelector('.custom-field-input').addEventListener('input', function() {
-                        const fieldIndex = customFields.findIndex(f => f.id === fieldId);
-                        if (fieldIndex >= 0) {
-                            customFields[fieldIndex].value = this.value;
-                            updateTagPreview();
-                        }
-                    });
-                    
-                    // Append to list
-                    customFieldsList.appendChild(newField);
-                    
-                    // Increment counter
-                    customFieldsCount++;
-                    
-                    // Hide empty state
-                    customFieldsEmpty.classList.add('hidden');
-                    
-                    return field;
-                }
-                
-                // Update existing custom field
-                function updateCustomField(index, name, type, icon, value) {
-                    const field = customFields[index];
-                    if (!field) return;
-                    
-                    // Update field data
-                    field.name = name;
-                    field.type = type;
-                    field.icon = icon;
-                    field.value = value;
-                    
-                    // Update DOM element
-                    const fieldElement = document.getElementById(field.id);
-                    if (fieldElement) {
-                        fieldElement.querySelector('.custom-field-label').textContent = name;
-                        
-                        const inputElement = fieldElement.querySelector('.custom-field-input');
-                        inputElement.value = value;
-                        inputElement.placeholder = `Enter ${name}`;
-                        inputElement.type = type === 'number' ? 'number' : 
-                                            type === 'date' ? 'date' : 
-                                            type === 'email' ? 'email' : 
-                                            type === 'url' ? 'url' : 
-                                            type === 'phone' ? 'tel' : 'text';
-                        
-                        // Update hidden values
-                        fieldElement.querySelector('.custom-field-key').value = name.toLowerCase().replace(/\s+/g, '_');
-                        fieldElement.querySelector('.custom-field-type').value = type;
-                        fieldElement.querySelector('.custom-field-icon').value = icon;
-                        
-                        // Update icon
-                        fieldElement.querySelector('.custom-field-icon-display i').className = `fas ${icon}`;
-                    }
-                }
-                
-                // Add to window for global access
-                window.customFieldsManager = {
-                    addCustomField,
-                    updateCustomField,
-                    openCustomFieldModal,
-                    closeCustomFieldModal
-                };
-            }
-            
-            // Update custom fields in preview
-            function updateCustomFieldsPreview() {
-                const previewCustomFields = document.getElementById('preview-custom-fields');
-                if (!previewCustomFields) return;
-                
-                // Clear existing fields
-                previewCustomFields.innerHTML = '';
-                
-                // If no custom fields, hide the container
-                if (customFields.length === 0) {
-                    previewCustomFields.style.display = 'none';
-                    return;
-                }
-                
-                // Show the container
-                previewCustomFields.style.display = 'block';
-                
-                // Get card layout type
-                const layoutType = document.querySelector('.layout-option.active').getAttribute('data-layout');
-                const isCompact = layoutType === 'compact';
-                
-                // Add each custom field
-                customFields.forEach(field => {
-                    const fieldElement = document.createElement('p');
-                    fieldElement.className = 'flex items-center';
-                    
-                    const iconMargin = isCompact ? 'mr-2' : 'mr-3';
-                    
-                    fieldElement.innerHTML = `
-                        <i class="fas ${field.icon} ${iconMargin}" style="color: ${document.getElementById('accent-color-picker').value}"></i>
-                        <span class="font-medium">${field.name}:</span>&nbsp;<span>${field.value || '—'}</span>
-                    `;
-                    
-                    previewCustomFields.appendChild(fieldElement);
-                });
-            }
-            
             // Template application
             function initializeTemplates() {
                 const templates = document.querySelectorAll('.template-card');
-                const showMoreTemplatesBtn = document.getElementById('show-more-templates');
-                const hideMoreTemplatesBtn = document.getElementById('hide-more-templates');
-                const advancedTemplates = document.getElementById('advanced-templates');
-                
-                // Show/hide advanced templates
-                if (showMoreTemplatesBtn && hideMoreTemplatesBtn && advancedTemplates) {
-                    showMoreTemplatesBtn.addEventListener('click', function() {
-                        advancedTemplates.classList.remove('hidden');
-                        showMoreTemplatesBtn.classList.add('hidden');
-                        hideMoreTemplatesBtn.classList.remove('hidden');
-                    });
-                    
-                    hideMoreTemplatesBtn.addEventListener('click', function() {
-                        advancedTemplates.classList.add('hidden');
-                        showMoreTemplatesBtn.classList.remove('hidden');
-                        hideMoreTemplatesBtn.classList.add('hidden');
-                    });
-                }
                 
                 templates.forEach(template => {
                     template.addEventListener('click', function() {
@@ -1637,346 +1385,111 @@
             
             // Apply predefined templates
             function applyTemplate(type) {
-                // Reset custom fields
-                customFields = [];
-                document.querySelector('.custom-fields-list').innerHTML = '';
-                document.querySelector('.custom-fields-list').appendChild(document.getElementById('custom-field-template'));
-                document.getElementById('custom-fields-empty').classList.remove('hidden');
-                
-                // Common fields setup function
-                function setupCommonFields(data) {
-                    document.getElementById('ProductName').value = data.name;
-                    document.getElementById('Category').value = data.category;
-                    document.getElementById('Manufacturer').value = data.manufacturer;
-                    document.getElementById('ModelNumber').value = data.model;
-                    document.getElementById('SerialNumber').value = data.serial;
-                    document.getElementById('Location').value = data.location;
-                    document.getElementById('MaintenanceInfo').value = data.maintenance;
+                if (type === 'chemical') {
+                    document.getElementById('ProductName').value = 'RustShield Pro 5000';
+                    document.getElementById('Category').value = 'Rust Coating Chemical';
+                    document.getElementById('Manufacturer').value = 'ChemTech Industries';
+                    document.getElementById('ModelNumber').value = 'RS-5000-X';
+                    document.getElementById('SerialNumber').value = 'CT20250001';
+                    document.getElementById('Location').value = 'Chemical Storage Room A';
+                    document.getElementById('MaintenanceInfo').value = 'Store at 10-15°C, away from direct sunlight';
                     
                     // Set dates
                     const today = new Date();
                     const manufactureDate = new Date(today);
-                    manufactureDate.setMonth(manufactureDate.getMonth() - data.ageMonths);
+                    manufactureDate.setMonth(manufactureDate.getMonth() - 2);
                     
                     const purchaseDate = new Date(today);
-                    purchaseDate.setMonth(purchaseDate.getMonth() - data.ageMonths + 1);
+                    purchaseDate.setMonth(purchaseDate.getMonth() - 1);
                     
                     const warrantyDate = new Date(today);
-                    warrantyDate.setFullYear(warrantyDate.getFullYear() + data.warrantyYears);
+                    warrantyDate.setFullYear(warrantyDate.getFullYear() + 2);
                     
                     document.getElementById('ManufactureDate').value = formatDateForInput(manufactureDate);
                     document.getElementById('PurchaseDate').value = formatDateForInput(purchaseDate);
                     document.getElementById('WarrantyExpiration').value = formatDateForInput(warrantyDate);
                     
                     // Set colors
-                    document.getElementById('bg-color-picker').value = data.colors.bg;
-                    document.getElementById('text-color-picker').value = data.colors.text;
-                    document.getElementById('accent-color-picker').value = data.colors.accent;
+                    document.getElementById('bg-color-picker').value = '#ffffff';
+                    document.getElementById('text-color-picker').value = '#1e293b';
+                    document.getElementById('accent-color-picker').value = '#0284c7';
                     
                     // Update text inputs
-                    document.getElementById('BackgroundColor').value = data.colors.bg;
-                    document.getElementById('TextColor').value = data.colors.text;
-                    document.getElementById('AccentColor').value = data.colors.accent;
+                    document.querySelector('input[asp-for="BackgroundColor"]').value = '#ffffff';
+                    document.querySelector('input[asp-for="TextColor"]').value = '#1e293b';
+                    document.querySelector('input[asp-for="AccentColor"]').value = '#0284c7';
                     
-                    // Add custom fields
-                    if (data.customFields && data.customFields.length) {
-                        data.customFields.forEach(field => {
-                            window.customFieldsManager.addCustomField(
-                                field.name,
-                                field.type,
-                                field.icon,
-                                field.value
-                            );
-                        });
-                        
-                        // Hide empty state
-                        document.getElementById('custom-fields-empty').classList.add('hidden');
-                    }
-                    
-                    // Set card layout if specified
-                    if (data.layout) {
-                        const layoutOption = document.querySelector(`.layout-option[data-layout="${data.layout}"]`);
-                        if (layoutOption) {
-                            // Trigger click to update layout
-                            layoutOption.click();
-                        }
-                    }
-                    
-                    showNotification(`${type.charAt(0).toUpperCase() + type.slice(1)} template applied successfully`, 'success');
-                }
-                
-                if (type === 'chemical') {
-                    setupCommonFields({
-                        name: 'RustShield Pro 5000',
-                        category: 'Rust Coating Chemical',
-                        manufacturer: 'ChemTech Industries',
-                        model: 'RS-5000-X',
-                        serial: 'CT20250001',
-                        location: 'Chemical Storage Room A',
-                        maintenance: 'Store at 10-15°C, away from direct sunlight. Rotate stock every 6 months.',
-                        ageMonths: 2,
-                        warrantyYears: 2,
-                        colors: {
-                            bg: '#ffffff',
-                            text: '#1e293b',
-                            accent: '#0284c7'
-                        },
-                        layout: 'standard',
-                        customFields: [
-                            {
-                                name: 'Safety Class',
-                                type: 'text',
-                                icon: 'fa-exclamation-triangle',
-                                value: 'Class B - Moderate'
-                            },
-                            {
-                                name: 'Batch Number',
-                                type: 'text',
-                                icon: 'fa-hashtag',
-                                value: 'BN-2025-4872'
-                            }
-                        ]
-                    });
-                    
+                    showNotification('Chemical product template applied', 'success');
                 } else if (type === 'equipment') {
-                    setupCommonFields({
-                        name: 'Industrial Spray Booth',
-                        category: 'Application Equipment',
-                        manufacturer: 'SprayTech',
-                        model: 'SB-2000',
-                        serial: 'ST2024789',
-                        location: 'Building 2, Bay 4',
-                        maintenance: 'Filter replacement every 3 months. Monthly calibration check required.',
-                        ageMonths: 4,
-                        warrantyYears: 3,
-                        colors: {
-                            bg: '#f8fafc',
-                            text: '#334155',
-                            accent: '#6366f1'
-                        },
-                        layout: 'modern',
-                        customFields: [
-                            {
-                                name: 'Last Service',
-                                type: 'date',
-                                icon: 'fa-calendar-check',
-                                value: formatDateForInput(new Date())
-                            },
-                            {
-                                name: 'Service Contact',
-                                type: 'phone',
-                                icon: 'fa-phone',
-                                value: '+66 123-456-7890'
-                            },
-                            {
-                                name: 'Power Rating',
-                                type: 'text',
-                                icon: 'fa-bolt',
-                                value: '240V / 30A'
-                            }
-                        ]
-                    });
+                    document.getElementById('ProductName').value = 'Industrial Spray Booth';
+                    document.getElementById('Category').value = 'Application Equipment';
+                    document.getElementById('Manufacturer').value = 'SprayTech';
+                    document.getElementById('ModelNumber').value = 'SB-2000';
+                    document.getElementById('SerialNumber').value = 'ST2024789';
+                    document.getElementById('Location').value = 'Building 2, Bay 4';
+                    document.getElementById('MaintenanceInfo').value = 'Filter replacement every 3 months';
                     
+                    // Set dates
+                    const today = new Date();
+                    const manufactureDate = new Date(today);
+                    manufactureDate.setMonth(manufactureDate.getMonth() - 4);
+                    
+                    const purchaseDate = new Date(today);
+                    purchaseDate.setMonth(purchaseDate.getMonth() - 3);
+                    
+                    const warrantyDate = new Date(today);
+                    warrantyDate.setFullYear(warrantyDate.getFullYear() + 2);
+                    
+                    document.getElementById('ManufactureDate').value = formatDateForInput(manufactureDate);
+                    document.getElementById('PurchaseDate').value = formatDateForInput(purchaseDate);
+                    document.getElementById('WarrantyExpiration').value = formatDateForInput(warrantyDate);
+                    
+                    // Set colors
+                    document.getElementById('bg-color-picker').value = '#f8fafc';
+                    document.getElementById('text-color-picker').value = '#334155';
+                    document.getElementById('accent-color-picker').value = '#6366f1';
+                    
+                    // Update text inputs
+                    document.querySelector('input[asp-for="BackgroundColor"]').value = '#f8fafc';
+                    document.querySelector('input[asp-for="TextColor"]').value = '#334155';
+                    document.querySelector('input[asp-for="AccentColor"]').value = '#6366f1';
+                    
+                    showNotification('Equipment template applied', 'success');
                 } else if (type === 'safety') {
-                    setupCommonFields({
-                        name: 'Emergency Eye Wash Station',
-                        category: 'Safety Equipment',
-                        manufacturer: 'SafetyFirst Inc.',
-                        model: 'EW-100',
-                        serial: 'SF20245582',
-                        location: 'Chemical Processing Area',
-                        maintenance: 'Weekly testing required. Monthly full inspection. Maintain water pressure of 30-90 PSI.',
-                        ageMonths: 6,
-                        warrantyYears: 5,
-                        colors: {
-                            bg: '#fffbeb',
-                            text: '#451a03',
-                            accent: '#ea580c'
-                        },
-                        layout: 'compact',
-                        customFields: [
-                            {
-                                name: 'Last Test',
-                                type: 'date',
-                                icon: 'fa-calendar',
-                                value: formatDateForInput(new Date())
-                            },
-                            {
-                                name: 'Inspection Frequency',
-                                type: 'text',
-                                icon: 'fa-clock',
-                                value: 'Weekly'
-                            },
-                            {
-                                name: 'Safety Coordinator',
-                                type: 'text',
-                                icon: 'fa-user',
-                                value: 'Somchai Jaidee'
-                            }
-                        ]
-                    });
+                    document.getElementById('ProductName').value = 'Emergency Eye Wash Station';
+                    document.getElementById('Category').value = 'Safety Equipment';
+                    document.getElementById('Manufacturer').value = 'SafetyFirst Inc.';
+                    document.getElementById('ModelNumber').value = 'EW-100';
+                    document.getElementById('SerialNumber').value = 'SF20245582';
+                    document.getElementById('Location').value = 'Chemical Processing Area';
+                    document.getElementById('MaintenanceInfo').value = 'Weekly testing required. Monthly full inspection.';
                     
-                } else if (type === 'office') {
-                    setupCommonFields({
-                        name: 'ThinkPad X1 Carbon',
-                        category: 'Office Equipment',
-                        manufacturer: 'Lenovo',
-                        model: 'X1 Carbon Gen 10',
-                        serial: 'LNV204925XC',
-                        location: 'Engineering Dept, 3rd Floor',
-                        maintenance: 'Monthly OS updates. Annual hardware checkup by IT.',
-                        ageMonths: 8,
-                        warrantyYears: 3,
-                        colors: {
-                            bg: '#f0f9ff',
-                            text: '#0f172a',
-                            accent: '#0ea5e9'
-                        },
-                        layout: 'standard',
-                        customFields: [
-                            {
-                                name: 'Assigned To',
-                                type: 'text',
-                                icon: 'fa-user',
-                                value: 'Pranee Chanthasad'
-                            },
-                            {
-                                name: 'IT Tag',
-                                type: 'text',
-                                icon: 'fa-tag',
-                                value: 'IT-LT-2254'
-                            },
-                            {
-                                name: 'IP Address',
-                                type: 'text',
-                                icon: 'fa-network-wired',
-                                value: '192.168.1.45'
-                            }
-                        ]
-                    });
+                    // Set dates
+                    const today = new Date();
+                    const manufactureDate = new Date(today);
+                    manufactureDate.setMonth(manufactureDate.getMonth() - 6);
                     
-                } else if (type === 'laboratory') {
-                    setupCommonFields({
-                        name: 'Digital Microscope XM200',
-                        category: 'Lab Equipment',
-                        manufacturer: 'OpticalPro',
-                        model: 'XM200-HD',
-                        serial: 'OP2025768Q',
-                        location: 'Quality Control Lab, Room 105',
-                        maintenance: 'Monthly lens cleaning. Bi-annual calibration required.',
-                        ageMonths: 5,
-                        warrantyYears: 2,
-                        colors: {
-                            bg: '#f5f3ff',
-                            text: '#1e1b4b',
-                            accent: '#7c3aed'
-                        },
-                        layout: 'modern',
-                        customFields: [
-                            {
-                                name: 'Magnification',
-                                type: 'text',
-                                icon: 'fa-search-plus',
-                                value: '50-1000x'
-                            },
-                            {
-                                name: 'Last Calibration',
-                                type: 'date',
-                                icon: 'fa-calendar-check',
-                                value: formatDateForInput(new Date())
-                            },
-                            {
-                                name: 'Resolution',
-                                type: 'text',
-                                icon: 'fa-compress-arrows-alt',
-                                value: '1920x1080 HD'
-                            }
-                        ]
-                    });
+                    const purchaseDate = new Date(today);
+                    purchaseDate.setMonth(purchaseDate.getMonth() - 5);
                     
-                } else if (type === 'maintenance') {
-                    setupCommonFields({
-                        name: 'Hydraulic Press HP-500',
-                        category: 'Application Equipment',
-                        manufacturer: 'PressMax Industrial',
-                        model: 'HP-500',
-                        serial: 'PMI-2024-1456',
-                        location: 'Production Floor, Section C',
-                        maintenance: 'Weekly oil level check. Quarterly seal inspection. Annual full service.',
-                        ageMonths: 10,
-                        warrantyYears: 5,
-                        colors: {
-                            bg: '#fefce8',
-                            text: '#422006',
-                            accent: '#ca8a04'
-                        },
-                        layout: 'compact',
-                        customFields: [
-                            {
-                                name: 'Max Pressure',
-                                type: 'text',
-                                icon: 'fa-tachometer-alt',
-                                value: '500 tons'
-                            },
-                            {
-                                name: 'Oil Type',
-                                type: 'text',
-                                icon: 'fa-oil-can',
-                                value: 'HLP-46 Hydraulic'
-                            },
-                            {
-                                name: 'Service Manual',
-                                type: 'url',
-                                icon: 'fa-file-pdf',
-                                value: 'https://intranet.thaiparker.co.th/manuals/hp500'
-                            }
-                        ]
-                    });
+                    const warrantyDate = new Date(today);
+                    warrantyDate.setFullYear(warrantyDate.getFullYear() + 5);
                     
-                } else if (type === 'it') {
-                    setupCommonFields({
-                        name: 'Network Switch 48-Port',
-                        category: 'IT Equipment',
-                        manufacturer: 'Cisco',
-                        model: 'C9300-48P',
-                        serial: 'FDO2413Z1AB',
-                        location: 'Server Room, Rack 3, Unit 24',
-                        maintenance: 'Monthly firmware updates. Dust cleaning quarterly. UPS check annually.',
-                        ageMonths: 12,
-                        warrantyYears: 5,
-                        colors: {
-                            bg: '#ecfdf5',
-                            text: '#134e4a',
-                            accent: '#0d9488'
-                        },
-                        layout: 'standard',
-                        customFields: [
-                            {
-                                name: 'IP Address',
-                                type: 'text',
-                                icon: 'fa-network-wired',
-                                value: '10.10.50.1'
-                            },
-                            {
-                                name: 'Managed By',
-                                type: 'text',
-                                icon: 'fa-user-shield',
-                                value: 'IT Infrastructure Team'
-                            },
-                            {
-                                name: 'Power Draw',
-                                type: 'text',
-                                icon: 'fa-plug',
-                                value: '750W PoE+'
-                            },
-                            {
-                                name: 'Documentation',
-                                type: 'url',
-                                icon: 'fa-file-code',
-                                value: 'https://intranet.thaiparker.co.th/it/network/switches'
-                            }
-                        ]
-                    });
+                    document.getElementById('ManufactureDate').value = formatDateForInput(manufactureDate);
+                    document.getElementById('PurchaseDate').value = formatDateForInput(purchaseDate);
+                    document.getElementById('WarrantyExpiration').value = formatDateForInput(warrantyDate);
+                    
+                    // Set colors
+                    document.getElementById('bg-color-picker').value = '#fffbeb';
+                    document.getElementById('text-color-picker').value = '#451a03';
+                    document.getElementById('accent-color-picker').value = '#ea580c';
+                    
+                    // Update text inputs
+                    document.querySelector('input[asp-for="BackgroundColor"]').value = '#fffbeb';
+                    document.querySelector('input[asp-for="TextColor"]').value = '#451a03';
+                    document.querySelector('input[asp-for="AccentColor"]').value = '#ea580c';
+                    
+                    showNotification('Safety equipment template applied', 'success');
                 }
                 
                 // Update validation icons
@@ -2004,9 +1517,9 @@
             
             // Update tag preview on form input
             function updateTagPreview() {
-                const bgColor = document.getElementById('BackgroundColor').value || '#ffffff';
-                const textColor = document.getElementById('TextColor').value || '#000000';
-                const accentColor = document.getElementById('AccentColor').value || '#0284c7';
+                const bgColor = document.getElementById('bg-color-picker').value || '#ffffff';
+                const textColor = document.getElementById('text-color-picker').value || '#000000';
+                const accentColor = document.getElementById('accent-color-picker').value || '#0284c7';
                 
                 const name = document.getElementById('ProductName').value || 'Product Name';
                 const category = document.getElementById('Category').value || 'Product Category';
@@ -2038,78 +1551,58 @@
                     preview.style.backgroundColor = bgColor;
                     preview.style.color = textColor;
                     
-                    // Get active layout
-                    const activeLayout = document.querySelector('.layout-option.active');
-                    const layoutType = activeLayout ? activeLayout.getAttribute('data-layout') : 'standard';
-                    
-                    // For standard layout, update individual elements
-                    if (layoutType === 'standard') {
-                        const content = preview.querySelector('div');
-                        if (content) {
-                            content.className = 'p-6 h-full flex flex-col';
-                            content.innerHTML = `
-                                <div class="mb-4">
-                                    <span id="preview-category" class="px-2 py-1 text-xs font-semibold rounded-full" style="background-color: ${accentColor}; color: ${bgColor}">
-                                        ${category}
-                                    </span>
-                                    <h3 id="preview-name" class="text-xl font-bold mt-2" style="color: ${accentColor}">${name}</h3>
-                                    <p id="preview-manufacturer" class="text-md">${manufacturer}</p>
-                                    <div class="flex items-center space-x-2 mt-1 text-sm">
-                                        <span class="font-semibold">Model:</span>
-                                        <span id="preview-model">${model}</span>
-                                    </div>
-                                    <div class="flex items-center space-x-2 text-sm">
-                                        <span class="font-semibold">Serial:</span>
-                                        <span id="preview-serial">${serial}</span>
-                                    </div>
-                                </div>
-                                <div class="space-y-2 mt-2 text-sm">
-                                    <p class="flex items-center">
-                                        <i class="fas fa-map-marker-alt mr-3" style="color: ${accentColor}"></i>
-                                        <span class="font-medium">Location:</span>&nbsp;<span id="preview-location">${location}</span>
-                                    </p>
-                                    <p class="flex items-center">
-                                        <i class="fas fa-calendar-day mr-3" style="color: ${accentColor}"></i>
-                                        <span class="font-medium">Manufactured:</span>&nbsp;<span id="preview-mfgdate">${mfgDate}</span>
-                                    </p>
-                                    <p class="flex items-center">
-                                        <i class="fas fa-calendar-check mr-3" style="color: ${accentColor}"></i>
-                                        <span class="font-medium">Warranty Until:</span>&nbsp;<span id="preview-warranty">${warrantyDate}</span>
-                                    </p>
-                                    <p class="flex items-center">
-                                        <i class="fas fa-tools mr-3" style="color: ${accentColor}"></i>
-                                        <span class="font-medium">Maintenance:</span>&nbsp;<span id="preview-maintenance">${maintenance}</span>
-                                    </p>
-                                    <div id="preview-custom-fields" class="space-y-2 border-t border-gray-100 pt-2 mt-2 ${customFields.length === 0 ? 'hidden' : ''}">
-                                        <!-- Custom fields will be dynamically added here -->
-                                    </div>
-                                </div>
-                            `;
-                        }
+                    const nameElement = document.getElementById('preview-name');
+                    if (nameElement) {
+                        nameElement.textContent = name;
+                        nameElement.style.color = accentColor;
                     }
                     
-                    // Update custom fields
-                    updateCustomFieldsPreview();
+                    const categoryElement = document.getElementById('preview-category');
+                    if (categoryElement) {
+                        categoryElement.textContent = category;
+                        categoryElement.style.backgroundColor = accentColor;
+                        categoryElement.style.color = bgColor;
+                    }
                     
-                    // Update icons color
-                    const icons = preview.querySelectorAll('i:not(.fa-qrcode)');
-                    icons.forEach(icon => {
+                    const manufacturerElement = document.getElementById('preview-manufacturer');
+                    if (manufacturerElement) {
+                        manufacturerElement.textContent = manufacturer;
+                    }
+                    
+                    const modelElement = document.getElementById('preview-model');
+                    if (modelElement) {
+                        modelElement.textContent = model;
+                    }
+                    
+                    const serialElement = document.getElementById('preview-serial');
+                    if (serialElement) {
+                        serialElement.textContent = serial;
+                    }
+                    
+                    const locationElement = document.getElementById('preview-location');
+                    if (locationElement) {
+                        locationElement.textContent = location;
+                    }
+                    
+                    const mfgDateElement = document.getElementById('preview-mfgdate');
+                    if (mfgDateElement) {
+                        mfgDateElement.textContent = mfgDate;
+                    }
+                    
+                    const warrantyElement = document.getElementById('preview-warranty');
+                    if (warrantyElement) {
+                        warrantyElement.textContent = warrantyDate;
+                    }
+                    
+                    const maintenanceElement = document.getElementById('preview-maintenance');
+                    if (maintenanceElement) {
+                        maintenanceElement.textContent = maintenance;
+                    }
+                    
+                    // Update icons
+                    preview.querySelectorAll('i').forEach(icon => {
                         icon.style.color = accentColor;
                     });
-                    
-                    // Update QR code colors
-                    const qrFgColor = document.getElementById('qr-fg-color').value;
-                    const qrBgColor = document.getElementById('qr-bg-color').value;
-                    
-                    // Update QR code preview (in a real implementation, this would generate an actual QR code)
-                    const qrPreview = document.querySelector('.qr-preview');
-                    if (qrPreview) {
-                        qrPreview.style.backgroundColor = qrBgColor;
-                        const qrIcon = qrPreview.querySelector('.fa-qrcode');
-                        if (qrIcon) {
-                            qrIcon.style.color = qrFgColor;
-                        }
-                    }
                 }
             }
             
@@ -2149,8 +1642,6 @@
             
             // Form validation on submit
             document.getElementById('product-form').addEventListener('submit', function(e) {
-                e.preventDefault(); // In this demo, we prevent form submission
-                
                 let isValid = true;
                 const requiredFields = this.querySelectorAll('[required]');
                 
@@ -2168,6 +1659,8 @@
                 });
                 
                 if (!isValid) {
+                    e.preventDefault();
+                    
                     // Find which step has errors
                     let stepWithError = 1;
                     const step1Errors = document.querySelectorAll('.form-section[data-step="1"] .border-red-500').length > 0;
@@ -2180,7 +1673,7 @@
                     }
                     
                     // Go to the step with errors
-                    window.goToStep(stepWithError);
+                    goToStep(stepWithError);
                     
                     // Focus first invalid field
                     const firstInvalid = document.querySelector(`.form-section[data-step="${stepWithError}"] .border-red-500`);
@@ -2192,8 +1685,25 @@
                     return;
                 }
                 
-                // Success notification for demo purposes
-                showNotification('Product tag created successfully! In a real app, this would save to database.', 'success');
+                // Make sure QR colors are updated before submit
+                updateQrColors();
+                
+                // Ensure color values are set from color pickers
+                const bgColorPicker = document.getElementById('bg-color-picker');
+                const textColorPicker = document.getElementById('text-color-picker');
+                const accentColorPicker = document.getElementById('accent-color-picker');
+                
+                if (bgColorPicker) {
+                    document.querySelector('input[asp-for="BackgroundColor"]').value = bgColorPicker.value;
+                }
+                
+                if (textColorPicker) {
+                    document.querySelector('input[asp-for="TextColor"]').value = textColorPicker.value;
+                }
+                
+                if (accentColorPicker) {
+                    document.querySelector('input[asp-for="AccentColor"]').value = accentColorPicker.value;
+                }
             });
         });
         
