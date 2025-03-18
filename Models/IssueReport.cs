@@ -40,8 +40,6 @@ namespace CardTagManager.Models
         [StringLength(20)]
         public string ReporterPhone { get; set; }
         
-        // Removed FollowUp property as requested
-        
         public string Status { get; set; } = "Open";
         
         public DateTime CreatedAt { get; set; } = DateTime.Now;

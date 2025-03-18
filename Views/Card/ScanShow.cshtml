@@ -585,52 +585,84 @@
     }
     
     // Issue form submission handling
-    function initIssueFormSubmission() {
-        const issueForm = document.getElementById('issue-report-form');
-        
-        if (issueForm) {
-            issueForm.addEventListener('submit', function(e) {
-                e.preventDefault();
+function initIssueFormSubmission() {
+    const issueForm = document.getElementById('issue-report-form');
+    
+    if (issueForm) {
+        issueForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Show loading spinner
+            document.getElementById('issue-spinner').classList.remove('hidden');
+            
+            // Get form data
+            const formData = new FormData(this);
+            
+            // Convert to match server model properties
+            const issueData = {
+                CardId: parseInt(formData.get('productId')),
+                IssueType: formData.get('issueType'),
+                Priority: formData.get('priority'),
+                Description: formData.get('description'),
+                ReportDate: new Date(formData.get('reportDate')).toISOString(),
+                ReporterName: formData.get('reporterName'),
+                ReporterEmail: formData.get('reporterEmail'),
+                ReporterPhone: formData.get('reporterPhone') || ''
+            };
+            
+            // Get CSRF token
+            const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
+            
+            // Real API call
+            fetch('/Card/ReportIssue', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token
+                },
+                body: JSON.stringify(issueData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errorData => {
+                        throw new Error(errorData.error || 'Server error');
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Hide spinner
+                document.getElementById('issue-spinner').classList.add('hidden');
                 
-                // Show loading spinner
-                document.getElementById('issue-spinner').classList.remove('hidden');
+                // Hide modal
+                document.getElementById('report-issue-modal').classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
                 
-                // Get form data
-                const formData = new FormData(this);
+                // Show success toast
+                showToast('Issue reported', 'Your issue has been submitted successfully', 'success');
                 
-                // Convert to an object for submission
-                const issueData = {};
-                formData.forEach((value, key) => {
-                    issueData[key] = value;
-                });
+                // Reset form
+                issueForm.reset();
                 
-                // Simulate API call (in a real app, replace with actual API call)
-                setTimeout(() => {
-                    console.log('Issue report data:', issueData);
-                    
-                    // Hide spinner
-                    document.getElementById('issue-spinner').classList.add('hidden');
-                    
-                    // Hide modal
-                    document.getElementById('report-issue-modal').classList.add('hidden');
-                    document.body.classList.remove('overflow-hidden');
-                    
-                    // Show success toast
-                    showToast('Issue reported', 'Your issue has been submitted successfully', 'success');
-                    
-                    // Reset form
-                    issueForm.reset();
-                    
-                    // Set default date again
-                    const reportDateField = document.querySelector('input[name="reportDate"]');
-                    if (reportDateField) {
-                        const today = new Date();
-                        reportDateField.value = today.toISOString().split('T')[0];
-                    }
-                }, 1500);
+                // Set default date again
+                const reportDateField = document.querySelector('input[name="reportDate"]');
+                if (reportDateField) {
+                    const today = new Date();
+                    reportDateField.value = today.toISOString().split('T')[0];
+                }
+            })
+            .catch(error => {
+                console.error('Error submitting issue report:', error);
+                
+                // Hide spinner
+                document.getElementById('issue-spinner').classList.add('hidden');
+                
+                // Show error toast
+                showToast('Error', error.message || 'Failed to submit issue report', 'error');
             });
-        }
+        });
     }
+}
     
     // Load documents
     function loadDocuments() {
