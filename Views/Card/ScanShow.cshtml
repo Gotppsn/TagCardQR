@@ -510,7 +510,17 @@
         // Toast notification system
         initToastNotifications();
 
-        loadIssueData();
+        // Load issue data
+        try {
+            console.log("Calling loadIssueData");
+            loadIssueData();
+        } catch (e) {
+            console.error("Error in loadIssueData:", e);
+            const issuesContainer = document.getElementById('issues-container');
+            if (issuesContainer) {
+                issuesContainer.innerHTML = `<div class="text-center text-red-500">Error loading issues: ${e.message}</div>`;
+            }
+        }
     });
     
     // Navigation functionality
@@ -777,87 +787,6 @@
         const remindersContainer = document.getElementById('maintenance-reminders');
         const historyContainer = document.getElementById('maintenance-history-content');
         const productId = @Model.Id;
-
-        // Load and display issues
-function loadIssueData() {
-    const issuesContainer = document.getElementById('issues-container');
-    const productId = @Model.Id;
-    
-    // Fetch issues
-    fetch(`/Card/GetCardIssues/${productId}`)
-        .then(response => response.json())
-        .then(issues => {
-            if (issues && issues.length > 0) {
-                // Clear loading spinner
-                issuesContainer.innerHTML = '';
-                
-                // Create issues list
-                const issueList = document.createElement('div');
-                issueList.className = 'space-y-4';
-                
-                issues.forEach(issue => {
-                    // Determine status color
-                    let statusColor = 'bg-blue-100 text-blue-800';
-                    if (issue.status === 'Open') {
-                        statusColor = 'bg-yellow-100 text-yellow-800';
-                    } else if (issue.status === 'In Progress') {
-                        statusColor = 'bg-blue-100 text-blue-800';
-                    } else if (issue.status === 'Resolved') {
-                        statusColor = 'bg-green-100 text-green-800';
-                    } else if (issue.status === 'Closed') {
-                        statusColor = 'bg-gray-100 text-gray-800';
-                    }
-                    
-                    const issueDate = new Date(issue.reportDate);
-                    
-                    const issueItem = document.createElement('div');
-                    issueItem.className = 'p-4 bg-white border border-gray-200 rounded-lg shadow-sm';
-                    issueItem.innerHTML = `
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <div class="flex items-center gap-2">
-                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColor}">${issue.status}</span>
-                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100">${issue.priority}</span>
-                                </div>
-                                <h4 class="font-medium mt-2">${issue.issueType}</h4>
-                                <p class="text-sm text-gray-600 mt-1">${issue.description}</p>
-                                <div class="text-xs text-gray-500 mt-2">Reported on ${formatDate(issueDate)} by ${issue.reporterName}</div>
-                            </div>
-                        </div>
-                        ${issue.resolution ? `<div class="mt-3 pt-3 border-t border-gray-100">
-                            <p class="text-sm font-medium text-gray-700">Resolution:</p>
-                            <p class="text-sm text-gray-600">${issue.resolution}</p>
-                        </div>` : ''}
-                    `;
-                    
-                    issueList.appendChild(issueItem);
-                });
-                
-                issuesContainer.appendChild(issueList);
-            } else {
-                // No issues found
-                issuesContainer.innerHTML = `
-                    <div class="text-center py-4">
-                        <div class="w-12 h-12 mx-auto rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-2">
-                            <i class="fas fa-clipboard-check"></i>
-                        </div>
-                        <p class="text-gray-500 text-sm">No issues reported for this product.</p>
-                    </div>
-                `;
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching issues:', error);
-            issuesContainer.innerHTML = `
-                <div class="text-center py-4">
-                    <div class="w-12 h-12 mx-auto rounded-full bg-red-100 flex items-center justify-center text-red-500 mb-2">
-                        <i class="fas fa-exclamation-triangle"></i>
-                    </div>
-                    <p class="text-red-500 text-sm">Failed to load issues. Please try again later.</p>
-                </div>
-            `;
-        });
-}
         
         // Fetch reminders
         fetch(`/Card/GetCardReminders/${productId}`)
@@ -1140,6 +1069,103 @@ function loadIssueData() {
                 toast.classList.add('hidden');
             }, 300);
         }, 5000);
+    }
+
+    // Load issue data function
+    function loadIssueData() {
+        console.log("loadIssueData called");
+        const issuesContainer = document.getElementById('issues-container');
+        const productId = @Model.Id;
+        
+        console.log(`Fetching issues for product ID: ${productId}`);
+        
+        // Show loading state explicitly
+        issuesContainer.innerHTML = `
+            <div class="text-center py-4">
+                <i class="fas fa-spinner fa-spin text-primary-500 mr-2"></i> Loading issues...
+            </div>
+        `;
+        
+        fetch(`/Card/GetCardIssues/${productId}`)
+            .then(response => {
+                console.log("Response received:", response);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(issues => {
+                console.log("Issues data:", issues);
+                if (issues && issues.length > 0) {
+                    // Clear loading spinner
+                    issuesContainer.innerHTML = '';
+                    
+                    // Create issues list
+                    const issueList = document.createElement('div');
+                    issueList.className = 'space-y-4';
+                    
+                    issues.forEach(issue => {
+                        // Determine status color
+                        let statusColor = 'bg-blue-100 text-blue-800';
+                        if (issue.status === 'Open') {
+                            statusColor = 'bg-yellow-100 text-yellow-800';
+                        } else if (issue.status === 'In Progress') {
+                            statusColor = 'bg-blue-100 text-blue-800';
+                        } else if (issue.status === 'Resolved') {
+                            statusColor = 'bg-green-100 text-green-800';
+                        } else if (issue.status === 'Closed') {
+                            statusColor = 'bg-gray-100 text-gray-800';
+                        }
+                        
+                        const issueDate = new Date(issue.reportDate);
+                        
+                        const issueItem = document.createElement('div');
+                        issueItem.className = 'p-4 bg-white border border-gray-200 rounded-lg shadow-sm';
+                        issueItem.innerHTML = `
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColor}">${issue.status}</span>
+                                        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100">${issue.priority}</span>
+                                    </div>
+                                    <h4 class="font-medium mt-2">${issue.issueType}</h4>
+                                    <p class="text-sm text-gray-600 mt-1">${issue.description}</p>
+                                    <div class="text-xs text-gray-500 mt-2">Reported on ${formatDate(issueDate)} by ${issue.reporterName}</div>
+                                </div>
+                            </div>
+                            ${issue.resolution ? `<div class="mt-3 pt-3 border-t border-gray-100">
+                                <p class="text-sm font-medium text-gray-700">Resolution:</p>
+                                <p class="text-sm text-gray-600">${issue.resolution}</p>
+                            </div>` : ''}
+                        `;
+                        
+                        issueList.appendChild(issueItem);
+                    });
+                    
+                    issuesContainer.appendChild(issueList);
+                } else {
+                    // No issues found
+                    issuesContainer.innerHTML = `
+                        <div class="text-center py-4">
+                            <div class="w-12 h-12 mx-auto rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-2">
+                                <i class="fas fa-clipboard-check"></i>
+                            </div>
+                            <p class="text-gray-500 text-sm">No issues reported for this product.</p>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error loading issues:', error);
+                issuesContainer.innerHTML = `
+                    <div class="text-center py-4">
+                        <div class="w-12 h-12 mx-auto rounded-full bg-red-100 flex items-center justify-center text-red-500 mb-2">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <p class="text-red-500 text-sm">Failed to load issues: ${error.message}</p>
+                    </div>
+                `;
+            });
     }
     
     // Helper functions
