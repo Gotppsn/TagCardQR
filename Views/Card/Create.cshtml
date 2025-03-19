@@ -2517,110 +2517,132 @@ async function saveTemplate(template) {
             }, 10);
         }
         
-        // Populate form with template data
-        async function populateTemplateForm(templateId) {
-            // Check if templateId is numeric
-            const isNumeric = !isNaN(parseInt(templateId));
-            
-            let template;
-            
-            // Check if it's a built-in template
-            if (['chemical', 'equipment', 'safety', 'electronic', 'machinery', 'design'].includes(templateId)) {
-                // Create a template object based on the built-in template
-                template = createBuiltInTemplateObject(templateId);
-            } else if (isNumeric) {
-                // Fetch custom template from API
-                try {
-                    const response = await fetch(`/api/Template/${templateId}`);
-                    if (!response.ok) {
-                        throw new Error('Failed to fetch template');
-                    }
-                    template = await response.json();
-                } catch (error) {
-                    console.error('Error fetching template:', error);
-                    showNotification('Error loading template details', 'error');
-                    return;
-                }
-            } else {
+// Populate form with template data
+async function populateTemplateForm(templateId) {
+    try {
+        // Check if templateId is numeric
+        const isNumeric = !isNaN(parseInt(templateId));
+        
+        let template;
+        
+        // Check if it's a built-in template
+        if (['chemical', 'equipment', 'safety', 'electronic', 'machinery', 'design'].includes(templateId)) {
+            // Create a template object based on the built-in template
+            template = createBuiltInTemplateObject(templateId);
+        } else if (isNumeric) {
+            // Fetch custom template from API
+            try {
+                const response = await fetch(`/api/Template/${templateId}`);
+                if (!response.ok) throw new Error('Failed to fetch template');
+                template = await response.json();
+                console.log('Fetched template:', template); // Debug logging
+            } catch (error) {
+                console.error('Error fetching template:', error);
+                showNotification('Error loading template details', 'error');
                 return;
             }
+        } else {
+            return;
+        }
+        
+        if (!template) return;
+        
+        // Set template ID for editing
+        document.getElementById('template-edit-id').value = template.id;
+        document.getElementById('delete-template-id').value = template.id;
+        
+        // Populate basic fields
+        document.getElementById('template-name').value = template.name || '';
+        document.getElementById('template-category').value = template.category || '';
+        document.getElementById('template-bg-color').value = template.bgColor || '#f0f9ff';
+        document.getElementById('template-bg-color-text').value = template.bgColor || '#f0f9ff';
+        
+        // Select icon
+        const iconElement = document.querySelector(`.icon-option[data-icon="${template.icon}"]`);
+        if (iconElement) {
+            document.querySelectorAll('.icon-option').forEach(opt => {
+                opt.classList.remove('border-primary-500', 'active');
+                opt.querySelector('i').classList.remove('text-primary-500');
+                opt.querySelector('i').classList.add('text-gray-500');
+            });
             
-            if (!template) return;
+            iconElement.classList.add('border-primary-500', 'active');
+            iconElement.querySelector('i').classList.remove('text-gray-500');
+            iconElement.querySelector('i').classList.add('text-primary-500');
+            document.getElementById('template-icon').value = template.icon;
+        }
+        
+        // Populate custom fields
+        let fields = [];
+        if (template.fields) {
+            fields = template.fields;
+        } else if (template.fieldsJson) {
+            try {
+                fields = JSON.parse(template.fieldsJson);
+                console.log('Parsed fields:', fields); // Important debugging log
+            } catch (e) {
+                console.error('Error parsing fields JSON:', e, template.fieldsJson);
+                fields = [];
+            }
+        }
+        
+        if (fields && fields.length > 0) {
+            // Clear existing fields first
+            const customFields = document.getElementById('custom-fields');
+            customFields.innerHTML = '';
             
-            // Set template ID for editing
-            document.getElementById('template-edit-id').value = template.id;
-            document.getElementById('delete-template-id').value = template.id;
-            
-            // Populate basic fields
-            document.getElementById('template-name').value = template.name || '';
-            document.getElementById('template-category').value = template.category || '';
-            document.getElementById('template-bg-color').value = template.bgColor || '#f0f9ff';
-            document.getElementById('template-bg-color-text').value = template.bgColor || '#f0f9ff';
-            
-            // Select icon
-            const iconElement = document.querySelector(`.icon-option[data-icon="${template.icon}"]`);
-            if (iconElement) {
-                document.querySelectorAll('.icon-option').forEach(opt => {
-                    opt.classList.remove('border-primary-500', 'active');
-                    opt.querySelector('i').classList.remove('text-primary-500');
-                    opt.querySelector('i').classList.add('text-gray-500');
-                });
-                
-                iconElement.classList.add('border-primary-500', 'active');
-                iconElement.querySelector('i').classList.remove('text-gray-500');
-                iconElement.querySelector('i').classList.add('text-primary-500');
-                document.getElementById('template-icon').value = template.icon;
+            // Create all field rows first
+            for (let i = 0; i < fields.length; i++) {
+                addCustomField();
             }
             
-            // Populate custom fields
-            let fields = [];
-            if (template.fields) {
-                fields = template.fields;
-            } else if (template.fieldsJson) {
-                try {
-                    fields = JSON.parse(template.fieldsJson);
-                } catch (e) {
-                    console.error('Error parsing fields JSON:', e);
-                    fields = [];
-                }
-            }
-            
-            if (fields && fields.length > 0) {
-                // Clear existing fields first
-                const customFields = document.getElementById('custom-fields');
-                customFields.innerHTML = '';
+            // Give DOM time to update before populating fields
+            setTimeout(() => {
+                const fieldRows = customFields.querySelectorAll('.custom-field-row');
                 
-                // Add each field
+                // Now populate each field
                 fields.forEach((field, index) => {
-                    // Add field row
-                    addCustomField();
-                    
-                    // Get the newly added row (last child)
-                    const fieldRows = customFields.querySelectorAll('.custom-field-row');
-                    const fieldRow = fieldRows[fieldRows.length - 1];
-                    
-                    // Populate field data
-                    fieldRow.querySelector('.field-name').value = field.name || '';
-                    fieldRow.querySelector('.field-type').value = field.type || 'text';
-                    fieldRow.querySelector('.field-icon').value = field.icon || 'tag';
-                    fieldRow.querySelector('.field-placeholder').value = field.placeholder || '';
-                    
-                    // Set required checkbox if present
-                    const requiredCheckbox = fieldRow.querySelector('.field-required');
-                    if (requiredCheckbox) {
-                        requiredCheckbox.checked = field.required !== false; // Default to true if not specified
-                    }
-                    
-                    // Handle options for select type
-                    if (field.type === 'select') {
-                        fieldRow.querySelector('.field-options').classList.remove('hidden');
-                        if (field.options && field.options.length > 0) {
-                            fieldRow.querySelector('.field-options-input').value = field.options.join(', ');
+                    if (index < fieldRows.length) {
+                        const fieldRow = fieldRows[index];
+                        
+                        // Populate field data
+                        const fieldNameInput = fieldRow.querySelector('.field-name');
+                        if (fieldNameInput) fieldNameInput.value = field.name || '';
+                        
+                        const fieldTypeSelect = fieldRow.querySelector('.field-type');
+                        if (fieldTypeSelect) fieldTypeSelect.value = field.type || 'text';
+                        
+                        const fieldIconSelect = fieldRow.querySelector('.field-icon');
+                        if (fieldIconSelect) fieldIconSelect.value = field.icon || 'tag';
+                        
+                        const fieldPlaceholderInput = fieldRow.querySelector('.field-placeholder');
+                        if (fieldPlaceholderInput) fieldPlaceholderInput.value = field.placeholder || '';
+                        
+                        // Set required checkbox if present
+                        const requiredCheckbox = fieldRow.querySelector('.field-required');
+                        if (requiredCheckbox) {
+                            requiredCheckbox.checked = field.required !== false;
+                        }
+                        
+                        // Handle options for select type
+                        if (field.type === 'select') {
+                            const fieldOptionsDiv = fieldRow.querySelector('.field-options');
+                            if (fieldOptionsDiv) fieldOptionsDiv.classList.remove('hidden');
+                            
+                            const fieldOptionsInput = fieldRow.querySelector('.field-options-input');
+                            if (fieldOptionsInput && field.options && field.options.length > 0) {
+                                fieldOptionsInput.value = field.options.join(', ');
+                            }
                         }
                     }
                 });
-            }
+            }, 50); // Small delay to ensure DOM is updated
         }
+    } catch (error) {
+        console.error('Template population error:', error);
+        showNotification('Error populating template form', 'error');
+    }
+}
         
         // Create a template object based on built-in templates
         function createBuiltInTemplateObject(templateId) {
