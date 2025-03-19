@@ -669,7 +669,7 @@
                 </div>
             </div>
             
-            <div class="card shadow-lg transition-all duration-300" id="card-preview-container">
+<div class="card shadow-lg transition-all duration-300" id="card-preview-container">
                 <div class="card-flip-container">
                     <!-- Front of card -->
                     <div class="business-card card-side card-front" id="tag-preview" style="background-color: #ffffff; color: #000000">
@@ -983,25 +983,126 @@ function updateQrColors() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    initializeSteps();
-    initializeColorPickers();
-    initializeCardLayouts();
-    initializeImageUpload();
-    initializeTemplates();
-    initializeFieldVisibility();
-    initializeTemplateModal();
-    initializeTemplateTabs();
-    initializeLoadMoreTemplates();
+    console.log('DOM fully loaded');
+    
+    // Force create QRCode if not defined
+    if (typeof QRCode === 'undefined') {
+        console.warn('QRCode library not found, creating fallback...');
+        // Simple QRCode fallback
+        window.QRCode = function(element, options) {
+            if (typeof element === 'string') {
+                element = document.querySelector(element);
+            }
+            
+            if (!element) {
+                console.error('QRCode element not found');
+                return;
+            }
+            
+            // Just display a placeholder
+            element.innerHTML = `
+                <div style="width:160px;height:160px;display:flex;align-items:center;justify-content:center;border:1px solid #e5e7eb;background:#f9fafb;">
+                    <div style="text-align:center;">
+                        <i class="fas fa-qrcode text-gray-400" style="font-size:48px;margin-bottom:8px;"></i>
+                        <div style="font-size:12px;color:#6b7280;">QR Code for:<br>${options.text}</div>
+                    </div>
+                </div>
+            `;
+            
+            console.log('Fallback QR code displayed');
+        };
+        
+        // Add correction levels
+        QRCode.CorrectLevel = {L:1, M:0, Q:3, H:2};
+    } else {
+        console.log('QRCode library loaded successfully');
+    }
+    
+    // Load all required initialization functions
+    try {
+        console.log('Initializing components...');
+        initializeSteps();
+        initializeColorPickers();
+        initializeCardLayouts(); 
+        initializeImageUpload();
+        initializeTemplates();
+        initializeFieldVisibility();
+        initializeTemplateModal();
+        initializeTemplateTabs();
+        initializeLoadMoreTemplates();
+    } catch (e) {
+        console.error('Error during initialization:', e);
+    }
+    
+    // Force preview containers to be visible
+    const previewContainers = [
+        'card-preview-container',
+        'tag-preview',
+        'card-qr-code-display'
+    ];
+    
+    previewContainers.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.style.display = id === 'card-qr-code-display' ? 'flex' : 'block';
+            if (id === 'card-preview-container') {
+                element.style.minHeight = '400px';
+                element.style.height = '400px';
+            }
+            console.log(`Force displayed ${id}`);
+        } else {
+            console.error(`Preview element not found: ${id}`);
+        }
+    });
     
     // Initialize preview with default values
-    updateTagPreview();
-    generateQRCode();
-    
-    // Handle category change to show/hide relevant fields
-    document.getElementById('category-select').addEventListener('change', function() {
-        updateFieldVisibility(this.value);
+    console.log('Updating preview...');
+    try {
         updateTagPreview();
-    });
+    } catch (e) {
+        console.error('Error updating tag preview:', e);
+    }
+    
+    // Generate QR code with delay to ensure rendering
+    setTimeout(function() {
+        try {
+            console.log('Generating QR code...');
+            generateQRCode();
+        } catch (e) {
+            console.error('Error generating QR code:', e);
+            
+            // Fallback QR display if generation fails
+            const qrElement = document.getElementById('card-qr-code-display');
+            if (qrElement) {
+                qrElement.innerHTML = `
+                    <div style="text-align:center;">
+                        <i class="fas fa-qrcode text-gray-400" style="font-size:48px;"></i>
+                        <div style="font-size:12px;color:#6b7280;margin-top:8px;">QR Code Preview</div>
+                    </div>
+                `;
+            }
+        }
+    }, 500);
+    
+    // Force preview visibility after everything else
+    setTimeout(function() {
+        const cardFront = document.querySelector('.card-front');
+        if (cardFront) cardFront.style.display = 'block';
+        
+        const cardBack = document.querySelector('.card-back');
+        if (cardBack) cardBack.style.display = 'none';
+        
+        console.log('Final visibility enforcement complete');
+    }, 800);
+    
+    // Handle category change
+    const categorySelect = document.getElementById('category-select');
+    if (categorySelect) {
+        categorySelect.addEventListener('change', function() {
+            updateFieldVisibility(this.value);
+            updateTagPreview();
+        });
+    }
 
     // Initialize form submission
     document.getElementById('product-form').addEventListener('submit', function(e) {
@@ -1159,6 +1260,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Generate QR Code
     function generateQRCode() {
         const qrElement = document.getElementById('card-qr-code-display');
+        if (!qrElement) {
+            console.error('QR code container not found');
+            return;
+        }
+        
+        // Clear any existing QR code
         qrElement.innerHTML = '';
         
         const productName = document.getElementById('ProductName').value || 'Sample Product';
@@ -1166,12 +1273,21 @@ document.addEventListener('DOMContentLoaded', function() {
         const qrBgColor = document.getElementById('qr-bg-color').value || '#FFFFFF';
         
         // Update QR product name on back of card
-        document.getElementById('qr-product-name').textContent = productName;
+        const qrProductNameElement = document.getElementById('qr-product-name');
+        if (qrProductNameElement) {
+            qrProductNameElement.textContent = productName;
+        }
         
         // QR code data would typically contain a URL or ID to access the product details
         const qrData = `PRODUCT:${productName}:${Date.now()}`;
         
         try {
+            // Make sure QRCode is loaded
+            if (typeof QRCode === 'undefined') {
+                throw new Error('QRCode library not loaded');
+            }
+            
+            // Create new QR Code
             new QRCode(qrElement, {
                 text: qrData,
                 width: 160,
@@ -1180,6 +1296,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 colorLight: qrBgColor,
                 correctLevel: QRCode.CorrectLevel.H
             });
+            
+            console.log('QR code generated successfully');
         } catch (error) {
             console.error('Error generating QR code:', error);
             qrElement.innerHTML = '<i class="fas fa-exclamation-triangle text-red-500 text-xl"></i><p class="text-xs text-red-500 mt-2">Error generating QR code</p>';
@@ -2829,6 +2947,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Update tag preview based on form values
     function updateTagPreview() {
         const preview = document.getElementById('tag-preview');
+        if (!preview) {
+            console.error('Preview element not found');
+            return;
+        }
+        
         const previewName = document.getElementById('preview-name');
         const previewCategory = document.getElementById('preview-category');
         const previewManufacturer = document.getElementById('preview-manufacturer');
@@ -2838,27 +2961,42 @@ document.addEventListener('DOMContentLoaded', function() {
         const previewMaintenance = document.getElementById('preview-maintenance');
         const previewCustomFields = document.getElementById('preview-custom-fields');
         
+        if (!previewName || !previewCategory || !previewManufacturer || !previewLocation || 
+            !previewMfgDate || !previewWarranty || !previewMaintenance || !previewCustomFields) {
+            console.error('One or more preview elements not found');
+            return;
+        }
+        
         // Update colors
-        const bgColor = document.getElementById('BackgroundColor').value || '#ffffff';
-        const textColor = document.getElementById('TextColor').value || '#000000';
-        const accentColor = document.getElementById('AccentColor').value || '#0284c7';
+        const bgColor = document.getElementById('BackgroundColor')?.value || '#ffffff';
+        const textColor = document.getElementById('TextColor')?.value || '#000000';
+        const accentColor = document.getElementById('AccentColor')?.value || '#0284c7';
         
         preview.style.backgroundColor = bgColor;
         preview.style.color = textColor;
         previewName.style.color = accentColor;
         previewCategory.style.backgroundColor = accentColor;
+        previewCategory.style.color = '#ffffff';
+        
         document.querySelectorAll('#tag-preview i').forEach(icon => {
             icon.style.color = accentColor;
         });
         
         // Also update the back of the card
-        document.querySelector('.card-back').style.backgroundColor = bgColor;
+        const cardBack = document.querySelector('.card-back');
+        if (cardBack) {
+            cardBack.style.backgroundColor = bgColor;
+        }
         
         // Update content
         const productName = document.getElementById('ProductName');
         if (productName && productName.value) {
             previewName.textContent = productName.value;
-            document.getElementById('qr-product-name').textContent = productName.value;
+            
+            const qrProductName = document.getElementById('qr-product-name');
+            if (qrProductName) {
+                qrProductName.textContent = productName.value;
+            }
         }
         
         const category = document.getElementById('category-select');
@@ -2869,6 +3007,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const manufacturer = document.getElementById('Manufacturer');
         if (manufacturer && manufacturer.value) {
             previewManufacturer.textContent = manufacturer.value;
+        } else {
+            previewManufacturer.textContent = "Not specified";
         }
         
         const location = document.getElementById('Location');
@@ -2880,12 +3020,20 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const mfgDate = document.getElementById('ManufactureDate');
         if (mfgDate && mfgDate.value) {
-            previewMfgDate.textContent = new Date(mfgDate.value).toLocaleDateString();
+            try {
+                previewMfgDate.textContent = new Date(mfgDate.value).toLocaleDateString();
+            } catch (e) {
+                previewMfgDate.textContent = mfgDate.value;
+            }
         }
         
         const warranty = document.getElementById('WarrantyExpiration');
         if (warranty && warranty.value) {
-            previewWarranty.textContent = new Date(warranty.value).toLocaleDateString();
+            try {
+                previewWarranty.textContent = new Date(warranty.value).toLocaleDateString();
+            } catch (e) {
+                previewWarranty.textContent = warranty.value;
+            }
         }
         
         const maintenance = document.getElementById('MaintenanceInfo');
@@ -2915,7 +3063,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         // Update layout
-        const layout = document.getElementById('layoutHidden').value;
+        const layout = document.getElementById('layoutHidden')?.value || 'standard';
         preview.className = 'business-card card-side card-front';
         
         switch (layout) {
@@ -2929,6 +3077,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 preview.classList.add('standard-layout');
                 break;
         }
+        
+        console.log('Preview updated successfully');
     }
     
     // Notification system
