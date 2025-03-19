@@ -2945,13 +2945,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Update tag preview based on form values
+// Update tag preview based on form values
     function updateTagPreview() {
         const preview = document.getElementById('tag-preview');
-        if (!preview) {
-            console.error('Preview element not found');
-            return;
-        }
-        
         const previewName = document.getElementById('preview-name');
         const previewCategory = document.getElementById('preview-category');
         const previewManufacturer = document.getElementById('preview-manufacturer');
@@ -2961,9 +2957,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const previewMaintenance = document.getElementById('preview-maintenance');
         const previewCustomFields = document.getElementById('preview-custom-fields');
         
-        if (!previewName || !previewCategory || !previewManufacturer || !previewLocation || 
-            !previewMfgDate || !previewWarranty || !previewMaintenance || !previewCustomFields) {
-            console.error('One or more preview elements not found');
+        if (!preview || !previewName || !previewCategory) {
+            console.error("Preview elements not found");
             return;
         }
         
@@ -2976,8 +2971,6 @@ document.addEventListener('DOMContentLoaded', function() {
         preview.style.color = textColor;
         previewName.style.color = accentColor;
         previewCategory.style.backgroundColor = accentColor;
-        previewCategory.style.color = '#ffffff';
-        
         document.querySelectorAll('#tag-preview i').forEach(icon => {
             icon.style.color = accentColor;
         });
@@ -2992,23 +2985,26 @@ document.addEventListener('DOMContentLoaded', function() {
         const productName = document.getElementById('ProductName');
         if (productName && productName.value) {
             previewName.textContent = productName.value;
-            
             const qrProductName = document.getElementById('qr-product-name');
             if (qrProductName) {
                 qrProductName.textContent = productName.value;
             }
+        } else {
+            previewName.textContent = "Product Name";
         }
         
         const category = document.getElementById('category-select');
         if (category && category.value) {
             previewCategory.textContent = category.value;
+        } else {
+            previewCategory.textContent = "Category";
         }
         
         const manufacturer = document.getElementById('Manufacturer');
         if (manufacturer && manufacturer.value) {
             previewManufacturer.textContent = manufacturer.value;
         } else {
-            previewManufacturer.textContent = "Not specified";
+            previewManufacturer.textContent = "Manufacturer";
         }
         
         const location = document.getElementById('Location');
@@ -3020,20 +3016,12 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const mfgDate = document.getElementById('ManufactureDate');
         if (mfgDate && mfgDate.value) {
-            try {
-                previewMfgDate.textContent = new Date(mfgDate.value).toLocaleDateString();
-            } catch (e) {
-                previewMfgDate.textContent = mfgDate.value;
-            }
+            previewMfgDate.textContent = new Date(mfgDate.value).toLocaleDateString();
         }
         
         const warranty = document.getElementById('WarrantyExpiration');
         if (warranty && warranty.value) {
-            try {
-                previewWarranty.textContent = new Date(warranty.value).toLocaleDateString();
-            } catch (e) {
-                previewWarranty.textContent = warranty.value;
-            }
+            previewWarranty.textContent = new Date(warranty.value).toLocaleDateString();
         }
         
         const maintenance = document.getElementById('MaintenanceInfo');
@@ -3046,21 +3034,23 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Update custom fields
-        previewCustomFields.innerHTML = '';
-        document.querySelectorAll('[id^="custom-"]').forEach(field => {
-            if (field.value) {
-                const fieldName = field.id.replace('custom-', '').replace(/-/g, ' ');
-                const fieldValue = field.value;
-                
-                const fieldElement = document.createElement('div');
-                fieldElement.className = 'flex items-center space-x-2 text-sm mt-1';
-                fieldElement.innerHTML = `
-                    <span class="font-semibold">${fieldName}:</span>&nbsp;<span>${fieldValue}</span>
-                `;
-                
-                previewCustomFields.appendChild(fieldElement);
-            }
-        });
+        if (previewCustomFields) {
+            previewCustomFields.innerHTML = '';
+            document.querySelectorAll('[id^="custom-"]').forEach(field => {
+                if (field.value) {
+                    const fieldName = field.id.replace('custom-', '').replace(/-/g, ' ');
+                    const fieldValue = field.value;
+                    
+                    const fieldElement = document.createElement('div');
+                    fieldElement.className = 'flex items-center space-x-2 text-sm mt-1';
+                    fieldElement.innerHTML = `
+                        <span class="font-semibold">${fieldName}:</span>&nbsp;<span>${fieldValue}</span>
+                    `;
+                    
+                    previewCustomFields.appendChild(fieldElement);
+                }
+            });
+        }
         
         // Update layout
         const layout = document.getElementById('layoutHidden')?.value || 'standard';
@@ -3078,7 +3068,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
         }
         
-        console.log('Preview updated successfully');
+        // Force QR code regeneration after preview update
+        setTimeout(() => {
+            generateQRCode();
+        }, 100);
     }
     
     // Notification system
