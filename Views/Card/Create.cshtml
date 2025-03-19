@@ -1909,60 +1909,68 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Apply template function
-    async function applyTemplate(templateId) {
-        document.getElementById('templateTypeHidden').value = templateId;
-        console.log(`Applying template ID: ${templateId}`);
+async function applyTemplate(templateId) {
+    document.getElementById('templateTypeHidden').value = templateId;
+    
+    try {
+        const response = await fetch(`/api/Template/${templateId}`);
+        if (!response.ok) throw new Error(`API error: ${response.status}`);
         
-        try {
-            const response = await fetch(`/api/Template/${templateId}`);
-            if (!response.ok) throw new Error(`API error: ${response.status}`);
-            
-            const template = await response.json();
-            console.log('Template data loaded:', template);
-            
-            // Update UI for selected template
-            document.querySelectorAll('.template-card').forEach(card => {
-                card.classList.remove('border-primary-500');
-                if (card.getAttribute('data-template') === String(templateId)) {
-                    card.classList.add('border-primary-500');
-                }
+        const template = await response.json();
+        
+        // Update selected template in UI
+        document.querySelectorAll('.template-card').forEach(card => {
+            card.classList.remove('border-primary-500');
+            if (card.getAttribute('data-template') === String(templateId)) {
+                card.classList.add('border-primary-500');
+            }
+        });
+        
+        // Set category from template
+        if (template.category) {
+            const categoryField = document.getElementById('Category');
+            if (categoryField) {
+                categoryField.value = template.category;
+            }
+        }
+        
+        // Important: Clear and repopulate template fields
+        const templateFieldsContainer = document.getElementById('template-fields-container');
+        templateFieldsContainer.innerHTML = '';
+        displayCustomTemplateFields(template, templateFieldsContainer);
+        
+        // Update category-specific field visibility WITHOUT clearing template fields
+        if (template.category) {
+            const categoryValue = template.category.toLowerCase();
+            document.querySelectorAll('.field-group').forEach(field => {
+                const fieldClass = field.classList[1];
+                field.style.display = (fieldClass && fieldClass.includes(categoryValue)) ? 'block' : 'none';
             });
             
-            // Auto-set the Category field from the template
-            if (template.category) {
-                const categoryField = document.getElementById('Category');
-                if (categoryField) {
-                    categoryField.value = template.category;
-                }
+            // Handle special categories
+            if (categoryValue.includes('chemical')) {
+                document.querySelectorAll('.chemical-field').forEach(el => el.style.display = 'block');
+            } else if (categoryValue.includes('design')) {
+                document.querySelectorAll('.design-field').forEach(el => el.style.display = 'block');
+                document.querySelector('.warranty-label').innerHTML = 'License Expiration <span class="text-red-500 ml-1">*</span>';
+                document.querySelector('.warranty-preview .font-medium').textContent = 'License Until:';
             }
-            
-            // Get template fields container
-            const templateFieldsContainer = document.getElementById('template-fields-container');
-            
-            // Display the template fields
-            displayCustomTemplateFields(template, templateFieldsContainer);
-            
-            // Update field visibility based on the template's category
-            if (template.category) {
-                updateFieldVisibility(template.category);
-            }
-            
-            // Update preview
-            document.getElementById('preview-template-name').textContent = template.name || 'Template';
-            document.getElementById('preview-template-icon').className = `fas fa-${template.icon || 'flask'}`;
-            
-            // Generate QR code
-            setTimeout(generateQRCode, 100);
-            
-            // Update tag preview
-            updateTagPreview();
-            
-            // Notify user
-            showTemplateToast(template.name || 'Template');
-        } catch (error) {
-            console.error('Template application error:', error);
         }
+        
+        // Update preview elements
+        document.getElementById('preview-template-name').textContent = template.name || 'Template';
+        document.getElementById('preview-template-icon').className = `fas fa-${template.icon || 'flask'}`;
+        
+        // Update preview and QR code
+        setTimeout(generateQRCode, 100);
+        updateTagPreview();
+        
+        // Show success notification
+        showTemplateToast(template.name || 'Template');
+    } catch (error) {
+        console.error('Template application error:', error);
     }
+}
 
     // Create a template card element
     function createTemplateCard(template) {
@@ -2110,34 +2118,31 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Display custom template fields
 function displayCustomTemplateFields(template, container) {
-    console.log('Raw template data:', template);
+    // Clear container completely
     container.innerHTML = '';
     
     let fields = [];
     
-    // Direct fieldsJson access and parsing
-    if (template.fieldsJson && typeof template.fieldsJson === 'string') {
-        try {
+    // Parse fields with proper error handling
+    try {
+        if (template.fieldsJson && typeof template.fieldsJson === 'string') {
             fields = JSON.parse(template.fieldsJson);
-            console.log('Parsed fields from JSON string:', fields);
-        } catch (e) {
-            console.error('JSON parse error:', e);
+        } else if (template.fieldsJson && Array.isArray(template.fieldsJson)) {
+            fields = template.fieldsJson;
+        } else if (template.fields && Array.isArray(template.fields)) {
+            fields = template.fields;
         }
-    } else if (template.fieldsJson && Array.isArray(template.fieldsJson)) {
-        fields = template.fieldsJson;
-        console.log('Using provided fields array:', fields);
-    } else if (template.fields && Array.isArray(template.fields)) {
-        fields = template.fields;
-        console.log('Using template.fields array:', fields);
+    } catch (e) {
+        console.error('JSON parse error:', e);
     }
     
+    // Handle case with no fields
     if (!fields || !fields.length) {
-        console.warn('No fields found in template');
         container.innerHTML = '<div class="p-4 bg-gray-50 rounded-lg"><p class="text-gray-500">No custom fields available</p></div>';
         return;
     }
     
-    // Force field rendering with direct HTML insertion
+    // Create fields with direct HTML injection for better performance
     fields.forEach(field => {
         const fieldId = `custom-${field.name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}`;
         
@@ -2174,8 +2179,6 @@ function displayCustomTemplateFields(template, container) {
         
         container.innerHTML += html;
     });
-    
-    console.log(`Rendered ${fields.length} fields`);
 }
 
 // Show/hide fields based on category/template type
@@ -2183,29 +2186,27 @@ async function updateFieldVisibility(category) {
     // Check if category is a numeric template ID
     const isNumeric = !isNaN(parseInt(category));
     
-    // Hide all custom fields first
+    // Hide all category-specific field groups
     const fieldGroups = document.querySelectorAll('.field-group');
     fieldGroups.forEach(field => {
         field.style.display = 'none';
     });
     
-    // Clear template fields container
+    // Get template fields container
     const templateFieldsContainer = document.getElementById('template-fields-container');
     
-    // Don't clear fields if we're updating based on a category change
-    if (!isNumeric) {
-        templateFieldsContainer.innerHTML = '';
-    }
-    
-    // Show fields based on category or template type
+    // Handle template ID vs category name
     if (isNumeric) {
         try {
             const response = await fetch(`/api/Template/${category}`);
             if (!response.ok) throw new Error('Failed to fetch template');
             const template = await response.json();
             
-            // Only update fields if container is empty or we're switching templates
-            if (templateFieldsContainer.children.length === 0) {
+            // Display template fields without clearing if already populated from template selection
+            if (document.getElementById('templateTypeHidden').value === category) {
+                // Template already selected - don't clear fields
+            } else {
+                // Different template - update fields
                 displayCustomTemplateFields(template, templateFieldsContainer);
             }
             
@@ -2221,15 +2222,20 @@ async function updateFieldVisibility(category) {
     } else {
         const categoryValue = category.toLowerCase();
         
-        // Show/hide category-specific fields
+        // Only clear template fields if not coming from a template selection
+        if (!document.getElementById('templateTypeHidden').value) {
+            templateFieldsContainer.innerHTML = '';
+        }
+        
+        // Show category-specific fields
         fieldGroups.forEach(field => {
-            const fieldClass = field.classList[1]; // Get the second class which has the category name
+            const fieldClass = field.classList[1]; 
             if (fieldClass && fieldClass.includes(categoryValue)) {
                 field.style.display = 'block';
             }
         });
         
-        // Set appropriate fields based on category
+        // Handle special category cases
         switch(categoryValue) {
             case 'chemical':
             case 'rust coating chemical':
@@ -2238,20 +2244,22 @@ async function updateFieldVisibility(category) {
             case 'design':
             case 'design asset':
                 document.querySelectorAll('.design-field').forEach(el => el.style.display = 'block');
-                // Change warranty to license for design assets
                 document.querySelector('.warranty-label').innerHTML = 'License Expiration <span class="text-red-500 ml-1">*</span>';
                 document.querySelector('.warranty-preview .font-medium').textContent = 'License Until:';
                 break;
             default:
-                // Reset warranty label for other types
                 document.querySelector('.warranty-label').innerHTML = 'Warranty Until <span class="text-red-500 ml-1">*</span>';
                 document.querySelector('.warranty-preview .font-medium').textContent = 'Warranty Until:';
-                generateDefaultFields(templateFieldsContainer);
+                
+                // Only generate default fields if not using a template
+                if (!document.getElementById('templateTypeHidden').value) {
+                    generateDefaultFields(templateFieldsContainer);
+                }
                 break;
         }
     }
     
-    // Update tag preview
+    // Update preview
     updateTagPreview();
 }
 
