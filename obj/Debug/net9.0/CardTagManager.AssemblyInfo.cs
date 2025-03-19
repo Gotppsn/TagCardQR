@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CardTagManager")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+139b4bf0b6decc85cfe1df7c6cc5d72e0faa278b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6dee0d29f7d9993c2d64a6eb328f1c9a93ec1511")]
 [assembly: System.Reflection.AssemblyProductAttribute("CardTagManager")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CardTagManager")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
