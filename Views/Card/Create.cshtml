@@ -2518,6 +2518,7 @@ async function saveTemplate(template) {
         }
         
 // Populate form with template data
+// Path: Views/Card/Create.cshtml
 async function populateTemplateForm(templateId) {
     try {
         // Check if templateId is numeric
@@ -2525,22 +2526,13 @@ async function populateTemplateForm(templateId) {
         
         let template;
         
-        // Check if it's a built-in template
         if (['chemical', 'equipment', 'safety', 'electronic', 'machinery', 'design'].includes(templateId)) {
-            // Create a template object based on the built-in template
             template = createBuiltInTemplateObject(templateId);
         } else if (isNumeric) {
-            // Fetch custom template from API
-            try {
-                const response = await fetch(`/api/Template/${templateId}`);
-                if (!response.ok) throw new Error('Failed to fetch template');
-                template = await response.json();
-                console.log('Fetched template:', template); // Debug logging
-            } catch (error) {
-                console.error('Error fetching template:', error);
-                showNotification('Error loading template details', 'error');
-                return;
-            }
+            const response = await fetch(`/api/Template/${templateId}`);
+            if (!response.ok) throw new Error('Failed to fetch template');
+            template = await response.json();
+            console.log('Fetched template:', template);
         } else {
             return;
         }
@@ -2572,75 +2564,75 @@ async function populateTemplateForm(templateId) {
             document.getElementById('template-icon').value = template.icon;
         }
         
-        // Populate custom fields
+        // CRITICAL FIX: Parse fields from fieldsJson directly
         let fields = [];
-        if (template.fields) {
-            fields = template.fields;
-        } else if (template.fieldsJson) {
+        if (template.fieldsJson) {
             try {
                 fields = JSON.parse(template.fieldsJson);
-                console.log('Parsed fields:', fields); // Important debugging log
+                console.log('Parsed fields:', fields);
             } catch (e) {
-                console.error('Error parsing fields JSON:', e, template.fieldsJson);
-                fields = [];
+                console.error('Error parsing JSON:', e);
+                // Try alternate method to handle possible escaped JSON
+                try {
+                    const cleanJson = template.fieldsJson.replace(/\\"/g, '"');
+                    fields = JSON.parse(cleanJson);
+                    console.log('Parsed with cleanup:', fields);
+                } catch (e2) {
+                    console.error('Second parse attempt failed:', e2);
+                }
             }
         }
         
+        // Clear existing fields
+        const customFields = document.getElementById('custom-fields');
+        customFields.innerHTML = '';
+        
+        // Add needed field rows
         if (fields && fields.length > 0) {
-            // Clear existing fields first
-            const customFields = document.getElementById('custom-fields');
-            customFields.innerHTML = '';
-            
-            // Create all field rows first
+            // First add all needed rows
             for (let i = 0; i < fields.length; i++) {
                 addCustomField();
             }
             
-            // Give DOM time to update before populating fields
+            // Force browser to render before continuing
             setTimeout(() => {
                 const fieldRows = customFields.querySelectorAll('.custom-field-row');
                 
-                // Now populate each field
                 fields.forEach((field, index) => {
                     if (index < fieldRows.length) {
-                        const fieldRow = fieldRows[index];
+                        const row = fieldRows[index];
                         
-                        // Populate field data
-                        const fieldNameInput = fieldRow.querySelector('.field-name');
-                        if (fieldNameInput) fieldNameInput.value = field.name || '';
+                        // Set field values
+                        row.querySelector('.field-name').value = field.name || '';
                         
-                        const fieldTypeSelect = fieldRow.querySelector('.field-type');
-                        if (fieldTypeSelect) fieldTypeSelect.value = field.type || 'text';
+                        const typeSelect = row.querySelector('.field-type');
+                        if (typeSelect) typeSelect.value = field.type || 'text';
                         
-                        const fieldIconSelect = fieldRow.querySelector('.field-icon');
-                        if (fieldIconSelect) fieldIconSelect.value = field.icon || 'tag';
+                        const iconSelect = row.querySelector('.field-icon');
+                        if (iconSelect) iconSelect.value = field.icon || 'tag';
                         
-                        const fieldPlaceholderInput = fieldRow.querySelector('.field-placeholder');
-                        if (fieldPlaceholderInput) fieldPlaceholderInput.value = field.placeholder || '';
+                        const placeholder = row.querySelector('.field-placeholder');
+                        if (placeholder) placeholder.value = field.placeholder || '';
                         
-                        // Set required checkbox if present
-                        const requiredCheckbox = fieldRow.querySelector('.field-required');
-                        if (requiredCheckbox) {
-                            requiredCheckbox.checked = field.required !== false;
-                        }
+                        const required = row.querySelector('.field-required');
+                        if (required) required.checked = field.required !== false;
                         
-                        // Handle options for select type
+                        // Handle dropdown options
                         if (field.type === 'select') {
-                            const fieldOptionsDiv = fieldRow.querySelector('.field-options');
-                            if (fieldOptionsDiv) fieldOptionsDiv.classList.remove('hidden');
+                            const optionsDiv = row.querySelector('.field-options');
+                            if (optionsDiv) optionsDiv.classList.remove('hidden');
                             
-                            const fieldOptionsInput = fieldRow.querySelector('.field-options-input');
-                            if (fieldOptionsInput && field.options && field.options.length > 0) {
-                                fieldOptionsInput.value = field.options.join(', ');
+                            const optionsInput = row.querySelector('.field-options-input');
+                            if (optionsInput && field.options && field.options.length > 0) {
+                                optionsInput.value = field.options.join(', ');
                             }
                         }
                     }
                 });
-            }, 50); // Small delay to ensure DOM is updated
+            }, 50);
         }
     } catch (error) {
-        console.error('Template population error:', error);
-        showNotification('Error populating template form', 'error');
+        console.error('Error in populateTemplateForm:', error);
     }
 }
         
