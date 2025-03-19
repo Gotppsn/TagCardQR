@@ -16,6 +16,8 @@ namespace CardTagManager.Data
         public DbSet<MaintenanceReminder> MaintenanceReminders { get; set; }
         public DbSet<CardDocument> CardDocuments { get; set; }
         public DbSet<IssueReport> IssueReports { get; set; }
+        public DbSet<Template> Templates { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -106,6 +108,28 @@ namespace CardTagManager.Data
                 
             modelBuilder.Entity<IssueReport>()
                 .Property(ir => ir.CreatedAt)
+                .HasDefaultValueSql("GETDATE()");
+
+            // Template entity configuration
+            modelBuilder.Entity<Template>()
+                .HasKey(t => t.Id);
+
+            modelBuilder.Entity<Template>()
+                .Property(t => t.Name)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            modelBuilder.Entity<Template>()
+                .Property(t => t.Category)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            modelBuilder.Entity<Template>()
+                .Property(t => t.CreatedAt)
+                .HasDefaultValueSql("GETDATE()");
+
+            modelBuilder.Entity<Template>()
+                .Property(t => t.UpdatedAt)
                 .HasDefaultValueSql("GETDATE()");
         }
     }

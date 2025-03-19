@@ -1235,26 +1235,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Save card data to local storage for testing
     function saveCard() {
-        // Gather all form data
-        const formData = new FormData(document.getElementById('product-form'));
-        const cardData = Object.fromEntries(formData.entries());
-        
-        // Add additional data
-        cardData.id = Date.now(); // Use timestamp as unique ID
-        cardData.createdDate = new Date().toISOString();
-        
-        // Save to local storage
-        const savedCards = JSON.parse(localStorage.getItem('cardTags') || '[]');
-        savedCards.push(cardData);
-        localStorage.setItem('cardTags', JSON.stringify(savedCards));
-        
-        // Show success notification
-        showNotification('Product created successfully!', 'success');
-        
-        // Redirect to index page after short delay
-        setTimeout(() => {
-            window.location.href = '/Card/Index';
-        }, 1500);
+        // Get form data for submission
+        const form = document.getElementById('product-form');
+        form.submit();
     }
     
     // Generate QR Code
@@ -1845,31 +1828,103 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // Get templates from API instead of localStorage
+    async function getTemplates() {
+        try {
+            const response = await fetch('/api/Template');
+            if (!response.ok) {
+                throw new Error('Failed to fetch templates');
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching templates:', error);
+            showNotification('Error loading templates', 'error');
+            return [];
+        }
+    }
+
+    // Save template to API
+    async function saveTemplate(template) {
+        try {
+            const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
+            const method = template.id > 0 ? 'PUT' : 'POST';
+            const url = template.id > 0 ? `/api/Template/${template.id}` : '/api/Template';
+            
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token
+                },
+                body: JSON.stringify(template)
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to save template');
+            }
+            
+            if (method === 'POST') {
+                return await response.json();
+            } else {
+                return template; // For PUT, just return the original object
+            }
+        } catch (error) {
+            console.error('Error saving template:', error);
+            showNotification('Error saving template: ' + error.message, 'error');
+            return null;
+        }
+    }
+
+    // Delete template from API
+    async function deleteTemplate(templateId) {
+        try {
+            const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
+            const response = await fetch(`/api/Template/${templateId}`, {
+                method: 'DELETE',
+                headers: {
+                    'RequestVerificationToken': token
+                }
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to delete template');
+            }
+            
+            return true;
+        } catch (error) {
+            console.error('Error deleting template:', error);
+            showNotification('Error deleting template: ' + error.message, 'error');
+            return false;
+        }
+    }
+    
     // Initialize templates
-    function initializeTemplates() {
+    async function initializeTemplates() {
         const templateCards = document.querySelectorAll('.template-card');
         const templateTypeHidden = document.getElementById('templateTypeHidden');
         
-        // Load custom templates from localStorage
-        const customTemplates = getCustomTemplates();
-        customTemplates.forEach(template => {
+        // Load templates from API
+        const dbTemplates = await getTemplates();
+        
+        // Add template cards for database templates
+        dbTemplates.forEach(template => {
             addTemplateCard(template);
         });
         
         // Template card click handler
-        templateCards.forEach(card => {
-            card.addEventListener('click', function(e) {
-                // Don't trigger template application if clicking on edit button
-                if (e.target.closest('.edit-template-btn')) return;
-                
-                const templateId = this.getAttribute('data-template');
+        document.addEventListener('click', function(e) {
+            const card = e.target.closest('.template-card');
+            if (card && !e.target.closest('.edit-template-btn')) {
+                const templateId = card.getAttribute('data-template');
                 applyTemplate(templateId);
-            });
+            }
         });
     }
     
     // Apply template function
-    function applyTemplate(templateId) {
+    async function applyTemplate(templateId) {
         // Update hidden input
         document.getElementById('templateTypeHidden').value = templateId;
         
@@ -1883,7 +1938,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         // Update field visibility based on template
-        updateFieldVisibility(templateId);
+        await updateFieldVisibility(templateId);
         
         // Update the preview header with template info
         const templateName = document.querySelector(`.template-card[data-template="${templateId}"] h4`)?.textContent || templateId;
@@ -1901,7 +1956,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Show/hide fields based on category/template type
-    function updateFieldVisibility(category) {
+    async function updateFieldVisibility(category) {
+        // Check if category is a numeric template ID
+        const isNumeric = !isNaN(parseInt(category));
+        
         // Hide all custom fields first
         const fieldGroups = document.querySelectorAll('.field-group');
         fieldGroups.forEach(field => {
@@ -1913,61 +1971,67 @@ document.addEventListener('DOMContentLoaded', function() {
         templateFieldsContainer.innerHTML = '';
         
         // Show fields based on category or template type
-        switch(category.toLowerCase()) {
-            case 'chemical':
-            case 'rust coating chemical':
-                generateTemplateFields('chemical', templateFieldsContainer);
-                document.querySelectorAll('.chemical-field').forEach(field => {
-                    field.style.display = 'block';
-                });
-                break;
-            case 'safety':
-            case 'safety equipment':
-                generateTemplateFields('safety', templateFieldsContainer);
-                document.querySelectorAll('.safety-field').forEach(field => {
-                    field.style.display = 'block';
-                });
-                break;
-            case 'electronic':
-            case 'electronic device':
-                generateTemplateFields('electronic', templateFieldsContainer);
-                document.querySelectorAll('.electronic-field').forEach(field => {
-                    field.style.display = 'block';
-                });
-                break;
-            case 'machinery':
-            case 'industrial machinery':
-                generateTemplateFields('machinery', templateFieldsContainer);
-                document.querySelectorAll('.machinery-field').forEach(field => {
-                    field.style.display = 'block';
-                });
-                break;
-            case 'design':
-            case 'design asset':
-                generateTemplateFields('design', templateFieldsContainer);
-                document.querySelectorAll('.design-field').forEach(field => {
-                    field.style.display = 'block';
-                });
-                
-                // For design assets, change "Warranty" to "License Expiration"
-                document.querySelector('.warranty-label').innerHTML = 'License Expiration <span class="text-red-500 ml-1">*</span>';
-                document.querySelector('.warranty-preview .font-medium').textContent = 'License Until:';
-                break;
-            default:
-                // For other categories, ensure warranty label is correct
-                document.querySelector('.warranty-label').innerHTML = 'Warranty Until <span class="text-red-500 ml-1">*</span>';
-                document.querySelector('.warranty-preview .font-medium').textContent = 'Warranty Until:';
-                
-                // Check if it's a custom template and display custom fields
-                const customTemplates = getCustomTemplates();
-                const customTemplate = customTemplates.find(t => t.category.toLowerCase() === category.toLowerCase() || t.id === category);
-                if (customTemplate) {
-                    displayCustomTemplateFields(customTemplate, templateFieldsContainer);
-                } else {
-                    // Show default fields if no template matched
+        if (isNumeric) {
+            // This is a database template - fetch and display custom fields
+            try {
+                const response = await fetch(`/api/Template/${category}`);
+                if (!response.ok) throw new Error('Failed to fetch template');
+                const template = await response.json();
+                displayCustomTemplateFields(template, templateFieldsContainer);
+            } catch (error) {
+                console.error('Error fetching template:', error);
+                generateDefaultFields(templateFieldsContainer);
+            }
+        } else {
+            switch(category.toLowerCase()) {
+                case 'chemical':
+                case 'rust coating chemical':
+                    generateTemplateFields('chemical', templateFieldsContainer);
+                    document.querySelectorAll('.chemical-field').forEach(field => {
+                        field.style.display = 'block';
+                    });
+                    break;
+                case 'safety':
+                case 'safety equipment':
+                    generateTemplateFields('safety', templateFieldsContainer);
+                    document.querySelectorAll('.safety-field').forEach(field => {
+                        field.style.display = 'block';
+                    });
+                    break;
+                case 'electronic':
+                case 'electronic device':
+                    generateTemplateFields('electronic', templateFieldsContainer);
+                    document.querySelectorAll('.electronic-field').forEach(field => {
+                        field.style.display = 'block';
+                    });
+                    break;
+                case 'machinery':
+                case 'industrial machinery':
+                    generateTemplateFields('machinery', templateFieldsContainer);
+                    document.querySelectorAll('.machinery-field').forEach(field => {
+                        field.style.display = 'block';
+                    });
+                    break;
+                case 'design':
+                case 'design asset':
+                    generateTemplateFields('design', templateFieldsContainer);
+                    document.querySelectorAll('.design-field').forEach(field => {
+                        field.style.display = 'block';
+                    });
+                    
+                    // For design assets, change "Warranty" to "License Expiration"
+                    document.querySelector('.warranty-label').innerHTML = 'License Expiration <span class="text-red-500 ml-1">*</span>';
+                    document.querySelector('.warranty-preview .font-medium').textContent = 'License Until:';
+                    break;
+                default:
+                    // For other categories, ensure warranty label is correct
+                    document.querySelector('.warranty-label').innerHTML = 'Warranty Until <span class="text-red-500 ml-1">*</span>';
+                    document.querySelector('.warranty-preview .font-medium').textContent = 'Warranty Until:';
+                    
+                    // Default fields if no template matched
                     generateDefaultFields(templateFieldsContainer);
-                }
-                break;
+                    break;
+            }
         }
         
         // Update tag preview
@@ -2163,13 +2227,27 @@ document.addEventListener('DOMContentLoaded', function() {
         // Clear container
         container.innerHTML = '';
         
-        if (!template.fields || template.fields.length === 0) {
+        let fields = [];
+        
+        // Parse fields from template
+        if (template.fields) {
+            fields = template.fields;
+        } else if (template.fieldsJson) {
+            try {
+                fields = JSON.parse(template.fieldsJson);
+            } catch (e) {
+                console.error('Error parsing fields JSON:', e);
+                fields = [];
+            }
+        }
+        
+        if (!fields || fields.length === 0) {
             generateDefaultFields(container);
             return;
         }
         
         // Create fields based on template definition
-        template.fields.forEach(field => {
+        fields.forEach(field => {
             // Check if field is required
             const isRequired = field.required !== false; // Default to true if not specified
             
@@ -2239,7 +2317,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         // Add a manufacturer field if not present
-        const hasManufacturer = template.fields.some(f => 
+        const hasManufacturer = fields.some(f => 
             f.name.toLowerCase() === 'manufacturer' || 
             f.name.toLowerCase() === 'creator/studio'
         );
@@ -2261,20 +2339,6 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
             container.appendChild(manufacturerField);
         }
-    }
-    
-    // Get custom templates from localStorage
-    function getCustomTemplates() {
-        const templatesJson = localStorage.getItem('customTemplates');
-        if (templatesJson) {
-            try {
-                return JSON.parse(templatesJson);
-            } catch (e) {
-                console.error('Error parsing custom templates:', e);
-                return [];
-            }
-        }
-        return [];
     }
     
     // Add template card to the gallery
@@ -2316,17 +2380,6 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
         
-        // Add event listener
-        card.addEventListener('click', function(e) {
-            // Don't trigger template application if clicking on edit button
-            if (e.target.closest('.edit-template-btn')) return;
-            
-            applyTemplate(template.id);
-        });
-        
-        // Add to template container
-        templateContainer.appendChild(card);
-        
         // Add to category dropdown
         const categorySelect = document.getElementById('category-select');
         const optionExists = Array.from(categorySelect.options).some(opt => opt.value === template.category);
@@ -2337,6 +2390,9 @@ document.addEventListener('DOMContentLoaded', function() {
             option.textContent = template.category;
             categorySelect.appendChild(option);
         }
+        
+        // Add to template container
+        templateContainer.appendChild(card);
     }
     
     // Helper functions for template colors
@@ -2453,18 +2509,31 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Populate form with template data
-        function populateTemplateForm(templateId) {
-            // Get template data
+        async function populateTemplateForm(templateId) {
+            // Check if templateId is numeric
+            const isNumeric = !isNaN(parseInt(templateId));
+            
             let template;
             
             // Check if it's a built-in template
             if (['chemical', 'equipment', 'safety', 'electronic', 'machinery', 'design'].includes(templateId)) {
                 // Create a template object based on the built-in template
                 template = createBuiltInTemplateObject(templateId);
+            } else if (isNumeric) {
+                // Fetch custom template from API
+                try {
+                    const response = await fetch(`/api/Template/${templateId}`);
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch template');
+                    }
+                    template = await response.json();
+                } catch (error) {
+                    console.error('Error fetching template:', error);
+                    showNotification('Error loading template details', 'error');
+                    return;
+                }
             } else {
-                // Get custom template
-                const customTemplates = getCustomTemplates();
-                template = customTemplates.find(t => t.id === templateId);
+                return;
             }
             
             if (!template) return;
@@ -2495,12 +2564,25 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             // Populate custom fields
-            if (template.fields && template.fields.length > 0) {
+            let fields = [];
+            if (template.fields) {
+                fields = template.fields;
+            } else if (template.fieldsJson) {
+                try {
+                    fields = JSON.parse(template.fieldsJson);
+                } catch (e) {
+                    console.error('Error parsing fields JSON:', e);
+                    fields = [];
+                }
+            }
+            
+            if (fields && fields.length > 0) {
                 // Clear existing fields first
+                const customFields = document.getElementById('custom-fields');
                 customFields.innerHTML = '';
                 
                 // Add each field
-                template.fields.forEach((field, index) => {
+                fields.forEach((field, index) => {
                     // Add field row
                     addCustomField();
                     
@@ -2719,7 +2801,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         // Confirm template deletion
-        confirmDeleteBtn.addEventListener('click', function() {
+        confirmDeleteBtn.addEventListener('click', async function() {
             const templateId = document.getElementById('delete-template-id').value;
             
             if (!templateId) return;
@@ -2731,42 +2813,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            // Get custom templates
-            const customTemplates = getCustomTemplates();
+            // Delete template from API
+            const success = await deleteTemplate(templateId);
             
-            // Find the template index
-            const templateIndex = customTemplates.findIndex(t => t.id === templateId);
-            
-            if (templateIndex === -1) {
+            if (success) {
+                // Get template name for notification
+                const templateName = document.getElementById('delete-template-name').textContent;
+                
+                // Remove template card
+                const templateCard = document.querySelector(`.template-card[data-template="${templateId}"]`);
+                if (templateCard) {
+                    templateCard.remove();
+                }
+                
+                // Close modal
                 closeDeleteModal();
-                return;
+                
+                // Show success notification
+                showNotification(`Template "${templateName}" deleted successfully`, 'success');
             }
-            
-            // Get template name for notification
-            const templateName = customTemplates[templateIndex].name;
-            
-            // Remove template
-            customTemplates.splice(templateIndex, 1);
-            
-            // Save templates
-            localStorage.setItem('customTemplates', JSON.stringify(customTemplates));
-            
-            // Remove template card
-            const templateCard = document.querySelector(`.template-card[data-template="${templateId}"]`);
-            if (templateCard) {
-                templateCard.remove();
-            }
-            
-            // Close modal
-            closeDeleteModal();
-            
-            // Show success notification
-            showNotification(`Template "${templateName}" deleted successfully`, 'success');
         });
         
         // Save template
-        saveBtn.addEventListener('click', function() {
-            saveCustomTemplate();
+        saveBtn.addEventListener('click', async function() {
+            await saveCustomTemplate();
         });
         
         // Add a new custom field row
@@ -2841,7 +2911,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Save custom template
-        function saveCustomTemplate() {
+        async function saveCustomTemplate() {
             const form = document.getElementById('template-form');
             const customFieldRows = document.querySelectorAll('.custom-field-row');
             const isEditing = document.getElementById('template-edit-id').value !== '';
@@ -2869,13 +2939,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const templateIcon = document.getElementById('template-icon').value;
             const templateBgColor = document.getElementById('template-bg-color').value;
             
-            // Generate template ID (or use existing if editing)
-            const templateId = isEditing ? 
-                document.getElementById('template-edit-id').value : 
-                templateName.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now();
+            // Get template ID (or 0 for new templates)
+            const templateId = isEditing ? parseInt(document.getElementById('template-edit-id').value) : 0;
             
             // Check if attempting to override built-in template
-            if (['chemical', 'equipment', 'safety', 'electronic', 'machinery', 'design'].includes(templateId) && !isEditing) {
+            if (['chemical', 'equipment', 'safety', 'electronic', 'machinery', 'design'].includes(templateName.toLowerCase()) && !isEditing) {
                 showNotification('Cannot create template with same name as built-in template', 'error');
                 return;
             }
@@ -2889,7 +2957,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const fieldPlaceholder = fieldRow.querySelector('.field-placeholder').value;
                 const fieldRequired = fieldRow.querySelector('.field-required')?.checked;
                 
-                let options = null;
+                let options = [];
                 if (fieldType === 'select') {
                     const optionsInput = fieldRow.querySelector('.field-options-input');
                     if (optionsInput && optionsInput.value) {
@@ -2914,38 +2982,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 category: templateCategory,
                 icon: templateIcon,
                 bgColor: templateBgColor,
-                fields: fields
+                fieldsJson: JSON.stringify(fields)
             };
             
-            // Get existing templates
-            const customTemplates = getCustomTemplates();
+            // Save template to API
+            const savedTemplate = await saveTemplate(template);
             
-            // Check if template with this ID already exists
-            const existingIndex = customTemplates.findIndex(t => t.id === template.id);
-            if (existingIndex >= 0) {
-                // Update existing template
-                customTemplates[existingIndex] = template;
-            } else {
-                // Add new template
-                customTemplates.push(template);
+            if (savedTemplate) {
+                // Update template card in UI
+                addTemplateCard(savedTemplate);
+                
+                // Close modal
+                closeModal();
+                
+                // Show success notification
+                showNotification(`Template "${templateName}" ${isEditing ? 'updated' : 'saved'} successfully`, 'success');
             }
-            
-            // Save templates
-            localStorage.setItem('customTemplates', JSON.stringify(customTemplates));
-            
-            // Create/update template card
-            addTemplateCard(template);
-            
-            // Close modal
-            closeModal();
-            
-            // Show success notification
-            showNotification(`Template "${templateName}" ${isEditing ? 'updated' : 'saved'} successfully`, 'success');
         }
     }
     
     // Update tag preview based on form values
-// Update tag preview based on form values
     function updateTagPreview() {
         const preview = document.getElementById('tag-preview');
         const previewName = document.getElementById('preview-name');
