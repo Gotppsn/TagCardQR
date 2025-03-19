@@ -149,37 +149,25 @@ namespace CardTagManager.Controllers
                 return StatusCode(500, new { error = "An error occurred while deleting the template." });
             }
         }
-        [HttpGet("Categories")]
-        public async Task<ActionResult<IEnumerable<string>>> GetCategories()
-        {
-            try
-            {
-                var categories = await _context.Templates
-                    .Select(t => t.Category)
-                    .Distinct()
-                    .OrderBy(c => c)
-                    .ToListAsync();
-                    
-                // Add default categories if needed
-                var defaultCategories = new[] { "Rust Coating Chemical", "Application Equipment", "Lab Equipment", "Safety Equipment", "Electronic Device", "Industrial Machinery", "Design Asset", "Quality Control" };
-                
-                foreach (var category in defaultCategories)
-                {
-                    if (!categories.Contains(category))
-                    {
-                        categories.Add(category);
-                    }
-                }
-                
-                return categories;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving categories");
-                return StatusCode(500, new { error = "An error occurred while retrieving categories." });
-            }
-        }
-
+[HttpGet("Categories")]
+public async Task<ActionResult<IEnumerable<string>>> GetCategories()
+{
+    try
+    {
+        var categories = await _context.Templates
+            .Select(t => t.Category)
+            .Distinct()
+            .OrderBy(c => c)
+            .ToListAsync();
+        
+        return categories;
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error retrieving categories");
+        return StatusCode(500, new { error = "An error occurred while retrieving categories." });
+    }
+}
         // POST: api/Template/Categories
         [HttpPost("Categories")]
         public async Task<ActionResult<string>> AddCategory(string categoryName)
