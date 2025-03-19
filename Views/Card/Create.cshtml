@@ -1265,93 +1265,104 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Initialize steps functionality for multi-step form
-    function initializeSteps() {
-        const nextButtons = document.querySelectorAll('.next-step');
-        const prevButtons = document.querySelectorAll('.prev-step');
-        const formSections = document.querySelectorAll('.form-section');
-        const stepIndicator = document.querySelector('.step-indicator');
-        const steps = document.querySelectorAll('.step');
-        const progressBars = document.querySelectorAll('.step-progress');
-        
-        // Handle next button clicks
-        nextButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const currentStep = parseInt(this.getAttribute('data-next')) - 1;
-                const nextStep = parseInt(this.getAttribute('data-next'));
-                
-                // Validate current step before proceeding
-                if (validateStep(currentStep)) {
-                    // Hide current section, show next section
-                    formSections.forEach(section => {
-                        section.classList.add('hidden');
-                    });
-                    
-                    document.querySelector(`.form-section[data-step="${nextStep}"]`).classList.remove('hidden');
-                    
-                    // Update step indicator
-                    stepIndicator.textContent = `Step ${nextStep} of 3`;
-                    
-                    // Update step circles
-                    steps.forEach(step => {
-                        step.classList.remove('active');
-                    });
-                    
-                    document.querySelector(`.step[data-step="${nextStep}"]`).classList.add('active');
-                    
-                    // Update progress bars
-                    for (let i = 0; i < nextStep - 1; i++) {
-                        progressBars[i].style.width = '100%';
-                    }
-                    
-                    // Update form progress
-                    updateFormProgress(nextStep);
-                    
-                    // If moving to step 3, generate QR code preview
-                    if (nextStep === 3) {
-                        generateQRCode();
-                    }
-                    
-                    // Scroll to top
-                    window.scrollTo({
-                        top: 0,
-                        behavior: 'smooth'
-                    });
-                }
-            });
-        });
-        
-        // Handle previous button clicks
-        prevButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const prevStep = parseInt(this.getAttribute('data-prev'));
-                
-                // Hide current section, show previous section
+function initializeSteps() {
+    const nextButtons = document.querySelectorAll('.next-step');
+    const prevButtons = document.querySelectorAll('.prev-step');
+    const formSections = document.querySelectorAll('.form-section');
+    const stepIndicator = document.querySelector('.step-indicator');
+    const steps = document.querySelectorAll('.step');
+    const progressBars = document.querySelectorAll('.step-progress');
+    const templateLibrary = document.querySelector('.px-6.pt-4.pb-2'); // Template library section
+    
+    // Handle next button clicks
+    nextButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const currentStep = parseInt(this.getAttribute('data-next')) - 1;
+            const nextStep = parseInt(this.getAttribute('data-next'));
+            
+            // Validate current step before proceeding
+            if (validateStep(currentStep)) {
+                // Hide current section, show next section
                 formSections.forEach(section => {
                     section.classList.add('hidden');
                 });
                 
-                document.querySelector(`.form-section[data-step="${prevStep}"]`).classList.remove('hidden');
+                document.querySelector(`.form-section[data-step="${nextStep}"]`).classList.remove('hidden');
+                
+                // Hide template library when not on step 1
+                if (nextStep !== 1 && templateLibrary) {
+                    templateLibrary.classList.add('hidden');
+                }
                 
                 // Update step indicator
-                stepIndicator.textContent = `Step ${prevStep} of 3`;
+                stepIndicator.textContent = `Step ${nextStep} of 3`;
                 
                 // Update step circles
                 steps.forEach(step => {
                     step.classList.remove('active');
                 });
                 
-                document.querySelector(`.step[data-step="${prevStep}"]`).classList.add('active');
+                document.querySelector(`.step[data-step="${nextStep}"]`).classList.add('active');
+                
+                // Update progress bars
+                for (let i = 0; i < nextStep - 1; i++) {
+                    progressBars[i].style.width = '100%';
+                }
                 
                 // Update form progress
-                updateFormProgress(prevStep);
+                updateFormProgress(nextStep);
+                
+                // If moving to step 3, generate QR code preview
+                if (nextStep === 3) {
+                    generateQRCode();
+                }
                 
                 // Scroll to top
                 window.scrollTo({
                     top: 0,
                     behavior: 'smooth'
                 });
+            }
+        });
+    });
+        
+        // Handle previous button clicks
+     prevButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const prevStep = parseInt(this.getAttribute('data-prev'));
+            
+            // Hide current section, show previous section
+            formSections.forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            document.querySelector(`.form-section[data-step="${prevStep}"]`).classList.remove('hidden');
+            
+            // Show template library when on step 1
+            if (prevStep === 1 && templateLibrary) {
+                templateLibrary.classList.remove('hidden');
+            }
+            
+            // Update step indicator
+            stepIndicator.textContent = `Step ${prevStep} of 3`;
+            
+            // Update step circles
+            steps.forEach(step => {
+                step.classList.remove('active');
+            });
+            
+            document.querySelector(`.step[data-step="${prevStep}"]`).classList.add('active');
+            
+            // Update form progress
+            updateFormProgress(prevStep);
+            
+            // Scroll to top
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
             });
         });
+    });
         
         // Validate step before proceeding
         function validateStep(stepNumber) {
