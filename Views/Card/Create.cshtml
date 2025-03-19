@@ -77,136 +77,9 @@
                     </div>
                 </div>
                 
-                <!-- Initial Templates Container (limited to 3) -->
+                <!-- Templates Container -->
                 <div id="template-container" class="grid grid-cols-3 gap-3 mb-4">
-                    <!-- Chemical Template -->
-                    <div class="template-card cursor-pointer border rounded-lg overflow-hidden hover:border-primary-500 hover:shadow transition-all relative group" data-template="chemical" data-category="chemical">
-                        <div class="absolute top-1 right-1 flex template-actions opacity-0 group-hover:opacity-100 z-10">
-                            <button type="button" class="edit-template-btn p-1 text-gray-500 hover:text-primary-600 bg-white rounded-full shadow-sm" data-template="chemical">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                        </div>
-                        <div class="h-20 bg-blue-50 flex items-center justify-center">
-                            <i class="fas fa-flask text-blue-500 text-2xl"></i>
-                        </div>
-                        <div class="p-2 bg-white border-t border-gray-100">
-                            <h4 class="font-medium text-sm text-gray-800">Chemical Product</h4>
-                            <p class="text-xs text-gray-500 mt-0.5">Rust coating, solutions, etc.</p>
-                        </div>
-                        <div class="absolute inset-0 bg-primary-500 bg-opacity-0 hover:bg-opacity-10 transition-all flex items-center justify-center">
-                            <span class="bg-white text-primary-600 px-2 py-1 rounded-full text-xs font-medium opacity-0 group-hover:opacity-100 transform scale-0 group-hover:scale-100 transition-all shadow-sm">
-                                Select Template
-                            </span>
-                        </div>
-                    </div>
-                    
-                    <!-- Equipment Template -->
-                    <div class="template-card cursor-pointer border rounded-lg overflow-hidden hover:border-primary-500 hover:shadow transition-all relative group" data-template="equipment" data-category="equipment">
-                        <div class="absolute top-1 right-1 flex template-actions opacity-0 group-hover:opacity-100 z-10">
-                            <button type="button" class="edit-template-btn p-1 text-gray-500 hover:text-primary-600 bg-white rounded-full shadow-sm" data-template="equipment">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                        </div>
-                        <div class="h-20 bg-purple-50 flex items-center justify-center">
-                            <i class="fas fa-tools text-purple-500 text-2xl"></i>
-                        </div>
-                        <div class="p-2 bg-white border-t border-gray-100">
-                            <h4 class="font-medium text-sm text-gray-800">Equipment</h4>
-                            <p class="text-xs text-gray-500 mt-0.5">Lab, application equipment</p>
-                        </div>
-                        <div class="absolute inset-0 bg-primary-500 bg-opacity-0 hover:bg-opacity-10 transition-all flex items-center justify-center">
-                            <span class="bg-white text-primary-600 px-2 py-1 rounded-full text-xs font-medium opacity-0 group-hover:opacity-100 transform scale-0 group-hover:scale-100 transition-all shadow-sm">
-                                Select Template
-                            </span>
-                        </div>
-                    </div>
-                    
-                    <!-- Safety Template -->
-                    <div class="template-card cursor-pointer border rounded-lg overflow-hidden hover:border-primary-500 hover:shadow transition-all relative group" data-template="safety" data-category="industry">
-                        <div class="absolute top-1 right-1 flex template-actions opacity-0 group-hover:opacity-100 z-10">
-                            <button type="button" class="edit-template-btn p-1 text-gray-500 hover:text-primary-600 bg-white rounded-full shadow-sm" data-template="safety">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                        </div>
-                        <div class="h-20 bg-orange-50 flex items-center justify-center">
-                            <i class="fas fa-hard-hat text-orange-500 text-2xl"></i>
-                        </div>
-                        <div class="p-2 bg-white border-t border-gray-100">
-                            <h4 class="font-medium text-sm text-gray-800">Safety Equipment</h4>
-                            <p class="text-xs text-gray-500 mt-0.5">PPE, emergency equipment</p>
-                        </div>
-                        <div class="absolute inset-0 bg-primary-500 bg-opacity-0 hover:bg-opacity-10 transition-all flex items-center justify-center">
-                            <span class="bg-white text-primary-600 px-2 py-1 rounded-full text-xs font-medium opacity-0 group-hover:opacity-100 transform scale-0 group-hover:scale-100 transition-all shadow-sm">
-                                Select Template
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Hidden Templates Container -->
-                <div id="expanded-template-container" class="grid grid-cols-3 gap-3 mb-4 hidden">
-                    <!-- Electronic Template -->
-                    <div class="template-card cursor-pointer border rounded-lg overflow-hidden hover:border-primary-500 hover:shadow transition-all relative group" data-template="electronic" data-category="equipment">
-                        <div class="absolute top-1 right-1 flex template-actions opacity-0 group-hover:opacity-100 z-10">
-                            <button type="button" class="edit-template-btn p-1 text-gray-500 hover:text-primary-600 bg-white rounded-full shadow-sm" data-template="electronic">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                        </div>
-                        <div class="h-20 bg-green-50 flex items-center justify-center">
-                            <i class="fas fa-microchip text-green-500 text-2xl"></i>
-                        </div>
-                        <div class="p-2 bg-white border-t border-gray-100">
-                            <h4 class="font-medium text-sm text-gray-800">Electronic Device</h4>
-                            <p class="text-xs text-gray-500 mt-0.5">Computers, testing devices</p>
-                        </div>
-                        <div class="absolute inset-0 bg-primary-500 bg-opacity-0 hover:bg-opacity-10 transition-all flex items-center justify-center">
-                            <span class="bg-white text-primary-600 px-2 py-1 rounded-full text-xs font-medium opacity-0 group-hover:opacity-100 transform scale-0 group-hover:scale-100 transition-all shadow-sm">
-                                Select Template
-                            </span>
-                        </div>
-                    </div>
-                    
-                    <!-- Machinery Template -->
-                    <div class="template-card cursor-pointer border rounded-lg overflow-hidden hover:border-primary-500 hover:shadow transition-all relative group" data-template="machinery" data-category="industry">
-                        <div class="absolute top-1 right-1 flex template-actions opacity-0 group-hover:opacity-100 z-10">
-                            <button type="button" class="edit-template-btn p-1 text-gray-500 hover:text-primary-600 bg-white rounded-full shadow-sm" data-template="machinery">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                        </div>
-                        <div class="h-20 bg-yellow-50 flex items-center justify-center">
-                            <i class="fas fa-cogs text-yellow-600 text-2xl"></i>
-                        </div>
-                        <div class="p-2 bg-white border-t border-gray-100">
-                            <h4 class="font-medium text-sm text-gray-800">Industrial Machinery</h4>
-                            <p class="text-xs text-gray-500 mt-0.5">Production equipment</p>
-                        </div>
-                        <div class="absolute inset-0 bg-primary-500 bg-opacity-0 hover:bg-opacity-10 transition-all flex items-center justify-center">
-                            <span class="bg-white text-primary-600 px-2 py-1 rounded-full text-xs font-medium opacity-0 group-hover:opacity-100 transform scale-0 group-hover:scale-100 transition-all shadow-sm">
-                                Select Template
-                            </span>
-                        </div>
-                    </div>
-                    
-                    <!-- Design Template -->
-                    <div class="template-card cursor-pointer border rounded-lg overflow-hidden hover:border-primary-500 hover:shadow transition-all relative group" data-template="design" data-category="custom">
-                        <div class="absolute top-1 right-1 flex template-actions opacity-0 group-hover:opacity-100 z-10">
-                            <button type="button" class="edit-template-btn p-1 text-gray-500 hover:text-primary-600 bg-white rounded-full shadow-sm" data-template="design">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                        </div>
-                        <div class="h-20 bg-red-50 flex items-center justify-center">
-                            <i class="fas fa-paint-brush text-red-500 text-2xl"></i>
-                        </div>
-                        <div class="p-2 bg-white border-t border-gray-100">
-                            <h4 class="font-medium text-sm text-gray-800">Design Template</h4>
-                            <p class="text-xs text-gray-500 mt-0.5">Creative assets</p>
-                        </div>
-                        <div class="absolute inset-0 bg-primary-500 bg-opacity-0 hover:bg-opacity-10 transition-all flex items-center justify-center">
-                            <span class="bg-white text-primary-600 px-2 py-1 rounded-full text-xs font-medium opacity-0 group-hover:opacity-100 transform scale-0 group-hover:scale-100 transition-all shadow-sm">
-                                Select Template
-                            </span>
-                        </div>
-                    </div>
+                    <!-- Templates will be loaded from database -->
                 </div>
                 
                 <!-- Load More Button -->
@@ -220,13 +93,8 @@
                 <!-- Recently Used Templates -->
                 <div class="recently-used mt-2 mb-3">
                     <h4 class="text-xs uppercase text-gray-500 font-medium mb-2">Recently Used</h4>
-                    <div class="flex flex-wrap gap-2">
-                        <button type="button" class="template-chip px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded-full hover:bg-primary-50 hover:text-primary-600 transition-colors" data-template="chemical">
-                            <i class="fas fa-flask mr-1"></i> Chemical
-                        </button>
-                        <button type="button" class="template-chip px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded-full hover:bg-primary-50 hover:text-primary-600 transition-colors" data-template="machinery">
-                            <i class="fas fa-cogs mr-1"></i> Industrial Machinery
-                        </button>
+                    <div class="flex flex-wrap gap-2" id="recently-used-templates">
+                        <!-- Recently used templates will be loaded dynamically -->
                     </div>
                 </div>
             </div>
@@ -315,13 +183,16 @@
                             </div>
                             
                             <div class="space-y-4" id="template-fields-container">
-                                <!-- Template-specific fields will be added here dynamically -->
-                                <div class="p-4 bg-gray-50 rounded-lg text-center relative overflow-hidden">
-                                    <div class="absolute inset-0 bg-gray-200 opacity-10 pattern-dots"></div>
-                                    <i class="fas fa-arrow-left text-gray-400 text-2xl mb-2"></i>
-                                    <p class="text-gray-600">Select a template to see additional fields</p>
-                                    <div class="mt-2 text-sm text-gray-500">
-                                        <p>Templates will pre-fill fields based on product type</p>
+                                <div class="form-group">
+                                    <label for="Manufacturer" class="form-label">
+                                        Manufacturer
+                                        <span class="text-red-500 ml-1">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <input id="Manufacturer" name="Manufacturer" class="form-input pl-9" required placeholder="Manufacturer Name">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <i class="fas fa-industry text-gray-400"></i>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -355,36 +226,6 @@
                                     </div>
                                 </div>
                                 <span asp-validation-for="Location" class="form-error"></span>
-                            </div>
-                            
-                            <!-- Chemical Storage Conditions (Only for chemical products) -->
-                            <div class="form-group field-group chemical-field" style="display: none;">
-                                <label for="StorageConditions" class="form-label flex items-center">
-                                    Storage Conditions
-                                    <span class="ml-2 px-2 py-0.5 bg-blue-50 text-blue-600 text-xs rounded-full">Chemical Only</span>
-                                </label>
-                                <div class="relative">
-                                    <textarea id="StorageConditions" name="StorageConditions" class="form-input h-20 pl-9" 
-                                              placeholder="Store at 10-15°C, away from direct sunlight, in a well-ventilated area"></textarea>
-                                    <div class="absolute top-3 left-0 pl-3 flex items-start pointer-events-none">
-                                        <i class="fas fa-temperature-low text-gray-400"></i>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Design Dimensions (Only for design templates) -->
-                            <div class="form-group field-group design-field" style="display: none;">
-                                <label for="Dimensions" class="form-label flex items-center">
-                                    Dimensions
-                                    <span class="ml-2 px-2 py-0.5 bg-red-50 text-red-600 text-xs rounded-full">Design Only</span>
-                                </label>
-                                <div class="relative">
-                                    <input type="text" id="Dimensions" name="Dimensions" class="form-input pl-9" 
-                                          placeholder="1920x1080px, 300DPI">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <i class="fas fa-ruler-combined text-gray-400"></i>
-                                    </div>
-                                </div>
                             </div>
                             
                             <div class="form-group">
@@ -441,26 +282,6 @@
                                     </div>
                                 </div>
                                 <span asp-validation-for="WarrantyExpiration" class="form-error"></span>
-                            </div>
-                        </div>
-
-                        <!-- License field (Only for design templates) -->
-                        <div class="form-group field-group design-field mt-4" style="display: none;">
-                            <label for="LicenseInfo" class="form-label flex items-center">
-                                License Information
-                                <span class="ml-2 px-2 py-0.5 bg-red-50 text-red-600 text-xs rounded-full">Design Only</span>
-                            </label>
-                            <div class="relative">
-                                <select id="LicenseInfo" name="LicenseInfo" class="form-input pl-9">
-                                    <option value="Internal Use Only">Internal Use Only</option>
-                                    <option value="Company Licensed">Company Licensed</option>
-                                    <option value="Perpetual License">Perpetual License</option>
-                                    <option value="Royalty Free">Royalty Free</option>
-                                    <option value="Rights Managed">Rights Managed</option>
-                                </select>
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <i class="fas fa-copyright text-gray-400"></i>
-                                </div>
                             </div>
                         </div>
                         
@@ -669,22 +490,14 @@
                 </div>
             </div>
             
-<div class="card shadow-lg transition-all duration-300" id="card-preview-container">
+            <div class="card shadow-lg transition-all duration-300" id="card-preview-container">
                 <div class="card-flip-container">
                     <!-- Front of card -->
                     <div class="business-card card-side card-front" id="tag-preview" style="background-color: #ffffff; color: #000000">
                         <div class="p-6 h-full flex flex-col relative">
-                            <!-- Template indicator badge -->
-                            <div class="absolute -top-8 right-0 transform translate-y-12 transition-transform duration-300 opacity-70 hover:opacity-100">
-                                <div class="template-badge px-2 py-1 bg-white text-primary-600 text-xs font-medium rounded-t-lg shadow-sm">
-                                    <i id="preview-template-icon" class="fas fa-flask mr-1"></i>
-                                    <span id="preview-template-name">No Template</span>
-                                </div>
-                            </div>
-                            
                             <div class="mb-4">
                                 <span id="preview-category" class="px-2 py-1 text-xs font-semibold rounded-full inline-block" style="background-color: #0284c7; color: #ffffff">
-                                    Rust Coating Chemical
+                                    Select Category
                                 </span>
                                 <h3 id="preview-name" class="text-xl font-bold mt-2" style="color: #0284c7">Product Name</h3>
                                 <p id="preview-manufacturer" class="text-md">Manufacturer</p>
@@ -746,232 +559,6 @@
     </div>
 </div>
 
-<!-- Create Template Modal -->
-<div id="create-template-modal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
-    <div class="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"></div>
-    <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 relative z-10 transform transition-all duration-300 opacity-0 scale-95">
-        <div class="p-5 border-b border-gray-200 bg-gradient-to-r from-blue-500 to-primary-500 rounded-t-lg">
-            <div class="flex justify-between items-center">
-                <h3 class="text-lg font-bold text-white" id="template-modal-title">Create New Template</h3>
-                <button type="button" class="text-white hover:text-gray-200 focus:outline-none" id="close-template-modal">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        </div>
-        <div class="p-5 max-h-[70vh] overflow-y-auto">
-            <form id="template-form" class="space-y-4">
-                <input type="hidden" id="template-edit-id" value="" />
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="form-group">
-                        <label class="form-label">Template Name <span class="text-red-500">*</span></label>
-                        <div class="relative">
-                            <input type="text" id="template-name" class="form-input pl-9" placeholder="E.g., Laboratory Equipment" required>
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i class="fas fa-bookmark text-gray-400"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Category <span class="text-red-500">*</span></label>
-                        <div class="relative">
-                            <input type="text" id="template-category" class="form-input pl-9" placeholder="E.g., Lab Equipment" required>
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i class="fas fa-folder text-gray-400"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Icon Selection <span class="text-red-500">*</span></label>
-                    <div class="grid grid-cols-4 md:grid-cols-6 gap-3 mt-1">
-                        <div class="icon-option border rounded-lg p-3 flex items-center justify-center cursor-pointer hover:border-primary-500 hover:shadow-sm transition-all active" data-icon="flask">
-                            <i class="fas fa-flask text-primary-500 text-2xl"></i>
-                        </div>
-                        <div class="icon-option border rounded-lg p-3 flex items-center justify-center cursor-pointer hover:border-primary-500 hover:shadow-sm transition-all" data-icon="microscope">
-                            <i class="fas fa-microscope text-gray-500 text-2xl"></i>
-                        </div>
-                        <div class="icon-option border rounded-lg p-3 flex items-center justify-center cursor-pointer hover:border-primary-500 hover:shadow-sm transition-all" data-icon="vial">
-                            <i class="fas fa-vial text-gray-500 text-2xl"></i>
-                        </div>
-                        <div class="icon-option border rounded-lg p-3 flex items-center justify-center cursor-pointer hover:border-primary-500 hover:shadow-sm transition-all" data-icon="laptop">
-                            <i class="fas fa-laptop text-gray-500 text-2xl"></i>
-                        </div>
-                        <div class="icon-option border rounded-lg p-3 flex items-center justify-center cursor-pointer hover:border-primary-500 hover:shadow-sm transition-all" data-icon="file-alt">
-                            <i class="fas fa-file-alt text-gray-500 text-2xl"></i>
-                        </div>
-                        <div class="icon-option border rounded-lg p-3 flex items-center justify-center cursor-pointer hover:border-primary-500 hover:shadow-sm transition-all" data-icon="shield-alt">
-                            <i class="fas fa-shield-alt text-gray-500 text-2xl"></i>
-                        </div>
-                        <div class="icon-option border rounded-lg p-3 flex items-center justify-center cursor-pointer hover:border-primary-500 hover:shadow-sm transition-all" data-icon="cogs">
-                            <i class="fas fa-cogs text-gray-500 text-2xl"></i>
-                        </div>
-                        <div class="icon-option border rounded-lg p-3 flex items-center justify-center cursor-pointer hover:border-primary-500 hover:shadow-sm transition-all" data-icon="tools">
-                            <i class="fas fa-tools text-gray-500 text-2xl"></i>
-                        </div>
-                        <div class="icon-option border rounded-lg p-3 flex items-center justify-center cursor-pointer hover:border-primary-500 hover:shadow-sm transition-all" data-icon="box">
-                            <i class="fas fa-box text-gray-500 text-2xl"></i>
-                        </div>
-                        <div class="icon-option border rounded-lg p-3 flex items-center justify-center cursor-pointer hover:border-primary-500 hover:shadow-sm transition-all" data-icon="globe">
-                            <i class="fas fa-globe text-gray-500 text-2xl"></i>
-                        </div>
-                        <div class="icon-option border rounded-lg p-3 flex items-center justify-center cursor-pointer hover:border-primary-500 hover:shadow-sm transition-all" data-icon="bolt">
-                            <i class="fas fa-bolt text-gray-500 text-2xl"></i>
-                        </div>
-                        <div class="icon-option border rounded-lg p-3 flex items-center justify-center cursor-pointer hover:border-primary-500 hover:shadow-sm transition-all" data-icon="cube">
-                            <i class="fas fa-cube text-gray-500 text-2xl"></i>
-                        </div>
-                    </div>
-                    <input type="hidden" id="template-icon" value="flask">
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Background Color</label>
-                    <div class="flex">
-                        <input type="color" id="template-bg-color" class="w-10 h-10 border border-gray-300 rounded-lg cursor-pointer" value="#f0f9ff">
-                        <input type="text" id="template-bg-color-text" class="form-input ml-2 flex-grow" value="#f0f9ff">
-                    </div>
-                    <div class="color-presets mt-2 flex flex-wrap gap-2">
-                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#f0f9ff" style="background-color: #f0f9ff;"></span>
-                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#f0fdf4" style="background-color: #f0fdf4;"></span>
-                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#fef3c7" style="background-color: #fef3c7;"></span>
-                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#fdf2f8" style="background-color: #fdf2f8;"></span>
-                    </div>
-                </div>
-                
-                <div class="border-t border-gray-200 pt-4 mt-4">
-                    <div class="flex justify-between items-center mb-3">
-                        <h4 class="text-md font-semibold text-gray-700 flex items-center">
-                            <i class="fas fa-layer-group text-primary-400 mr-2"></i> Custom Fields
-                        </h4>
-                        <button type="button" id="add-field-btn" class="text-sm inline-flex items-center text-primary-600 hover:text-primary-700 px-2 py-1 rounded hover:bg-blue-50 transition-colors">
-                            <i class="fas fa-plus-circle mr-1"></i> Add Field
-                        </button>
-                    </div>
-                    
-                    <div id="custom-fields" class="space-y-4 max-h-[300px] overflow-y-auto pr-2">
-                        <!-- Fields will be added here -->
-                        <div class="custom-field-row flex items-start gap-2 p-3 border border-gray-100 rounded-lg bg-gray-50 hover:bg-white hover:shadow-sm transition-all">
-                            <div class="flex-grow">
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                                    <div class="form-group mb-2">
-                                        <label class="form-label text-sm">Field Name <span class="text-red-500">*</span></label>
-                                        <input type="text" class="form-input py-2 text-sm field-name" placeholder="E.g., Lab ID" required>
-                                    </div>
-                                    <div class="form-group mb-2">
-                                        <label class="form-label text-sm">Field Type <span class="text-red-500">*</span></label>
-                                        <select class="form-input py-2 text-sm field-type">
-                                            <option value="text">Text</option>
-                                            <option value="select">Dropdown</option>
-                                            <option value="number">Number</option>
-                                            <option value="date">Date</option>
-                                            <option value="textarea">Text Area</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group mb-2">
-                                        <label class="form-label text-sm">Icon</label>
-                                        <select class="form-input py-2 text-sm field-icon">
-                                            <option value="tag">Tag</option>
-                                            <option value="info-circle">Info</option>
-                                            <option value="check-circle">Check</option>
-                                            <option value="flag">Flag</option>
-                                            <option value="clipboard">Clipboard</option>
-                                            <option value="calendar">Calendar</option>
-                                            <option value="user">User</option>
-                                            <option value="link">Link</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="field-options hidden mt-2">
-                                    <label class="form-label text-sm">Options (comma separated)</label>
-                                    <input type="text" class="form-input py-2 text-sm field-options-input" placeholder="Option 1, Option 2, Option 3">
-                                </div>
-                                <div class="form-group mt-2">
-                                    <label class="form-label text-sm">Placeholder</label>
-                                    <input type="text" class="form-input py-2 text-sm field-placeholder" placeholder="Enter placeholder text">
-                                </div>
-                                <div class="form-group mt-2">
-                                    <div class="flex items-center">
-                                        <input type="checkbox" class="field-required mr-2" id="field-required-checkbox" checked>
-                                        <label for="field-required-checkbox" class="text-sm">Required</label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex-shrink-0 mt-6">
-                                <button type="button" class="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full transition-colors remove-field-btn">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </form>
-        </div>
-        <div class="p-5 border-t border-gray-200 bg-gray-50 flex justify-end rounded-b-lg">
-            <button type="button" class="btn-secondary mr-2 shadow-sm" id="cancel-template-btn">
-                Cancel
-            </button>
-            <button type="button" class="btn-danger mr-2 shadow-sm hidden" id="delete-template-btn">
-                <i class="fas fa-trash mr-2"></i> Delete Template
-            </button>
-            <button type="button" class="btn-primary shadow-sm" id="save-template-btn">
-                <i class="fas fa-save mr-2"></i> Save Template
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Delete Template Confirmation Modal -->
-<div id="delete-template-modal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
-    <div class="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"></div>
-    <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 relative z-10 transform transition-all duration-300 opacity-0 scale-95">
-        <div class="p-5 border-b border-gray-200 bg-red-50">
-            <div class="flex justify-between items-center">
-                <h3 class="text-lg font-bold text-red-700 flex items-center">
-                    <i class="fas fa-exclamation-triangle text-red-500 mr-2"></i> Delete Template
-                </h3>
-                <button type="button" class="text-gray-400 hover:text-gray-600 focus:outline-none" id="close-delete-modal">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        </div>
-        <div class="p-5">
-            <p class="text-gray-700">Are you sure you want to delete this template? This action cannot be undone.</p>
-            <div class="mt-3 p-3 border border-red-100 rounded-lg bg-red-50">
-                <p class="flex items-center text-red-600 font-medium">
-                    <i class="fas fa-folder mr-2"></i>
-                    <span id="delete-template-name"></span>
-                </p>
-            </div>
-            <input type="hidden" id="delete-template-id" value="" />
-        </div>
-        <div class="p-5 border-t border-gray-200 bg-gray-50 flex justify-end">
-            <button type="button" class="btn-secondary mr-2 shadow-sm" id="cancel-delete-btn">
-                Cancel
-            </button>
-            <button type="button" class="btn-danger shadow-sm" id="confirm-delete-btn">
-                <i class="fas fa-trash mr-2"></i> Delete
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Template Applied Toast Notification -->
-<div id="template-toast" class="fixed top-6 right-6 bg-white shadow-lg rounded-lg p-4 transform -translate-y-12 opacity-0 transition-all duration-300 z-50 max-w-sm border border-gray-100 hidden">
-    <div class="flex items-center">
-        <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-green-100 text-green-500 mr-3">
-            <i class="fas fa-check"></i>
-        </div>
-        <div class="flex-grow">
-            <p class="font-medium">Template Applied</p>
-            <p class="text-sm text-gray-500" id="template-toast-message">Template has been applied successfully</p>
-        </div>
-        <button onclick="hideTemplateToast()" class="ml-2 text-gray-400 hover:text-gray-600 h-8 w-8 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
-</div>
-
 @section Scripts {
 @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -983,8 +570,6 @@ function updateQrColors() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM fully loaded');
-    
     // Force create QRCode if not defined
     if (typeof QRCode === 'undefined') {
         console.warn('QRCode library not found, creating fallback...');
@@ -1008,26 +593,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
             `;
-            
-            console.log('Fallback QR code displayed');
         };
         
         // Add correction levels
         QRCode.CorrectLevel = {L:1, M:0, Q:3, H:2};
-    } else {
-        console.log('QRCode library loaded successfully');
     }
     
     // Load all required initialization functions
     try {
-        console.log('Initializing components...');
         initializeSteps();
         initializeColorPickers();
         initializeCardLayouts(); 
         initializeImageUpload();
-        initializeTemplates();
         initializeFieldVisibility();
-        initializeTemplateModal();
+        initializeTemplates();
         initializeTemplateTabs();
         initializeLoadMoreTemplates();
     } catch (e) {
@@ -1049,14 +628,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 element.style.minHeight = '400px';
                 element.style.height = '400px';
             }
-            console.log(`Force displayed ${id}`);
         } else {
             console.error(`Preview element not found: ${id}`);
         }
     });
     
     // Initialize preview with default values
-    console.log('Updating preview...');
     try {
         updateTagPreview();
     } catch (e) {
@@ -1066,7 +643,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Generate QR code with delay to ensure rendering
     setTimeout(function() {
         try {
-            console.log('Generating QR code...');
             generateQRCode();
         } catch (e) {
             console.error('Error generating QR code:', e);
@@ -1091,8 +667,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const cardBack = document.querySelector('.card-back');
         if (cardBack) cardBack.style.display = 'none';
-        
-        console.log('Final visibility enforcement complete');
     }, 800);
     
     // Handle category change
@@ -1137,153 +711,376 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize Load More Templates button
     function initializeLoadMoreTemplates() {
         const loadMoreBtn = document.getElementById('load-more-templates');
-        const expandedContainer = document.getElementById('expanded-template-container');
         const loadMoreText = document.querySelector('.load-more-text');
         const showLessText = document.querySelector('.show-less-text');
         
         loadMoreBtn.addEventListener('click', function() {
-            const isExpanded = !expandedContainer.classList.contains('hidden');
-            
-            if (isExpanded) {
-                // Hide expanded templates
-                expandedContainer.classList.add('hidden');
-                loadMoreText.classList.remove('hidden');
-                showLessText.classList.add('hidden');
-            } else {
-                // Show expanded templates
-                expandedContainer.classList.remove('hidden');
-                loadMoreText.classList.add('hidden');
-                showLessText.classList.remove('hidden');
-            }
+            loadMoreTemplates();
+            loadMoreText.classList.toggle('hidden');
+            showLessText.classList.toggle('hidden');
         });
     }
     
-    // Template toast functions
-    window.showTemplateToast = function(templateName) {
-        const toast = document.getElementById('template-toast');
-        const message = document.getElementById('template-toast-message');
+    // Initialize template tabs
+    function initializeTemplateTabs() {
+        const templateTabs = document.querySelectorAll('.template-tab');
         
-        message.textContent = `Template "${templateName}" has been applied successfully`;
-        
-        toast.classList.remove('hidden', '-translate-y-12', 'opacity-0');
-        toast.classList.add('translate-y-0', 'opacity-100');
-        
-        setTimeout(hideTemplateToast, 3000);
-    };
-    
-    window.hideTemplateToast = function() {
-        const toast = document.getElementById('template-toast');
-        toast.classList.remove('translate-y-0', 'opacity-100');
-        toast.classList.add('-translate-y-12', 'opacity-0');
-        
-        setTimeout(() => {
-            toast.classList.add('hidden');
-        }, 300);
-    };
-    
-    // Validate entire form
-    function validateForm() {
-        let isValid = true;
-        const requiredFields = document.querySelectorAll('[required]');
-        
-        requiredFields.forEach(field => {
-            if (!field.value.trim()) {
-                field.classList.add('border-red-500');
-                isValid = false;
+        templateTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active class from all tabs
+                templateTabs.forEach(t => {
+                    t.classList.remove('active', 'border-primary-500', 'text-primary-600');
+                    t.classList.add('border-transparent', 'text-gray-500');
+                });
                 
-                // Show the appropriate step if there's an error
-                const step = field.closest('.form-section');
-                if (step && step.classList.contains('hidden')) {
-                    const stepNumber = step.getAttribute('data-step');
-                    showStep(parseInt(stepNumber));
-                }
+                // Add active class to current tab
+                this.classList.add('active', 'border-primary-500', 'text-primary-600');
+                this.classList.remove('border-transparent', 'text-gray-500');
+                
+                // Filter templates by category
+                filterTemplatesByCategory(this.getAttribute('data-category'));
+            });
+        });
+        
+        // Template search functionality
+        const templateSearch = document.getElementById('template-search');
+        if (templateSearch) {
+            templateSearch.addEventListener('input', function() {
+                filterTemplatesBySearch(this.value);
+            });
+        }
+    }
+    
+    // Filter templates by category
+    function filterTemplatesByCategory(category) {
+        const templateCards = document.querySelectorAll('.template-card');
+        
+        templateCards.forEach(card => {
+            if (category === 'all' || card.getAttribute('data-category') === category) {
+                card.style.display = '';
             } else {
-                field.classList.remove('border-red-500');
+                card.style.display = 'none';
+            }
+        });
+    }
+    
+    // Filter templates by search term
+    function filterTemplatesBySearch(searchTerm) {
+        const templateCards = document.querySelectorAll('.template-card');
+        const term = searchTerm.toLowerCase();
+        
+        templateCards.forEach(card => {
+            const text = card.textContent.toLowerCase();
+            if (text.includes(term)) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+    
+    // Load more templates - triggers API call to get more templates
+    function loadMoreTemplates() {
+        // Implementation depends on your API structure
+        // This is a placeholder for the actual implementation
+        console.log('Loading more templates...');
+        
+        // Example implementation - replace with actual API call
+        fetch('/api/Template?skip=' + document.querySelectorAll('.template-card').length)
+            .then(response => response.json())
+            .then(templates => {
+                templates.forEach(template => {
+                    addTemplateCard(template);
+                });
+            })
+            .catch(error => {
+                console.error('Error loading more templates:', error);
+            });
+    }
+    
+    // Initialize templates
+    function initializeTemplates() {
+        // Load templates from API
+        fetch('/api/Template')
+            .then(response => response.json())
+            .then(templates => {
+                const container = document.getElementById('template-container');
+                
+                // Clear container
+                container.innerHTML = '';
+                
+                // Add templates from database
+                if (templates && templates.length > 0) {
+                    templates.forEach(template => {
+                        addTemplateCard(template);
+                    });
+                } else {
+                    container.innerHTML = `
+                        <div class="col-span-3 p-6 text-center">
+                            <div class="text-gray-400 mb-2"><i class="fas fa-folder-open text-2xl"></i></div>
+                            <p class="text-gray-500">No templates found</p>
+                        </div>
+                    `;
+                }
+                
+                // Load recently used templates
+                loadRecentlyUsedTemplates();
+            })
+            .catch(error => {
+                console.error('Error loading templates:', error);
+                showNotification('Error loading templates', 'error');
+            });
+    }
+    
+    // Add template card to the gallery
+    function addTemplateCard(template) {
+        const templateContainer = document.getElementById('template-container');
+        
+        // Create card element
+        const card = document.createElement('div');
+        card.className = 'template-card cursor-pointer border rounded-lg overflow-hidden hover:border-primary-500 hover:shadow transition-all relative group';
+        card.setAttribute('data-template', template.id);
+        card.setAttribute('data-category', template.category || 'custom');
+        
+        card.innerHTML = `
+            <div class="absolute top-1 right-1 flex template-actions opacity-0 group-hover:opacity-100 z-10">
+                <button type="button" class="edit-template-btn p-1 text-gray-500 hover:text-primary-600 bg-white rounded-full shadow-sm" data-template="${template.id}">
+                    <i class="fas fa-edit"></i>
+                </button>
+            </div>
+            <div class="h-20 bg-${getBackgroundClass(template.bgColor || '#f0f9ff')} flex items-center justify-center">
+                <i class="fas fa-${template.icon || 'tag'} text-${getColorClass(template.icon || 'tag')} text-2xl"></i>
+            </div>
+            <div class="p-2 bg-white border-t border-gray-100">
+                <h4 class="font-medium text-sm text-gray-800">${template.name || 'Unnamed Template'}</h4>
+                <p class="text-xs text-gray-500 mt-0.5">${template.category || 'Custom'}</p>
+            </div>
+            <div class="absolute inset-0 bg-primary-500 bg-opacity-0 hover:bg-opacity-10 transition-all flex items-center justify-center">
+                <span class="bg-white text-primary-600 px-2 py-1 rounded-full text-xs font-medium opacity-0 group-hover:opacity-100 transform scale-0 group-hover:scale-100 transition-all shadow-sm">
+                    Select Template
+                </span>
+            </div>
+        `;
+        
+        // Add event listener for template selection
+        card.addEventListener('click', function(e) {
+            if (!e.target.closest('.edit-template-btn')) {
+                applyTemplate(template.id);
             }
         });
         
-        if (!isValid) {
-            showNotification('Please fill in all required fields', 'error');
-        }
-        
-        return isValid;
+        // Add to container
+        templateContainer.appendChild(card);
     }
     
-    // Show a specific step
-    function showStep(stepNumber) {
-        const formSections = document.querySelectorAll('.form-section');
-        formSections.forEach(section => {
-            section.classList.add('hidden');
-        });
-        
-        document.querySelector(`.form-section[data-step="${stepNumber}"]`).classList.remove('hidden');
-        
-        // Update step indicator
-        document.querySelector('.step-indicator').textContent = `Step ${stepNumber} of 3`;
-        
-        // Update step circles
-        const steps = document.querySelectorAll('.step');
-        steps.forEach(step => {
-            step.classList.remove('active');
-        });
-        
-        document.querySelector(`.step[data-step="${stepNumber}"]`).classList.add('active');
-        
-        // Update form progress
-        updateFormProgress(stepNumber);
+    // Helper functions for template colors
+    function getBackgroundClass(bgColor) {
+        if (bgColor === '#f0f9ff') return 'blue-50';
+        if (bgColor === '#f0fdf4') return 'green-50';
+        if (bgColor === '#fef3c7') return 'yellow-50';
+        if (bgColor === '#fdf2f8') return 'red-50';
+        if (bgColor === '#faf5ff') return 'purple-50';
+        return 'gray-50';
     }
     
-    // Save card data to local storage for testing
-    function saveCard() {
-        // Get form data for submission
-        const form = document.getElementById('product-form');
-        form.submit();
+    function getColorClass(icon) {
+        if (['flask', 'vial'].includes(icon)) return 'blue-500';
+        if (['leaf', 'seedling'].includes(icon)) return 'green-500';
+        if (['cogs', 'tools', 'wrench'].includes(icon)) return 'yellow-600';
+        if (['microchip', 'laptop'].includes(icon)) return 'green-500';
+        if (['paint-brush', 'palette'].includes(icon)) return 'red-500';
+        if (['shield-alt', 'hard-hat'].includes(icon)) return 'orange-500';
+        return 'primary-500';
     }
     
-    // Generate QR Code
-    function generateQRCode() {
-        const qrElement = document.getElementById('card-qr-code-display');
-        if (!qrElement) {
-            console.error('QR code container not found');
-            return;
-        }
-        
-        // Clear any existing QR code
-        qrElement.innerHTML = '';
-        
-        const productName = document.getElementById('ProductName').value || 'Sample Product';
-        const qrFgColor = document.getElementById('qr-fg-color').value || '#000000';
-        const qrBgColor = document.getElementById('qr-bg-color').value || '#FFFFFF';
-        
-        // Update QR product name on back of card
-        const qrProductNameElement = document.getElementById('qr-product-name');
-        if (qrProductNameElement) {
-            qrProductNameElement.textContent = productName;
-        }
-        
-        // QR code data would typically contain a URL or ID to access the product details
-        const qrData = `PRODUCT:${productName}:${Date.now()}`;
+    // Load recently used templates from localStorage
+    function loadRecentlyUsedTemplates() {
+        const container = document.getElementById('recently-used-templates');
+        container.innerHTML = '';
         
         try {
-            // Make sure QRCode is loaded
-            if (typeof QRCode === 'undefined') {
-                throw new Error('QRCode library not loaded');
+            const recent = JSON.parse(localStorage.getItem('recentTemplates') || '[]');
+            
+            if (recent.length === 0) {
+                container.innerHTML = '<p class="text-xs text-gray-400">No recently used templates</p>';
+                return;
             }
             
-            // Create new QR Code
-            new QRCode(qrElement, {
-                text: qrData,
-                width: 160,
-                height: 160,
-                colorDark: qrFgColor,
-                colorLight: qrBgColor,
-                correctLevel: QRCode.CorrectLevel.H
+            recent.forEach(item => {
+                const chip = document.createElement('button');
+                chip.type = 'button';
+                chip.className = 'template-chip px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded-full hover:bg-primary-50 hover:text-primary-600 transition-colors';
+                chip.setAttribute('data-template', item.id);
+                chip.innerHTML = `<i class="fas fa-${item.icon || 'tag'} mr-1"></i> ${item.name}`;
+                
+                chip.addEventListener('click', function() {
+                    applyTemplate(item.id);
+                });
+                
+                container.appendChild(chip);
+            });
+        } catch (e) {
+            console.error('Error loading recent templates:', e);
+            container.innerHTML = '<p class="text-xs text-gray-400">No recently used templates</p>';
+        }
+    }
+    
+    // Apply template function
+    function applyTemplate(templateId) {
+        document.getElementById('templateTypeHidden').value = templateId;
+        
+        // Update template cards UI
+        document.querySelectorAll('.template-card').forEach(card => {
+            card.classList.remove('border-primary-500');
+            if (card.getAttribute('data-template') == templateId) {
+                card.classList.add('border-primary-500');
+            }
+        });
+        
+        // Load template fields
+        fetch(`/api/Template/${templateId}`)
+            .then(response => response.json())
+            .then(template => {
+                // Update field visibility based on template
+                displayTemplateFields(template);
+                
+                // Update preview
+                updateTagPreview();
+                
+                // Add to recently used
+                addToRecentlyUsed(template);
+                
+                // Show notification
+                showNotification(`Template "${template.name}" applied`, 'success');
+            })
+            .catch(error => {
+                console.error('Error loading template:', error);
+                showNotification('Error loading template', 'error');
+            });
+    }
+    
+    // Display template fields
+    function displayTemplateFields(template) {
+        const container = document.getElementById('template-fields-container');
+        container.innerHTML = '';
+        
+        // Ensure we have fields
+        let fields = [];
+        try {
+            if (template.fieldsJson) {
+                fields = JSON.parse(template.fieldsJson);
+            } else if (template.fields) {
+                fields = template.fields;
+            }
+        } catch (e) {
+            console.error('Error parsing template fields:', e);
+        }
+        
+        // Add default manufacturer field if not present
+        const hasManufacturer = fields.some(f => f.name.toLowerCase() === 'manufacturer');
+        if (!hasManufacturer) {
+            container.innerHTML += `
+                <div class="form-group">
+                    <label for="Manufacturer" class="form-label">
+                        Manufacturer
+                        <span class="text-red-500 ml-1">*</span>
+                    </label>
+                    <div class="relative">
+                        <input id="Manufacturer" name="Manufacturer" class="form-input pl-9" required placeholder="Manufacturer Name">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-industry text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Add template fields
+        fields.forEach(field => {
+            const isRequired = field.required !== false;
+            const fieldId = `custom-${field.name.replace(/\s+/g, '-').toLowerCase()}`;
+            
+            let fieldHTML = `
+                <div class="form-group">
+                    <label for="${fieldId}" class="form-label">
+                        ${field.name}
+                        ${isRequired ? '<span class="text-red-500 ml-1">*</span>' : ''}
+                    </label>
+                    <div class="relative">
+            `;
+            
+            // Create input based on field type
+            if (field.type === 'textarea') {
+                fieldHTML += `
+                    <textarea id="${fieldId}" name="${fieldId}" class="form-input pl-9 h-20" ${isRequired ? 'required' : ''} placeholder="${field.placeholder || ''}"></textarea>
+                    <div class="absolute top-3 left-0 pl-3 flex items-start pointer-events-none">
+                        <i class="fas fa-${field.icon || 'tag'} text-gray-400"></i>
+                    </div>
+                `;
+            } else if (field.type === 'select') {
+                fieldHTML += `
+                    <select id="${fieldId}" name="${fieldId}" class="form-input pl-9" ${isRequired ? 'required' : ''}>
+                `;
+                
+                // Add options
+                if (field.options && field.options.length > 0) {
+                    field.options.forEach(option => {
+                        fieldHTML += `<option value="${option}">${option}</option>`;
+                    });
+                }
+                
+                fieldHTML += `
+                    </select>
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-${field.icon || 'tag'} text-gray-400"></i>
+                    </div>
+                `;
+            } else {
+                fieldHTML += `
+                    <input id="${fieldId}" name="${fieldId}" type="${field.type || 'text'}" class="form-input pl-9" ${isRequired ? 'required' : ''} placeholder="${field.placeholder || ''}">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-${field.icon || 'tag'} text-gray-400"></i>
+                    </div>
+                `;
+            }
+            
+            fieldHTML += `
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML += fieldHTML;
+        });
+    }
+    
+    // Add template to recently used
+    function addToRecentlyUsed(template) {
+        try {
+            let recent = JSON.parse(localStorage.getItem('recentTemplates') || '[]');
+            
+            // Check if already in the list
+            const index = recent.findIndex(item => item.id === template.id);
+            if (index !== -1) {
+                recent.splice(index, 1);
+            }
+            
+            // Add to beginning of list
+            recent.unshift({
+                id: template.id,
+                name: template.name,
+                icon: template.icon || 'tag'
             });
             
-            console.log('QR code generated successfully');
-        } catch (error) {
-            console.error('Error generating QR code:', error);
-            qrElement.innerHTML = '<i class="fas fa-exclamation-triangle text-red-500 text-xl"></i><p class="text-xs text-red-500 mt-2">Error generating QR code</p>';
+            // Keep only last 5
+            recent = recent.slice(0, 5);
+            
+            // Save to localStorage
+            localStorage.setItem('recentTemplates', JSON.stringify(recent));
+            
+            // Update UI
+            loadRecentlyUsedTemplates();
+        } catch (e) {
+            console.error('Error updating recently used templates:', e);
         }
     }
     
@@ -1312,74 +1109,29 @@ document.addEventListener('DOMContentLoaded', function() {
         generateQRCode();
     });
     
-    // Initialize template tabs
-    function initializeTemplateTabs() {
-        const templateTabs = document.querySelectorAll('.template-tab');
-        const templateCards = document.querySelectorAll('.template-card');
+    // Show/hide fields based on category/template type
+    function updateFieldVisibility(category) {
+        const templateFieldsContainer = document.getElementById('template-fields-container');
+        templateFieldsContainer.innerHTML = '';
         
-        templateTabs.forEach(tab => {
-            tab.addEventListener('click', function() {
-                // Remove active class from all tabs
-                templateTabs.forEach(t => {
-                    t.classList.remove('active', 'border-primary-500', 'text-primary-600');
-                    t.classList.add('border-transparent', 'text-gray-500');
-                });
-                
-                // Add active class to current tab
-                this.classList.add('active', 'border-primary-500', 'text-primary-600');
-                this.classList.remove('border-transparent', 'text-gray-500');
-                
-                // Show/hide cards based on category
-                const category = this.getAttribute('data-category');
-                
-                templateCards.forEach(card => {
-                    if (category === 'all' || card.getAttribute('data-category') === category) {
-                        card.style.display = '';
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
-            });
-        });
+        // Add default manufacturer field
+        templateFieldsContainer.innerHTML = `
+            <div class="form-group">
+                <label for="Manufacturer" class="form-label">
+                    Manufacturer
+                    <span class="text-red-500 ml-1">*</span>
+                </label>
+                <div class="relative">
+                    <input id="Manufacturer" name="Manufacturer" class="form-input pl-9" required placeholder="Manufacturer Name">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-industry text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+        `;
         
-        // Template search functionality
-        const templateSearch = document.getElementById('template-search');
-        if (templateSearch) {
-            templateSearch.addEventListener('input', function() {
-                const searchTerm = this.value.toLowerCase();
-                
-                templateCards.forEach(card => {
-                    const cardText = card.textContent.toLowerCase();
-                    
-                    if (cardText.includes(searchTerm)) {
-                        card.style.display = '';
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
-            });
-        }
-        
-        // Template chip functionality (recently used)
-        const templateChips = document.querySelectorAll('.template-chip');
-        templateChips.forEach(chip => {
-            chip.addEventListener('click', function() {
-                const templateId = this.getAttribute('data-template');
-                applyTemplate(templateId);
-            });
-        });
-    }
-    
-    // Initialize field visibility based on template type
-    function initializeFieldVisibility() {
-        const templateType = document.getElementById('templateTypeHidden').value;
-        if (templateType) {
-            updateFieldVisibility(templateType);
-        } else {
-            // Default to category value if no template type is set
-            const categoryValue = document.getElementById('category-select').value;
-            updateFieldVisibility(categoryValue);
-        }
+        // Update tag preview
+        updateTagPreview();
     }
     
     // Initialize steps functionality for multi-step form
@@ -1503,9 +1255,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Update form progress
         function updateFormProgress(step) {
-            // Calculate progress percentage
-            const progress = ((step - 1) / 2) * 100;
-            
             // Update progress bars
             document.querySelectorAll('.step-progress').forEach((progressBar, index) => {
                 if (index < step - 1) {
@@ -1616,44 +1365,6 @@ document.addEventListener('DOMContentLoaded', function() {
             try {
                 accentColorPicker.value = this.value;
                 updateTagPreview();
-            } catch (e) {
-                // Invalid color value, ignore
-            }
-        });
-        
-        // QR code colors
-        const qrFgColor = document.getElementById('qr-fg-color');
-        const qrFgColorText = document.getElementById('qr-fg-color-text');
-        const qrBgColor = document.getElementById('qr-bg-color');
-        const qrBgColorText = document.getElementById('qr-bg-color-text');
-        
-        qrFgColor.addEventListener('input', function() {
-            qrFgColorText.value = this.value;
-            updateQrColors();
-            generateQRCode();
-        });
-        
-        qrFgColorText.addEventListener('input', function() {
-            try {
-                qrFgColor.value = this.value;
-                updateQrColors();
-                generateQRCode();
-            } catch (e) {
-                // Invalid color value, ignore
-            }
-        });
-        
-        qrBgColor.addEventListener('input', function() {
-            qrBgColorText.value = this.value;
-            updateQrColors();
-            generateQRCode();
-        });
-        
-        qrBgColorText.addEventListener('input', function() {
-            try {
-                qrBgColor.value = this.value;
-                updateQrColors();
-                generateQRCode();
             } catch (e) {
                 // Invalid color value, ignore
             }
@@ -1827,1206 +1538,108 @@ document.addEventListener('DOMContentLoaded', function() {
             dropzone.classList.remove('border-primary-400', 'border-opacity-20', 'bg-primary-50', 'bg-opacity-30');
         });
     }
-    
-    // Get templates from API instead of localStorage
-    async function getTemplates() {
-        try {
-            const response = await fetch('/api/Template');
-            if (!response.ok) {
-                throw new Error('Failed to fetch templates');
-            }
-            return await response.json();
-        } catch (error) {
-            console.error('Error fetching templates:', error);
-            showNotification('Error loading templates', 'error');
-            return [];
-        }
-    }
 
-    // Save template to API
-async function saveTemplate(template) {
-    try {
-        const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
-        const method = template.id > 0 ? 'PUT' : 'POST';
-        const url = template.id > 0 ? `/api/Template/${template.id}` : '/api/Template';
+    // Validate entire form
+    function validateForm() {
+        let isValid = true;
+        const requiredFields = document.querySelectorAll('[required]');
         
-        console.log('Saving template:', JSON.stringify(template));
-        
-        const response = await fetch(url, {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json',
-                'RequestVerificationToken': token
-            },
-            body: JSON.stringify(template)
-        });
-        
-        const responseText = await response.text();
-        console.log('Server response:', responseText);
-        
-        if (!response.ok) {
-            throw new Error(`Failed to save template - Status: ${response.status}`);
-        }
-        
-        // For successful POST responses, parse the JSON response
-        if (method === 'POST' && responseText) {
-            try {
-                return JSON.parse(responseText);
-            } catch (e) {
-                console.warn('Could not parse response as JSON:', e);
-                return template;
-            }
-        } else {
-            return template; // For PUT, just return the original object
-        }
-    } catch (error) {
-        console.error('Error saving template:', error);
-        throw error;
-    }
-}
-
-    // Delete template from API
-    async function deleteTemplate(templateId) {
-        try {
-            const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
-            const response = await fetch(`/api/Template/${templateId}`, {
-                method: 'DELETE',
-                headers: {
-                    'RequestVerificationToken': token
-                }
-            });
-            
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to delete template');
-            }
-            
-            return true;
-        } catch (error) {
-            console.error('Error deleting template:', error);
-            showNotification('Error deleting template: ' + error.message, 'error');
-            return false;
-        }
-    }
-    
-    // Initialize templates
-    async function initializeTemplates() {
-        const templateCards = document.querySelectorAll('.template-card');
-        const templateTypeHidden = document.getElementById('templateTypeHidden');
-        
-        // Load templates from API
-        const dbTemplates = await getTemplates();
-        
-        // Add template cards for database templates
-        dbTemplates.forEach(template => {
-            addTemplateCard(template);
-        });
-        
-        // Template card click handler
-        document.addEventListener('click', function(e) {
-            const card = e.target.closest('.template-card');
-            if (card && !e.target.closest('.edit-template-btn')) {
-                const templateId = card.getAttribute('data-template');
-                applyTemplate(templateId);
-            }
-        });
-    }
-    
-    // Apply template function
-    async function applyTemplate(templateId) {
-        // Update hidden input
-        document.getElementById('templateTypeHidden').value = templateId;
-        
-        // Update template cards UI
-        const templateCards = document.querySelectorAll('.template-card');
-        templateCards.forEach(card => {
-            card.classList.remove('border-primary-500');
-            if (card.getAttribute('data-template') === templateId) {
-                card.classList.add('border-primary-500');
-            }
-        });
-        
-        // Update field visibility based on template
-        await updateFieldVisibility(templateId);
-        
-        // Update the preview header with template info
-        const templateName = document.querySelector(`.template-card[data-template="${templateId}"] h4`)?.textContent || templateId;
-        const templateIcon = document.querySelector(`.template-card[data-template="${templateId}"] i.fas`)?.className.replace('text-2xl', '').trim() || 'fas fa-none';
-        
-        // Update preview template badge
-        document.getElementById('preview-template-name').textContent = templateName;
-        document.getElementById('preview-template-icon').className = templateIcon;
-        
-        // Show template applied notification
-        showTemplateToast(templateName);
-        
-        // Generate updated QR code
-        generateQRCode();
-    }
-    
-    // Show/hide fields based on category/template type
-    async function updateFieldVisibility(category) {
-        // Check if category is a numeric template ID
-        const isNumeric = !isNaN(parseInt(category));
-        
-        // Hide all custom fields first
-        const fieldGroups = document.querySelectorAll('.field-group');
-        fieldGroups.forEach(field => {
-            field.style.display = 'none';
-        });
-        
-        // Clear template fields container
-        const templateFieldsContainer = document.getElementById('template-fields-container');
-        templateFieldsContainer.innerHTML = '';
-        
-        // Show fields based on category or template type
-        if (isNumeric) {
-            // This is a database template - fetch and display custom fields
-            try {
-                const response = await fetch(`/api/Template/${category}`);
-                if (!response.ok) throw new Error('Failed to fetch template');
-                const template = await response.json();
-                displayCustomTemplateFields(template, templateFieldsContainer);
-            } catch (error) {
-                console.error('Error fetching template:', error);
-                generateDefaultFields(templateFieldsContainer);
-            }
-        } else {
-            switch(category.toLowerCase()) {
-                case 'chemical':
-                case 'rust coating chemical':
-                    generateTemplateFields('chemical', templateFieldsContainer);
-                    document.querySelectorAll('.chemical-field').forEach(field => {
-                        field.style.display = 'block';
-                    });
-                    break;
-                case 'safety':
-                case 'safety equipment':
-                    generateTemplateFields('safety', templateFieldsContainer);
-                    document.querySelectorAll('.safety-field').forEach(field => {
-                        field.style.display = 'block';
-                    });
-                    break;
-                case 'electronic':
-                case 'electronic device':
-                    generateTemplateFields('electronic', templateFieldsContainer);
-                    document.querySelectorAll('.electronic-field').forEach(field => {
-                        field.style.display = 'block';
-                    });
-                    break;
-                case 'machinery':
-                case 'industrial machinery':
-                    generateTemplateFields('machinery', templateFieldsContainer);
-                    document.querySelectorAll('.machinery-field').forEach(field => {
-                        field.style.display = 'block';
-                    });
-                    break;
-                case 'design':
-                case 'design asset':
-                    generateTemplateFields('design', templateFieldsContainer);
-                    document.querySelectorAll('.design-field').forEach(field => {
-                        field.style.display = 'block';
-                    });
-                    
-                    // For design assets, change "Warranty" to "License Expiration"
-                    document.querySelector('.warranty-label').innerHTML = 'License Expiration <span class="text-red-500 ml-1">*</span>';
-                    document.querySelector('.warranty-preview .font-medium').textContent = 'License Until:';
-                    break;
-                default:
-                    // For other categories, ensure warranty label is correct
-                    document.querySelector('.warranty-label').innerHTML = 'Warranty Until <span class="text-red-500 ml-1">*</span>';
-                    document.querySelector('.warranty-preview .font-medium').textContent = 'Warranty Until:';
-                    
-                    // Default fields if no template matched
-                    generateDefaultFields(templateFieldsContainer);
-                    break;
-            }
-        }
-        
-        // Update tag preview
-        updateTagPreview();
-    }
-
-    // Generate default template fields
-    function generateDefaultFields(container) {
-        container.innerHTML = `
-            <div class="form-group">
-                <label for="Manufacturer" class="form-label">
-                    Manufacturer
-                    <span class="text-red-500 ml-1">*</span>
-                </label>
-                <div class="relative">
-                    <input id="Manufacturer" name="Manufacturer" class="form-input pl-9" required placeholder="Manufacturer Name">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i class="fas fa-industry text-gray-400"></i>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-    
-    // Generate template-specific fields
- function generateTemplateFields(type, container) {
-    switch(type) {
-        case 'chemical':
-            container.innerHTML = `
-                <div class="form-group">
-                    <label for="Manufacturer" class="form-label">
-                        Manufacturer
-                        <span class="text-red-500 ml-1">*</span>
-                    </label>
-                    <div class="relative">
-                        <input id="Manufacturer" name="Manufacturer" class="form-input pl-9" required placeholder="ChemTech Industries">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="fas fa-industry text-gray-400"></i>
-                        </div>
-                    </div>
-                </div>
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                field.classList.add('border-red-500');
+                isValid = false;
                 
-                <div class="form-group">
-                    <label for="ChemicalType" class="form-label">
-                        Chemical Type
-                        <span class="text-red-500 ml-1">*</span>
-                    </label>
-                    <div class="relative">
-                        <select id="ChemicalType" name="ChemicalType" class="form-input pl-9" required>
-                            <option value="Acid">Acid</option>
-                            <option value="Alkali">Alkali</option>
-                            <option value="Solvent">Solvent</option>
-                            <option value="Coating">Coating</option>
-                            <option value="Other">Other</option>
-                        </select>
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="fas fa-flask text-gray-400"></i>
-                        </div>
-                    </div>
-                </div>
-            `;
-            break;
-            case 'safety':
-                container.innerHTML = `
-                    <div class="form-group">
-                        <label for="Manufacturer" class="form-label">
-                            Manufacturer
-                            <span class="text-red-500 ml-1">*</span>
-                        </label>
-                        <div class="relative">
-                            <input id="Manufacturer" name="Manufacturer" class="form-input pl-9" required placeholder="SafetyFirst Inc.">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i class="fas fa-industry text-gray-400"></i>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="SafetyStandard" class="form-label">
-                            Safety Standard
-                            <span class="text-red-500 ml-1">*</span>
-                        </label>
-                        <div class="relative">
-                            <input id="SafetyStandard" name="SafetyStandard" class="form-input pl-9" required placeholder="ISO 9001, ANSI Z87.1">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i class="fas fa-shield-alt text-gray-400"></i>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                break;
-            case 'electronic':
-                container.innerHTML = `
-                    <div class="form-group">
-                        <label for="Manufacturer" class="form-label">
-                            Manufacturer
-                            <span class="text-red-500 ml-1">*</span>
-                        </label>
-                        <div class="relative">
-                            <input id="Manufacturer" name="Manufacturer" class="form-input pl-9" required placeholder="ElectroTech Inc.">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i class="fas fa-industry text-gray-400"></i>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="PowerRequirement" class="form-label">
-                            Power Requirement
-                            <span class="text-red-500 ml-1">*</span>
-                        </label>
-                        <div class="relative">
-                            <input id="PowerRequirement" name="PowerRequirement" class="form-input pl-9" required placeholder="220V, 50Hz, 100W">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i class="fas fa-bolt text-gray-400"></i>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                break;
-            case 'machinery':
-                container.innerHTML = `
-                    <div class="form-group">
-                        <label for="Manufacturer" class="form-label">
-                            Manufacturer
-                            <span class="text-red-500 ml-1">*</span>
-                        </label>
-                        <div class="relative">
-                            <input id="Manufacturer" name="Manufacturer" class="form-input pl-9" required placeholder="MachTech Heavy Industries">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i class="fas fa-industry text-gray-400"></i>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="OperatingCapacity" class="form-label">
-                            Operating Capacity
-                            <span class="text-red-500 ml-1">*</span>
-                        </label>
-                        <div class="relative">
-                            <input id="OperatingCapacity" name="OperatingCapacity" class="form-input pl-9" required placeholder="500 kg/hour">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i class="fas fa-tachometer-alt text-gray-400"></i>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                break;
-            case 'design':
-                container.innerHTML = `
-                    <div class="form-group">
-                        <label for="Manufacturer" class="form-label">
-                            Creator/Studio
-                            <span class="text-red-500 ml-1">*</span>
-                        </label>
-                        <div class="relative">
-                            <input id="Manufacturer" name="Manufacturer" class="form-input pl-9" required placeholder="DesignWorks Studio">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i class="fas fa-user-tie text-gray-400"></i>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="DesignType" class="form-label">
-                            Design Type
-                            <span class="text-red-500 ml-1">*</span>
-                        </label>
-                        <div class="relative">
-                            <select id="DesignType" name="DesignType" class="form-input pl-9" required>
-                                <option value="Graphic">Graphic Design</option>
-                                <option value="Product">Product Design</option>
-                                <option value="Template">Design Template</option>
-                                <option value="Prototype">Prototype</option>
-                                <option value="Other">Other</option>
-                            </select>
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i class="fas fa-paint-brush text-gray-400"></i>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                break;
-            default:
-                generateDefaultFields(container);
-                break;
-        }
-    }
-    
-    // Display custom template fields
-function displayCustomTemplateFields(template, container) {
-    // Clear container
-    container.innerHTML = '';
-    
-    let fields = [];
-    
-    // Parse fields from template
-    if (template.fields) {
-        fields = template.fields;
-    } else if (template.fieldsJson) {
-        try {
-            fields = JSON.parse(template.fieldsJson);
-        } catch (e) {
-            console.error('Error parsing fields JSON:', e);
-            fields = [];
-        }
-    }
-    
-    if (!fields || fields.length === 0) {
-        generateDefaultFields(container);
-        return;
-    }
-    
-    // Create fields based on template definition
-    fields.forEach(field => {
-        // Check if field is required
-        const isRequired = field.required !== false; // Default to true if not specified
-        
-        const fieldDiv = document.createElement('div');
-        fieldDiv.className = 'form-group';
-        fieldDiv.setAttribute('data-field-name', field.name);
-        
-        const label = document.createElement('label');
-        label.className = 'form-label';
-        label.textContent = field.name; // Fixed: Set text directly instead of innerHTML
-        if (isRequired) {
-            const requiredSpan = document.createElement('span');
-            requiredSpan.className = 'text-red-500 ml-1';
-            requiredSpan.textContent = '*';
-            label.appendChild(requiredSpan);
-        }
-        label.setAttribute('for', `custom-${field.name.replace(/\s+/g, '-').toLowerCase()}`);
-        
-        const inputWrapper = document.createElement('div');
-        inputWrapper.className = 'relative';
-        
-        // Create the appropriate input based on field type
-        let input;
-        if (field.type === 'textarea') {
-            input = document.createElement('textarea');
-            input.className = 'form-input pl-9 h-20';
-        } else if (field.type === 'select') {
-            input = document.createElement('select');
-            input.className = 'form-input pl-9';
-            
-            // Add options
-            if (field.options) {
-                field.options.forEach(option => {
-                    const optionEl = document.createElement('option');
-                    optionEl.value = option;
-                    optionEl.textContent = option;
-                    input.appendChild(optionEl);
-                });
+                // Show the appropriate step if there's an error
+                const step = field.closest('.form-section');
+                if (step && step.classList.contains('hidden')) {
+                    const stepNumber = step.getAttribute('data-step');
+                    showStep(parseInt(stepNumber));
+                }
+            } else {
+                field.classList.remove('border-red-500');
             }
-        } else {
-            input = document.createElement('input');
-            input.className = 'form-input pl-9';
-            input.type = field.type || 'text';
+        });
+        
+        if (!isValid) {
+            showNotification('Please fill in all required fields', 'error');
         }
         
-        // Add common attributes
-        input.id = `custom-${field.name.replace(/\s+/g, '-').toLowerCase()}`;
-        input.name = `custom-${field.name.replace(/\s+/g, '-').toLowerCase()}`;
-        
-        // Set required if specified
-        if (isRequired) {
-            input.required = true;
-        }
-        
-        if (field.placeholder) input.placeholder = field.placeholder;
-        
-        // Add icon
-        const iconWrapper = document.createElement('div');
-        iconWrapper.className = 'absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none';
-        
-        const icon = document.createElement('i');
-        icon.className = `fas fa-${field.icon || 'tag'} text-gray-400`;
-        
-        // Assemble the field
-        iconWrapper.appendChild(icon);
-        inputWrapper.appendChild(input);
-        inputWrapper.appendChild(iconWrapper);
-        fieldDiv.appendChild(label);
-        fieldDiv.appendChild(inputWrapper);
-        
-        // Add to container
-        container.appendChild(fieldDiv);
-    });
-        
-        // Add a manufacturer field if not present
-        const hasManufacturer = fields.some(f => 
-            f.name.toLowerCase() === 'manufacturer' || 
-            f.name.toLowerCase() === 'creator/studio'
-        );
-        
-        if (!hasManufacturer) {
-            const manufacturerField = document.createElement('div');
-            manufacturerField.className = 'form-group';
-            manufacturerField.innerHTML = `
-                <label for="Manufacturer" class="form-label">
-                    Manufacturer
-                    <span class="text-red-500 ml-1">*</span>
-                </label>
-                <div class="relative">
-                    <input id="Manufacturer" name="Manufacturer" class="form-input pl-9" required placeholder="Manufacturer Name">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i class="fas fa-industry text-gray-400"></i>
-                    </div>
-                </div>
-            `;
-            container.appendChild(manufacturerField);
-        }
+        return isValid;
     }
     
-    // Add template card to the gallery
-    function addTemplateCard(template) {
-        const templateContainer = document.getElementById('template-container');
+    // Show a specific step
+    function showStep(stepNumber) {
+        const formSections = document.querySelectorAll('.form-section');
+        formSections.forEach(section => {
+            section.classList.add('hidden');
+        });
         
-        // Check if this template card already exists
-        const existingCard = document.querySelector(`.template-card[data-template="${template.id}"]`);
-        if (existingCard) {
-            // Update the existing card
-            existingCard.querySelector('i.fas').className = `fas fa-${template.icon} text-${getColorClass(template.icon)} text-2xl`;
-            existingCard.querySelector('h4').textContent = template.name;
+        document.querySelector(`.form-section[data-step="${stepNumber}"]`).classList.remove('hidden');
+        
+        // Update step indicator
+        document.querySelector('.step-indicator').textContent = `Step ${stepNumber} of 3`;
+        
+        // Update step circles
+        const steps = document.querySelectorAll('.step');
+        steps.forEach(step => {
+            step.classList.remove('active');
+        });
+        
+        document.querySelector(`.step[data-step="${stepNumber}"]`).classList.add('active');
+        
+        // Update form progress
+        updateFormProgress(stepNumber);
+    }
+    
+    // Save card data to local storage for testing
+    function saveCard() {
+        // Get form data for submission
+        const form = document.getElementById('product-form');
+        form.submit();
+    }
+    
+    // Generate QR Code
+    function generateQRCode() {
+        const qrElement = document.getElementById('card-qr-code-display');
+        if (!qrElement) {
+            console.error('QR code container not found');
             return;
         }
         
-        // Create new template card
-        const card = document.createElement('div');
-        card.className = 'template-card cursor-pointer border rounded-lg overflow-hidden hover:border-primary-500 hover:shadow transition-all relative group';
-        card.setAttribute('data-template', template.id);
-        card.setAttribute('data-category', 'custom');
+        // Clear any existing QR code
+        qrElement.innerHTML = '';
         
-        card.innerHTML = `
-            <div class="absolute top-1 right-1 flex template-actions opacity-0 group-hover:opacity-100 z-10">
-                <button type="button" class="edit-template-btn p-1 text-gray-500 hover:text-primary-600 bg-white rounded-full shadow-sm" data-template="${template.id}">
-                    <i class="fas fa-edit"></i>
-                </button>
-            </div>
-            <div class="h-20 bg-${getBackgroundClass(template.bgColor)} flex items-center justify-center">
-                <i class="fas fa-${template.icon} text-${getColorClass(template.icon)} text-2xl"></i>
-            </div>
-            <div class="p-2 bg-white border-t border-gray-100">
-                <h4 class="font-medium text-sm text-gray-800">${template.name}</h4>
-                <p class="text-xs text-gray-500 mt-0.5">${template.category}</p>
-            </div>
-            <div class="absolute inset-0 bg-primary-500 bg-opacity-0 hover:bg-opacity-10 transition-all flex items-center justify-center">
-                <span class="bg-white text-primary-600 px-2 py-1 rounded-full text-xs font-medium opacity-0 group-hover:opacity-100 transform scale-0 group-hover:scale-100 transition-all shadow-sm">
-                    Select Template
-                </span>
-            </div>
-        `;
+        const productName = document.getElementById('ProductName').value || 'Sample Product';
+        const qrFgColor = document.getElementById('qr-fg-color').value || '#000000';
+        const qrBgColor = document.getElementById('qr-bg-color').value || '#FFFFFF';
         
-        // Add to category dropdown
-        const categorySelect = document.getElementById('category-select');
-        const optionExists = Array.from(categorySelect.options).some(opt => opt.value === template.category);
-        
-        if (!optionExists) {
-            const option = document.createElement('option');
-            option.value = template.category;
-            option.textContent = template.category;
-            categorySelect.appendChild(option);
+        // Update QR product name on back of card
+        const qrProductNameElement = document.getElementById('qr-product-name');
+        if (qrProductNameElement) {
+            qrProductNameElement.textContent = productName;
         }
         
-        // Add to template container
-        templateContainer.appendChild(card);
-    }
-    
-    // Helper functions for template colors
-    function getBackgroundClass(bgColor) {
-        // Convert hex to tailwind bg class if possible
-        if (bgColor === '#f0f9ff') return 'blue-50';
-        if (bgColor === '#f0fdf4') return 'green-50';
-        if (bgColor === '#fef3c7') return 'yellow-50';
-        if (bgColor === '#fdf2f8') return 'red-50';
-        if (bgColor === '#faf5ff') return 'purple-50';
-        return 'gray-50'; // Default
-    }
-    
-    function getColorClass(icon) {
-        // Map icon to appropriate color
-        if (['flask', 'vial'].includes(icon)) return 'blue-500';
-        if (['leaf', 'seedling'].includes(icon)) return 'green-500';
-        if (['cogs', 'tools', 'wrench'].includes(icon)) return 'yellow-600';
-        if (['microchip', 'laptop'].includes(icon)) return 'green-500';
-        if (['paint-brush', 'palette'].includes(icon)) return 'red-500';
-        if (['shield-alt', 'hard-hat'].includes(icon)) return 'orange-500';
-        return 'primary-500'; // Default
-    }
-    
-    // Initialize template modal
-    function initializeTemplateModal() {
-        const createBtn = document.getElementById('create-template-btn');
-        const modal = document.getElementById('create-template-modal');
-        const closeBtn = document.getElementById('close-template-modal');
-        const cancelBtn = document.getElementById('cancel-template-btn');
-        const saveBtn = document.getElementById('save-template-btn');
-        const deleteBtn = document.getElementById('delete-template-btn');
-        const addFieldBtn = document.getElementById('add-field-btn');
-        const customFields = document.getElementById('custom-fields');
-        const deleteModal = document.getElementById('delete-template-modal');
-        const closeDeleteBtn = document.getElementById('close-delete-modal');
-        const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
-        const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+        // QR code data would typically contain a URL or ID to access the product details
+        const qrData = `PRODUCT:${productName}:${Date.now()}`;
         
-        // Handle edit template button clicks
-        document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('edit-template-btn') || e.target.closest('.edit-template-btn')) {
-                const btn = e.target.classList.contains('edit-template-btn') ? e.target : e.target.closest('.edit-template-btn');
-                const templateId = btn.getAttribute('data-template');
-                
-                // Open modal in edit mode
-                openTemplateModal('edit', templateId);
-            }
-        });
-        
-        // Open modal
-        createBtn.addEventListener('click', function() {
-            openTemplateModal('create');
-        });
-        
-        // Open template modal function
-        function openTemplateModal(mode, templateId = null) {
-            // Set modal title based on mode
-            document.getElementById('template-modal-title').textContent = mode === 'create' ? 'Create New Template' : 'Edit Template';
-            
-            // Show/hide delete button
-            deleteBtn.classList.toggle('hidden', mode === 'create');
-            
-            // Reset form
-            document.getElementById('template-form').reset();
-            document.getElementById('template-edit-id').value = '';
-            
-            // Clear custom fields (except the first one)
-            const fieldRows = customFields.querySelectorAll('.custom-field-row');
-            if (fieldRows.length > 1) {
-                for (let i = 1; i < fieldRows.length; i++) {
-                    fieldRows[i].remove();
-                }
+        try {
+            // Make sure QRCode is loaded
+            if (typeof QRCode === 'undefined') {
+                throw new Error('QRCode library not loaded');
             }
             
-            // Reset first field row
-            const firstRow = customFields.querySelector('.custom-field-row');
-            if (firstRow) {
-                firstRow.querySelector('.field-name').value = '';
-                firstRow.querySelector('.field-type').value = 'text';
-                firstRow.querySelector('.field-icon').value = 'tag';
-                firstRow.querySelector('.field-placeholder').value = '';
-                firstRow.querySelector('.field-options').classList.add('hidden');
-                if (firstRow.querySelector('.field-options-input')) {
-                    firstRow.querySelector('.field-options-input').value = '';
-                }
-                if (firstRow.querySelector('.field-required')) {
-                    firstRow.querySelector('.field-required').checked = true;
-                }
-            }
-            
-            // Reset icon selection
-            document.querySelectorAll('.icon-option').forEach(opt => {
-                opt.classList.remove('border-primary-500', 'active');
-                opt.querySelector('i').classList.remove('text-primary-500');
-                opt.querySelector('i').classList.add('text-gray-500');
+            // Create new QR Code
+            new QRCode(qrElement, {
+                text: qrData,
+                width: 160,
+                height: 160,
+                colorDark: qrFgColor,
+                colorLight: qrBgColor,
+                correctLevel: QRCode.CorrectLevel.H
             });
-            document.querySelector('.icon-option[data-icon="flask"]').classList.add('border-primary-500', 'active');
-            document.querySelector('.icon-option[data-icon="flask"] i').classList.remove('text-gray-500');
-            document.querySelector('.icon-option[data-icon="flask"] i').classList.add('text-primary-500');
-            document.getElementById('template-icon').value = 'flask';
-            
-            // If editing, populate form with template data
-            if (mode === 'edit' && templateId) {
-                populateTemplateForm(templateId);
-            }
-            
-            // Show modal
-            modal.classList.remove('hidden');
-            setTimeout(() => {
-                modal.querySelector('.bg-white').classList.remove('opacity-0', 'scale-95');
-                modal.querySelector('.bg-white').classList.add('opacity-100', 'scale-100');
-            }, 10);
-        }
-        
-// Populate form with template data
-// Path: Views/Card/Create.cshtml
-async function populateTemplateForm(templateId) {
-    try {
-        // Check if templateId is numeric
-        const isNumeric = !isNaN(parseInt(templateId));
-        
-        let template;
-        
-        if (['chemical', 'equipment', 'safety', 'electronic', 'machinery', 'design'].includes(templateId)) {
-            template = createBuiltInTemplateObject(templateId);
-        } else if (isNumeric) {
-            const response = await fetch(`/api/Template/${templateId}`);
-            if (!response.ok) throw new Error('Failed to fetch template');
-            template = await response.json();
-            console.log('Fetched template:', template);
-        } else {
-            return;
-        }
-        
-        if (!template) return;
-        
-        // Set template ID for editing
-        document.getElementById('template-edit-id').value = template.id;
-        document.getElementById('delete-template-id').value = template.id;
-        
-        // Populate basic fields
-        document.getElementById('template-name').value = template.name || '';
-        document.getElementById('template-category').value = template.category || '';
-        document.getElementById('template-bg-color').value = template.bgColor || '#f0f9ff';
-        document.getElementById('template-bg-color-text').value = template.bgColor || '#f0f9ff';
-        
-        // Select icon
-        const iconElement = document.querySelector(`.icon-option[data-icon="${template.icon}"]`);
-        if (iconElement) {
-            document.querySelectorAll('.icon-option').forEach(opt => {
-                opt.classList.remove('border-primary-500', 'active');
-                opt.querySelector('i').classList.remove('text-primary-500');
-                opt.querySelector('i').classList.add('text-gray-500');
-            });
-            
-            iconElement.classList.add('border-primary-500', 'active');
-            iconElement.querySelector('i').classList.remove('text-gray-500');
-            iconElement.querySelector('i').classList.add('text-primary-500');
-            document.getElementById('template-icon').value = template.icon;
-        }
-        
-        // CRITICAL FIX: Parse fields from fieldsJson directly
-        let fields = [];
-        if (template.fieldsJson) {
-            try {
-                fields = JSON.parse(template.fieldsJson);
-                console.log('Parsed fields:', fields);
-            } catch (e) {
-                console.error('Error parsing JSON:', e);
-                // Try alternate method to handle possible escaped JSON
-                try {
-                    const cleanJson = template.fieldsJson.replace(/\\"/g, '"');
-                    fields = JSON.parse(cleanJson);
-                    console.log('Parsed with cleanup:', fields);
-                } catch (e2) {
-                    console.error('Second parse attempt failed:', e2);
-                }
-            }
-        }
-        
-        // Clear existing fields
-        const customFields = document.getElementById('custom-fields');
-        customFields.innerHTML = '';
-        
-        // Add needed field rows
-        if (fields && fields.length > 0) {
-            // First add all needed rows
-            for (let i = 0; i < fields.length; i++) {
-                addCustomField();
-            }
-            
-            // Force browser to render before continuing
-            setTimeout(() => {
-                const fieldRows = customFields.querySelectorAll('.custom-field-row');
-                
-                fields.forEach((field, index) => {
-                    if (index < fieldRows.length) {
-                        const row = fieldRows[index];
-                        
-                        // Set field values
-                        row.querySelector('.field-name').value = field.name || '';
-                        
-                        const typeSelect = row.querySelector('.field-type');
-                        if (typeSelect) typeSelect.value = field.type || 'text';
-                        
-                        const iconSelect = row.querySelector('.field-icon');
-                        if (iconSelect) iconSelect.value = field.icon || 'tag';
-                        
-                        const placeholder = row.querySelector('.field-placeholder');
-                        if (placeholder) placeholder.value = field.placeholder || '';
-                        
-                        const required = row.querySelector('.field-required');
-                        if (required) required.checked = field.required !== false;
-                        
-                        // Handle dropdown options
-                        if (field.type === 'select') {
-                            const optionsDiv = row.querySelector('.field-options');
-                            if (optionsDiv) optionsDiv.classList.remove('hidden');
-                            
-                            const optionsInput = row.querySelector('.field-options-input');
-                            if (optionsInput && field.options && field.options.length > 0) {
-                                optionsInput.value = field.options.join(', ');
-                            }
-                        }
-                    }
-                });
-            }, 50);
-        }
-    } catch (error) {
-        console.error('Error in populateTemplateForm:', error);
-    }
-}
-        
-        // Create a template object based on built-in templates
-        function createBuiltInTemplateObject(templateId) {
-            let template = {
-                id: templateId,
-                fields: []
-            };
-            
-            switch (templateId) {
-                case 'chemical':
-                    template.name = 'Chemical Product';
-                    template.category = 'Rust Coating Chemical';
-                    template.icon = 'flask';
-                    template.bgColor = '#f0f9ff';
-                    template.fields = [
-                        { name: 'Manufacturer', type: 'text', icon: 'industry', placeholder: 'ChemTech Industries', required: true },
-                        { name: 'Chemical Type', type: 'select', icon: 'flask', options: ['Acid', 'Alkali', 'Solvent', 'Coating', 'Other'], required: true }
-                    ];
-                    break;
-                case 'equipment':
-                    template.name = 'Equipment';
-                    template.category = 'Application Equipment';
-                    template.icon = 'tools';
-                    template.bgColor = '#f5f3ff';
-                    template.fields = [
-                        { name: 'Manufacturer', type: 'text', icon: 'industry', placeholder: 'SprayTech', required: true },
-                        { name: 'Equipment Type', type: 'select', icon: 'tools', options: ['Manual', 'Semi-Automatic', 'Automatic', 'Robotic'], required: true }
-                    ];
-                    break;
-                case 'safety':
-                    template.name = 'Safety Equipment';
-                    template.category = 'Safety Equipment';
-                    template.icon = 'hard-hat';
-                    template.bgColor = '#fff7ed';
-                    template.fields = [
-                        { name: 'Manufacturer', type: 'text', icon: 'industry', placeholder: 'SafetyFirst Inc.', required: true },
-                        { name: 'Safety Standard', type: 'text', icon: 'shield-alt', placeholder: 'ANSI Z358.1, ISO 9001', required: true }
-                    ];
-                    break;
-                case 'electronic':
-                    template.name = 'Electronic Device';
-                    template.category = 'Electronic Device';
-                    template.icon = 'microchip';
-                    template.bgColor = '#f0fdf4';
-                    template.fields = [
-                        { name: 'Manufacturer', type: 'text', icon: 'industry', placeholder: 'ElectroTech Inc.', required: true },
-                        { name: 'Power Requirement', type: 'text', icon: 'bolt', placeholder: '220V, 50Hz, 100W', required: true }
-                    ];
-                    break;
-                case 'machinery':
-                    template.name = 'Industrial Machinery';
-                    template.category = 'Industrial Machinery';
-                    template.icon = 'cogs';
-                    template.bgColor = '#fef3c7';
-                    template.fields = [
-                        { name: 'Manufacturer', type: 'text', icon: 'industry', placeholder: 'MachTech Heavy Industries', required: true },
-                        { name: 'Operating Capacity', type: 'text', icon: 'tachometer-alt', placeholder: '500 kg/hour', required: true }
-                    ];
-                    break;
-                case 'design':
-                    template.name = 'Design Template';
-                    template.category = 'Design Asset';
-                    template.icon = 'paint-brush';
-                    template.bgColor = '#fdf2f8';
-                    template.fields = [
-                        { name: 'Creator/Studio', type: 'text', icon: 'user-tie', placeholder: 'DesignWorks Studio', required: true },
-                        { name: 'Design Type', type: 'select', icon: 'paint-brush', options: ['Graphic', 'Product', 'Template', 'Prototype', 'Other'], required: true }
-                    ];
-                    break;
-            }
-            
-            return template;
-        }
-        
-        // Close modal functions
-        function closeModal() {
-            modal.querySelector('.bg-white').classList.remove('opacity-100', 'scale-100');
-            modal.querySelector('.bg-white').classList.add('opacity-0', 'scale-95');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 300);
-        }
-        
-        closeBtn.addEventListener('click', closeModal);
-        cancelBtn.addEventListener('click', closeModal);
-        
-        // Close delete modal
-        function closeDeleteModal() {
-            deleteModal.querySelector('.bg-white').classList.remove('opacity-100', 'scale-100');
-            deleteModal.querySelector('.bg-white').classList.add('opacity-0', 'scale-95');
-            setTimeout(() => {
-                deleteModal.classList.add('hidden');
-            }, 300);
-        }
-        
-        closeDeleteBtn.addEventListener('click', closeDeleteModal);
-        cancelDeleteBtn.addEventListener('click', closeDeleteModal);
-        
-        // Icon selection
-        const iconOptions = document.querySelectorAll('.icon-option');
-        iconOptions.forEach(option => {
-            option.addEventListener('click', function() {
-                // Remove active class from all options
-                iconOptions.forEach(opt => {
-                    opt.classList.remove('border-primary-500', 'active');
-                    opt.querySelector('i').classList.remove('text-primary-500');
-                    opt.querySelector('i').classList.add('text-gray-500');
-                });
-                
-                // Add active class to this option
-                this.classList.add('border-primary-500', 'active');
-                this.querySelector('i').classList.remove('text-gray-500');
-                this.querySelector('i').classList.add('text-primary-500');
-                
-                // Update hidden input
-                document.getElementById('template-icon').value = this.getAttribute('data-icon');
-            });
-        });
-        
-        // Connect color inputs
-        const templateBgColor = document.getElementById('template-bg-color');
-        const templateBgColorText = document.getElementById('template-bg-color-text');
-        
-        templateBgColor.addEventListener('input', function() {
-            templateBgColorText.value = this.value;
-        });
-        
-        templateBgColorText.addEventListener('input', function() {
-            templateBgColor.value = this.value;
-        });
-        
-        // Add new field
-        addFieldBtn.addEventListener('click', function() {
-            addCustomField();
-        });
-        
-        // Remove field
-        customFields.addEventListener('click', function(e) {
-            if (e.target.classList.contains('remove-field-btn') || e.target.closest('.remove-field-btn')) {
-                const btn = e.target.classList.contains('remove-field-btn') ? e.target : e.target.closest('.remove-field-btn');
-                const fieldRow = btn.closest('.custom-field-row');
-                
-                // Don't remove if it's the last field
-                if (customFields.querySelectorAll('.custom-field-row').length > 1) {
-                    fieldRow.remove();
-                } else {
-                    showNotification('You must have at least one custom field', 'error');
-                }
-            }
-        });
-        
-        // Field type change
-        customFields.addEventListener('change', function(e) {
-            if (e.target.classList.contains('field-type')) {
-                const fieldType = e.target.value;
-                const fieldRow = e.target.closest('.custom-field-row');
-                const optionsDiv = fieldRow.querySelector('.field-options');
-                
-                if (fieldType === 'select') {
-                    optionsDiv.classList.remove('hidden');
-                } else {
-                    optionsDiv.classList.add('hidden');
-                }
-            }
-        });
-        
-        // Delete template button
-        deleteBtn.addEventListener('click', function() {
-            const templateId = document.getElementById('template-edit-id').value;
-            const templateName = document.getElementById('template-name').value;
-            
-            if (!templateId) return;
-            
-            // Confirm deletion
-            document.getElementById('delete-template-name').textContent = templateName;
-            document.getElementById('delete-template-id').value = templateId;
-            
-            // Hide template modal
-            closeModal();
-            
-            // Show delete confirmation modal
-            deleteModal.classList.remove('hidden');
-            setTimeout(() => {
-                deleteModal.querySelector('.bg-white').classList.remove('opacity-0', 'scale-95');
-                deleteModal.querySelector('.bg-white').classList.add('opacity-100', 'scale-100');
-            }, 10);
-        });
-        
-        // Confirm template deletion
-        confirmDeleteBtn.addEventListener('click', async function() {
-            const templateId = document.getElementById('delete-template-id').value;
-            
-            if (!templateId) return;
-            
-            // Check if it's a built-in template
-            if (['chemical', 'equipment', 'safety', 'electronic', 'machinery', 'design'].includes(templateId)) {
-                showNotification('Built-in templates cannot be deleted', 'error');
-                closeDeleteModal();
-                return;
-            }
-            
-            // Delete template from API
-            const success = await deleteTemplate(templateId);
-            
-            if (success) {
-                // Get template name for notification
-                const templateName = document.getElementById('delete-template-name').textContent;
-                
-                // Remove template card
-                const templateCard = document.querySelector(`.template-card[data-template="${templateId}"]`);
-                if (templateCard) {
-                    templateCard.remove();
-                }
-                
-                // Close modal
-                closeDeleteModal();
-                
-                // Show success notification
-                showNotification(`Template "${templateName}" deleted successfully`, 'success');
-            }
-        });
-        
-        // Save template
-        saveBtn.addEventListener('click', async function() {
-            await saveCustomTemplate();
-        });
-        
-        // Add a new custom field row
-        function addCustomField() {
-            const customFields = document.getElementById('custom-fields');
-            const newField = document.createElement('div');
-            newField.className = 'custom-field-row flex items-start gap-2 p-3 border border-gray-100 rounded-lg bg-gray-50 hover:bg-white hover:shadow-sm transition-all';
-            newField.innerHTML = `
-                <div class="flex-grow">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <div class="form-group mb-2">
-                            <label class="form-label text-sm">Field Name <span class="text-red-500">*</span></label>
-                            <input type="text" class="form-input py-2 text-sm field-name" placeholder="E.g., Lab ID" required>
-                        </div>
-                        <div class="form-group mb-2">
-                            <label class="form-label text-sm">Field Type <span class="text-red-500">*</span></label>
-                            <select class="form-input py-2 text-sm field-type">
-                                <option value="text">Text</option>
-                                <option value="select">Dropdown</option>
-                                <option value="number">Number</option>
-                                <option value="date">Date</option>
-                                <option value="textarea">Text Area</option>
-                            </select>
-                        </div>
-                        <div class="form-group mb-2">
-                            <label class="form-label text-sm">Icon</label>
-                            <select class="form-input py-2 text-sm field-icon">
-                                <option value="tag">Tag</option>
-                                <option value="info-circle">Info</option>
-                                <option value="check-circle">Check</option>
-                                <option value="flag">Flag</option>
-                                <option value="clipboard">Clipboard</option>
-                                <option value="calendar">Calendar</option>
-                                <option value="user">User</option>
-                                <option value="link">Link</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="field-options hidden mt-2">
-                        <label class="form-label text-sm">Options (comma separated)</label>
-                        <input type="text" class="form-input py-2 text-sm field-options-input" placeholder="Option 1, Option 2, Option 3">
-                    </div>
-                    <div class="form-group mt-2">
-                        <label class="form-label text-sm">Placeholder</label>
-                        <input type="text" class="form-input py-2 text-sm field-placeholder" placeholder="Enter placeholder text">
-                    </div>
-                    <div class="form-group mt-2">
-                        <div class="flex items-center">
-                            <input type="checkbox" class="field-required mr-2" id="field-required-checkbox-${Date.now()}" checked>
-                            <label for="field-required-checkbox-${Date.now()}" class="text-sm">Required</label>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex-shrink-0 mt-6">
-                    <button type="button" class="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full transition-colors remove-field-btn">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            `;
-            
-            customFields.appendChild(newField);
-            
-            // Add event listener for field type change
-            newField.querySelector('.field-type').addEventListener('change', function() {
-                const fieldOptions = newField.querySelector('.field-options');
-                if (this.value === 'select') {
-                    fieldOptions.classList.remove('hidden');
-                } else {
-                    fieldOptions.classList.add('hidden');
-                }
-            });
-        }
-        
-        // Save custom template
-        async function saveCustomTemplate() {
-            const form = document.getElementById('template-form');
-            const customFieldRows = document.querySelectorAll('.custom-field-row');
-            const isEditing = document.getElementById('template-edit-id').value !== '';
-            
-            // Validate required fields
-            let isValid = true;
-            const requiredInputs = form.querySelectorAll('[required]');
-            requiredInputs.forEach(input => {
-                if (!input.value.trim()) {
-                    input.classList.add('border-red-500');
-                    isValid = false;
-                } else {
-                    input.classList.remove('border-red-500');
-                }
-            });
-            
-            if (!isValid) {
-                showNotification('Please fill in all required fields', 'error');
-                return;
-            }
-            
-            // Collect template data
-            const templateName = document.getElementById('template-name').value;
-            const templateCategory = document.getElementById('template-category').value;
-            const templateIcon = document.getElementById('template-icon').value;
-            const templateBgColor = document.getElementById('template-bg-color').value;
-            
-            // Get template ID (or 0 for new templates)
-            const templateId = isEditing ? parseInt(document.getElementById('template-edit-id').value) : 0;
-            
-            // Check if attempting to override built-in template
-            if (['chemical', 'equipment', 'safety', 'electronic', 'machinery', 'design'].includes(templateName.toLowerCase()) && !isEditing) {
-                showNotification('Cannot create template with same name as built-in template', 'error');
-                return;
-            }
-            
-            // Collect fields data
-            const fields = [];
-            customFieldRows.forEach(fieldRow => {
-                const fieldName = fieldRow.querySelector('.field-name').value;
-                const fieldType = fieldRow.querySelector('.field-type').value;
-                const fieldIcon = fieldRow.querySelector('.field-icon').value;
-                const fieldPlaceholder = fieldRow.querySelector('.field-placeholder').value;
-                const fieldRequired = fieldRow.querySelector('.field-required')?.checked;
-                
-                let options = [];
-                if (fieldType === 'select') {
-                    const optionsInput = fieldRow.querySelector('.field-options-input');
-                    if (optionsInput && optionsInput.value) {
-                        options = optionsInput.value.split(',').map(opt => opt.trim());
-                    }
-                }
-                
-                fields.push({
-                    name: fieldName,
-                    type: fieldType,
-                    icon: fieldIcon,
-                    placeholder: fieldPlaceholder,
-                    options: options,
-                    required: fieldRequired
-                });
-            });
-            
-            // Create the template object
-            const template = {
-                id: templateId,
-                name: templateName,
-                category: templateCategory,
-                icon: templateIcon,
-                bgColor: templateBgColor,
-                fieldsJson: JSON.stringify(fields)
-            };
-            
-            // Save template to API
-            const savedTemplate = await saveTemplate(template);
-            
-            if (savedTemplate) {
-                // Update template card in UI
-                addTemplateCard(savedTemplate);
-                
-                // Close modal
-                closeModal();
-                
-                // Show success notification
-                showNotification(`Template "${templateName}" ${isEditing ? 'updated' : 'saved'} successfully`, 'success');
-            }
+        } catch (error) {
+            console.error('Error generating QR code:', error);
+            qrElement.innerHTML = '<i class="fas fa-exclamation-triangle text-red-500 text-xl"></i><p class="text-xs text-red-500 mt-2">Error generating QR code</p>';
         }
     }
     
