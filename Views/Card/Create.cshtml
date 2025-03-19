@@ -1844,37 +1844,46 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Save template to API
-    async function saveTemplate(template) {
-        try {
-            const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
-            const method = template.id > 0 ? 'PUT' : 'POST';
-            const url = template.id > 0 ? `/api/Template/${template.id}` : '/api/Template';
-            
-            const response = await fetch(url, {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'RequestVerificationToken': token
-                },
-                body: JSON.stringify(template)
-            });
-            
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to save template');
-            }
-            
-            if (method === 'POST') {
-                return await response.json();
-            } else {
-                return template; // For PUT, just return the original object
-            }
-        } catch (error) {
-            console.error('Error saving template:', error);
-            showNotification('Error saving template: ' + error.message, 'error');
-            return null;
+async function saveTemplate(template) {
+    try {
+        const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
+        const method = template.id > 0 ? 'PUT' : 'POST';
+        const url = template.id > 0 ? `/api/Template/${template.id}` : '/api/Template';
+        
+        console.log('Saving template:', JSON.stringify(template));
+        
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': token
+            },
+            body: JSON.stringify(template)
+        });
+        
+        const responseText = await response.text();
+        console.log('Server response:', responseText);
+        
+        if (!response.ok) {
+            throw new Error(`Failed to save template - Status: ${response.status}`);
         }
+        
+        // For successful POST responses, parse the JSON response
+        if (method === 'POST' && responseText) {
+            try {
+                return JSON.parse(responseText);
+            } catch (e) {
+                console.warn('Could not parse response as JSON:', e);
+                return template;
+            }
+        } else {
+            return template; // For PUT, just return the original object
+        }
+    } catch (error) {
+        console.error('Error saving template:', error);
+        throw error;
     }
+}
 
     // Delete template from API
     async function deleteTemplate(templateId) {

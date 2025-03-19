@@ -1,4 +1,4 @@
-// Models/Template.cs
+// Path: Models/Template.cs
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -13,15 +13,15 @@ namespace CardTagManager.Models
         
         [Required]
         [StringLength(100)]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         
         [Required]
         [StringLength(100)]
-        public string Category { get; set; }
+        public string Category { get; set; } = string.Empty;
         
         [Required]
         [StringLength(50)]
-        public string Icon { get; set; }
+        public string Icon { get; set; } = string.Empty;
         
         [Required]
         [StringLength(20)]
@@ -29,7 +29,7 @@ namespace CardTagManager.Models
         
         // Store fields as JSON
         [Column(TypeName = "nvarchar(max)")]
-        public string FieldsJson { get; set; }
+        public string FieldsJson { get; set; } = string.Empty;
         
         [NotMapped]
         public List<TemplateField> Fields
@@ -41,7 +41,7 @@ namespace CardTagManager.Models
         }
         
         [StringLength(100)]
-        public string CreatedBy { get; set; }
+        public string CreatedBy { get; set; } = string.Empty;
         
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         
@@ -50,10 +50,10 @@ namespace CardTagManager.Models
     
     public class TemplateField
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         public string Type { get; set; } = "text";
         public string Icon { get; set; } = "tag";
-        public string Placeholder { get; set; }
+        public string Placeholder { get; set; } = string.Empty;
         public bool Required { get; set; } = true;
         public List<string> Options { get; set; } = new List<string>();
     }
