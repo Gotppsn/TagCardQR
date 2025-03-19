@@ -2066,43 +2066,43 @@ async function saveTemplate(template) {
     }
     
     // Generate template-specific fields
-    function generateTemplateFields(type, container) {
-        switch(type) {
-            case 'chemical':
-                container.innerHTML = `
-                    <div class="form-group">
-                        <label for="Manufacturer" class="form-label">
-                            Manufacturer
-                            <span class="text-red-500 ml-1">*</span>
-                        </label>
-                        <div class="relative">
-                            <input id="Manufacturer" name="Manufacturer" class="form-input pl-9" required placeholder="ChemTech Industries">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i class="fas fa-industry text-gray-400"></i>
-                            </div>
+ function generateTemplateFields(type, container) {
+    switch(type) {
+        case 'chemical':
+            container.innerHTML = `
+                <div class="form-group">
+                    <label for="Manufacturer" class="form-label">
+                        Manufacturer
+                        <span class="text-red-500 ml-1">*</span>
+                    </label>
+                    <div class="relative">
+                        <input id="Manufacturer" name="Manufacturer" class="form-input pl-9" required placeholder="ChemTech Industries">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-industry text-gray-400"></i>
                         </div>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="ChemicalType" class="form-label">
-                            Chemical Type
-                            <span class="text-red-500 ml-1">*</span>
-                        </label>
-                        <div class="relative">
-                            <select id="ChemicalType" name="ChemicalType" class="form-input pl-9" required>
-                                <option value="Acid">Acid</option>
-                                <option value="Alkali">Alkali</option>
-                                <option value="Solvent">Solvent</option>
-                                <option value="Coating">Coating</option>
-                                <option value="Other">Other</option>
-                            </select>
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i class="fas fa-flask text-gray-400"></i>
-                            </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="ChemicalType" class="form-label">
+                        Chemical Type
+                        <span class="text-red-500 ml-1">*</span>
+                    </label>
+                    <div class="relative">
+                        <select id="ChemicalType" name="ChemicalType" class="form-input pl-9" required>
+                            <option value="Acid">Acid</option>
+                            <option value="Alkali">Alkali</option>
+                            <option value="Solvent">Solvent</option>
+                            <option value="Coating">Coating</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-flask text-gray-400"></i>
                         </div>
                     </div>
-                `;
-                break;
+                </div>
+            `;
+            break;
             case 'safety':
                 container.innerHTML = `
                     <div class="form-group">
@@ -2232,98 +2232,104 @@ async function saveTemplate(template) {
     }
     
     // Display custom template fields
-    function displayCustomTemplateFields(template, container) {
-        // Clear container
-        container.innerHTML = '';
+function displayCustomTemplateFields(template, container) {
+    // Clear container
+    container.innerHTML = '';
+    
+    let fields = [];
+    
+    // Parse fields from template
+    if (template.fields) {
+        fields = template.fields;
+    } else if (template.fieldsJson) {
+        try {
+            fields = JSON.parse(template.fieldsJson);
+        } catch (e) {
+            console.error('Error parsing fields JSON:', e);
+            fields = [];
+        }
+    }
+    
+    if (!fields || fields.length === 0) {
+        generateDefaultFields(container);
+        return;
+    }
+    
+    // Create fields based on template definition
+    fields.forEach(field => {
+        // Check if field is required
+        const isRequired = field.required !== false; // Default to true if not specified
         
-        let fields = [];
+        const fieldDiv = document.createElement('div');
+        fieldDiv.className = 'form-group';
+        fieldDiv.setAttribute('data-field-name', field.name);
         
-        // Parse fields from template
-        if (template.fields) {
-            fields = template.fields;
-        } else if (template.fieldsJson) {
-            try {
-                fields = JSON.parse(template.fieldsJson);
-            } catch (e) {
-                console.error('Error parsing fields JSON:', e);
-                fields = [];
+        const label = document.createElement('label');
+        label.className = 'form-label';
+        label.textContent = field.name; // Fixed: Set text directly instead of innerHTML
+        if (isRequired) {
+            const requiredSpan = document.createElement('span');
+            requiredSpan.className = 'text-red-500 ml-1';
+            requiredSpan.textContent = '*';
+            label.appendChild(requiredSpan);
+        }
+        label.setAttribute('for', `custom-${field.name.replace(/\s+/g, '-').toLowerCase()}`);
+        
+        const inputWrapper = document.createElement('div');
+        inputWrapper.className = 'relative';
+        
+        // Create the appropriate input based on field type
+        let input;
+        if (field.type === 'textarea') {
+            input = document.createElement('textarea');
+            input.className = 'form-input pl-9 h-20';
+        } else if (field.type === 'select') {
+            input = document.createElement('select');
+            input.className = 'form-input pl-9';
+            
+            // Add options
+            if (field.options) {
+                field.options.forEach(option => {
+                    const optionEl = document.createElement('option');
+                    optionEl.value = option;
+                    optionEl.textContent = option;
+                    input.appendChild(optionEl);
+                });
             }
+        } else {
+            input = document.createElement('input');
+            input.className = 'form-input pl-9';
+            input.type = field.type || 'text';
         }
         
-        if (!fields || fields.length === 0) {
-            generateDefaultFields(container);
-            return;
+        // Add common attributes
+        input.id = `custom-${field.name.replace(/\s+/g, '-').toLowerCase()}`;
+        input.name = `custom-${field.name.replace(/\s+/g, '-').toLowerCase()}`;
+        
+        // Set required if specified
+        if (isRequired) {
+            input.required = true;
         }
         
-        // Create fields based on template definition
-        fields.forEach(field => {
-            // Check if field is required
-            const isRequired = field.required !== false; // Default to true if not specified
-            
-            const fieldDiv = document.createElement('div');
-            fieldDiv.className = 'form-group';
-            fieldDiv.setAttribute('data-field-name', field.name);
-            
-            const label = document.createElement('label');
-            label.className = 'form-label';
-            label.innerHTML = `${field.name} ${isRequired ? '<span class="text-red-500 ml-1">*</span>' : ''}`;
-            label.setAttribute('for', `custom-${field.name.replace(/\s+/g, '-').toLowerCase()}`);
-            
-            const inputWrapper = document.createElement('div');
-            inputWrapper.className = 'relative';
-            
-            // Create the appropriate input based on field type
-            let input;
-            if (field.type === 'textarea') {
-                input = document.createElement('textarea');
-                input.className = 'form-input pl-9 h-20';
-            } else if (field.type === 'select') {
-                input = document.createElement('select');
-                input.className = 'form-input pl-9';
-                
-                // Add options
-                if (field.options) {
-                    field.options.forEach(option => {
-                        const optionEl = document.createElement('option');
-                        optionEl.value = option;
-                        optionEl.textContent = option;
-                        input.appendChild(optionEl);
-                    });
-                }
-            } else {
-                input = document.createElement('input');
-                input.className = 'form-input pl-9';
-                input.type = field.type || 'text';
-            }
-            
-            // Add common attributes
-            input.id = `custom-${field.name.replace(/\s+/g, '-').toLowerCase()}`;
-            input.name = `custom-${field.name.replace(/\s+/g, '-').toLowerCase()}`;
-            
-            // Set required if specified
-            if (isRequired) {
-                input.required = true;
-            }
-            
-            if (field.placeholder) input.placeholder = field.placeholder;
-            
-            // Add icon
-            const iconWrapper = document.createElement('div');
-            iconWrapper.className = 'absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none';
-            
-            const icon = document.createElement('i');
-            icon.className = `fas fa-${field.icon || 'tag'} text-gray-400`;
-            
-            // Assemble the field
-            iconWrapper.appendChild(icon);
-            inputWrapper.appendChild(input);
-            inputWrapper.appendChild(iconWrapper);
-            fieldDiv.appendChild(label);
-            fieldDiv.appendChild(inputWrapper);
-            
-            // Add to container
-            container.appendChild(fieldDiv);
-        });
+        if (field.placeholder) input.placeholder = field.placeholder;
+        
+        // Add icon
+        const iconWrapper = document.createElement('div');
+        iconWrapper.className = 'absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none';
+        
+        const icon = document.createElement('i');
+        icon.className = `fas fa-${field.icon || 'tag'} text-gray-400`;
+        
+        // Assemble the field
+        iconWrapper.appendChild(icon);
+        inputWrapper.appendChild(input);
+        inputWrapper.appendChild(iconWrapper);
+        fieldDiv.appendChild(label);
+        fieldDiv.appendChild(inputWrapper);
+        
+        // Add to container
+        container.appendChild(fieldDiv);
+    });
         
         // Add a manufacturer field if not present
         const hasManufacturer = fields.some(f => 
