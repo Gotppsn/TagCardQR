@@ -141,16 +141,9 @@
                                         <span class="text-red-500 ml-1">*</span>
                                     </label>
                                     <div class="relative">
-                                        <select asp-for="Category" class="form-input pl-9" id="category-select">
-                                            <!-- Dynamic categories will be loaded here -->
-                                        </select>
+                                        <input asp-for="Category" class="form-input pl-9" id="Category" readonly placeholder="Auto-populated from template" required>
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <i class="fas fa-folder text-gray-400"></i>
-                                        </div>
-                                        <div class="absolute inset-y-0 right-2 flex items-center">
-                                            <button type="button" id="add-category-btn" class="text-primary-600 hover:text-primary-800 p-1 transition-colors">
-                                                <i class="fas fa-plus-circle"></i>
-                                            </button>
                                         </div>
                                     </div>
                                     <span asp-validation-for="Category" class="form-error"></span>
@@ -996,15 +989,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         console.log('Final visibility enforcement complete');
     }, 800);
-    
-    // Handle category change
-    const categorySelect = document.getElementById('category-select');
-    if (categorySelect) {
-        categorySelect.addEventListener('change', function() {
-            updateFieldVisibility(this.value);
-            updateTagPreview();
-        });
-    }
 
     // Initialize form submission
     document.getElementById('product-form').addEventListener('submit', function(e) {
@@ -1277,10 +1261,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const templateType = document.getElementById('templateTypeHidden').value;
         if (templateType) {
             updateFieldVisibility(templateType);
-        } else {
-            // Default to category value if no template type is set
-            const categoryValue = document.getElementById('category-select').value;
-            updateFieldVisibility(categoryValue);
         }
     }
     
@@ -1738,17 +1718,6 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const categories = await response.json();
             
-            // Update category dropdown
-            const categorySelect = document.getElementById('category-select');
-            categorySelect.innerHTML = ''; // Clear existing options
-            
-            categories.forEach(category => {
-                const option = document.createElement('option');
-                option.value = category;
-                option.textContent = category;
-                categorySelect.appendChild(option);
-            });
-            
             // Update template tabs
             const templateTabs = document.querySelector('.template-tabs');
             const firstTab = templateTabs.querySelector('.template-tab'); // Keep the "All" tab
@@ -1768,8 +1737,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 tabButton.textContent = category;
                 templateTabs.appendChild(tabButton);
             });
-            
-            // Do NOT call initializeTemplateTabs here
         } catch (error) {
             console.error('Error loading categories:', error);
             showNotification('Error loading categories', 'error');
@@ -1797,12 +1764,12 @@ document.addEventListener('DOMContentLoaded', function() {
             // Reload categories
             await initializeCategories();
             
-            // Set the new category as selected
-            const categorySelect = document.getElementById('category-select');
-            categorySelect.value = categoryName;
-            
-            // Trigger change event to update preview
-            categorySelect.dispatchEvent(new Event('change'));
+            // Update Category field if it exists
+            const categoryField = document.getElementById('Category');
+            if (categoryField) {
+                categoryField.value = categoryName;
+                updateFieldVisibility(categoryName);
+            }
             
             showNotification(`Category "${categoryName}" added successfully`, 'success');
         } catch (error) {
@@ -1961,11 +1928,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
             
+            // Auto-set the Category field from the template
+            if (template.category) {
+                const categoryField = document.getElementById('Category');
+                if (categoryField) {
+                    categoryField.value = template.category;
+                }
+            }
+            
             // Get template fields container
             const templateFieldsContainer = document.getElementById('template-fields-container');
             
             // Display the template fields
             displayCustomTemplateFields(template, templateFieldsContainer);
+            
+            // Update field visibility based on the template's category
+            if (template.category) {
+                updateFieldVisibility(template.category);
+            }
             
             // Update preview
             document.getElementById('preview-template-name').textContent = template.name || 'Template';
@@ -1973,6 +1953,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Generate QR code
             setTimeout(generateQRCode, 100);
+            
+            // Update tag preview
+            updateTagPreview();
             
             // Notify user
             showTemplateToast(template.name || 'Template');
@@ -2208,7 +2191,11 @@ async function updateFieldVisibility(category) {
     
     // Clear template fields container
     const templateFieldsContainer = document.getElementById('template-fields-container');
-    templateFieldsContainer.innerHTML = '';
+    
+    // Don't clear fields if we're updating based on a category change
+    if (!isNumeric) {
+        templateFieldsContainer.innerHTML = '';
+    }
     
     // Show fields based on category or template type
     if (isNumeric) {
@@ -2216,7 +2203,17 @@ async function updateFieldVisibility(category) {
             const response = await fetch(`/api/Template/${category}`);
             if (!response.ok) throw new Error('Failed to fetch template');
             const template = await response.json();
-            displayCustomTemplateFields(template, templateFieldsContainer);
+            
+            // Only update fields if container is empty or we're switching templates
+            if (templateFieldsContainer.children.length === 0) {
+                displayCustomTemplateFields(template, templateFieldsContainer);
+            }
+            
+            // Set the Category field from the template
+            const categoryField = document.getElementById('Category');
+            if (categoryField && template.category) {
+                categoryField.value = template.category;
+            }
         } catch (error) {
             console.error('Error fetching template:', error);
             generateDefaultFields(templateFieldsContainer);
@@ -2327,7 +2324,7 @@ function updateTagPreview() {
         previewName.textContent = "Product Name";
     }
     
-    const category = document.getElementById('category-select');
+    const category = document.getElementById('Category');
     if (category && category.value) {
         previewCategory.textContent = category.value;
     } else {
