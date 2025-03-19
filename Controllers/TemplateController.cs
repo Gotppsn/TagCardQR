@@ -149,5 +149,78 @@ namespace CardTagManager.Controllers
                 return StatusCode(500, new { error = "An error occurred while deleting the template." });
             }
         }
+        [HttpGet("Categories")]
+        public async Task<ActionResult<IEnumerable<string>>> GetCategories()
+        {
+            try
+            {
+                var categories = await _context.Templates
+                    .Select(t => t.Category)
+                    .Distinct()
+                    .OrderBy(c => c)
+                    .ToListAsync();
+                    
+                // Add default categories if needed
+                var defaultCategories = new[] { "Rust Coating Chemical", "Application Equipment", "Lab Equipment", "Safety Equipment", "Electronic Device", "Industrial Machinery", "Design Asset", "Quality Control" };
+                
+                foreach (var category in defaultCategories)
+                {
+                    if (!categories.Contains(category))
+                    {
+                        categories.Add(category);
+                    }
+                }
+                
+                return categories;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving categories");
+                return StatusCode(500, new { error = "An error occurred while retrieving categories." });
+            }
+        }
+
+        // POST: api/Template/Categories
+        [HttpPost("Categories")]
+        public async Task<ActionResult<string>> AddCategory(string categoryName)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(categoryName))
+                {
+                    return BadRequest(new { error = "Category name cannot be empty." });
+                }
+                
+                // Check if category already exists
+                var categoryExists = await _context.Templates
+                    .AnyAsync(t => t.Category == categoryName);
+                    
+                if (!categoryExists)
+                {
+                    // Create a basic template with this category to ensure it exists
+                    var template = new Template
+                    {
+                        Name = categoryName + " Template",
+                        Category = categoryName,
+                        Icon = "tag",
+                        BgColor = "#f0f9ff",
+                        CreatedBy = User.Identity.Name,
+                        CreatedAt = DateTime.Now,
+                        UpdatedAt = DateTime.Now,
+                        FieldsJson = "[]"
+                    };
+                    
+                    _context.Templates.Add(template);
+                    await _context.SaveChangesAsync();
+                }
+                
+                return Ok(categoryName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating category");
+                return StatusCode(500, new { error = "An error occurred while creating the category." });
+            }
+        }
     }
 }

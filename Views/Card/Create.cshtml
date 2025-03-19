@@ -61,10 +61,7 @@
                 <!-- Template Categories Tabs -->
                 <div class="template-tabs flex border-b border-gray-200 mb-3 overflow-x-auto pb-1 scrollbar-hide">
                     <button type="button" class="template-tab active whitespace-nowrap px-3 py-1.5 text-sm font-medium border-b-2 border-primary-500 text-primary-600" data-category="all">All Templates</button>
-                    <button type="button" class="template-tab whitespace-nowrap px-3 py-1.5 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700" data-category="industry">Industrial</button>
-                    <button type="button" class="template-tab whitespace-nowrap px-3 py-1.5 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700" data-category="chemical">Chemical</button>
-                    <button type="button" class="template-tab whitespace-nowrap px-3 py-1.5 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700" data-category="equipment">Equipment</button>
-                    <button type="button" class="template-tab whitespace-nowrap px-3 py-1.5 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700" data-category="custom">My Templates</button>
+                    <!-- Dynamic categories will be inserted here -->
                 </div>
                 
                 <!-- Search Templates -->
@@ -145,19 +142,15 @@
                                     </label>
                                     <div class="relative">
                                         <select asp-for="Category" class="form-input pl-9" id="category-select">
-                                            <option value="Rust Coating Chemical">Rust Coating Chemical</option>
-                                            <option value="Application Equipment">Application Equipment</option>
-                                            <option value="Lab Equipment">Lab Equipment</option>
-                                            <option value="Office Equipment">Office Equipment</option>
-                                            <option value="Safety Equipment">Safety Equipment</option>
-                                            <option value="Electronic Device">Electronic Device</option>
-                                            <option value="Industrial Machinery">Industrial Machinery</option>
-                                            <option value="Design Asset">Design Asset</option>
-                                            <option value="Quality Control">Quality Control</option>
-                                            <option value="Other">Other</option>
+                                            <!-- Dynamic categories will be loaded here -->
                                         </select>
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <i class="fas fa-folder text-gray-400"></i>
+                                        </div>
+                                        <div class="absolute inset-y-0 right-2 flex items-center">
+                                            <button type="button" id="add-category-btn" class="text-primary-600 hover:text-primary-800 p-1 transition-colors">
+                                                <i class="fas fa-plus-circle"></i>
+                                            </button>
                                         </div>
                                     </div>
                                     <span asp-validation-for="Category" class="form-error"></span>
@@ -829,6 +822,42 @@
     </div>
 </div>
 
+<!-- Add Category Modal -->
+<div id="add-category-modal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
+    <div class="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"></div>
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 relative z-10 transform transition-all duration-300 opacity-0 scale-95">
+        <div class="p-5 border-b border-gray-200 bg-gradient-to-r from-blue-500 to-primary-500 rounded-t-lg">
+            <div class="flex justify-between items-center">
+                <h3 class="text-lg font-bold text-white">Add New Category</h3>
+                <button type="button" class="text-white hover:text-gray-200 focus:outline-none" id="close-category-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="p-5">
+            <form id="category-form">
+                <div class="form-group">
+                    <label class="form-label">Category Name <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <input type="text" id="new-category-name" class="form-input pl-9" placeholder="E.g., Laboratory Equipment" required>
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-folder text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="p-5 border-t border-gray-200 bg-gray-50 flex justify-end rounded-b-lg">
+            <button type="button" class="btn-secondary mr-2 shadow-sm" id="cancel-category-btn">
+                Cancel
+            </button>
+            <button type="button" class="btn-primary shadow-sm" id="save-category-btn">
+                <i class="fas fa-save mr-2"></i> Save Category
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- Template Applied Toast Notification -->
 <div id="template-toast" class="fixed top-6 right-6 bg-white shadow-lg rounded-lg p-4 transform -translate-y-12 opacity-0 transition-all duration-300 z-50 max-w-sm border border-gray-100 hidden">
     <div class="flex items-center">
@@ -894,6 +923,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load all required initialization functions
     try {
         console.log('Initializing components...');
+        initializeCategories(); // Add this line
         initializeSteps();
         initializeColorPickers();
         initializeCardLayouts(); 
@@ -1697,1136 +1727,1239 @@ document.addEventListener('DOMContentLoaded', function() {
             previewImage.src = '';
             previewFilename.textContent = '';
             imagePreview.classList.add('hidden');
-            dropzone.classList.remove('border-primary-400', 'border-opacity-20', 'bg-primary-50', 'bg-opacity-30');
+            dropzone.classList.remove('border-primary-400', 'borpreview-400', 'border-opacity-20', 'bg-primary-50', 'bg-opacity-30');
         });
     }
-    // Get templates from API instead of localStorage
-async function getTemplates() {
-    try {
-        const response = await fetch('/api/Template');
-        if (!response.ok) {
-            throw new Error('Failed to fetch templates');
-        }
-        return await response.json();
-    } catch (error) {
-        console.error('Error fetching templates:', error);
-        showNotification('Error loading templates', 'error');
-        return [];
-    }
-}
 
-// Save template to API
-async function saveTemplate(template) {
-    try {
-        const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
-        const method = template.id > 0 ? 'PUT' : 'POST';
-        const url = template.id > 0 ? `/api/Template/${template.id}` : '/api/Template';
-        
-        const response = await fetch(url, {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json',
-                'RequestVerificationToken': token
-            },
-            body: JSON.stringify(template)
-        });
-        
-        if (!response.ok) {
-            throw new Error(`Failed to save template - Status: ${response.status}`);
-        }
-        
-        // For successful POST responses, parse the JSON response
-        if (method === 'POST' && response.status !== 204) {
-            return await response.json();
-        } else {
-            return template; // For PUT, just return the original object
-        }
-    } catch (error) {
-        console.error('Error saving template:', error);
-        showNotification('Error saving template: ' + error.message, 'error');
-        throw error;
-    }
-}
-
-// Delete template from API
-async function deleteTemplate(templateId) {
-    try {
-        const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
-        const response = await fetch(`/api/Template/${templateId}`, {
-            method: 'DELETE',
-            headers: {
-                'RequestVerificationToken': token
-            }
-        });
-        
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Failed to delete template');
-        }
-        
-        return true;
-    } catch (error) {
-        console.error('Error deleting template:', error);
-        showNotification('Error deleting template: ' + error.message, 'error');
-        return false;
-    }
-}
-
-// Initialize templates
-async function initializeTemplates() {
-    // Clear existing template containers
-    const templateContainer = document.getElementById('template-container');
-    const expandedContainer = document.getElementById('expanded-template-container');
-    templateContainer.innerHTML = '';
-    expandedContainer.innerHTML = '';
-    
-    // Load templates from API
-    const templates = await getTemplates();
-    
-    // If templates were loaded, add them to containers
-    if (templates && templates.length > 0) {
-        // Sort templates by name
-        templates.sort((a, b) => a.name.localeCompare(b.name));
-        
-        // Add first 6 templates to main container, rest to expanded container
-        templates.forEach((template, index) => {
-            if (index < 6) {
-                templateContainer.appendChild(createTemplateCard(template));
-            } else {
-                expandedContainer.appendChild(createTemplateCard(template));
-            }
-        });
-    }
-    
-    // Also add frequently used templates to recently used section
-    const recentContainer = document.getElementById('recently-used-templates');
-    recentContainer.innerHTML = '';
-    
-    // Get recently used templates (in a real app, this would be from user history)
-    const recentTemplates = templates.slice(0, 3); // Just use the first 3 for demo
-    
-    recentTemplates.forEach(template => {
-        const chip = document.createElement('button');
-        chip.type = 'button';
-        chip.className = 'template-chip px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded-full hover:bg-primary-50 hover:text-primary-600 transition-colors';
-        chip.setAttribute('data-template', template.id);
-        
-        chip.innerHTML = `<i class="fas fa-${template.icon} mr-1"></i> ${template.name}`;
-        
-        chip.addEventListener('click', () => applyTemplate(template.id));
-        recentContainer.appendChild(chip);
-    });
-    
-    // Template card click handler
-    document.addEventListener('click', function(e) {
-        const card = e.target.closest('.template-card');
-        if (card && !e.target.closest('.edit-template-btn')) {
-            const templateId = card.getAttribute('data-template');
-            applyTemplate(templateId);
-        }
-    });
-}
-
-// Apply template function
-async function applyTemplate(templateId) {
-    document.getElementById('templateTypeHidden').value = templateId;
-    console.log(`Applying template ID: ${templateId}`);
-    
-    try {
-        const response = await fetch(`/api/Template/${templateId}`);
-        if (!response.ok) throw new Error(`API error: ${response.status}`);
-        
-        const template = await response.json();
-        console.log('Template data loaded:', template);
-        
-        // Update UI for selected template
-        document.querySelectorAll('.template-card').forEach(card => {
-            card.classList.remove('border-primary-500');
-            if (card.getAttribute('data-template') === String(templateId)) {
-                card.classList.add('border-primary-500');
-            }
-        });
-        
-        // Get template fields container
-        const templateFieldsContainer = document.getElementById('template-fields-container');
-        
-        // Display the template fields
-        displayCustomTemplateFields(template, templateFieldsContainer);
-        
-        // Update preview
-        document.getElementById('preview-template-name').textContent = template.name || 'Template';
-        document.getElementById('preview-template-icon').className = `fas fa-${template.icon || 'flask'}`;
-        
-        // Generate QR code
-        setTimeout(generateQRCode, 100);
-        
-        // Notify user
-        showTemplateToast(template.name || 'Template');
-    } catch (error) {
-        console.error('Template application error:', error);
-    }
-}
-
-
-function createTemplateFields(template, container) {
-    // Direct debug
-    console.log('Creating fields for template:', template);
-    
-    let fields = [];
-    try {
-        if (template.fields && Array.isArray(template.fields)) {
-            fields = template.fields;
-        } else if (template.fieldsJson) {
-            fields = JSON.parse(template.fieldsJson);
-            console.log('Parsed fields:', fields);
-        }
-    } catch (error) {
-        console.error('Error parsing fields:', error);
-        return;
-    }
-    
-    if (!fields || !fields.length) {
-        console.log('No fields found in template');
-        return;
-    }
-    
-    // Create each field directly with HTML
-    fields.forEach(field => {
-        const fieldId = `custom-${field.name.replace(/\s+/g, '-').toLowerCase()}`;
-        let fieldHtml = `
-            <div class="form-group mb-4" data-field-name="${field.name}">
-                <label for="${fieldId}" class="form-label font-medium text-gray-700">
-                    ${field.name}
-                    ${field.required !== false ? '<span class="text-red-500 ml-1">*</span>' : ''}
-                </label>
-                <div class="relative">
-        `;
-        
-        // Add appropriate input type
-        if (field.type === 'textarea') {
-            fieldHtml += `
-                <textarea id="${fieldId}" name="${fieldId}" class="form-input pl-9 h-20" 
-                    placeholder="${field.placeholder || ''}" ${field.required !== false ? 'required' : ''}></textarea>
-            `;
-        } else if (field.type === 'select') {
-            fieldHtml += `
-                <select id="${fieldId}" name="${fieldId}" class="form-input pl-9" ${field.required !== false ? 'required' : ''}>
-            `;
-            
-            if (field.options && Array.isArray(field.options)) {
-                field.options.forEach(option => {
-                    fieldHtml += `<option value="${option}">${option}</option>`;
-                });
-            }
-            
-            fieldHtml += `</select>`;
-        } else {
-            fieldHtml += `
-                <input type="${field.type || 'text'}" id="${fieldId}" name="${fieldId}" class="form-input pl-9" 
-                    placeholder="${field.placeholder || ''}" ${field.required !== false ? 'required' : ''}>
-            `;
-        }
-        
-        // Add icon
-        fieldHtml += `
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i class="fas fa-${field.icon || 'tag'} text-gray-400"></i>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        // Append the HTML directly
-        container.innerHTML += fieldHtml;
-    });
-    
-    console.log('Fields created successfully');
-}
-
-// New event listener to be added at document ready
-document.addEventListener('DOMContentLoaded', function() {
-    // Debug template selection
-    document.addEventListener('click', function(e) {
-        const templateCard = e.target.closest('.template-card');
-        if (templateCard) {
-            const templateId = templateCard.getAttribute('data-template');
-            console.log(`Template card clicked: ${templateId}`);
-            applyTemplate(templateId);
-        }
-    });
-    
-    // Also add click handlers to template chips
-    document.querySelectorAll('.template-chip').forEach(chip => {
-        chip.addEventListener('click', function() {
-            const templateId = this.getAttribute('data-template');
-            console.log(`Template chip clicked: ${templateId}`);
-            applyTemplate(templateId);
-        });
-    });
-});
-
-// Show/hide fields based on category/template type
-async function updateFieldVisibility(category) {
-    // Check if category is a numeric template ID
-    const isNumeric = !isNaN(parseInt(category));
-    
-    // Hide all custom fields first
-    const fieldGroups = document.querySelectorAll('.field-group');
-    fieldGroups.forEach(field => {
-        field.style.display = 'none';
-    });
-    
-    // Clear template fields container
-    const templateFieldsContainer = document.getElementById('template-fields-container');
-    templateFieldsContainer.innerHTML = '';
-    
-    // Show fields based on category or template type
-    if (isNumeric) {
+    // Initialize Categories
+    async function initializeCategories() {
         try {
-            const response = await fetch(`/api/Template/${category}`);
-            if (!response.ok) throw new Error('Failed to fetch template');
-            const template = await response.json();
-            displayCustomTemplateFields(template, templateFieldsContainer);
+            const response = await fetch('/api/Template/Categories');
+            if (!response.ok) throw new Error('Failed to fetch categories');
+            
+            const categories = await response.json();
+            
+            // Update category dropdown
+            const categorySelect = document.getElementById('category-select');
+            categorySelect.innerHTML = ''; // Clear existing options
+            
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                categorySelect.appendChild(option);
+            });
+            
+            // Update template tabs
+            const templateTabs = document.querySelector('.template-tabs');
+            const firstTab = templateTabs.querySelector('.template-tab'); // Keep the "All" tab
+            
+            // Remove existing category tabs (except the first "All" tab)
+            Array.from(templateTabs.querySelectorAll('.template-tab:not(:first-child)')).forEach(tab => {
+                tab.remove();
+            });
+            
+            // Add category tabs
+            categories.forEach(category => {
+                const tabButton = document.createElement('button');
+                tabButton.type = 'button';
+                tabButton.className = 'template-tab whitespace-nowrap px-3 py-1.5 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700';
+                tabButton.setAttribute('data-category', category.toLowerCase().replace(/\s+/g, '-'));
+                tabButton.textContent = category;
+                templateTabs.appendChild(tabButton);
+            });
+            
+            // Reinitialize template tabs
+            initializeTemplateTabs();
         } catch (error) {
-            console.error('Error fetching template:', error);
-            generateDefaultFields(templateFieldsContainer);
-        }
-    } else {
-        const categoryValue = category.toLowerCase();
-        
-        // Show/hide category-specific fields
-        fieldGroups.forEach(field => {
-            const fieldClass = field.classList[1]; // Get the second class which has the category name
-            if (fieldClass && fieldClass.includes(categoryValue)) {
-                field.style.display = 'block';
-            }
-        });
-        
-        // Set appropriate fields based on category
-        switch(categoryValue) {
-            case 'chemical':
-            case 'rust coating chemical':
-                document.querySelectorAll('.chemical-field').forEach(el => el.style.display = 'block');
-                break;
-            case 'design':
-            case 'design asset':
-                document.querySelectorAll('.design-field').forEach(el => el.style.display = 'block');
-                // Change warranty to license for design assets
-                document.querySelector('.warranty-label').innerHTML = 'License Expiration <span class="text-red-500 ml-1">*</span>';
-                document.querySelector('.warranty-preview .font-medium').textContent = 'License Until:';
-                break;
-            default:
-                // Reset warranty label for other types
-                document.querySelector('.warranty-label').innerHTML = 'Warranty Until <span class="text-red-500 ml-1">*</span>';
-                document.querySelector('.warranty-preview .font-medium').textContent = 'Warranty Until:';
-                generateDefaultFields(templateFieldsContainer);
-                break;
+            console.error('Error loading categories:', error);
+            showNotification('Error loading categories', 'error');
         }
     }
-    
-    // Update tag preview
-    updateTagPreview();
-}
 
-// Create a template card element
-function createTemplateCard(template) {
-    const card = document.createElement('div');
-    card.className = 'template-card cursor-pointer border rounded-lg overflow-hidden hover:border-primary-500 hover:shadow transition-all relative group';
-    card.setAttribute('data-template', template.id);
-    card.setAttribute('data-category', template.category.toLowerCase().replace(/\s+/g, '-'));
-    
-    const bgColor = getBackgroundClass(template.bgColor);
-    const iconColor = getColorClass(template.icon);
-    
-    card.innerHTML = `
-        <div class="absolute top-1 right-1 flex template-actions opacity-0 group-hover:opacity-100 z-10">
-            <button type="button" class="edit-template-btn p-1 text-gray-500 hover:text-primary-600 bg-white rounded-full shadow-sm" data-template="${template.id}">
-                <i class="fas fa-edit"></i>
-            </button>
-        </div>
-        <div class="h-20 bg-${bgColor} flex items-center justify-center">
-            <i class="fas fa-${template.icon} text-${iconColor} text-2xl"></i>
-        </div>
-        <div class="p-2 bg-white border-t border-gray-100">
-            <h4 class="font-medium text-sm text-gray-800">${template.name}</h4>
-            <p class="text-xs text-gray-500 mt-0.5">${template.category}</p>
-        </div>
-        <div class="absolute inset-0 bg-primary-500 bg-opacity-0 hover:bg-opacity-10 transition-all flex items-center justify-center">
-            <span class="bg-white text-primary-600 px-2 py-1 rounded-full text-xs font-medium opacity-0 group-hover:opacity-100 transform scale-0 group-hover:scale-100 transition-all shadow-sm">
-                Select Template
-            </span>
-        </div>
-    `;
-    
-    return card;
-}
-
-// Helper functions for template colors
-function getBackgroundClass(bgColor) {
-    // Map hex colors to Tailwind classes
-    const colorMap = {
-        '#f0f9ff': 'blue-50',
-        '#f0fdf4': 'green-50',
-        '#fef3c7': 'yellow-50',
-        '#fdf2f8': 'red-50',
-        '#faf5ff': 'purple-50'
-    };
-    
-    return colorMap[bgColor] || 'gray-50'; // Default to gray-50
-}
-
-function getColorClass(icon) {
-    // Map icons to appropriate color classes
-    const iconMap = {
-        'flask': 'blue-500',
-        'vial': 'blue-500',
-        'leaf': 'green-500',
-        'seedling': 'green-500',
-        'cogs': 'yellow-600',
-        'tools': 'yellow-600',
-        'wrench': 'yellow-600',
-        'microchip': 'green-500',
-        'laptop': 'green-500',
-        'paint-brush': 'red-500',
-        'palette': 'red-500',
-        'shield-alt': 'orange-500',
-        'hard-hat': 'orange-500'
-    };
-    
-    return iconMap[icon] || 'primary-500'; // Default to primary-500
-}
-
-// Generate default template fields
-function generateDefaultFields(container) {
-    container.innerHTML = `
-        <div class="form-group">
-            <label for="Manufacturer" class="form-label">
-                Manufacturer
-                <span class="text-red-500 ml-1">*</span>
-            </label>
-            <div class="relative">
-                <input id="Manufacturer" name="Manufacturer" class="form-input pl-9" required placeholder="Manufacturer Name">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <i class="fas fa-industry text-gray-400"></i>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-// Display custom template fields
-function displayCustomTemplateFields(template, container) {
-    console.log('Raw template data:', template);
-    container.innerHTML = '';
-    
-    let fields = [];
-    
-    // Direct fieldsJson access and parsing
-    if (template.fieldsJson && typeof template.fieldsJson === 'string') {
+    // Add new category
+    async function addNewCategory(categoryName) {
         try {
-            fields = JSON.parse(template.fieldsJson);
-            console.log('Parsed fields from JSON string:', fields);
-        } catch (e) {
-            console.error('JSON parse error:', e);
-        }
-    } else if (template.fieldsJson && Array.isArray(template.fieldsJson)) {
-        fields = template.fieldsJson;
-        console.log('Using provided fields array:', fields);
-    } else if (template.fields && Array.isArray(template.fields)) {
-        fields = template.fields;
-        console.log('Using template.fields array:', fields);
-    }
-    
-    if (!fields || !fields.length) {
-        console.warn('No fields found in template');
-        container.innerHTML = '<div class="p-4 bg-gray-50 rounded-lg"><p class="text-gray-500">No custom fields available</p></div>';
-        return;
-    }
-    
-    // Force field rendering with direct HTML insertion
-    fields.forEach(field => {
-        const fieldId = `custom-${field.name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}`;
-        
-        let html = `
-            <div class="form-group mb-4" data-field-name="${field.name}">
-                <label for="${fieldId}" class="form-label text-gray-700 font-medium">
-                    ${field.name}
-                    ${field.required !== false ? '<span class="text-red-500 ml-1">*</span>' : ''}
-                </label>
-                <div class="relative">`;
-        
-        if (field.type === 'textarea') {
-            html += `<textarea id="${fieldId}" name="${fieldId}" class="form-input pl-9 h-20" ${field.required !== false ? 'required' : ''}
-                     placeholder="${field.placeholder || ''}"></textarea>`;
-        } else if (field.type === 'select') {
-            html += `<select id="${fieldId}" name="${fieldId}" class="form-input pl-9" ${field.required !== false ? 'required' : ''}>`;
-            if (field.options && Array.isArray(field.options)) {
-                field.options.forEach(option => {
-                    html += `<option value="${option}">${option}</option>`;
-                });
-            }
-            html += `</select>`;
-        } else {
-            html += `<input type="${field.type || 'text'}" id="${fieldId}" name="${fieldId}" class="form-input pl-9"
-                    ${field.required !== false ? 'required' : ''} placeholder="${field.placeholder || ''}">`;
-        }
-        
-        html += `
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i class="fas fa-${field.icon || 'tag'} text-gray-400"></i>
-                    </div>
-                </div>
-            </div>`;
-        
-        container.innerHTML += html;
-    });
-    
-    console.log(`Rendered ${fields.length} fields`);
-}
-
-
-// Initialize template modal
-function initializeTemplateModal() {
-    const createBtn = document.getElementById('create-template-btn');
-    const modal = document.getElementById('create-template-modal');
-    const closeBtn = document.getElementById('close-template-modal');
-    const cancelBtn = document.getElementById('cancel-template-btn');
-    const saveBtn = document.getElementById('save-template-btn');
-    const deleteBtn = document.getElementById('delete-template-btn');
-    const addFieldBtn = document.getElementById('add-field-btn');
-    const customFields = document.getElementById('custom-fields');
-    const deleteModal = document.getElementById('delete-template-modal');
-    const closeDeleteBtn = document.getElementById('close-delete-modal');
-    const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
-    const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
-    
-    // Open template modal
-    createBtn.addEventListener('click', () => openTemplateModal('create'));
-    
-    // Handle edit template button clicks
-    document.addEventListener('click', e => {
-        const btn = e.target.closest('.edit-template-btn');
-        if (btn) {
-            const templateId = btn.getAttribute('data-template');
-            openTemplateModal('edit', templateId);
-        }
-    });
-    
-    // Open template modal function
-    async function openTemplateModal(mode, templateId = null) {
-        // Set modal title based on mode
-        document.getElementById('template-modal-title').textContent = mode === 'create' ? 'Create New Template' : 'Edit Template';
-        
-        // Show/hide delete button
-        deleteBtn.classList.toggle('hidden', mode === 'create');
-        
-        // Reset form
-        document.getElementById('template-form').reset();
-        document.getElementById('template-edit-id').value = '';
-        
-        // Clear custom fields except the first one
-        const fieldRows = customFields.querySelectorAll('.custom-field-row');
-        if (fieldRows.length > 1) {
-            for (let i = 1; i < fieldRows.length; i++) {
-                fieldRows[i].remove();
-            }
-        }
-        
-        // Reset first field row
-        const firstRow = customFields.querySelector('.custom-field-row');
-        if (firstRow) {
-            firstRow.querySelector('.field-name').value = '';
-            firstRow.querySelector('.field-type').value = 'text';
-            firstRow.querySelector('.field-icon').value = 'tag';
-            firstRow.querySelector('.field-placeholder').value = '';
-            firstRow.querySelector('.field-options').classList.add('hidden');
+            const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
+            const response = await fetch('/api/Template/Categories', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token
+                },
+                body: JSON.stringify(categoryName)
+            });
             
-            if (firstRow.querySelector('.field-options-input')) {
-                firstRow.querySelector('.field-options-input').value = '';
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Failed to add category');
             }
             
-            if (firstRow.querySelector('.field-required')) {
-                firstRow.querySelector('.field-required').checked = true;
+            // Reload categories
+            await initializeCategories();
+            
+            // Set the new category as selected
+            const categorySelect = document.getElementById('category-select');
+            categorySelect.value = categoryName;
+            
+            // Trigger change event to update preview
+            categorySelect.dispatchEvent(new Event('change'));
+            
+            showNotification(`Category "${categoryName}" added successfully`, 'success');
+        } catch (error) {
+            console.error('Error adding category:', error);
+            showNotification('Error adding category: ' + error.message, 'error');
+        }
+    }
+
+    // Get templates from API
+    async function getTemplates() {
+        try {
+            const response = await fetch('/api/Template');
+            if (!response.ok) {
+                throw new Error('Failed to fetch templates');
             }
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching templates:', error);
+            showNotification('Error loading templates', 'error');
+            return [];
+        }
+    }
+
+    // Save template to API
+    async function saveTemplate(template) {
+        try {
+            const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
+            const method = template.id > 0 ? 'PUT' : 'POST';
+            const url = template.id > 0 ? `/api/Template/${template.id}` : '/api/Template';
+            
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token
+                },
+                body: JSON.stringify(template)
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Failed to save template - Status: ${response.status}`);
+            }
+            
+            // For successful POST responses, parse the JSON response
+            if (method === 'POST' && response.status !== 204) {
+                return await response.json();
+            } else {
+                return template; // For PUT, just return the original object
+            }
+        } catch (error) {
+            console.error('Error saving template:', error);
+            showNotification('Error saving template: ' + error.message, 'error');
+            throw error;
+        }
+    }
+
+    // Delete template from API
+    async function deleteTemplate(templateId) {
+        try {
+            const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
+            const response = await fetch(`/api/Template/${templateId}`, {
+                method: 'DELETE',
+                headers: {
+                    'RequestVerificationToken': token
+                }
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to delete template');
+            }
+            
+            return true;
+        } catch (error) {
+            console.error('Error deleting template:', error);
+            showNotification('Error deleting template: ' + error.message, 'error');
+            return false;
+        }
+    }
+
+    // Initialize templates
+    async function initializeTemplates() {
+        // Clear existing template containers
+        const templateContainer = document.getElementById('template-container');
+        const expandedContainer = document.getElementById('expanded-template-container');
+        templateContainer.innerHTML = '';
+        expandedContainer.innerHTML = '';
+        
+        // Load templates from API
+        const templates = await getTemplates();
+        
+        // If templates were loaded, add them to containers
+        if (templates && templates.length > 0) {
+            // Sort templates by name
+            templates.sort((a, b) => a.name.localeCompare(b.name));
+            
+            // Add first 6 templates to main container, rest to expanded container
+            templates.forEach((template, index) => {
+                if (index < 6) {
+                    templateContainer.appendChild(createTemplateCard(template));
+                } else {
+                    expandedContainer.appendChild(createTemplateCard(template));
+                }
+            });
         }
         
-        // Reset icon selection
-        document.querySelectorAll('.icon-option').forEach(opt => {
-            opt.classList.remove('border-primary-500', 'active');
-            opt.querySelector('i').classList.remove('text-primary-500');
-            opt.querySelector('i').classList.add('text-gray-500');
+        // Also add frequently used templates to recently used section
+        const recentContainer = document.getElementById('recently-used-templates');
+        recentContainer.innerHTML = '';
+        
+        // Get recently used templates (in a real app, this would be from user history)
+        const recentTemplates = templates.slice(0, 3); // Just use the first 3 for demo
+        
+        recentTemplates.forEach(template => {
+            const chip = document.createElement('button');
+            chip.type = 'button';
+            chip.className = 'template-chip px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded-full hover:bg-primary-50 hover:text-primary-600 transition-colors';
+            chip.setAttribute('data-template', template.id);
+            
+            chip.innerHTML = `<i class="fas fa-${template.icon} mr-1"></i> ${template.name}`;
+            
+            chip.addEventListener('click', () => applyTemplate(template.id));
+            recentContainer.appendChild(chip);
         });
         
-        document.querySelector('.icon-option[data-icon="flask"]').classList.add('border-primary-500', 'active');
-        document.querySelector('.icon-option[data-icon="flask"] i').classList.remove('text-gray-500');
-        document.querySelector('.icon-option[data-icon="flask"] i').classList.add('text-primary-500');
-        document.getElementById('template-icon').value = 'flask';
-        
-        // If editing, populate form with template data
-        if (mode === 'edit' && templateId) {
-            await populateTemplateForm(templateId);
-        }
-        
-        // Show modal
-        modal.classList.remove('hidden');
-        
-        // Animate modal
-        setTimeout(() => {
-            modal.querySelector('.bg-white').classList.remove('opacity-0', 'scale-95');
-            modal.querySelector('.bg-white').classList.add('opacity-100', 'scale-100');
-        }, 10);
+        // Template card click handler
+        document.addEventListener('click', function(e) {
+            const card = e.target.closest('.template-card');
+            if (card && !e.target.closest('.edit-template-btn')) {
+                const templateId = card.getAttribute('data-template');
+                applyTemplate(templateId);
+            }
+        });
     }
-    
-    // Populate template form with data
-    async function populateTemplateForm(templateId) {
+
+    // Apply template function
+    async function applyTemplate(templateId) {
+        document.getElementById('templateTypeHidden').value = templateId;
+        console.log(`Applying template ID: ${templateId}`);
+        
         try {
             const response = await fetch(`/api/Template/${templateId}`);
-            if (!response.ok) throw new Error('Failed to fetch template');
+            if (!response.ok) throw new Error(`API error: ${response.status}`);
             
             const template = await response.json();
+            console.log('Template data loaded:', template);
             
-            // Set template ID and delete ID
-            document.getElementById('template-edit-id').value = template.id;
-            document.getElementById('delete-template-id').value = template.id;
-            
-            // Populate basic fields
-            document.getElementById('template-name').value = template.name || '';
-            document.getElementById('template-category').value = template.category || '';
-            document.getElementById('template-bg-color').value = template.bgColor || '#f0f9ff';
-            document.getElementById('template-bg-color-text').value = template.bgColor || '#f0f9ff';
-            
-            // Select icon
-            const iconElement = document.querySelector(`.icon-option[data-icon="${template.icon}"]`);
-            if (iconElement) {
-                document.querySelectorAll('.icon-option').forEach(opt => {
-                    opt.classList.remove('border-primary-500', 'active');
-                    opt.querySelector('i').classList.remove('text-primary-500');
-                    opt.querySelector('i').classList.add('text-gray-500');
-                });
-                
-                iconElement.classList.add('border-primary-500', 'active');
-                iconElement.querySelector('i').classList.remove('text-gray-500');
-                iconElement.querySelector('i').classList.add('text-primary-500');
-                document.getElementById('template-icon').value = template.icon;
-            }
-            
-            // Parse fields
-            let fields = [];
-            try {
-                if (template.fieldsJson) {
-                    fields = JSON.parse(template.fieldsJson);
+            // Update UI for selected template
+            document.querySelectorAll('.template-card').forEach(card => {
+                card.classList.remove('border-primary-500');
+                if (card.getAttribute('data-template') === String(templateId)) {
+                    card.classList.add('border-primary-500');
                 }
-            } catch (e) {
-                console.error('Error parsing fields JSON:', e);
-            }
+            });
             
-            // Clear existing fields
-            customFields.innerHTML = '';
+            // Get template fields container
+            const templateFieldsContainer = document.getElementById('template-fields-container');
             
-            // Add field rows
-            if (fields && fields.length > 0) {
-                fields.forEach(field => addCustomField(field));
-            } else {
-                addCustomField(); // Add an empty field
-            }
+            // Display the template fields
+            displayCustomTemplateFields(template, templateFieldsContainer);
+            
+            // Update preview
+            document.getElementById('preview-template-name').textContent = template.name || 'Template';
+            document.getElementById('preview-template-icon').className = `fas fa-${template.icon || 'flask'}`;
+            
+            // Generate QR code
+            setTimeout(generateQRCode, 100);
+            
+            // Notify user
+            showTemplateToast(template.name || 'Template');
         } catch (error) {
-            console.error('Error populating template form:', error);
-            showNotification('Error loading template', 'error');
+            console.error('Template application error:', error);
         }
     }
-    
-    // Add custom field row
-    function addCustomField(fieldData = null) {
-        const newField = document.createElement('div');
-        newField.className = 'custom-field-row flex items-start gap-2 p-3 border border-gray-100 rounded-lg bg-gray-50 hover:bg-white hover:shadow-sm transition-all';
+
+    // Create a template card element
+    function createTemplateCard(template) {
+        const card = document.createElement('div');
+        card.className = 'template-card cursor-pointer border rounded-lg overflow-hidden hover:border-primary-500 hover:shadow transition-all relative group';
+        card.setAttribute('data-template', template.id);
+        card.setAttribute('data-category', template.category.toLowerCase().replace(/\s+/g, '-'));
         
-        const fieldId = Date.now();
+        const bgColor = getBackgroundClass(template.bgColor);
+        const iconColor = getColorClass(template.icon);
         
-        newField.innerHTML = `
-            <div class="flex-grow">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <div class="form-group mb-2">
-                        <label class="form-label text-sm">Field Name <span class="text-red-500">*</span></label>
-                        <input type="text" class="form-input py-2 text-sm field-name" placeholder="E.g., Lab ID" required>
-                    </div>
-                    <div class="form-group mb-2">
-                        <label class="form-label text-sm">Field Type <span class="text-red-500">*</span></label>
-                        <select class="form-input py-2 text-sm field-type">
-                            <option value="text">Text</option>
-                            <option value="select">Dropdown</option>
-                            <option value="number">Number</option>
-                            <option value="date">Date</option>
-                            <option value="textarea">Text Area</option>
-                        </select>
-                    </div>
-                    <div class="form-group mb-2">
-                        <label class="form-label text-sm">Icon</label>
-                        <select class="form-input py-2 text-sm field-icon">
-                            <option value="tag">Tag</option>
-                            <option value="info-circle">Info</option>
-                            <option value="check-circle">Check</option>
-                            <option value="flag">Flag</option>
-                            <option value="clipboard">Clipboard</option>
-                            <option value="calendar">Calendar</option>
-                            <option value="user">User</option>
-                            <option value="link">Link</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="field-options hidden mt-2">
-                    <label class="form-label text-sm">Options (comma separated)</label>
-                    <input type="text" class="form-input py-2 text-sm field-options-input" placeholder="Option 1, Option 2, Option 3">
-                </div>
-                <div class="form-group mt-2">
-                    <label class="form-label text-sm">Placeholder</label>
-                    <input type="text" class="form-input py-2 text-sm field-placeholder" placeholder="Enter placeholder text">
-                </div>
-                <div class="form-group mt-2">
-                    <div class="flex items-center">
-                        <input type="checkbox" class="field-required mr-2" id="field-required-checkbox-${fieldId}" checked>
-                        <label for="field-required-checkbox-${fieldId}" class="text-sm">Required</label>
-                    </div>
-                </div>
-            </div>
-            <div class="flex-shrink-0 mt-6">
-                <button type="button" class="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full transition-colors remove-field-btn">
-                    <i class="fas fa-trash"></i>
+        card.innerHTML = `
+            <div class="absolute top-1 right-1 flex template-actions opacity-0 group-hover:opacity-100 z-10">
+                <button type="button" class="edit-template-btn p-1 text-gray-500 hover:text-primary-600 bg-white rounded-full shadow-sm" data-template="${template.id}">
+                    <i class="fas fa-edit"></i>
                 </button>
+            </div>
+            <div class="h-20 bg-${bgColor} flex items-center justify-center">
+                <i class="fas fa-${template.icon} text-${iconColor} text-2xl"></i>
+            </div>
+            <div class="p-2 bg-white border-t border-gray-100">
+                <h4 class="font-medium text-sm text-gray-800">${template.name}</h4>
+                <p class="text-xs text-gray-500 mt-0.5">${template.category}</p>
+            </div>
+            <div class="absolute inset-0 bg-primary-500 bg-opacity-0 hover:bg-opacity-10 transition-all flex items-center justify-center">
+                <span class="bg-white text-primary-600 px-2 py-1 rounded-full text-xs font-medium opacity-0 group-hover:opacity-100 transform scale-0 group-hover:scale-100 transition-all shadow-sm">
+                    Select Template
+                </span>
             </div>
         `;
         
-        customFields.appendChild(newField);
+        return card;
+    }
+
+    // Helper functions for template colors
+    function getBackgroundClass(bgColor) {
+        // Map hex colors to Tailwind classes
+        const colorMap = {
+            '#f0f9ff': 'blue-50',
+            '#f0fdf4': 'green-50',
+            '#fef3c7': 'yellow-50',
+            '#fdf2f8': 'red-50',
+            '#faf5ff': 'purple-50'
+        };
         
-        // Add event listener for field type change
-        const fieldTypeSelect = newField.querySelector('.field-type');
-        fieldTypeSelect.addEventListener('change', function() {
-            const optionsDiv = newField.querySelector('.field-options');
-            optionsDiv.classList.toggle('hidden', this.value !== 'select');
+        return colorMap[bgColor] || 'gray-50'; // Default to gray-50
+    }
+
+    function getColorClass(icon) {
+        // Map icons to appropriate color classes
+        const iconMap = {
+            'flask': 'blue-500',
+            'vial': 'blue-500',
+            'leaf': 'green-500',
+            'seedling': 'green-500',
+            'cogs': 'yellow-600',
+            'tools': 'yellow-600',
+            'wrench': 'yellow-600',
+            'microchip': 'green-500',
+            'laptop': 'green-500',
+            'paint-brush': 'red-500',
+            'palette': 'red-500',
+            'shield-alt': 'orange-500',
+            'hard-hat': 'orange-500'
+        };
+        
+        return iconMap[icon] || 'primary-500'; // Default to primary-500
+    }
+
+    // Function to create template fields
+    function createTemplateFields(template, container) {
+        // Direct debug
+        console.log('Creating fields for template:', template);
+        
+        let fields = [];
+        try {
+            if (template.fields && Array.isArray(template.fields)) {
+                fields = template.fields;
+            } else if (template.fieldsJson) {
+                fields = JSON.parse(template.fieldsJson);
+                console.log('Parsed fields:', fields);
+            }
+        } catch (error) {
+            console.error('Error parsing fields:', error);
+            return;
+        }
+        
+        if (!fields || !fields.length) {
+            console.log('No fields found in template');
+            return;
+        }
+        
+        // Create each field directly with HTML
+        fields.forEach(field => {
+            const fieldId = `custom-${field.name.replace(/\s+/g, '-').toLowerCase()}`;
+            let fieldHtml = `
+                <div class="form-group mb-4" data-field-name="${field.name}">
+                    <label for="${fieldId}" class="form-label font-medium text-gray-700">
+                        ${field.name}
+                        ${field.required !== false ? '<span class="text-red-500 ml-1">*</span>' : ''}
+                    </label>
+                    <div class="relative">
+            `;
+            
+            // Add appropriate input type
+            if (field.type === 'textarea') {
+                fieldHtml += `
+                    <textarea id="${fieldId}" name="${fieldId}" class="form-input pl-9 h-20" 
+                        placeholder="${field.placeholder || ''}" ${field.required !== false ? 'required' : ''}></textarea>
+                `;
+            } else if (field.type === 'select') {
+                fieldHtml += `
+                    <select id="${fieldId}" name="${fieldId}" class="form-input pl-9" ${field.required !== false ? 'required' : ''}>
+                `;
+                
+                if (field.options && Array.isArray(field.options)) {
+                    field.options.forEach(option => {
+                        fieldHtml += `<option value="${option}">${option}</option>`;
+                    });
+                }
+                
+                fieldHtml += `</select>`;
+            } else {
+                fieldHtml += `
+                    <input type="${field.type || 'text'}" id="${fieldId}" name="${fieldId}" class="form-input pl-9" 
+                        placeholder="${field.placeholder || ''}" ${field.required !== false ? 'required' : ''}>
+                `;
+            }
+            
+            // Add icon
+            fieldHtml += `
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-${field.icon || 'tag'} text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Append the HTML directly
+            container.innerHTML += fieldHtml;
         });
         
-        // If field data provided, populate the field
-        if (fieldData) {
-            const nameInput = newField.querySelector('.field-name');
-            const typeSelect = newField.querySelector('.field-type');
-            const iconSelect = newField.querySelector('.field-icon');
-            const placeholderInput = newField.querySelector('.field-placeholder');
-            const requiredCheckbox = newField.querySelector('.field-required');
-            const optionsDiv = newField.querySelector('.field-options');
-            const optionsInput = newField.querySelector('.field-options-input');
+        console.log('Fields created successfully');
+    }
+
+    // Display custom template fields
+    function displayCustomTemplateFields(template, container) {
+        console.log('Raw template data:', template);
+        container.innerHTML = '';
+        
+        let fields = [];
+        
+        // Direct fieldsJson access and parsing
+        if (template.fieldsJson && typeof template.fieldsJson === 'string') {
+            try {
+                fields = JSON.parse(template.fieldsJson);
+                console.log('Parsed fields from JSON string:', fields);
+            } catch (e) {
+                console.error('JSON parse error:', e);
+            }
+        } else if (template.fieldsJson && Array.isArray(template.fieldsJson)) {
+            fields = template.fieldsJson;
+            console.log('Using provided fields array:', fields);
+        } else if (template.fields && Array.isArray(template.fields)) {
+            fields = template.fields;
+            console.log('Using template.fields array:', fields);
+        }
+        
+        if (!fields || !fields.length) {
+            console.warn('No fields found in template');
+            container.innerHTML = '<div class="p-4 bg-gray-50 rounded-lg"><p class="text-gray-500">No custom fields available</p></div>';
+            return;
+        }
+        
+        // Force field rendering with direct HTML insertion
+        fields.forEach(field => {
+            const fieldId = `custom-${field.name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}`;
             
-            nameInput.value = fieldData.name || '';
-            typeSelect.value = fieldData.type || 'text';
-            iconSelect.value = fieldData.icon || 'tag';
-            placeholderInput.value = fieldData.placeholder || '';
+            let html = `
+                <div class="form-group mb-4" data-field-name="${field.name}">
+                    <label for="${fieldId}" class="form-label text-gray-700 font-medium">
+                        ${field.name}
+                        ${field.required !== false ? '<span class="text-red-500 ml-1">*</span>' : ''}
+                    </label>
+                    <div class="relative">`;
             
-            if (requiredCheckbox) {
-                requiredCheckbox.checked = fieldData.required !== false;
+            if (field.type === 'textarea') {
+                html += `<textarea id="${fieldId}" name="${fieldId}" class="form-input pl-9 h-20" ${field.required !== false ? 'required' : ''}
+                         placeholder="${field.placeholder || ''}"></textarea>`;
+            } else if (field.type === 'select') {
+                html += `<select id="${fieldId}" name="${fieldId}" class="form-input pl-9" ${field.required !== false ? 'required' : ''}>`;
+                if (field.options && Array.isArray(field.options)) {
+                    field.options.forEach(option => {
+                        html += `<option value="${option}">${option}</option>`;
+                    });
+                }
+                html += `</select>`;
+            } else {
+                html += `<input type="${field.type || 'text'}" id="${fieldId}" name="${fieldId}" class="form-input pl-9"
+                        ${field.required !== false ? 'required' : ''} placeholder="${field.placeholder || ''}">`;
             }
             
-            if (fieldData.type === 'select') {
-                optionsDiv.classList.remove('hidden');
-                
-                if (optionsInput && fieldData.options && Array.isArray(fieldData.options)) {
-                    optionsInput.value = fieldData.options.join(', ');
+            html += `
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-${field.icon || 'tag'} text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>`;
+            
+            container.innerHTML += html;
+        });
+        
+        console.log(`Rendered ${fields.length} fields`);
+    }
+
+    // Show/hide fields based on category/template type
+    async function updateFieldVisibility(category) {
+        // Check if category is a numeric template ID
+        const isNumeric = !isNaN(parseInt(category));
+        
+        // Hide all custom fields first
+        const fieldGroups = document.querySelectorAll('.field-group');
+        fieldGroups.forEach(field => {
+            field.style.display = 'none';
+        });
+        
+        // Clear template fields container
+        const templateFieldsContainer = document.getElementById('template-fields-container');
+        templateFieldsContainer.innerHTML = '';
+        
+        // Show fields based on category or template type
+        if (isNumeric) {
+            try {
+                const response = await fetch(`/api/Template/${category}`);
+                if (!response.ok) throw new Error('Failed to fetch template');
+                const template = await response.json();
+                displayCustomTemplateFields(template, templateFieldsContainer);
+            } catch (error) {
+                console.error('Error fetching template:', error);
+                generateDefaultFields(templateFieldsContainer);
+            }
+        } else {
+            const categoryValue = category.toLowerCase();
+            
+            // Show/hide category-specific fields
+            fieldGroups.forEach(field => {
+                const fieldClass = field.classList[1]; // Get the second class which has the category name
+                if (fieldClass && fieldClass.includes(categoryValue)) {
+                    field.style.display = 'block';
                 }
+            });
+            
+            // Set appropriate fields based on category
+            switch(categoryValue) {
+                case 'chemical':
+                case 'rust coating chemical':
+                    document.querySelectorAll('.chemical-field').forEach(el => el.style.display = 'block');
+                    break;
+                case 'design':
+                case 'design asset':
+                    document.querySelectorAll('.design-field').forEach(el => el.style.display = 'block');
+                    // Change warranty to license for design assets
+                    document.querySelector('.warranty-label').innerHTML = 'License Expiration <span class="text-red-500 ml-1">*</span>';
+                    document.querySelector('.warranty-preview .font-medium').textContent = 'License Until:';
+                    break;
+                default:
+                    // Reset warranty label for other types
+                    document.querySelector('.warranty-label').innerHTML = 'Warranty Until <span class="text-red-500 ml-1">*</span>';
+                    document.querySelector('.warranty-preview .font-medium').textContent = 'Warranty Until:';
+                    generateDefaultFields(templateFieldsContainer);
+                    break;
             }
         }
-    }
-    
-    // Close modal functions
-    function closeModal() {
-        modal.querySelector('.bg-white').classList.remove('opacity-100', 'scale-100');
-        modal.querySelector('.bg-white').classList.add('opacity-0', 'scale-95');
         
-        setTimeout(() => {
-            modal.classList.add('hidden');
-        }, 300);
+        // Update tag preview
+        updateTagPreview();
     }
-    
-    closeBtn.addEventListener('click', closeModal);
-    cancelBtn.addEventListener('click', closeModal);
-    
-    // Close delete modal
-    function closeDeleteModal() {
-        deleteModal.querySelector('.bg-white').classList.remove('opacity-100', 'scale-100');
-        deleteModal.querySelector('.bg-white').classList.add('opacity-0', 'scale-95');
+
+    // Generate default template fields
+    function generateDefaultFields(container) {
+        container.innerHTML = `
+            <div class="form-group">
+                <label for="Manufacturer" class="form-label">
+                    Manufacturer
+                    <span class="text-red-500 ml-1">*</span>
+                </label>
+                <div class="relative">
+                    <input id="Manufacturer" name="Manufacturer" class="form-input pl-9" required placeholder="Manufacturer Name">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-industry text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // Update tag preview based on form values
+    function updateTagPreview() {
+        const preview = document.getElementById('tag-preview');
+        const previewName = document.getElementById('preview-name');
+        const previewCategory = document.getElementById('preview-category');
+        const previewManufacturer = document.getElementById('preview-manufacturer');
+        const previewLocation = document.getElementById('preview-location');
+        const previewMfgDate = document.getElementById('preview-mfgdate');
+        const previewWarranty = document.getElementById('preview-warranty');
+        const previewMaintenance = document.getElementById('preview-maintenance');
+        const previewCustomFields = document.getElementById('preview-custom-fields');
         
-        setTimeout(() => {
-            deleteModal.classList.add('hidden');
-        }, 300);
+        if (!preview || !previewName || !previewCategory) {
+            console.error("Preview elements not found");
+            return;
+        }
+        
+        // Update colors
+        const bgColor = document.getElementById('BackgroundColor')?.value || '#ffffff';
+        const textColor = document.getElementById('TextColor')?.value || '#000000';
+        const accentColor = document.getElementById('AccentColor')?.value || '#0284c7';
+        
+        preview.style.backgroundColor = bgColor;
+        preview.style.color = textColor;
+        previewName.style.color = accentColor;
+        previewCategory.style.backgroundColor = accentColor;
+        
+        document.querySelectorAll('#tag-preview i').forEach(icon => {
+            icon.style.color = accentColor;
+        });
+        
+        // Update back of card background
+        const cardBack = document.querySelector('.card-back');
+        if (cardBack) {
+            cardBack.style.backgroundColor = bgColor;
+        }
+        
+        // Update content
+        const productName = document.getElementById('ProductName');
+        if (productName && productName.value) {
+            previewName.textContent = productName.value;
+            
+            // Update QR product name
+            const qrProductName = document.getElementById('qr-product-name');
+            if (qrProductName) {
+                qrProductName.textContent = productName.value;
+            }
+        } else {
+            previewName.textContent = "Product Name";
+        }
+        
+        const category = document.getElementById('category-select');
+        if (category && category.value) {
+            previewCategory.textContent = category.value;
+        } else {
+            previewCategory.textContent = "Category";
+        }
+        
+        const manufacturer = document.getElementById('Manufacturer');
+        if (manufacturer && manufacturer.value) {
+            previewManufacturer.textContent = manufacturer.value;
+        } else {
+            previewManufacturer.textContent = "Manufacturer";
+        }
+        
+        const location = document.getElementById('Location');
+        if (location && location.value) {
+            previewLocation.textContent = location.value;
+        } else {
+            previewLocation.textContent = "Not specified";
+        }
+        
+        const mfgDate = document.getElementById('ManufactureDate');
+        if (mfgDate && mfgDate.value) {
+            previewMfgDate.textContent = new Date(mfgDate.value).toLocaleDateString();
+        }
+        
+        const warranty = document.getElementById('WarrantyExpiration');
+        if (warranty && warranty.value) {
+            previewWarranty.textContent = new Date(warranty.value).toLocaleDateString();
+        }
+        
+        const maintenance = document.getElementById('MaintenanceInfo');
+        if (maintenance && maintenance.value) {
+            previewMaintenance.textContent = maintenance.value.length > 40 ? 
+                maintenance.value.substring(0, 40) + '...' : 
+                maintenance.value;
+        } else {
+            previewMaintenance.textContent = "No maintenance info";
+        }
+        
+        // Update custom fields
+        if (previewCustomFields) {
+            previewCustomFields.innerHTML = '';
+            
+            document.querySelectorAll('[id^="custom-"]').forEach(field => {
+                if (field.value) {
+                    const fieldName = field.id.replace('custom-', '').replace(/-/g, ' ');
+                    const fieldElement = document.createElement('div');
+                    fieldElement.className = 'flex items-center space-x-2 text-sm mt-1';
+                    fieldElement.innerHTML = `
+                        <span class="font-semibold">${fieldName}:</span>&nbsp;<span>${field.value}</span>
+                    `;
+                    
+                    previewCustomFields.appendChild(fieldElement);
+                }
+            });
+        }
+        
+        // Update layout
+        const layout = document.getElementById('layoutHidden')?.value || 'standard';
+        preview.className = 'business-card card-side card-front';
+        
+        switch (layout) {
+            case 'modern':
+                preview.classList.add('modern-layout');
+                break;
+            case 'compact':
+                preview.classList.add('compact-layout');
+                break;
+            default:
+                preview.classList.add('standard-layout');
+                break;
+        }
     }
-    
-    closeDeleteBtn.addEventListener('click', closeDeleteModal);
-    cancelDeleteBtn.addEventListener('click', closeDeleteModal);
-    
-    // Icon selection
-    document.querySelectorAll('.icon-option').forEach(option => {
-        option.addEventListener('click', function() {
-            // Remove active class from all options
+
+    // Initialize template modal
+    function initializeTemplateModal() {
+        const createBtn = document.getElementById('create-template-btn');
+        const modal = document.getElementById('create-template-modal');
+        const closeBtn = document.getElementById('close-template-modal');
+        const cancelBtn = document.getElementById('cancel-template-btn');
+        const saveBtn = document.getElementById('save-template-btn');
+        const deleteBtn = document.getElementById('delete-template-btn');
+        const addFieldBtn = document.getElementById('add-field-btn');
+        const customFields = document.getElementById('custom-fields');
+        const deleteModal = document.getElementById('delete-template-modal');
+        const closeDeleteBtn = document.getElementById('close-delete-modal');
+        const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+        const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+        
+        // Open template modal
+        createBtn.addEventListener('click', () => openTemplateModal('create'));
+        
+        // Handle edit template button clicks
+        document.addEventListener('click', e => {
+            const btn = e.target.closest('.edit-template-btn');
+            if (btn) {
+                const templateId = btn.getAttribute('data-template');
+                openTemplateModal('edit', templateId);
+            }
+        });
+        
+        // Open template modal function
+        async function openTemplateModal(mode, templateId = null) {
+            // Set modal title based on mode
+            document.getElementById('template-modal-title').textContent = mode === 'create' ? 'Create New Template' : 'Edit Template';
+            
+            // Show/hide delete button
+            deleteBtn.classList.toggle('hidden', mode === 'create');
+            
+            // Reset form
+            document.getElementById('template-form').reset();
+            document.getElementById('template-edit-id').value = '';
+            
+            // Clear custom fields except the first one
+            const fieldRows = customFields.querySelectorAll('.custom-field-row');
+            if (fieldRows.length > 1) {
+                for (let i = 1; i < fieldRows.length; i++) {
+                    fieldRows[i].remove();
+                }
+            }
+            
+            // Reset first field row
+            const firstRow = customFields.querySelector('.custom-field-row');
+            if (firstRow) {
+                firstRow.querySelector('.field-name').value = '';
+                firstRow.querySelector('.field-type').value = 'text';
+                firstRow.querySelector('.field-icon').value = 'tag';
+                firstRow.querySelector('.field-placeholder').value = '';
+                firstRow.querySelector('.field-options').classList.add('hidden');
+                
+                if (firstRow.querySelector('.field-options-input')) {
+                    firstRow.querySelector('.field-options-input').value = '';
+                }
+                
+                if (firstRow.querySelector('.field-required')) {
+                    firstRow.querySelector('.field-required').checked = true;
+                }
+            }
+            
+            // Reset icon selection
             document.querySelectorAll('.icon-option').forEach(opt => {
                 opt.classList.remove('border-primary-500', 'active');
                 opt.querySelector('i').classList.remove('text-primary-500');
                 opt.querySelector('i').classList.add('text-gray-500');
             });
             
-            // Add active class to this option
-            this.classList.add('border-primary-500', 'active');
-            this.querySelector('i').classList.remove('text-gray-500');
-            this.querySelector('i').classList.add('text-primary-500');
+            document.querySelector('.icon-option[data-icon="flask"]').classList.add('border-primary-500', 'active');
+            document.querySelector('.icon-option[data-icon="flask"] i').classList.remove('text-gray-500');
+            document.querySelector('.icon-option[data-icon="flask"] i').classList.add('text-primary-500');
+            document.getElementById('template-icon').value = 'flask';
             
-            // Update hidden input
-            document.getElementById('template-icon').value = this.getAttribute('data-icon');
-        });
-    });
-    
-    // Connect color inputs
-    const templateBgColor = document.getElementById('template-bg-color');
-    const templateBgColorText = document.getElementById('template-bg-color-text');
-    
-    templateBgColor.addEventListener('input', function() {
-        templateBgColorText.value = this.value;
-    });
-    
-    templateBgColorText.addEventListener('input', function() {
-        templateBgColor.value = this.value;
-    });
-    
-    // Add field button
-    addFieldBtn.addEventListener('click', () => addCustomField());
-    
-    // Remove field button
-    customFields.addEventListener('click', function(e) {
-        const btn = e.target.closest('.remove-field-btn');
-        if (btn) {
-            const fieldRow = btn.closest('.custom-field-row');
-            
-            // Don't remove if it's the last field
-            if (customFields.querySelectorAll('.custom-field-row').length > 1) {
-                fieldRow.remove();
-            } else {
-                showNotification('You must have at least one custom field', 'error');
-            }
-        }
-    });
-    
-    // Delete template button
-    deleteBtn.addEventListener('click', function() {
-        const templateId = document.getElementById('template-edit-id').value;
-        const templateName = document.getElementById('template-name').value;
-        
-        if (!templateId) return;
-        
-        // Update confirmation modal
-        document.getElementById('delete-template-name').textContent = templateName;
-        document.getElementById('delete-template-id').value = templateId;
-        
-        // Hide template modal
-        closeModal();
-        
-        // Show delete confirmation modal
-        deleteModal.classList.remove('hidden');
-        
-        setTimeout(() => {
-            deleteModal.querySelector('.bg-white').classList.remove('opacity-0', 'scale-95');
-            deleteModal.querySelector('.bg-white').classList.add('opacity-100', 'scale-100');
-        }, 10);
-    });
-    
-    // Confirm delete
-    confirmDeleteBtn.addEventListener('click', async function() {
-        const templateId = document.getElementById('delete-template-id').value;
-        
-        if (!templateId) return;
-        
-        // Delete template from API
-        const success = await deleteTemplate(templateId);
-        
-        if (success) {
-            // Get template name for notification
-            const templateName = document.getElementById('delete-template-name').textContent;
-            
-            // Remove template card from UI
-            const templateCard = document.querySelector(`.template-card[data-template="${templateId}"]`);
-            if (templateCard) {
-                templateCard.remove();
+            // If editing, populate form with template data
+            if (mode === 'edit' && templateId) {
+                await populateTemplateForm(templateId);
             }
             
-            // Close modal
-            closeDeleteModal();
+            // Show modal
+            modal.classList.remove('hidden');
             
-            // Refresh template list
-            initializeTemplates();
-            
-            // Show success notification
-            showNotification(`Template "${templateName}" deleted successfully`, 'success');
+            // Animate modal
+            setTimeout(() => {
+                modal.querySelector('.bg-white').classList.remove('opacity-0', 'scale-95');
+                modal.querySelector('.bg-white').classList.add('opacity-100', 'scale-100');
+            }, 10);
         }
-    });
-    
-    // Save template
-    saveBtn.addEventListener('click', async function() {
-        // Validate form
-        const form = document.getElementById('template-form');
-        const requiredInputs = form.querySelectorAll('[required]');
-        let isValid = true;
         
-        requiredInputs.forEach(input => {
-            if (!input.value.trim()) {
-                input.classList.add('border-red-500');
-                isValid = false;
-            } else {
-                input.classList.remove('border-red-500');
+        // Populate template form with data
+        async function populateTemplateForm(templateId) {
+            try {
+                const response = await fetch(`/api/Template/${templateId}`);
+                if (!response.ok) throw new Error('Failed to fetch template');
+                
+                const template = await response.json();
+                
+                // Set template ID and delete ID
+                document.getElementById('template-edit-id').value = template.id;
+                document.getElementById('delete-template-id').value = template.id;
+                
+                // Populate basic fields
+                document.getElementById('template-name').value = template.name || '';
+                document.getElementById('template-category').value = template.category || '';
+                document.getElementById('template-bg-color').value = template.bgColor || '#f0f9ff';
+                document.getElementById('template-bg-color-text').value = template.bgColor || '#f0f9ff';
+                
+                // Select icon
+                const iconElement = document.querySelector(`.icon-option[data-icon="${template.icon}"]`);
+                if (iconElement) {
+                    document.querySelectorAll('.icon-option').forEach(opt => {
+                        opt.classList.remove('border-primary-500', 'active');
+                        opt.querySelector('i').classList.remove('text-primary-500');
+                        opt.querySelector('i').classList.add('text-gray-500');
+                    });
+                    
+                    iconElement.classList.add('border-primary-500', 'active');
+                    iconElement.querySelector('i').classList.remove('text-gray-500');
+                    iconElement.querySelector('i').classList.add('text-primary-500');
+                    document.getElementById('template-icon').value = template.icon;
+                }
+                
+                // Parse fields
+                let fields = [];
+                try {
+                    if (template.fieldsJson) {
+                        fields = JSON.parse(template.fieldsJson);
+                    }
+                } catch (e) {
+                    console.error('Error parsing fields JSON:', e);
+                }
+                
+                // Clear existing fields
+                customFields.innerHTML = '';
+                
+                // Add field rows
+                if (fields && fields.length > 0) {
+                    fields.forEach(field => addCustomField(field));
+                } else {
+                    addCustomField(); // Add an empty field
+                }
+            } catch (error) {
+                console.error('Error populating template form:', error);
+                showNotification('Error loading template', 'error');
             }
-        });
-        
-        if (!isValid) {
-            showNotification('Please fill in all required fields', 'error');
-            return;
         }
         
-        // Collect template data
-        const templateId = document.getElementById('template-edit-id').value;
-        const templateName = document.getElementById('template-name').value;
-        const templateCategory = document.getElementById('template-category').value;
-        const templateIcon = document.getElementById('template-icon').value;
-        const templateBgColor = document.getElementById('template-bg-color').value;
-        
-        // Collect fields data
-        const fields = [];
-        const fieldRows = document.querySelectorAll('.custom-field-row');
-        
-        fieldRows.forEach(row => {
-            const fieldName = row.querySelector('.field-name').value;
-            const fieldType = row.querySelector('.field-type').value;
-            const fieldIcon = row.querySelector('.field-icon').value;
-            const fieldPlaceholder = row.querySelector('.field-placeholder').value;
-            const fieldRequired = row.querySelector('.field-required')?.checked ?? true;
+        // Add custom field row
+        function addCustomField(fieldData = null) {
+            const newField = document.createElement('div');
+            newField.className = 'custom-field-row flex items-start gap-2 p-3 border border-gray-100 rounded-lg bg-gray-50 hover:bg-white hover:shadow-sm transition-all';
             
-            let options = [];
-            if (fieldType === 'select') {
-                const optionsInput = row.querySelector('.field-options-input');
-                if (optionsInput && optionsInput.value) {
-                    options = optionsInput.value.split(',').map(opt => opt.trim());
+            const fieldId = Date.now();
+            
+            newField.innerHTML = `
+                <div class="flex-grow">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div class="form-group mb-2">
+                            <label class="form-label text-sm">Field Name <span class="text-red-500">*</span></label>
+                            <input type="text" class="form-input py-2 text-sm field-name" placeholder="E.g., Lab ID" required>
+                        </div>
+                        <div class="form-group mb-2">
+                            <label class="form-label text-sm">Field Type <span class="text-red-500">*</span></label>
+                            <select class="form-input py-2 text-sm field-type">
+                                <option value="text">Text</option>
+                                <option value="select">Dropdown</option>
+                                <option value="number">Number</option>
+                                <option value="date">Date</option>
+                                <option value="textarea">Text Area</option>
+                            </select>
+                        </div>
+                        <div class="form-group mb-2">
+                            <label class="form-label text-sm">Icon</label>
+                            <select class="form-input py-2 text-sm field-icon">
+                                <option value="tag">Tag</option>
+                                <option value="info-circle">Info</option>
+                                <option value="check-circle">Check</option>
+                                <option value="flag">Flag</option>
+                                <option value="clipboard">Clipboard</option>
+                                <option value="calendar">Calendar</option>
+                                <option value="user">User</option>
+                                <option value="link">Link</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="field-options hidden mt-2">
+                        <label class="form-label text-sm">Options (comma separated)</label>
+                        <input type="text" class="form-input py-2 text-sm field-options-input" placeholder="Option 1, Option 2, Option 3">
+                    </div>
+                    <div class="form-group mt-2">
+                        <label class="form-label text-sm">Placeholder</label>
+                        <input type="text" class="form-input py-2 text-sm field-placeholder" placeholder="Enter placeholder text">
+                    </div>
+                    <div class="form-group mt-2">
+                        <div class="flex items-center">
+                            <input type="checkbox" class="field-required mr-2" id="field-required-checkbox-${fieldId}" checked>
+                            <label for="field-required-checkbox-${fieldId}" class="text-sm">Required</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex-shrink-0 mt-6">
+                    <button type="button" class="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full transition-colors remove-field-btn">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+            
+            customFields.appendChild(newField);
+            
+            // Add event listener for field type change
+            const fieldTypeSelect = newField.querySelector('.field-type');
+            fieldTypeSelect.addEventListener('change', function() {
+                const optionsDiv = newField.querySelector('.field-options');
+                optionsDiv.classList.toggle('hidden', this.value !== 'select');
+            });
+            
+            // If field data provided, populate the field
+            if (fieldData) {
+                const nameInput = newField.querySelector('.field-name');
+                const typeSelect = newField.querySelector('.field-type');
+                const iconSelect = newField.querySelector('.field-icon');
+                const placeholderInput = newField.querySelector('.field-placeholder');
+                const requiredCheckbox = newField.querySelector('.field-required');
+                const optionsDiv = newField.querySelector('.field-options');
+                const optionsInput = newField.querySelector('.field-options-input');
+                
+                nameInput.value = fieldData.name || '';
+                typeSelect.value = fieldData.type || 'text';
+                iconSelect.value = fieldData.icon || 'tag';
+                placeholderInput.value = fieldData.placeholder || '';
+                
+                if (requiredCheckbox) {
+                    requiredCheckbox.checked = fieldData.required !== false;
+                }
+                
+                if (fieldData.type === 'select') {
+                    optionsDiv.classList.remove('hidden');
+                    
+                    if (optionsInput && fieldData.options && Array.isArray(fieldData.options)) {
+                        optionsInput.value = fieldData.options.join(', ');
+                    }
                 }
             }
+        }
+        
+        // Close modal functions
+        function closeModal() {
+            modal.querySelector('.bg-white').classList.remove('opacity-100', 'scale-100');
+            modal.querySelector('.bg-white').classList.add('opacity-0', 'scale-95');
             
-            fields.push({
-                name: fieldName,
-                type: fieldType,
-                icon: fieldIcon,
-                placeholder: fieldPlaceholder,
-                options: options,
-                required: fieldRequired
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+        
+        closeBtn.addEventListener('click', closeModal);
+        cancelBtn.addEventListener('click', closeModal);
+        
+        // Close delete modal
+        function closeDeleteModal() {
+            deleteModal.querySelector('.bg-white').classList.remove('opacity-100', 'scale-100');
+            deleteModal.querySelector('.bg-white').classList.add('opacity-0', 'scale-95');
+            
+            setTimeout(() => {
+                deleteModal.classList.add('hidden');
+            }, 300);
+        }
+        
+        closeDeleteBtn.addEventListener('click', closeDeleteModal);
+        cancelDeleteBtn.addEventListener('click', closeDeleteModal);
+        
+        // Icon selection
+        document.querySelectorAll('.icon-option').forEach(option => {
+            option.addEventListener('click', function() {
+                // Remove active class from all options
+                document.querySelectorAll('.icon-option').forEach(opt => {
+                    opt.classList.remove('border-primary-500', 'active');
+                    opt.querySelector('i').classList.remove('text-primary-500');
+                    opt.querySelector('i').classList.add('text-gray-500');
+                });
+                
+                // Add active class to this option
+                this.classList.add('border-primary-500', 'active');
+                this.querySelector('i').classList.remove('text-gray-500');
+                this.querySelector('i').classList.add('text-primary-500');
+                
+                // Update hidden input
+                document.getElementById('template-icon').value = this.getAttribute('data-icon');
             });
         });
         
-        // Create template object
-        const template = {
-            id: templateId ? parseInt(templateId) : 0,
-            name: templateName,
-            category: templateCategory,
-            icon: templateIcon,
-            bgColor: templateBgColor,
-            fieldsJson: JSON.stringify(fields)
-        };
+        // Connect color inputs
+        const templateBgColor = document.getElementById('template-bg-color');
+        const templateBgColorText = document.getElementById('template-bg-color-text');
         
-        try {
-            // Save template
-            const savedTemplate = await saveTemplate(template);
+        templateBgColor.addEventListener('input', function() {
+            templateBgColorText.value = this.value;
+        });
+        
+        templateBgColorText.addEventListener('input', function() {
+            templateBgColor.value = this.value;
+        });
+        
+        // Add field button
+        addFieldBtn.addEventListener('click', () => addCustomField());
+        
+        // Remove field button
+        customFields.addEventListener('click', function(e) {
+            const btn = e.target.closest('.remove-field-btn');
+            if (btn) {
+                const fieldRow = btn.closest('.custom-field-row');
+                
+                // Don't remove if it's the last field
+                if (customFields.querySelectorAll('.custom-field-row').length > 1) {
+                    fieldRow.remove();
+                } else {
+                    showNotification('You must have at least one custom field', 'error');
+                }
+            }
+        });
+        
+        // Delete template button
+        deleteBtn.addEventListener('click', function() {
+            const templateId = document.getElementById('template-edit-id').value;
+            const templateName = document.getElementById('template-name').value;
             
-            // Close modal
+            if (!templateId) return;
+            
+            // Update confirmation modal
+            document.getElementById('delete-template-name').textContent = templateName;
+            document.getElementById('delete-template-id').value = templateId;
+            
+            // Hide template modal
             closeModal();
             
-            // Refresh templates
-            await initializeTemplates();
+            // Show delete confirmation modal
+            deleteModal.classList.remove('hidden');
             
-            // Show success notification
-            showNotification(`Template "${templateName}" ${templateId ? 'updated' : 'created'} successfully`, 'success');
-        } catch (error) {
-            showNotification('Error saving template: ' + error.message, 'error');
-        }
-    });
-}
-
-// Update tag preview based on form values
-function updateTagPreview() {
-    const preview = document.getElementById('tag-preview');
-    const previewName = document.getElementById('preview-name');
-    const previewCategory = document.getElementById('preview-category');
-    const previewManufacturer = document.getElementById('preview-manufacturer');
-    const previewLocation = document.getElementById('preview-location');
-    const previewMfgDate = document.getElementById('preview-mfgdate');
-    const previewWarranty = document.getElementById('preview-warranty');
-    const previewMaintenance = document.getElementById('preview-maintenance');
-    const previewCustomFields = document.getElementById('preview-custom-fields');
-    
-    if (!preview || !previewName || !previewCategory) {
-        console.error("Preview elements not found");
-        return;
-    }
-    
-    // Update colors
-    const bgColor = document.getElementById('BackgroundColor')?.value || '#ffffff';
-    const textColor = document.getElementById('TextColor')?.value || '#000000';
-    const accentColor = document.getElementById('AccentColor')?.value || '#0284c7';
-    
-    preview.style.backgroundColor = bgColor;
-    preview.style.color = textColor;
-    previewName.style.color = accentColor;
-    previewCategory.style.backgroundColor = accentColor;
-    
-    document.querySelectorAll('#tag-preview i').forEach(icon => {
-        icon.style.color = accentColor;
-    });
-    
-    // Update back of card background
-    const cardBack = document.querySelector('.card-back');
-    if (cardBack) {
-        cardBack.style.backgroundColor = bgColor;
-    }
-    
-    // Update content
-    const productName = document.getElementById('ProductName');
-    if (productName && productName.value) {
-        previewName.textContent = productName.value;
+            setTimeout(() => {
+                deleteModal.querySelector('.bg-white').classList.remove('opacity-0', 'scale-95');
+                deleteModal.querySelector('.bg-white').classList.add('opacity-100', 'scale-100');
+            }, 10);
+        });
         
-        // Update QR product name
-        const qrProductName = document.getElementById('qr-product-name');
-        if (qrProductName) {
-            qrProductName.textContent = productName.value;
-        }
-    } else {
-        previewName.textContent = "Product Name";
-    }
-    
-    const category = document.getElementById('category-select');
-    if (category && category.value) {
-        previewCategory.textContent = category.value;
-    } else {
-        previewCategory.textContent = "Category";
-    }
-    
-    const manufacturer = document.getElementById('Manufacturer');
-    if (manufacturer && manufacturer.value) {
-        previewManufacturer.textContent = manufacturer.value;
-    } else {
-        previewManufacturer.textContent = "Manufacturer";
-    }
-    
-    const location = document.getElementById('Location');
-    if (location && location.value) {
-        previewLocation.textContent = location.value;
-    } else {
-        previewLocation.textContent = "Not specified";
-    }
-    
-    const mfgDate = document.getElementById('ManufactureDate');
-    if (mfgDate && mfgDate.value) {
-        previewMfgDate.textContent = new Date(mfgDate.value).toLocaleDateString();
-    }
-    
-    const warranty = document.getElementById('WarrantyExpiration');
-    if (warranty && warranty.value) {
-        previewWarranty.textContent = new Date(warranty.value).toLocaleDateString();
-    }
-    
-    const maintenance = document.getElementById('MaintenanceInfo');
-    if (maintenance && maintenance.value) {
-        previewMaintenance.textContent = maintenance.value.length > 40 ? 
-            maintenance.value.substring(0, 40) + '...' : 
-            maintenance.value;
-    } else {
-        previewMaintenance.textContent = "No maintenance info";
-    }
-    
-    // Update custom fields
-    if (previewCustomFields) {
-        previewCustomFields.innerHTML = '';
-        
-        document.querySelectorAll('[id^="custom-"]').forEach(field => {
-            if (field.value) {
-                const fieldName = field.id.replace('custom-', '').replace(/-/g, ' ');
-                const fieldElement = document.createElement('div');
-                fieldElement.className = 'flex items-center space-x-2 text-sm mt-1';
-                fieldElement.innerHTML = `
-                    <span class="font-semibold">${fieldName}:</span>&nbsp;<span>${field.value}</span>
-                `;
+        // Confirm delete
+        confirmDeleteBtn.addEventListener('click', async function() {
+            const templateId = document.getElementById('delete-template-id').value;
+            
+            if (!templateId) return;
+            
+            // Delete template from API
+            const success = await deleteTemplate(templateId);
+            
+            if (success) {
+                // Get template name for notification
+                const templateName = document.getElementById('delete-template-name').textContent;
                 
-                previewCustomFields.appendChild(fieldElement);
+                // Remove template card from UI
+                const templateCard = document.querySelector(`.template-card[data-template="${templateId}"]`);
+                if (templateCard) {
+                    templateCard.remove();
+                }
+                
+                // Close modal
+                closeDeleteModal();
+                
+                // Refresh template list
+                initializeTemplates();
+                
+                // Show success notification
+                showNotification(`Template "${templateName}" deleted successfully`, 'success');
+            }
+        });
+        
+        // Save template
+        saveBtn.addEventListener('click', async function() {
+            // Validate form
+            const form = document.getElementById('template-form');
+            const requiredInputs = form.querySelectorAll('[required]');
+            let isValid = true;
+            
+            requiredInputs.forEach(input => {
+                if (!input.value.trim()) {
+                    input.classList.add('border-red-500');
+                    isValid = false;
+                } else {
+                    input.classList.remove('border-red-500');
+                }
+            });
+            
+            if (!isValid) {
+                showNotification('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            // Collect template data
+            const templateId = document.getElementById('template-edit-id').value;
+            const templateName = document.getElementById('template-name').value;
+            const templateCategory = document.getElementById('template-category').value;
+            const templateIcon = document.getElementById('template-icon').value;
+            const templateBgColor = document.getElementById('template-bg-color').value;
+            
+            // Collect fields data
+            const fields = [];
+            const fieldRows = document.querySelectorAll('.custom-field-row');
+            
+            fieldRows.forEach(row => {
+                const fieldName = row.querySelector('.field-name').value;
+                const fieldType = row.querySelector('.field-type').value;
+                const fieldIcon = row.querySelector('.field-icon').value;
+                const fieldPlaceholder = row.querySelector('.field-placeholder').value;
+                const fieldRequired = row.querySelector('.field-required')?.checked ?? true;
+                
+                let options = [];
+                if (fieldType === 'select') {
+                    const optionsInput = row.querySelector('.field-options-input');
+                    if (optionsInput && optionsInput.value) {
+                        options = optionsInput.value.split(',').map(opt => opt.trim());
+                    }
+                }
+                
+                fields.push({
+                    name: fieldName,
+                    type: fieldType,
+                    icon: fieldIcon,
+                    placeholder: fieldPlaceholder,
+                    options: options,
+                    required: fieldRequired
+                });
+            });
+            
+            // Create template object
+            const template = {
+                id: templateId ? parseInt(templateId) : 0,
+                name: templateName,
+                category: templateCategory,
+                icon: templateIcon,
+                bgColor: templateBgColor,
+                fieldsJson: JSON.stringify(fields)
+            };
+            
+            try {
+                // Save template
+                const savedTemplate = await saveTemplate(template);
+                
+                // Close modal
+                closeModal();
+                
+                // Refresh templates
+                await initializeTemplates();
+                
+                // Show success notification
+                showNotification(`Template "${templateName}" ${templateId ? 'updated' : 'created'} successfully`, 'success');
+            } catch (error) {
+                showNotification('Error saving template: ' + error.message, 'error');
             }
         });
     }
-    
-    // Update layout
-    const layout = document.getElementById('layoutHidden')?.value || 'standard';
-    preview.className = 'business-card card-side card-front';
-    
-    switch (layout) {
-        case 'modern':
-            preview.classList.add('modern-layout');
-            break;
-        case 'compact':
-            preview.classList.add('compact-layout');
-            break;
-        default:
-            preview.classList.add('standard-layout');
-            break;
-    }
-}
 
-// Notification system
-window.showNotification = function(message, type = 'success') {
-    const toast = document.createElement('div');
-    toast.className = 'fixed bottom-4 right-4 bg-white shadow-lg rounded-lg p-4 transform translate-y-0 opacity-0 transition-all duration-300 z-50 max-w-sm border border-gray-100';
-    
-    let iconClass, iconColor, bgColor;
-    if (type === 'success') {
-        iconClass = 'fas fa-check';
-        iconColor = 'text-green-500';
-        bgColor = 'bg-green-100';
-    } else if (type === 'error') {
-        iconClass = 'fas fa-times';
-        iconColor = 'text-red-500';
-        bgColor = 'bg-red-100';
-    } else if (type === 'info') {
-        iconClass = 'fas fa-info';
-        iconColor = 'text-blue-500';
-        bgColor = 'bg-blue-100';
-    }
-    
-    toast.innerHTML = `
-        <div class="flex items-center">
-            <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full ${bgColor} ${iconColor} mr-3">
-                <i class="${iconClass}"></i>
-            </div>
-            <div class="flex-grow">
-                <p class="font-medium">${type.charAt(0).toUpperCase() + type.slice(1)}</p>
-                <p class="text-sm text-gray-500">${message}</p>
-            </div>
-            <button onclick="this.parentNode.parentNode.remove()" class="ml-2 text-gray-400 hover:text-gray-600 h-8 w-8 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-    `;
-    
-    document.body.appendChild(toast);
-    
-    // Animate in
-    setTimeout(() => {
-        toast.classList.replace('opacity-0', 'opacity-100');
-        toast.classList.replace('translate-y-0', 'translate-y-[-20px]');
-    }, 10);
-    
-    // Automatically remove after 3 seconds
-    setTimeout(() => {
-        toast.classList.replace('opacity-100', 'opacity-0');
-        toast.classList.replace('translate-y-[-20px]', 'translate-y-20');
+    // Add category button click handler
+    document.getElementById('add-category-btn').addEventListener('click', function() {
+        const modal = document.getElementById('add-category-modal');
+        modal.classList.remove('hidden');
         
-        // Remove from DOM after animation
+        // Animate modal
         setTimeout(() => {
-            toast.remove();
+            modal.querySelector('.bg-white').classList.remove('opacity-0', 'scale-95');
+            modal.querySelector('.bg-white').classList.add('opacity-100', 'scale-100');
+            
+            // Focus the input
+            document.getElementById('new-category-name').focus();
+        }, 10);
+    });
+
+    // Close modal function
+    function closeCategoryModal() {
+        const modal = document.getElementById('add-category-modal');
+        modal.querySelector('.bg-white').classList.remove('opacity-100', 'scale-100');
+        modal.querySelector('.bg-white').classList.add('opacity-0', 'scale-95');
+        
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            document.getElementById('new-category-name').value = '';
         }, 300);
-    }, 3000);
-};
+    }
+
+    // Close and cancel button handlers
+    document.getElementById('close-category-modal').addEventListener('click', closeCategoryModal);
+    document.getElementById('cancel-category-btn').addEventListener('click', closeCategoryModal);
+
+    // Save category button handler
+    document.getElementById('save-category-btn').addEventListener('click', function() {
+        const categoryName = document.getElementById('new-category-name').value.trim();
+        
+        if (!categoryName) {
+            document.getElementById('new-category-name').classList.add('border-red-500');
+            return;
+        }
+        
+        closeCategoryModal();
+        addNewCategory(categoryName);
+    });
+
+    // Notification system
+    window.showNotification = function(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = 'fixed bottom-4 right-4 bg-white shadow-lg rounded-lg p-4 transform translate-y-0 opacity-0 transition-all duration-300 z-50 max-w-sm border border-gray-100';
+        
+        let iconClass, iconColor, bgColor;
+        if (type === 'success') {
+            iconClass = 'fas fa-check';
+            iconColor = 'text-green-500';
+            bgColor = 'bg-green-100';
+        } else if (type === 'error') {
+            iconClass = 'fas fa-times';
+            iconColor = 'text-red-500';
+            bgColor = 'bg-red-100';
+        } else if (type === 'info') {
+            iconClass = 'fas fa-info';
+            iconColor = 'text-blue-500';
+            bgColor = 'bg-blue-100';
+        }
+        
+        toast.innerHTML = `
+            <div class="flex items-center">
+                <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full ${bgColor} ${iconColor} mr-3">
+                    <i class="${iconClass}"></i>
+                </div>
+                <div class="flex-grow">
+                    <p class="font-medium">${type.charAt(0).toUpperCase() + type.slice(1)}</p>
+                    <p class="text-sm text-gray-500">${message}</p>
+                </div>
+                <button onclick="this.parentNode.parentNode.remove()" class="ml-2 text-gray-400 hover:text-gray-600 h-8 w-8 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+        
+        document.body.appendChild(toast);
+        
+        // Animate in
+        setTimeout(() => {
+            toast.classList.replace('opacity-0', 'opacity-100');
+            toast.classList.replace('translate-y-0', 'translate-y-[-20px]');
+        }, 10);
+        
+        // Automatically remove after 3 seconds
+        setTimeout(() => {
+            toast.classList.replace('opacity-100', 'opacity-0');
+            toast.classList.replace('translate-y-[-20px]', 'translate-y-20');
+            
+            // Remove from DOM after animation
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        }, 3000);
+    };
 });
 </script>
 }
