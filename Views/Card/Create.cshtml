@@ -1976,9 +1976,9 @@ async function applyTemplate(templateId) {
         document.getElementById('preview-template-name').textContent = template.name || 'Template';
         document.getElementById('preview-template-icon').className = `fas fa-${template.icon || 'flask'}`;
         
-        // Update preview and QR code
-        setTimeout(generateQRCode, 100);
+        // Update preview and QR code - FORCE UPDATE HERE
         updateTagPreview();
+        setTimeout(generateQRCode, 100);
         
         // Show success notification
         showTemplateToast(template.name || 'Template');
@@ -2194,6 +2194,15 @@ function displayCustomTemplateFields(template, container) {
         
         container.innerHTML += html;
     });
+    
+    // ADD THIS: Attach event listeners to all newly created fields
+    setTimeout(() => {
+        const newInputs = container.querySelectorAll('input, textarea, select');
+        newInputs.forEach(input => {
+            input.addEventListener('input', updateTagPreview);
+            input.addEventListener('change', updateTagPreview);
+        });
+    }, 0);
 }
 
 // Show/hide fields based on category/template type
@@ -2391,9 +2400,15 @@ function updateTagPreview() {
     if (previewCustomFields) {
         previewCustomFields.innerHTML = '';
         
-        document.querySelectorAll('[id^="custom-"]').forEach(field => {
+        // Get all custom fields including dynamically added template fields
+        const customInputs = document.querySelectorAll('[id^="custom-"]');
+        customInputs.forEach(field => {
             if (field.value) {
-                const fieldName = field.id.replace('custom-', '').replace(/-/g, ' ');
+                // Convert field ID to readable name
+                const fieldName = field.id.replace('custom-', '')
+                                       .replace(/-/g, ' ')
+                                       .replace(/\b\w/g, l => l.toUpperCase());
+                
                 const fieldElement = document.createElement('div');
                 fieldElement.className = 'flex items-center space-x-2 text-sm mt-1';
                 fieldElement.innerHTML = `
