@@ -27,7 +27,6 @@ namespace CardTagManager.Models
 
         [Required]
         [StringLength(100)]
-        [Display(Name = "Manufacturer")]
         public string Manufacturer { get; set; } = string.Empty;
         
         // Compatibility property for Company

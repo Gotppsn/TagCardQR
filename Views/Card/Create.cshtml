@@ -102,6 +102,7 @@
             </div>
             
         <form asp-action="Create" method="post" id="product-form" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
             <!-- Add hidden fields for QR colors -->
             <input type="hidden" name="QrFgColor" id="qrFgColorHidden" value="#000000" />
             <input type="hidden" name="QrBgColor" id="qrBgColorHidden" value="#FFFFFF" />
