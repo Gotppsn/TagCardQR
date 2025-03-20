@@ -881,36 +881,28 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM fully loaded');
     
     // Force create QRCode if not defined
-    if (typeof QRCode === 'undefined') {
-        console.warn('QRCode library not found, creating fallback...');
-        // Simple QRCode fallback
-        window.QRCode = function(element, options) {
-            if (typeof element === 'string') {
-                element = document.querySelector(element);
-            }
-            
-            if (!element) {
-                console.error('QRCode element not found');
-                return;
-            }
-            
-            // Just display a placeholder
-            element.innerHTML = `
-                <div style="width:160px;height:160px;display:flex;align-items:center;justify-content:center;border:1px solid #e5e7eb;background:#f9fafb;">
-                    <div style="text-align:center;">
-                        <i class="fas fa-qrcode text-gray-400" style="font-size:48px;margin-bottom:8px;"></i>
-                        <div style="font-size:12px;color:#6b7280;">QR Code for:<br>${options.text}</div>
-                    </div>
-                </div>
-            `;
-            
-            console.log('Fallback QR code displayed');
+        if (typeof QRCode === 'undefined') {
+        console.log('QRCode library not detected, loading dynamically...');
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+        script.onload = function() {
+            console.log('QRCode library loaded successfully');
+            // Generate QR code once the library is loaded
+            setTimeout(generateQRCode, 300);
         };
-        
-        // Add correction levels
-        QRCode.CorrectLevel = {L:1, M:0, Q:3, H:2};
-    } else {
-        console.log('QRCode library loaded successfully');
+        script.onerror = function() {
+            console.error('Failed to load QRCode library');
+            const qrElement = document.getElementById('card-qr-code-display');
+            if (qrElement) {
+                qrElement.innerHTML = `
+                    <div style="width:160px;height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid #e5e7eb;background:#f8fafc;padding:8px;">
+                        <i class="fas fa-exclamation-circle text-red-500" style="font-size:48px;margin-bottom:8px;"></i>
+                        <div style="font-size:12px;color:#6b7280;text-align:center;">Failed to load QR code library</div>
+                    </div>
+                `;
+            }
+        };
+        document.head.appendChild(script);
     }
     
     // Load all required initialization functions
@@ -1019,6 +1011,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    function forceQRCodeRefresh() {
+    setTimeout(generateQRCode, 100);
+}
     
     // Initialize Load More Templates button
     function initializeLoadMoreTemplates() {
@@ -1127,51 +1123,62 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Generate QR Code
-    function generateQRCode() {
-        const qrElement = document.getElementById('card-qr-code-display');
-        if (!qrElement) {
-            console.error('QR code container not found');
-            return;
-        }
-        
-        // Clear any existing QR code
-        qrElement.innerHTML = '';
-        
-        const productName = document.getElementById('ProductName').value || 'Sample Product';
-        const qrFgColor = document.getElementById('qr-fg-color').value || '#000000';
-        const qrBgColor = document.getElementById('qr-bg-color').value || '#FFFFFF';
-        
-        // Update QR product name on back of card
-        const qrProductNameElement = document.getElementById('qr-product-name');
-        if (qrProductNameElement) {
-            qrProductNameElement.textContent = productName;
-        }
-        
-        // QR code data would typically contain a URL or ID to access the product details
-        const qrData = `PRODUCT:${productName}:${Date.now()}`;
-        
-        try {
-            // Make sure QRCode is loaded
-            if (typeof QRCode === 'undefined') {
-                throw new Error('QRCode library not loaded');
-            }
-            
-            // Create new QR Code
-            new QRCode(qrElement, {
-                text: qrData,
-                width: 160,
-                height: 160,
-                colorDark: qrFgColor,
-                colorLight: qrBgColor,
-                correctLevel: QRCode.CorrectLevel.H
-            });
-            
-            console.log('QR code generated successfully');
-        } catch (error) {
-            console.error('Error generating QR code:', error);
-            qrElement.innerHTML = '<i class="fas fa-exclamation-triangle text-red-500 text-xl"></i><p class="text-xs text-red-500 mt-2">Error generating QR code</p>';
-        }
+// Replace the generateQRCode function with this improved version
+function generateQRCode() {
+    const qrElement = document.getElementById('card-qr-code-display');
+    if (!qrElement) {
+        console.error('QR code container not found');
+        return;
     }
+    
+    // Clear any existing QR code
+    qrElement.innerHTML = '';
+    
+    const productName = document.getElementById('ProductName').value || 'Sample Product';
+    const qrFgColor = document.getElementById('qr-fg-color').value || '#000000';
+    const qrBgColor = document.getElementById('qr-bg-color').value || '#FFFFFF';
+    
+    // Update QR product name on back of card
+    const qrProductNameElement = document.getElementById('qr-product-name');
+    if (qrProductNameElement) {
+        qrProductNameElement.textContent = productName;
+    }
+    
+    // QR code data would typically contain a URL or ID to access the product details
+    const qrData = `PRODUCT:${productName}:${Date.now()}`;
+    
+    try {
+        // Make sure QRCode is defined
+        if (typeof QRCode === 'undefined' || !QRCode) {
+            throw new Error('QRCode library not loaded');
+        }
+        
+        // Create new QR Code
+        new QRCode(qrElement, {
+            text: qrData,
+            width: 160,
+            height: 160,
+            colorDark: qrFgColor,
+            colorLight: qrBgColor,
+            correctLevel: QRCode.CorrectLevel.H
+        });
+        
+        console.log('QR code generated successfully');
+        
+        // Force element to be visible
+        qrElement.style.display = 'block';
+    } catch (error) {
+        console.error('Error generating QR code:', error);
+        
+        // Create a more visible error/fallback display
+        qrElement.innerHTML = `
+            <div style="width:160px;height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid #e5e7eb;background:#f8fafc;padding:8px;">
+                <i class="fas fa-qrcode text-gray-400" style="font-size:48px;margin-bottom:8px;"></i>
+                <div style="font-size:12px;color:#6b7280;text-align:center;">QR Code Preview<br/>for ${productName}</div>
+            </div>
+        `;
+    }
+}
     
     // QR code color change event listeners
     document.getElementById('qr-fg-color').addEventListener('input', function() {
