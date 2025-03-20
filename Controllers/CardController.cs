@@ -171,27 +171,36 @@ namespace CardTagManager.Controllers
                 }
 
                 // Handle image upload
-                if (card.ImageFile != null && card.ImageFile.Length > 0)
-                {
-                    try
-                    {
-                        var fileResponse = await _fileUploadService.UploadFile(card.ImageFile);
-                        if (fileResponse.IsSuccess)
-                        {
-                            card.ImagePath = fileResponse.FileUrl;
-                        }
-                        else
-                        {
-                            ModelState.AddModelError("ImageFile", "Failed to upload image: " + fileResponse.ErrorMessage);
-                            return View(card);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        ModelState.AddModelError("ImageFile", "Error uploading image: " + ex.Message);
-                        return View(card);
-                    }
-                }
+if (card.ImageFile != null && card.ImageFile.Length > 0)
+{
+    try
+    {
+        _logger.LogInformation($"Uploading file: {card.ImageFile.FileName}, Size: {card.ImageFile.Length} bytes");
+        
+        var fileResponse = await _fileUploadService.UploadFile(card.ImageFile);
+        if (fileResponse.IsSuccess)
+        {
+            card.ImagePath = fileResponse.FileUrl;
+            _logger.LogInformation($"File uploaded successfully: {card.ImagePath}");
+        }
+        else
+        {
+            _logger.LogWarning($"File upload failed: {fileResponse.ErrorMessage}");
+            ModelState.AddModelError("ImageFile", "Failed to upload image: " + fileResponse.ErrorMessage);
+            return View(card);
+        }
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error uploading image");
+        ModelState.AddModelError("ImageFile", "Error uploading image: " + ex.Message);
+        return View(card);
+    }
+}
+else
+{
+    _logger.LogInformation("No image file provided or file is empty");
+}
 
                 card.CreatedAt = DateTime.Now;
                 card.UpdatedAt = DateTime.Now;
@@ -581,25 +590,37 @@ namespace CardTagManager.Controllers
         }
 
         // Helper method to process custom fields from form
-        private void ProcessCustomFields(Card card)
+private void ProcessCustomFields(Card card)
+{
+    Dictionary<string, string> customFields = new Dictionary<string, string>();
+    
+    foreach (var key in Request.Form.Keys)
+    {
+        if (key.StartsWith("custom-"))
         {
-            Dictionary<string, string> customFields = new Dictionary<string, string>();
+            string fieldName = key.Substring("custom-".Length);
+            string fieldValue = Request.Form[key];
             
-            foreach (var key in Request.Form.Keys)
+            // Don't add empty fields
+            if (!string.IsNullOrEmpty(fieldValue))
             {
-                if (key.StartsWith("custom-"))
-                {
-                    string fieldName = key.Substring("custom-".Length);
-                    string fieldValue = Request.Form[key];
-                    customFields.Add(fieldName, fieldValue);
-                }
-            }
-
-            if (customFields.Count > 0)
-            {
-                card.CustomFieldsData = System.Text.Json.JsonSerializer.Serialize(customFields);
+                customFields.Add(fieldName, fieldValue);
             }
         }
+    }
+
+    if (customFields.Count > 0)
+    {
+        card.CustomFieldsData = System.Text.Json.JsonSerializer.Serialize(customFields);
+    }
+    else
+    {
+        card.CustomFieldsData = "{}"; // Default empty JSON object
+    }
+    
+    // Log custom fields for debugging
+    _logger.LogInformation($"Processed {customFields.Count} custom fields for card");
+}
 
         // Helper method to generate card data for QR code
         private string GenerateCardQrData(Card card)

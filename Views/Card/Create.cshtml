@@ -125,9 +125,7 @@
                                         <span class="ml-auto text-xs text-gray-400" id="name-counter">0/100</span>
                                     </label>
                                     <div class="relative">
-                                        <input asp-for="ProductName" class="form-input pl-9" required 
-                                               placeholder="RustShield Pro 5000" maxlength="100"
-                                               oninput="countChars(this, 'name-counter', 100)">
+                                        <input asp-for="ProductName" class="form-input pl-9" required placeholder="RustShield Pro 5000" maxlength="100">
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <i class="fas fa-tag text-gray-400"></i>
                                         </div>
@@ -144,7 +142,7 @@
                                         <span class="text-red-500 ml-1">*</span>
                                     </label>
                                     <div class="relative">
-                                        <input asp-for="Category" class="form-input pl-9" id="Category" readonly placeholder="Auto-populated from template" required>
+                                        <input asp-for="Category" class="form-input pl-9" id="Category" required>
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <i class="fas fa-folder text-gray-400"></i>
                                         </div>
@@ -979,16 +977,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize form submission
     document.getElementById('product-form').addEventListener('submit', function(e) {
-        e.preventDefault();
         
         // Update QR colors before submission
         updateQrColors();
         
         // Validate form
-        if (validateForm()) {
-            saveCard();
-        }
-    });
+            if (!validateForm()) {
+        e.preventDefault(); // Only prevent if invalid
+        return false;
+    }
+    
+    // No need for saveCard() function - let the form submit normally
+    return true;
+});
     
     // Add input event listeners to all form fields for live preview updates
     document.querySelectorAll('input, textarea, select').forEach(input => {

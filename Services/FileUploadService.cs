@@ -30,7 +30,7 @@ namespace CardTagManager.Services
             return _configuration["FileUpload:Token"] ?? "3e17dfc9-6225-4183-a610-cef1129c17bb";
         }
 
-        public async Task<FileResponse> UploadFile(IFormFile file, string folderPath = "CardImages")
+public async Task<FileResponse> UploadFile(IFormFile file, string folderPath = "CardImages")
 {
     if (file == null || file.Length == 0)
     {
@@ -68,6 +68,10 @@ namespace CardTagManager.Services
         request.AddFile("fileUpload", fileBytes, HttpUtility.UrlEncode(file.FileName), file.ContentType);
         request.AddParameter("FolderPath", folderPath);
         
+        // Log request information
+        Console.WriteLine($"Uploading file to: {GetApiUrl()}api/Service_File/Upload");
+        Console.WriteLine($"File: {file.FileName}, Size: {file.Length}, Type: {file.ContentType}");
+        
         var response = await client.ExecuteAsync(request);
         
         if (response.IsSuccessful)
@@ -77,27 +81,28 @@ namespace CardTagManager.Services
             
             if (!fileResponse.IsSuccess)
             {
+                Console.WriteLine($"API returned success=false: {fileResponse.ErrorMessage}");
                 throw new Exception(fileResponse.ErrorMessage);
             }
+            
+            Console.WriteLine($"File uploaded successfully: {fileResponse.FileUrl}");
         }
         else
         {
+            Console.WriteLine($"API error: {response.ErrorMessage}, StatusCode: {response.StatusCode}");
             fileResponse.IsSuccess = false;
             fileResponse.ErrorMessage = $"API Error: {response.ErrorMessage}";
         }
     }
     catch (Exception ex)
     {
+        Console.WriteLine($"Exception during upload: {ex.Message}");
         fileResponse.IsSuccess = false;
         fileResponse.ErrorMessage = $"Upload error: {ex.Message}";
-        
-        // Log the error but don't rethrow to allow for graceful degradation
-        Console.WriteLine($"File upload failed: {ex.Message}");
     }
 
     return fileResponse;
 }
-
         public async Task<FileResponse> DeleteFile(string fileUrl)
         {
             var res = new FileResponse();
