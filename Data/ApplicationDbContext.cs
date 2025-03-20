@@ -22,17 +22,12 @@ namespace CardTagManager.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configure the Card entity
+            // Configure Card entity
             modelBuilder.Entity<Card>()
                 .HasKey(c => c.Id);
 
             modelBuilder.Entity<Card>()
                 .Property(c => c.ProductName)
-                .IsRequired()
-                .HasMaxLength(100);
-
-            modelBuilder.Entity<Card>()
-                .Property(c => c.Manufacturer)
                 .IsRequired()
                 .HasMaxLength(100);
 
@@ -46,7 +41,7 @@ namespace CardTagManager.Data
                 .Property(c => c.ImagePath)
                 .IsRequired(false);
 
-            // Set up database-generated properties for CreatedAt and UpdatedAt
+            // Set database-generated properties for timestamps
             modelBuilder.Entity<Card>()
                 .Property(c => c.CreatedAt)
                 .HasDefaultValueSql("GETDATE()");
@@ -55,6 +50,7 @@ namespace CardTagManager.Data
                 .Property(c => c.UpdatedAt)
                 .HasDefaultValueSql("GETDATE()");
 
+            // Configure CardHistory
             modelBuilder.Entity<CardHistory>()
                 .HasKey(ch => ch.Id);
 

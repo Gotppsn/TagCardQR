@@ -15,7 +15,7 @@ namespace CardTagManager.Models
         [Display(Name = "Product Name")]
         public string ProductName { get; set; } = string.Empty;
         
-        // Original property as fallback for compatibility
+        // Compatibility property for Name
         public string Name { 
             get => ProductName; 
             set => ProductName = value; 
@@ -23,18 +23,18 @@ namespace CardTagManager.Models
         
         [Required]
         [StringLength(100)]
+        public string Category { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(100)]
         [Display(Name = "Manufacturer")]
         public string Manufacturer { get; set; } = string.Empty;
         
-        // Original property as fallback for compatibility
+        // Compatibility property for Company
         public string Company { 
             get => Manufacturer; 
             set => Manufacturer = value; 
         }
-        
-        [Required]
-        [StringLength(100)]
-        public string Category { get; set; } = string.Empty;
         
         [Display(Name = "Model Number")]
         public string ModelNumber { get; set; } = string.Empty;
@@ -42,29 +42,11 @@ namespace CardTagManager.Models
         [Display(Name = "Serial Number")]
         public string SerialNumber { get; set; } = string.Empty;
         
-        public string? ImagePath { get; set; } = null;
-        
         [StringLength(255)]
         public string Location { get; set; } = string.Empty;
         
         [Display(Name = "Maintenance Information")]
         public string MaintenanceInfo { get; set; } = string.Empty;
-        
-        // User information fields
-        [StringLength(100)]
-        public string Username { get; set; } = string.Empty;
-        
-        [StringLength(100)]
-        public string Department { get; set; } = string.Empty;
-        
-        [EmailAddress]
-        public string? Email { get; set; } = string.Empty;
-        
-        [StringLength(100)]
-        public string UserFullName { get; set; } = string.Empty;
-        
-        [StringLength(100)]
-        public string PlantName { get; set; } = string.Empty;
         
         [Required]
         [Display(Name = "Manufacture Date")]
@@ -81,34 +63,50 @@ namespace CardTagManager.Models
         [DataType(DataType.Date)]
         public DateTime WarrantyExpiration { get; set; } = DateTime.Now.AddYears(1);
         
-        [Display(Name = "Background Color")]
+        [StringLength(20)]
         public string BackgroundColor { get; set; } = "#ffffff";
         
-        [Display(Name = "Text Color")]
+        [StringLength(20)]
         public string TextColor { get; set; } = "#000000";
         
-        [Display(Name = "Accent Color")]
+        [StringLength(20)]
         public string AccentColor { get; set; } = "#0284c7";
         
-        [Display(Name = "Card Layout")]
-        public string Layout { get; set; } = "standard";
-        
-        [Display(Name = "QR Foreground Color")]
+        [StringLength(20)]
         public string QrFgColor { get; set; } = "#000000";
         
-        [Display(Name = "QR Background Color")]
+        [StringLength(20)]
         public string QrBgColor { get; set; } = "#FFFFFF";
+        
+        [Display(Name = "Card Layout")]
+        [StringLength(20)]
+        public string Layout { get; set; } = "standard";
+        
+        public string? ImagePath { get; set; }
+        
+        [NotMapped]
+        public IFormFile? ImageFile { get; set; }
+        
+        [Column(TypeName = "nvarchar(max)")]
+        public string CustomFieldsData { get; set; } = "{}";
+        
+        [StringLength(100)]
+        public string Username { get; set; } = string.Empty;
+        
+        [StringLength(100)]
+        public string Department { get; set; } = string.Empty;
+        
+        [EmailAddress]
+        public string? Email { get; set; }
+        
+        [StringLength(100)]
+        public string UserFullName { get; set; } = string.Empty;
+        
+        [StringLength(100)]
+        public string PlantName { get; set; } = string.Empty;
         
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
-        
-        // Non-persistent properties for form handling
-        [NotMapped]
-        public IFormFile? ImageFile { get; set; }
-        
-        // Storage for custom template fields data
-        [NotMapped]
-        public string CustomFieldsData { get; set; } = "{}";
     }
 }

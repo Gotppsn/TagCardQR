@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using CardTagManager.Models;
@@ -37,7 +36,7 @@ namespace CardTagManager.Controllers
             _logger = logger;
         }
 
-        // GET: Card - Main card listing page
+        // GET: Card
         public async Task<IActionResult> Index()
         {
             try
@@ -53,7 +52,7 @@ namespace CardTagManager.Controllers
             }
         }
 
-        // GET: Card/Details/5 - Shows detailed card information
+        // GET: Card/Details/5
         public async Task<IActionResult> Details(int id)
         {
             try
@@ -64,15 +63,12 @@ namespace CardTagManager.Controllers
                     return NotFound();
                 }
 
-                // Use QR colors from the card database values
                 string qrFgColor = card.QrFgColor ?? "#000000";
                 string qrBgColor = card.QrBgColor ?? "#FFFFFF";
 
-                // Also store in TempData for subsequent requests
                 TempData["QrFgColor"] = qrFgColor;
                 TempData["QrBgColor"] = qrBgColor;
 
-                // Generate QR code for card details view
                 string qrCodeData = GenerateCardQrData(card);
                 ViewBag.QrCodeImage = _qrCodeService.GenerateQrCodeAsBase64(qrCodeData, qrFgColor, qrBgColor);
 
@@ -86,12 +82,11 @@ namespace CardTagManager.Controllers
             }
         }
 
-        // GET: Card/Create - Shows card creation form
+        // GET: Card/Create
         public IActionResult Create()
         {
             var card = new Card();
 
-            // Pre-fill user information from claims
             if (User.Identity.IsAuthenticated)
             {
                 card.Username = User.FindFirstValue("Username") ?? User.Identity.Name;
@@ -104,7 +99,7 @@ namespace CardTagManager.Controllers
             return View(card);
         }
 
-        // POST: Card/Create - Handles form submission for new card
+        // POST: Card/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Card card)
@@ -113,7 +108,6 @@ namespace CardTagManager.Controllers
             {
                 _logger.LogInformation($"Creating card: {card.ProductName}, Category: {card.Category}");
 
-                // Set user information from claims
                 if (User.Identity.IsAuthenticated)
                 {
                     card.Username = User.FindFirstValue("Username") ?? User.Identity.Name;
@@ -123,7 +117,6 @@ namespace CardTagManager.Controllers
                     card.PlantName = User.FindFirstValue("PlantName") ?? "";
                 }
 
-                // Verify background colors are set
                 if (string.IsNullOrEmpty(card.BackgroundColor))
                     card.BackgroundColor = "#ffffff";
 
@@ -133,21 +126,14 @@ namespace CardTagManager.Controllers
                 if (string.IsNullOrEmpty(card.AccentColor))
                     card.AccentColor = "#0284c7";
 
-                // Verify QR colors are set
                 if (string.IsNullOrEmpty(card.QrFgColor))
                     card.QrFgColor = "#000000";
 
                 if (string.IsNullOrEmpty(card.QrBgColor))
                     card.QrBgColor = "#FFFFFF";
 
-                // Verify layout is set
-                if (string.IsNullOrEmpty(card.Layout))
-                    card.Layout = "standard";
-
-                // Process custom fields from form
                 ProcessCustomFields(card);
 
-                // Remove specific validation errors before checking model state
                 if (ModelState.ContainsKey("ImageFile"))
                     ModelState.Remove("ImageFile");
 
@@ -156,7 +142,6 @@ namespace CardTagManager.Controllers
 
                 if (!ModelState.IsValid)
                 {
-                    // Log validation errors
                     var errors = string.Join("; ", ModelState.Values
                         .SelectMany(v => v.Errors)
                         .Select(e => e.ErrorMessage));
@@ -165,85 +150,62 @@ namespace CardTagManager.Controllers
                     return View(card);
                 }
 
-                // Handle image upload if a file was provided
                 if (card.ImageFile != null && card.ImageFile.Length > 0)
                 {
                     try
                     {
-                        _logger.LogInformation($"Uploading image: {card.ImageFile.FileName}, Size: {card.ImageFile.Length}");
                         var fileResponse = await _fileUploadService.UploadFile(card.ImageFile);
                         if (fileResponse.IsSuccess)
                         {
-                            // Save the image URL to the card
                             card.ImagePath = fileResponse.FileUrl;
-                            _logger.LogInformation($"Image uploaded successfully: {fileResponse.FileUrl}");
                         }
                         else
                         {
-                            _logger.LogWarning($"Failed to upload image: {fileResponse.ErrorMessage}");
                             ModelState.AddModelError("ImageFile", "Failed to upload image: " + fileResponse.ErrorMessage);
                             return View(card);
                         }
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, "Error uploading image");
                         ModelState.AddModelError("ImageFile", "Error uploading image: " + ex.Message);
                         return View(card);
                     }
                 }
 
-                // Set creation timestamps explicitly
                 card.CreatedAt = DateTime.Now;
                 card.UpdatedAt = DateTime.Now;
 
-                // Store QR color preferences in TempData for the session
                 TempData["QrFgColor"] = card.QrFgColor;
                 TempData["QrBgColor"] = card.QrBgColor;
 
-                try
+                _context.Cards.Add(card);
+                await _context.SaveChangesAsync();
+
+                var createHistory = new CardHistory
                 {
-                    // Add the card to the context
-                    _context.Cards.Add(card);
+                    CardId = card.Id,
+                    FieldName = "Creation",
+                    OldValue = "",
+                    NewValue = "Initial product creation",
+                    ChangedAt = DateTime.Now,
+                    ChangedBy = User.Identity.Name
+                };
 
-                    // Save the changes to the database
-                    await _context.SaveChangesAsync();
+                _context.CardHistories.Add(createHistory);
+                await _context.SaveChangesAsync();
 
-                    // Add history record for creation
-                    var createHistory = new CardHistory
-                    {
-                        CardId = card.Id,
-                        FieldName = "Creation",
-                        OldValue = "",
-                        NewValue = "Initial product creation",
-                        ChangedAt = DateTime.Now,
-                        ChangedBy = User.Identity.Name
-                    };
-
-                    _context.CardHistories.Add(createHistory);
-                    await _context.SaveChangesAsync();
-
-                    _logger.LogInformation($"Card saved successfully with ID: {card.Id}");
-                    TempData["SuccessMessage"] = $"Product '{card.ProductName}' created successfully.";
-                    return RedirectToAction(nameof(Index));
-                }
-                catch (DbUpdateException dbEx)
-                {
-                    _logger.LogError(dbEx, "Database error when saving card");
-                    ModelState.AddModelError(string.Empty, "Database error: " + (dbEx.InnerException?.Message ?? dbEx.Message));
-                }
+                TempData["SuccessMessage"] = $"Product '{card.ProductName}' created successfully.";
+                return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unexpected error in Create action");
                 ModelState.AddModelError(string.Empty, "An unexpected error occurred: " + ex.Message);
+                return View(card);
             }
-
-            // If we got this far, something failed, redisplay form
-            return View(card);
         }
 
-        // GET: Card/Edit/5 - Shows card editing form
+        // GET: Card/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
             var card = await _context.Cards.FindAsync(id);
@@ -252,15 +214,12 @@ namespace CardTagManager.Controllers
                 return NotFound();
             }
 
-            // Use QR colors from the card database values
             string qrFgColor = card.QrFgColor ?? "#000000";
             string qrBgColor = card.QrBgColor ?? "#FFFFFF";
 
-            // Also store in TempData for subsequent requests
             TempData["QrFgColor"] = qrFgColor;
             TempData["QrBgColor"] = qrBgColor;
 
-            // Get edit history
             var history = await _context.CardHistories
                 .Where(ch => ch.CardId == id)
                 .OrderByDescending(ch => ch.ChangedAt)
@@ -269,14 +228,13 @@ namespace CardTagManager.Controllers
 
             ViewBag.History = history;
 
-            // Generate QR code for preview with custom colors
             string qrCodeData = GenerateCardQrData(card);
             ViewBag.QrCodeImage = _qrCodeService.GenerateQrCodeAsBase64(qrCodeData, qrFgColor, qrBgColor);
 
             return View(card);
         }
 
-        // POST: Card/Edit/5 - Handles form submission for card updates
+        // POST: Card/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Card card)
@@ -286,10 +244,8 @@ namespace CardTagManager.Controllers
                 return NotFound();
             }
 
-            // Process custom fields from form
             ProcessCustomFields(card);
 
-            // Remove specific validation errors before checking model state
             if (ModelState.ContainsKey("ImageFile"))
                 ModelState.Remove("ImageFile");
 
@@ -298,7 +254,6 @@ namespace CardTagManager.Controllers
 
             if (!ModelState.IsValid)
             {
-                // Generate QR code for preview if validation fails
                 string qrCodeData = GenerateCardQrData(card);
                 ViewBag.QrCodeImage = _qrCodeService.GenerateQrCodeAsBase64(
                     qrCodeData,
@@ -306,7 +261,6 @@ namespace CardTagManager.Controllers
                     card.QrBgColor ?? "#FFFFFF"
                 );
 
-                // Get edit history for the view
                 var history = await _context.CardHistories
                     .Where(ch => ch.CardId == id)
                     .OrderByDescending(ch => ch.ChangedAt)
@@ -320,14 +274,12 @@ namespace CardTagManager.Controllers
 
             try
             {
-                // Get existing card
                 var existingCard = await _context.Cards.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
                 if (existingCard == null)
                 {
                     return NotFound();
                 }
 
-                // Keep the user information from the database
                 card.Username = existingCard.Username;
                 card.Department = existingCard.Department;
                 card.Email = existingCard.Email;
@@ -335,7 +287,6 @@ namespace CardTagManager.Controllers
                 card.PlantName = existingCard.PlantName;
                 card.CreatedAt = existingCard.CreatedAt;
 
-                // Verify background colors are set
                 if (string.IsNullOrEmpty(card.BackgroundColor))
                     card.BackgroundColor = existingCard.BackgroundColor ?? "#ffffff";
 
@@ -345,23 +296,16 @@ namespace CardTagManager.Controllers
                 if (string.IsNullOrEmpty(card.AccentColor))
                     card.AccentColor = existingCard.AccentColor ?? "#0284c7";
 
-                // Verify QR colors are set
                 if (string.IsNullOrEmpty(card.QrFgColor))
                     card.QrFgColor = existingCard.QrFgColor ?? "#000000";
 
                 if (string.IsNullOrEmpty(card.QrBgColor))
                     card.QrBgColor = existingCard.QrBgColor ?? "#FFFFFF";
 
-                // Verify layout is set
-                if (string.IsNullOrEmpty(card.Layout))
-                    card.Layout = existingCard.Layout ?? "standard";
-
-                // Handle image upload if a file was provided
                 if (card.ImageFile != null && card.ImageFile.Length > 0)
                 {
                     try
                     {
-                        // Delete old image if it exists
                         if (!string.IsNullOrEmpty(existingCard.ImagePath))
                         {
                             await _fileUploadService.DeleteFile(existingCard.ImagePath);
@@ -370,71 +314,30 @@ namespace CardTagManager.Controllers
                         var fileResponse = await _fileUploadService.UploadFile(card.ImageFile);
                         if (fileResponse.IsSuccess)
                         {
-                            // Save the image URL to the card
                             card.ImagePath = fileResponse.FileUrl;
                         }
                         else
                         {
                             ModelState.AddModelError("ImageFile", "Failed to upload image: " + fileResponse.ErrorMessage);
-
-                            // Generate QR code for preview if error
-                            string qrCodeData = GenerateCardQrData(card);
-                            ViewBag.QrCodeImage = _qrCodeService.GenerateQrCodeAsBase64(
-                                qrCodeData,
-                                card.QrFgColor ?? "#000000",
-                                card.QrBgColor ?? "#FFFFFF"
-                            );
-
-                            // Get edit history for the view
-                            var history = await _context.CardHistories
-                                .Where(ch => ch.CardId == id)
-                                .OrderByDescending(ch => ch.ChangedAt)
-                                .Take(5)
-                                .ToListAsync();
-
-                            ViewBag.History = history;
-
                             return View(card);
                         }
                     }
                     catch (Exception ex)
                     {
                         ModelState.AddModelError("ImageFile", "Error uploading image: " + ex.Message);
-
-                        // Generate QR code for preview if error
-                        string qrCodeData = GenerateCardQrData(card);
-                        ViewBag.QrCodeImage = _qrCodeService.GenerateQrCodeAsBase64(
-                            qrCodeData,
-                            card.QrFgColor ?? "#000000",
-                            card.QrBgColor ?? "#FFFFFF"
-                        );
-
-                        // Get edit history for the view
-                        var history = await _context.CardHistories
-                            .Where(ch => ch.CardId == id)
-                            .OrderByDescending(ch => ch.ChangedAt)
-                            .Take(5)
-                            .ToListAsync();
-
-                        ViewBag.History = history;
-
                         return View(card);
                     }
                 }
                 else
                 {
-                    // Keep the existing image if no new one was uploaded
                     card.ImagePath = existingCard.ImagePath;
                 }
 
-                // Store QR color preferences in TempData for the session
                 TempData["QrFgColor"] = card.QrFgColor;
                 TempData["QrBgColor"] = card.QrBgColor;
 
-                // Track changes for history
                 var changedProperties = new List<CardHistory>();
 
-                // Define properties to track (excluding system-managed properties)
                 var propertiesToTrack = typeof(Card).GetProperties()
                     .Where(p =>
                         p.Name != "Id" &&
@@ -470,7 +373,6 @@ namespace CardTagManager.Controllers
                 card.UpdatedAt = DateTime.Now;
                 _context.Update(card);
 
-                // Add change history if any properties changed
                 if (changedProperties.Any())
                 {
                     await _context.CardHistories.AddRangeAsync(changedProperties);
@@ -494,7 +396,7 @@ namespace CardTagManager.Controllers
             }
         }
 
-        // GET: Card/Delete/5 - Shows deletion confirmation
+        // GET: Card/Delete/5
         public async Task<IActionResult> Delete(int id)
         {
             var card = await _context.Cards.FindAsync(id);
@@ -503,22 +405,19 @@ namespace CardTagManager.Controllers
                 return NotFound();
             }
 
-            // Use QR colors from card database values
             string qrFgColor = card.QrFgColor ?? "#000000";
             string qrBgColor = card.QrBgColor ?? "#FFFFFF";
 
-            // Store in TempData for subsequent requests
             TempData["QrFgColor"] = qrFgColor;
             TempData["QrBgColor"] = qrBgColor;
 
-            // Generate QR code for preview with custom colors
             string qrCodeData = GenerateCardQrData(card);
             ViewBag.QrCodeImage = _qrCodeService.GenerateQrCodeAsBase64(qrCodeData, qrFgColor, qrBgColor);
 
             return View(card);
         }
 
-        // POST: Card/Delete/5 - Handles card deletion
+        // POST: Card/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -528,7 +427,6 @@ namespace CardTagManager.Controllers
                 var card = await _context.Cards.FindAsync(id);
                 if (card != null)
                 {
-                    // Delete associated image if exists
                     if (!string.IsNullOrEmpty(card.ImagePath))
                     {
                         try
@@ -541,21 +439,18 @@ namespace CardTagManager.Controllers
                         }
                     }
 
-                    // Delete history records
                     var histories = await _context.CardHistories.Where(h => h.CardId == id).ToListAsync();
                     if (histories.Any())
                     {
                         _context.CardHistories.RemoveRange(histories);
                     }
 
-                    // Delete reminders
                     var reminders = await _context.MaintenanceReminders.Where(r => r.CardId == id).ToListAsync();
                     if (reminders.Any())
                     {
                         _context.MaintenanceReminders.RemoveRange(reminders);
                     }
 
-                    // Delete documents
                     var documents = await _context.CardDocuments.Where(d => d.CardId == id).ToListAsync();
                     if (documents.Any())
                     {
@@ -577,7 +472,7 @@ namespace CardTagManager.Controllers
             }
         }
 
-        // GET: Card/Print/5 - Generates printable card tag
+        // GET: Card/Print/5
         public async Task<IActionResult> Print(int id)
         {
             var card = await _context.Cards.FindAsync(id);
@@ -586,27 +481,23 @@ namespace CardTagManager.Controllers
                 return NotFound();
             }
 
-            // Use QR colors from card database values
             string qrFgColor = card.QrFgColor ?? "#000000";
             string qrBgColor = card.QrBgColor ?? "#FFFFFF";
 
-            // Store in TempData for subsequent requests
             TempData["QrFgColor"] = qrFgColor;
             TempData["QrBgColor"] = qrBgColor;
 
-            // Generate QR code for printable tag with custom colors
             string qrCodeData = GenerateCardQrData(card);
             ViewBag.QrCodeImage = _qrCodeService.GenerateQrCodeAsBase64(qrCodeData, qrFgColor, qrBgColor);
 
             return View(card);
         }
 
-        // GET: Card/PrintAll - Print all card tags
+        // GET: Card/PrintAll
         public async Task<IActionResult> PrintAll()
         {
             var cards = await _context.Cards.ToListAsync();
 
-            // Generate QR codes for all cards with their custom colors
             var qrCodes = new Dictionary<int, string>();
             foreach (var card in cards)
             {
@@ -618,11 +509,10 @@ namespace CardTagManager.Controllers
             }
 
             ViewBag.QrCodes = qrCodes;
-
             return View(cards);
         }
 
-        // GET: Card/QrCode/5 - Dedicated QR code display for scanning
+        // GET: Card/QrCode/5
         public async Task<IActionResult> QrCode(int id)
         {
             var card = await _context.Cards.FindAsync(id);
@@ -631,15 +521,12 @@ namespace CardTagManager.Controllers
                 return NotFound();
             }
 
-            // Use QR colors from card database values
             string qrFgColor = card.QrFgColor ?? "#000000";
             string qrBgColor = card.QrBgColor ?? "#FFFFFF";
 
-            // Store in TempData for subsequent requests
             TempData["QrFgColor"] = qrFgColor;
             TempData["QrBgColor"] = qrBgColor;
 
-            // Generate QR code data with custom colors
             string qrCodeData = GenerateCardQrData(card);
             string qrCodeImage = _qrCodeService.GenerateQrCodeAsBase64(qrCodeData, qrFgColor, qrBgColor);
 
@@ -649,38 +536,7 @@ namespace CardTagManager.Controllers
             return View(card);
         }
 
-        // GET: Card/ScanResult - Shows scan result demo data
-        public IActionResult ScanResult()
-        {
-            // Demo data for testing the ScanResult view
-            var demoResults = new List<ScanResultViewModel>
-            {
-                new ScanResultViewModel
-                {
-                    Id = 1,
-                    CardId = 1,
-                    CardName = "RustShield Pro 5000",
-                    ScanTime = DateTime.Now.AddHours(-2),
-                    DeviceInfo = "iPhone 14 Pro, iOS 16.5",
-                    Location = "Chemical Storage Room A",
-                    ScanResult = "Success"
-                },
-                new ScanResultViewModel
-                {
-                    Id = 7,
-                    CardId = 1,
-                    CardName = "RustShield Pro 5000",
-                    ScanTime = DateTime.Now.AddDays(-2),
-                    DeviceInfo = "iPhone SE, iOS 16.3",
-                    Location = "Storage Area",
-                    ScanResult = "Success"
-                }
-            };
-
-            return View(demoResults);
-        }
-
-        // GET: Card/ScanShow/5 - Shows card info for mobile scan view
+        // GET: Card/ScanShow/5
         public async Task<IActionResult> ScanShow(int id)
         {
             var card = await _context.Cards.FindAsync(id);
@@ -689,100 +545,55 @@ namespace CardTagManager.Controllers
                 return NotFound();
             }
 
-            // Use QR colors from card database values
             string qrFgColor = card.QrFgColor ?? "#000000";
             string qrBgColor = card.QrBgColor ?? "#FFFFFF";
 
-            // Store in TempData for subsequent requests
             TempData["QrFgColor"] = qrFgColor;
             TempData["QrBgColor"] = qrBgColor;
 
-            // Generate QR code for mobile view with custom colors
             string qrCodeData = GenerateCardQrData(card);
             ViewBag.QrCodeImage = _qrCodeService.GenerateQrCodeAsBase64(qrCodeData, qrFgColor, qrBgColor);
 
-            // Log scan activity for analytics (simulated)
             _logger.LogInformation($"Card {id} ({card.ProductName}) was scanned at {DateTime.Now}");
 
             return View(card);
         }
 
-        // GET: Card/DownloadData/5 - Generate downloadable card data file
-        public async Task<IActionResult> DownloadData(int id)
+        // Helper method to process custom fields from form
+        private void ProcessCustomFields(Card card)
         {
-            var card = await _context.Cards.FindAsync(id);
-            if (card == null)
+            Dictionary<string, string> customFields = new Dictionary<string, string>();
+            
+            foreach (var key in Request.Form.Keys)
             {
-                return NotFound();
-            }
-
-            // Generate card data content in a structured format
-            var cardData = new
-            {
-                ProductName = card.ProductName,
-                Category = card.Category,
-                Manufacturer = card.Manufacturer,
-                ModelNumber = card.ModelNumber,
-                SerialNumber = card.SerialNumber,
-                Location = card.Location,
-                MaintenanceInfo = card.MaintenanceInfo,
-                ManufactureDate = card.ManufactureDate.ToString("yyyy-MM-dd"),
-                PurchaseDate = card.PurchaseDate.ToString("yyyy-MM-dd"),
-                WarrantyExpiration = card.WarrantyExpiration.ToString("yyyy-MM-dd"),
-                CreatedBy = card.Username,
-                Department = card.Department,
-                LastUpdated = card.UpdatedAt.ToString("yyyy-MM-dd HH:mm:ss"),
-                Appearance = new
+                if (key.StartsWith("custom-"))
                 {
-                    Layout = card.Layout,
-                    BackgroundColor = card.BackgroundColor,
-                    TextColor = card.TextColor,
-                    AccentColor = card.AccentColor,
-                    QrForegroundColor = card.QrFgColor,
-                    QrBackgroundColor = card.QrBgColor
+                    string fieldName = key.Substring("custom-".Length);
+                    string fieldValue = Request.Form[key];
+                    customFields.Add(fieldName, fieldValue);
                 }
-            };
-
-            // Convert to JSON
-            string jsonData = System.Text.Json.JsonSerializer.Serialize(cardData, new System.Text.Json.JsonSerializerOptions
-            {
-                WriteIndented = true
-            });
-
-            // Create a file name
-            string fileName = $"{card.ProductName.Replace(" ", "_")}_Info.json";
-
-            // Return the data as a downloadable file
-            return File(System.Text.Encoding.UTF8.GetBytes(jsonData), "application/json", fileName);
-        }
-
-        // GET: Card/DownloadQrCode/5 - Download QR code as image file
-        public async Task<IActionResult> DownloadQrCode(int id)
-        {
-            var card = await _context.Cards.FindAsync(id);
-            if (card == null)
-            {
-                return NotFound();
             }
 
-            // Use QR colors from card database values
-            string qrFgColor = card.QrFgColor ?? "#000000";
-            string qrBgColor = card.QrBgColor ?? "#FFFFFF";
-
-            // Generate QR code for download with custom colors
-            string qrCodeData = GenerateCardQrData(card);
-            string qrCodeBase64 = _qrCodeService.GenerateQrCodeAsBase64(qrCodeData, qrFgColor, qrBgColor);
-
-            // Convert base64 to bytes (strip data URI prefix)
-            string base64Data = qrCodeBase64.Split(',')[1];
-            byte[] qrBytes = Convert.FromBase64String(base64Data);
-
-            // Return as downloadable file
-            string fileName = $"{card.ProductName.Replace(" ", "_")}_QR.png";
-            return File(qrBytes, "image/png", fileName);
+            if (customFields.Count > 0)
+            {
+                card.CustomFieldsData = System.Text.Json.JsonSerializer.Serialize(customFields);
+            }
         }
 
-        // GET: Card/History/5 - View complete edit history for a card
+        // Helper method to generate card data for QR code
+        private string GenerateCardQrData(Card card)
+        {
+            string baseUrl = $"{Request.Scheme}://{Request.Host}";
+            string scanUrl = $"{baseUrl}/Card/ScanShow/{card.Id}";
+            return scanUrl;
+        }
+
+        private bool CardExists(int id)
+        {
+            return _context.Cards.Any(e => e.Id == id);
+        }
+
+        // GET: Card/History/5
         public async Task<IActionResult> History(int id)
         {
             var card = await _context.Cards.FindAsync(id);
@@ -800,46 +611,7 @@ namespace CardTagManager.Controllers
             return View(history);
         }
 
-        // Helper method to generate card data for QR code
-        private string GenerateCardQrData(Card card)
-        {
-            // Get the base URL dynamically
-            string baseUrl = $"{Request.Scheme}://{Request.Host}";
-
-            // Create a URL to the ScanShow action
-            string scanUrl = $"{baseUrl}/Card/ScanShow/{card.Id}";
-
-            // Return just the URL so QR code scanners will open it
-            return scanUrl;
-        }
-
-        // Helper method to process custom fields from form
-        private void ProcessCustomFields(Card card)
-        {
-            // Find all custom field inputs (those starting with "custom-")
-            Dictionary<string, string> customFields = new Dictionary<string, string>();
-            foreach (var key in Request.Form.Keys)
-            {
-                if (key.StartsWith("custom-"))
-                {
-                    string fieldName = key.Substring("custom-".Length);
-                    string fieldValue = Request.Form[key];
-                    customFields.Add(fieldName, fieldValue);
-                }
-            }
-
-            // Store fields in CustomFieldsData if any found
-            if (customFields.Count > 0)
-            {
-                card.CustomFieldsData = System.Text.Json.JsonSerializer.Serialize(customFields);
-            }
-        }
-
-        private bool CardExists(int id)
-        {
-            return _context.Cards.Any(e => e.Id == id);
-        }
-
+        // GET: Card/Reminders/5
         public async Task<IActionResult> Reminders(int id)
         {
             var card = await _context.Cards.FindAsync(id);
@@ -855,101 +627,6 @@ namespace CardTagManager.Controllers
 
             ViewBag.Card = card;
             return View(reminders);
-        }
-
-        // GET: Card/GetCardReminders/5
-        [HttpGet]
-        public async Task<IActionResult> GetCardReminders(int id)
-        {
-            try
-            {
-                var reminders = await _context.MaintenanceReminders
-                    .Where(r => r.CardId == id)
-                    .OrderBy(r => r.DueDate)
-                    .ToListAsync();
-
-                return Json(reminders);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error retrieving reminders for card {id}");
-                return StatusCode(500, new { error = "An error occurred while retrieving reminders." });
-            }
-        }
-
-        // POST: Card/SaveReminder
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SaveReminder([FromBody] MaintenanceReminder reminder)
-        {
-            // Remove validation errors for navigation properties and other problematic fields
-            ModelState.Remove("Card");
-            
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new { success = false, error = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).FirstOrDefault() });
-            }
-
-            try
-            {
-                if (reminder.Id == 0)
-                {
-                    // New reminder - set all required fields explicitly
-                    reminder.CreatedAt = DateTime.Now;
-                    reminder.UpdatedAt = DateTime.Now;
-                    reminder.CreatedBy = User.Identity?.Name ?? "System"; // Set CreatedBy here
-                    
-                    _context.MaintenanceReminders.Add(reminder);
-                }
-                else
-                {
-                    // Update existing reminder
-                    var existingReminder = await _context.MaintenanceReminders.FindAsync(reminder.Id);
-                    if (existingReminder == null) return NotFound(new { success = false, error = "Reminder not found" });
-
-                    existingReminder.Title = reminder.Title;
-                    existingReminder.DueDate = reminder.DueDate;
-                    existingReminder.Notes = reminder.Notes;
-                    existingReminder.RepeatFrequency = reminder.RepeatFrequency;
-                    existingReminder.UpdatedAt = DateTime.Now;
-                    // Don't update CreatedBy for existing reminders
-
-                    _context.Update(existingReminder);
-                }
-
-                await _context.SaveChangesAsync();
-                return Json(new { success = true, message = "Reminder saved successfully" });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error saving reminder");
-                return StatusCode(500, new { success = false, error = $"Database error: {ex.Message}" });
-            }
-        }
-
-        // POST: Card/DeleteReminder
-        [HttpPost]
-        public async Task<IActionResult> DeleteReminder(int id)
-        {
-            try
-            {
-                var reminder = await _context.MaintenanceReminders.FindAsync(id);
-
-                if (reminder == null)
-                {
-                    return NotFound();
-                }
-
-                _context.MaintenanceReminders.Remove(reminder);
-                await _context.SaveChangesAsync();
-
-                return Json(new { success = true, message = "Reminder deleted successfully" });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error deleting reminder {id}");
-                return StatusCode(500, new { error = "An error occurred while deleting the reminder." });
-            }
         }
 
         // GET: Card/Documents/5
@@ -970,33 +647,12 @@ namespace CardTagManager.Controllers
             return View(documents);
         }
 
-        // GET: Card/GetCardDocuments/5
-        [HttpGet]
-        public async Task<IActionResult> GetCardDocuments(int id)
-        {
-            try
-            {
-                var documents = await _context.CardDocuments
-                    .Where(d => d.CardId == id)
-                    .OrderByDescending(d => d.UploadedAt)
-                    .ToListAsync();
-
-                return Json(documents);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error retrieving documents for card {id}");
-                return StatusCode(500, new { error = "An error occurred while retrieving documents." });
-            }
-        }
-
         // POST: Card/UploadDocument
         [HttpPost]
         public async Task<IActionResult> UploadDocument()
         {
             try
             {
-                // Get form data
                 var cardId = int.Parse(Request.Form["CardId"]);
                 var title = Request.Form["Title"].ToString();
                 var documentType = Request.Form["DocumentType"].ToString();
@@ -1008,13 +664,11 @@ namespace CardTagManager.Controllers
                     return Json(new { success = false, error = "No file was uploaded." });
                 }
 
-                // Validate inputs
                 if (string.IsNullOrEmpty(title) || cardId <= 0)
                 {
                     return Json(new { success = false, error = "Missing required fields." });
                 }
 
-                // Upload file using FileUploadService
                 var fileResponse = await _fileUploadService.UploadFile(documentFile, "CardDocuments");
 
                 if (!fileResponse.IsSuccess)
@@ -1022,7 +676,6 @@ namespace CardTagManager.Controllers
                     return Json(new { success = false, error = fileResponse.ErrorMessage });
                 }
 
-                // Create new document record
                 var newDocument = new CardDocument
                 {
                     CardId = cardId,
@@ -1062,7 +715,6 @@ namespace CardTagManager.Controllers
                     return NotFound();
                 }
 
-                // Delete file using FileUploadService
                 if (!string.IsNullOrEmpty(document.FilePath))
                 {
                     try
@@ -1087,6 +739,117 @@ namespace CardTagManager.Controllers
             }
         }
 
+        // POST: Card/SaveReminder
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SaveReminder([FromBody] MaintenanceReminder reminder)
+        {
+            ModelState.Remove("Card");
+            
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { success = false, error = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).FirstOrDefault() });
+            }
+
+            try
+            {
+                if (reminder.Id == 0)
+                {
+                    reminder.CreatedAt = DateTime.Now;
+                    reminder.UpdatedAt = DateTime.Now;
+                    reminder.CreatedBy = User.Identity?.Name ?? "System";
+                    
+                    _context.MaintenanceReminders.Add(reminder);
+                }
+                else
+                {
+                    var existingReminder = await _context.MaintenanceReminders.FindAsync(reminder.Id);
+                    if (existingReminder == null) return NotFound(new { success = false, error = "Reminder not found" });
+
+                    existingReminder.Title = reminder.Title;
+                    existingReminder.DueDate = reminder.DueDate;
+                    existingReminder.Notes = reminder.Notes;
+                    existingReminder.RepeatFrequency = reminder.RepeatFrequency;
+                    existingReminder.UpdatedAt = DateTime.Now;
+
+                    _context.Update(existingReminder);
+                }
+
+                await _context.SaveChangesAsync();
+                return Json(new { success = true, message = "Reminder saved successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error saving reminder");
+                return StatusCode(500, new { success = false, error = $"Database error: {ex.Message}" });
+            }
+        }
+
+        // POST: Card/DeleteReminder
+        [HttpPost]
+        public async Task<IActionResult> DeleteReminder(int id)
+        {
+            try
+            {
+                var reminder = await _context.MaintenanceReminders.FindAsync(id);
+
+                if (reminder == null)
+                {
+                    return NotFound();
+                }
+
+                _context.MaintenanceReminders.Remove(reminder);
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Reminder deleted successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error deleting reminder {id}");
+                return StatusCode(500, new { error = "An error occurred while deleting the reminder." });
+            }
+        }
+
+        // GET: Card/GetCardReminders/5
+        [HttpGet]
+        public async Task<IActionResult> GetCardReminders(int id)
+        {
+            try
+            {
+                var reminders = await _context.MaintenanceReminders
+                    .Where(r => r.CardId == id)
+                    .OrderBy(r => r.DueDate)
+                    .ToListAsync();
+
+                return Json(reminders);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving reminders for card {id}");
+                return StatusCode(500, new { error = "An error occurred while retrieving reminders." });
+            }
+        }
+
+        // GET: Card/GetCardDocuments/5
+        [HttpGet]
+        public async Task<IActionResult> GetCardDocuments(int id)
+        {
+            try
+            {
+                var documents = await _context.CardDocuments
+                    .Where(d => d.CardId == id)
+                    .OrderByDescending(d => d.UploadedAt)
+                    .ToListAsync();
+
+                return Json(documents);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving documents for card {id}");
+                return StatusCode(500, new { error = "An error occurred while retrieving documents." });
+            }
+        }
+
         // GET: Card/DownloadDocument/5
         public async Task<IActionResult> DownloadDocument(int id)
         {
@@ -1099,132 +862,12 @@ namespace CardTagManager.Controllers
                     return NotFound();
                 }
 
-                // For actual file download, you would use the document.FilePath to retrieve the file
-                // This is a simplified implementation and may need to be customized based on your storage solution
-
-                // Redirect to the file URL
                 return Redirect(document.FilePath);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Error downloading document {id}");
                 return RedirectToAction("Details", new { id = id });
-            }
-        }
-        
-        [HttpGet]
-        public async Task<IActionResult> GetCardHistory(int id)
-        {
-            try
-            {
-                var history = await _context.CardHistories
-                    .Where(h => h.CardId == id)
-                    .OrderByDescending(h => h.ChangedAt)
-                    .Take(10)
-                    .ToListAsync();
-
-                return Json(history);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error retrieving history for card {id}");
-                return StatusCode(500, new { error = "An error occurred while retrieving history." });
-            }
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ReportIssue([FromBody] IssueReport issueReport)
-        {
-            try
-            {
-                // Remove validation errors for navigation properties
-                ModelState.Remove("Card");
-                
-                if (!ModelState.IsValid)
-                {
-                    var errors = string.Join("; ", ModelState.Values
-                        .SelectMany(v => v.Errors)
-                        .Select(e => e.ErrorMessage));
-                        
-                    return BadRequest(new { success = false, error = errors });
-                }
-
-                // Set creation timestamp
-                issueReport.CreatedAt = DateTime.Now;
-                
-                // Set initial status
-                issueReport.Status = "Open";
-                
-                // Ensure Resolution has a value
-                if (string.IsNullOrEmpty(issueReport.Resolution))
-                    issueReport.Resolution = string.Empty;
-                
-                // Add to database
-                _context.IssueReports.Add(issueReport);
-                await _context.SaveChangesAsync();
-                
-                // Log the issue
-                _logger.LogInformation($"New issue reported for card {issueReport.CardId}: {issueReport.IssueType} - {issueReport.Description}");
-                
-                return Json(new { success = true, message = "Issue reported successfully" });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error reporting issue");
-                return StatusCode(500, new { success = false, error = $"An error occurred: {ex.Message}" });
-            }
-        }
-
-        // GET: Card/GetMaintenanceHistory/5
-        [HttpGet]
-        public async Task<IActionResult> GetMaintenanceHistory(int id)
-        {
-            try
-            {
-                // In a real application, this would fetch actual maintenance history
-                // For now, we'll return the reminders as placeholders
-                var reminders = await _context.MaintenanceReminders
-                    .Where(r => r.CardId == id)
-                    .OrderByDescending(r => r.DueDate)
-                    .Take(10)
-                    .ToListAsync();
-                    
-                // Transform reminders to history items
-                var history = reminders.Select(r => new {
-                    Id = r.Id,
-                    Title = r.Title, 
-                    Date = r.DueDate,
-                    Notes = r.Notes,
-                    Type = "Maintenance",
-                    Status = r.DueDate < DateTime.Now ? "Completed" : "Scheduled"
-                }).ToList();
-                
-                return Json(history);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error retrieving maintenance history for card {id}");
-                return StatusCode(500, new { error = "An error occurred while retrieving maintenance history." });
-            }
-        }
-        
-        [HttpGet]
-        public async Task<IActionResult> GetCardIssues(int id)
-        {
-            try
-            {
-                var issues = await _context.IssueReports
-                    .Where(i => i.CardId == id)
-                    .OrderByDescending(i => i.CreatedAt)
-                    .ToListAsync();
-
-                return Json(issues);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error retrieving issues for card {id}");
-                return StatusCode(500, new { error = "An error occurred while retrieving issues." });
             }
         }
     }
