@@ -2419,39 +2419,71 @@ function updateTagPreview() {
         previewMaintenance.textContent = "No maintenance info";
     }
     
-    // Update custom fields
+    // Update custom fields - with deduplication
     if (previewCustomFields) {
         previewCustomFields.innerHTML = '';
         
-        // Get all custom fields including dynamically added template fields
-        const customInputs = document.querySelectorAll('[id^="custom-"]');
+        // Track field IDs to prevent duplication
+        const processedFieldIds = new Set();
         let hasCustomFields = false;
         
-        customInputs.forEach(field => {
-            if (field.value) {
+        // Process template fields first
+        const templateFields = document.querySelectorAll('#template-fields-container .form-group[data-field-name]');
+        templateFields.forEach(field => {
+            const fieldName = field.getAttribute('data-field-name');
+            const input = field.querySelector('input, textarea, select');
+            
+            if (input && input.value && !processedFieldIds.has(input.id)) {
+                processedFieldIds.add(input.id);
                 hasCustomFields = true;
-                // Convert field ID to readable name
-                const fieldName = field.id.replace('custom-', '')
-                                       .replace(/-/g, ' ')
-                                       .replace(/\b\w/g, l => l.toUpperCase());
+                
+                let fieldIcon = 'tag';
+                const iconElement = field.querySelector('.fas');
+                if (iconElement) {
+                    const iconClass = iconElement.className.replace('fas fa-', '');
+                    fieldIcon = iconClass.split(' ')[0];
+                }
                 
                 const fieldElement = document.createElement('div');
                 fieldElement.className = 'flex items-center text-sm py-1 border-b border-gray-100 last:border-0';
-                
-                // Get the field icon if available
-                let fieldIcon = 'tag';
-                const fieldRow = document.querySelector(`[data-field-name="${fieldName}"]`);
-                if (fieldRow) {
-                    const iconElement = fieldRow.querySelector('.fas');
-                    if (iconElement) {
-                        fieldIcon = iconElement.className.replace('fas fa-', '');
-                    }
-                }
-                
                 fieldElement.innerHTML = `
                     <i class="fas fa-${fieldIcon} mr-2" style="color: ${accentColor}; width: 16px;"></i>
                     <span class="font-semibold w-1/3">${fieldName}:</span>
-                    <span class="flex-1">${field.value}</span>
+                    <span class="flex-1">${input.value}</span>
+                `;
+                
+                previewCustomFields.appendChild(fieldElement);
+            }
+        });
+        
+        // Process any remaining custom fields
+        const customInputs = document.querySelectorAll('[id^="custom-"]');
+        customInputs.forEach(input => {
+            if (input.value && !processedFieldIds.has(input.id)) {
+                processedFieldIds.add(input.id);
+                hasCustomFields = true;
+                
+                let fieldName = input.id.replace('custom-', '')
+                                    .split('-')
+                                    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+                                    .join(' ');
+                
+                const formGroup = input.closest('.form-group');
+                let fieldIcon = 'tag';
+                if (formGroup) {
+                    const iconElement = formGroup.querySelector('.fas');
+                    if (iconElement) {
+                        const iconClass = iconElement.className.replace('fas fa-', '');
+                        fieldIcon = iconClass.split(' ')[0];
+                    }
+                }
+                
+                const fieldElement = document.createElement('div');
+                fieldElement.className = 'flex items-center text-sm py-1 border-b border-gray-100 last:border-0';
+                fieldElement.innerHTML = `
+                    <i class="fas fa-${fieldIcon} mr-2" style="color: ${accentColor}; width: 16px;"></i>
+                    <span class="font-semibold w-1/3">${fieldName}:</span>
+                    <span class="flex-1">${input.value}</span>
                 `;
                 
                 previewCustomFields.appendChild(fieldElement);
