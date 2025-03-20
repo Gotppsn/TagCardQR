@@ -884,6 +884,14 @@ document.getElementById('product-form').addEventListener('submit', function(e) {
     
     // Update QR colors before submission
     updateQrColors();
+    
+    // Validate form
+    if (!validateForm()) {
+        e.preventDefault(); // Only prevent if invalid
+        return false;
+    }
+    
+    return true;
 });
 
 // Function to update QR color values to hidden fields
@@ -934,7 +942,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM fully loaded');
     
     // Force create QRCode if not defined
-        if (typeof QRCode === 'undefined') {
+    if (typeof QRCode === 'undefined') {
         console.log('QRCode library not detected, loading dynamically...');
         const script = document.createElement('script');
         script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
@@ -1031,140 +1039,32 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Final visibility enforcement complete');
     }, 800);
 
-    // Initialize form submission
-    document.getElementById('product-form').addEventListener('submit', function(e) {
-        
-        // Update QR colors before submission
-        updateQrColors();
-        
-        // Validate form
-            if (!validateForm()) {
-        e.preventDefault(); // Only prevent if invalid
-        return false;
-    }
-    
-    // No need for saveCard() function - let the form submit normally
-    return true;
-});
-    
-    // Add input event listeners to all form fields for live preview updates
-    document.querySelectorAll('input, textarea, select').forEach(input => {
-        input.addEventListener('input', updateTagPreview);
-        input.addEventListener('change', updateTagPreview);
-    });
-    
-    // Add specific event listener for color pickers
-    document.querySelectorAll('input[type="color"]').forEach(colorPicker => {
-        colorPicker.addEventListener('input', function() {
+    // Add input event listeners for real-time updates with event delegation
+    document.addEventListener('input', function(e) {
+        const target = e.target;
+        if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') {
             updateTagPreview();
-            if (this.id === 'qr-fg-color' || this.id === 'qr-bg-color') {
-                updateQrColors();
-                generateQRCode();
-            }
-        });
-    });
-
-    function forceQRCodeRefresh() {
-        setTimeout(generateQRCode, 100);
-    }
-    
-    // Initialize Load More Templates button
-    function initializeLoadMoreTemplates() {
-        const loadMoreBtn = document.getElementById('load-more-templates');
-        const expandedContainer = document.getElementById('expanded-template-container');
-        const loadMoreText = document.querySelector('.load-more-text');
-        const showLessText = document.querySelector('.show-less-text');
-        
-        loadMoreBtn.addEventListener('click', function() {
-            const isExpanded = !expandedContainer.classList.contains('hidden');
             
-            if (isExpanded) {
-                // Hide expanded templates
-                expandedContainer.classList.add('hidden');
-                loadMoreText.classList.remove('hidden');
-                showLessText.classList.add('hidden');
-            } else {
-                // Show expanded templates
-                expandedContainer.classList.remove('hidden');
-                loadMoreText.classList.add('hidden');
-                showLessText.classList.remove('hidden');
+            // Update QR code if critical fields change
+            if (target.id === 'ProductName' || target.id === 'Category') {
+                setTimeout(generateQRCode, 100);
             }
-        });
-    }
-    
-    // Template toast functions
-    window.showTemplateToast = function(templateName) {
-        const toast = document.getElementById('template-toast');
-        const message = document.getElementById('template-toast-message');
-        
-        message.textContent = `Template "${templateName}" has been applied successfully`;
-        
-        toast.classList.remove('hidden', '-translate-y-12', 'opacity-0');
-        toast.classList.add('translate-y-0', 'opacity-100');
-        
-        setTimeout(hideTemplateToast, 3000);
-    };
-    
-    window.hideTemplateToast = function() {
-        const toast = document.getElementById('template-toast');
-        toast.classList.remove('translate-y-0', 'opacity-100');
-        toast.classList.add('-translate-y-12', 'opacity-0');
-        
-        setTimeout(() => {
-            toast.classList.add('hidden');
-        }, 300);
-    };
-    
-    // Validate entire form
-    function validateForm() {
-        let isValid = true;
-        const requiredFields = document.querySelectorAll('[required]');
-        
-        requiredFields.forEach(field => {
-            if (!field.value.trim()) {
-                field.classList.add('border-red-500');
-                isValid = false;
-                
-                // Show the appropriate step if there's an error
-                const step = field.closest('.form-section');
-                if (step && step.classList.contains('hidden')) {
-                    const stepNumber = step.getAttribute('data-step');
-                    showStep(parseInt(stepNumber));
-                }
-            } else {
-                field.classList.remove('border-red-500');
-            }
-        });
-        
-        if (!isValid) {
-            showNotification('Please fill in all required fields', 'error');
         }
-        
-        return isValid;
-    }
+    });
     
-    // Show a specific step
-    function showStep(stepNumber) {
-        const formSections = document.querySelectorAll('.form-section');
-        formSections.forEach(section => {
-            section.classList.add('hidden');
+    // Add MutationObserver to detect dynamic field changes
+    const templateFieldsContainer = document.getElementById('template-fields-container');
+    if (templateFieldsContainer) {
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                    setTimeout(updateTagPreview, 50);
+                    setTimeout(generateQRCode, 100);
+                }
+            });
         });
         
-        document.querySelector(`.form-section[data-step="${stepNumber}"]`).classList.remove('hidden');
-        
-        // Update step indicator
-        document.querySelector('.step-indicator').textContent = `Step ${stepNumber} of 3`;
-        
-        // Update step circles
-        const steps = document.querySelectorAll('.step');
-        steps.forEach(step => {
-            step.classList.remove('active');
-        });
-        
-        document.querySelector(`.step[data-step="${stepNumber}"]`).classList.add('active');
-        
-        // Update form progress
-        updateFormProgress(stepNumber);
+        observer.observe(templateFieldsContainer, { childList: true, subtree: true });
     }
     
     // Character counter for name field
@@ -1185,62 +1085,63 @@ document.addEventListener('DOMContentLoaded', function() {
         updateTagPreview();
     };
     
-// Generate QR Code
-function generateQRCode() {
-    const qrElement = document.getElementById('card-qr-code-display');
-    if (!qrElement) {
-        console.error('QR code container not found');
-        return;
-    }
-    
-    // Clear any existing QR code
-    qrElement.innerHTML = '';
-    
-    const productName = document.getElementById('ProductName').value || 'Sample Product';
-    const qrFgColor = document.getElementById('qr-fg-color').value || '#000000';
-    const qrBgColor = document.getElementById('qr-bg-color').value || '#FFFFFF';
-    
-    // Update QR product name on back of card
-    const qrProductNameElement = document.getElementById('qr-product-name');
-    if (qrProductNameElement) {
-        qrProductNameElement.textContent = productName;
-    }
-    
-    // QR code data would typically contain a URL or ID to access the product details
-    const qrData = `PRODUCT:${productName}:${Date.now()}`;
-    
-    try {
-        // Make sure QRCode is defined
-        if (typeof QRCode === 'undefined' || !QRCode) {
-            throw new Error('QRCode library not loaded');
+    // Generate QR Code
+    function generateQRCode() {
+        const qrElement = document.getElementById('card-qr-code-display');
+        if (!qrElement) {
+            console.error('QR code container not found');
+            return;
         }
         
-        // Create new QR Code
-        new QRCode(qrElement, {
-            text: qrData,
-            width: 160,
-            height: 160,
-            colorDark: qrFgColor,
-            colorLight: qrBgColor,
-            correctLevel: QRCode.CorrectLevel.H
-        });
+        // Clear any existing QR code
+        qrElement.innerHTML = '';
         
-        console.log('QR code generated successfully');
+        const productName = document.getElementById('ProductName').value || 'Sample Product';
+        const category = document.getElementById('Category').value || 'Sample Category';
+        const qrFgColor = document.getElementById('qr-fg-color').value || '#000000';
+        const qrBgColor = document.getElementById('qr-bg-color').value || '#FFFFFF';
         
-        // Force element to be visible
-        qrElement.style.display = 'block';
-    } catch (error) {
-        console.error('Error generating QR code:', error);
+        // Update QR product name on back of card
+        const qrProductNameElement = document.getElementById('qr-product-name');
+        if (qrProductNameElement) {
+            qrProductNameElement.textContent = productName;
+        }
         
-        // Create a more visible error/fallback display
-        qrElement.innerHTML = `
-            <div style="width:160px;height:160px;display:flex;flex-direction:column;align-items:center;justify-center;border:1px solid #e5e7eb;background:#f8fafc;padding:8px;">
-                <i class="fas fa-qrcode text-gray-400" style="font-size:48px;margin-bottom:8px;"></i>
-                <div style="font-size:12px;color:#6b7280;text-align:center;">QR Code Preview<br/>for ${productName}</div>
-            </div>
-        `;
+        // Enhanced QR code data with more fields for better scanning
+        const qrData = `PRODUCT:${productName}:CAT:${category}:ID:${Date.now()}`;
+        
+        try {
+            // Make sure QRCode is defined
+            if (typeof QRCode === 'undefined' || !QRCode) {
+                throw new Error('QRCode library not loaded');
+            }
+            
+            // Create new QR Code
+            new QRCode(qrElement, {
+                text: qrData,
+                width: 160,
+                height: 160,
+                colorDark: qrFgColor,
+                colorLight: qrBgColor,
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            
+            console.log('QR code generated successfully');
+            
+            // Force element to be visible
+            qrElement.style.display = 'block';
+        } catch (error) {
+            console.error('Error generating QR code:', error);
+            
+            // Create a more visible error/fallback display
+            qrElement.innerHTML = `
+                <div style="width:160px;height:160px;display:flex;flex-direction:column;align-items:center;justify-center;border:1px solid #e5e7eb;background:#f8fafc;padding:8px;">
+                    <i class="fas fa-qrcode text-gray-400" style="font-size:48px;margin-bottom:8px;"></i>
+                    <div style="font-size:12px;color:#6b7280;text-align:center;">QR Code Preview<br/>for ${productName}</div>
+                </div>
+            `;
+        }
     }
-}
     
     // QR code color change event listeners
     document.getElementById('qr-fg-color').addEventListener('input', function() {
@@ -1334,104 +1235,104 @@ function generateQRCode() {
     }
     
     // Initialize steps functionality for multi-step form
-function initializeSteps() {
-    const nextButtons = document.querySelectorAll('.next-step');
-    const prevButtons = document.querySelectorAll('.prev-step');
-    const formSections = document.querySelectorAll('.form-section');
-    const stepIndicator = document.querySelector('.step-indicator');
-    const steps = document.querySelectorAll('.step');
-    const progressBars = document.querySelectorAll('.step-progress');
-    const templateLibrary = document.querySelector('.px-6.pt-5.pb-3'); // Template library section
-    
-    // Handle next button clicks
-    nextButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const currentStep = parseInt(this.getAttribute('data-next')) - 1;
-            const nextStep = parseInt(this.getAttribute('data-next'));
-            
-            // Validate current step before proceeding
-            if (validateStep(currentStep)) {
-                // Hide current section, show next section
+    function initializeSteps() {
+        const nextButtons = document.querySelectorAll('.next-step');
+        const prevButtons = document.querySelectorAll('.prev-step');
+        const formSections = document.querySelectorAll('.form-section');
+        const stepIndicator = document.querySelector('.step-indicator');
+        const steps = document.querySelectorAll('.step');
+        const progressBars = document.querySelectorAll('.step-progress');
+        const templateLibrary = document.querySelector('.px-6.pt-5.pb-3'); // Template library section
+        
+        // Handle next button clicks
+        nextButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const currentStep = parseInt(this.getAttribute('data-next')) - 1;
+                const nextStep = parseInt(this.getAttribute('data-next'));
+                
+                // Validate current step before proceeding
+                if (validateStep(currentStep)) {
+                    // Hide current section, show next section
+                    formSections.forEach(section => {
+                        section.classList.add('hidden');
+                    });
+                    
+                    document.querySelector(`.form-section[data-step="${nextStep}"]`).classList.remove('hidden');
+                    
+                    // Hide template library when not on step 1
+                    if (nextStep !== 1 && templateLibrary) {
+                        templateLibrary.classList.add('hidden');
+                    }
+                    
+                    // Update step indicator
+                    stepIndicator.textContent = `Step ${nextStep} of 3`;
+                    
+                    // Update step circles
+                    steps.forEach(step => {
+                        step.classList.remove('active');
+                    });
+                    
+                    document.querySelector(`.step[data-step="${nextStep}"]`).classList.add('active');
+                    
+                    // Update progress bars
+                    for (let i = 0; i < nextStep - 1; i++) {
+                        progressBars[i].style.width = '100%';
+                    }
+                    
+                    // Update form progress
+                    updateFormProgress(nextStep);
+                    
+                    // If moving to step 3, generate QR code preview
+                    if (nextStep === 3) {
+                        generateQRCode();
+                    }
+                    
+                    // Scroll to top
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+        
+        // Handle previous button clicks
+        prevButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const prevStep = parseInt(this.getAttribute('data-prev'));
+                
+                // Hide current section, show previous section
                 formSections.forEach(section => {
                     section.classList.add('hidden');
                 });
                 
-                document.querySelector(`.form-section[data-step="${nextStep}"]`).classList.remove('hidden');
+                document.querySelector(`.form-section[data-step="${prevStep}"]`).classList.remove('hidden');
                 
-                // Hide template library when not on step 1
-                if (nextStep !== 1 && templateLibrary) {
-                    templateLibrary.classList.add('hidden');
+                // Show template library when on step 1
+                if (prevStep === 1 && templateLibrary) {
+                    templateLibrary.classList.remove('hidden');
                 }
                 
                 // Update step indicator
-                stepIndicator.textContent = `Step ${nextStep} of 3`;
+                stepIndicator.textContent = `Step ${prevStep} of 3`;
                 
                 // Update step circles
                 steps.forEach(step => {
                     step.classList.remove('active');
                 });
                 
-                document.querySelector(`.step[data-step="${nextStep}"]`).classList.add('active');
-                
-                // Update progress bars
-                for (let i = 0; i < nextStep - 1; i++) {
-                    progressBars[i].style.width = '100%';
-                }
+                document.querySelector(`.step[data-step="${prevStep}"]`).classList.add('active');
                 
                 // Update form progress
-                updateFormProgress(nextStep);
-                
-                // If moving to step 3, generate QR code preview
-                if (nextStep === 3) {
-                    generateQRCode();
-                }
+                updateFormProgress(prevStep);
                 
                 // Scroll to top
                 window.scrollTo({
                     top: 0,
                     behavior: 'smooth'
                 });
-            }
-        });
-    });
-        
-        // Handle previous button clicks
-     prevButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const prevStep = parseInt(this.getAttribute('data-prev'));
-            
-            // Hide current section, show previous section
-            formSections.forEach(section => {
-                section.classList.add('hidden');
-            });
-            
-            document.querySelector(`.form-section[data-step="${prevStep}"]`).classList.remove('hidden');
-            
-            // Show template library when on step 1
-            if (prevStep === 1 && templateLibrary) {
-                templateLibrary.classList.remove('hidden');
-            }
-            
-            // Update step indicator
-            stepIndicator.textContent = `Step ${prevStep} of 3`;
-            
-            // Update step circles
-            steps.forEach(step => {
-                step.classList.remove('active');
-            });
-            
-            document.querySelector(`.step[data-step="${prevStep}"]`).classList.add('active');
-            
-            // Update form progress
-            updateFormProgress(prevStep);
-            
-            // Scroll to top
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
             });
         });
-    });
         
         // Validate step before proceeding
         function validateStep(stepNumber) {
@@ -2212,17 +2113,22 @@ function initializeSteps() {
             `);
         }
         
-        // Attach event listeners to all newly created fields
+        // Attach event listeners to all newly created fields - CRITICAL for real-time updates
         setTimeout(() => {
             const newInputs = container.querySelectorAll('input, textarea, select');
             newInputs.forEach(input => {
-                input.addEventListener('input', updateTagPreview);
-                input.addEventListener('change', updateTagPreview);
-                
-                // Trigger preview update immediately when selecting a template
-                updateTagPreview();
+                input.addEventListener('input', function() {
+                    updateTagPreview();
+                });
+                input.addEventListener('change', function() {
+                    updateTagPreview();
+                });
             });
-        }, 0);
+            
+            // Trigger preview update immediately when selecting a template
+            updateTagPreview();
+            setTimeout(generateQRCode, 100);
+        }, 50);
     }
 
     // Show/hide fields based on category/template type
@@ -2327,10 +2233,10 @@ function initializeSteps() {
 
     // Update tag preview based on form values
     function updateTagPreview() {
+        console.log("Updating preview...");
         const preview = document.getElementById('tag-preview');
         const previewName = document.getElementById('preview-name');
         const previewCategory = document.getElementById('preview-category');
-        const previewManufacturer = document.getElementById('preview-manufacturer');
         const previewLocation = document.getElementById('preview-location');
         const previewMfgDate = document.getElementById('preview-mfgdate');
         const previewWarranty = document.getElementById('preview-warranty');
@@ -2371,37 +2277,37 @@ function initializeSteps() {
         
         // Update content
         const productName = document.getElementById('ProductName');
-        if (productName && productName.value) {
-            previewName.textContent = productName.value;
+        if (productName) {
+            const productNameValue = productName.value.trim();
+            previewName.textContent = productNameValue || "Product Name";
             
             // Update QR product name
             const qrProductName = document.getElementById('qr-product-name');
             if (qrProductName) {
-                qrProductName.textContent = productName.value;
+                qrProductName.textContent = productNameValue || "Product Name";
             }
-        } else {
-            previewName.textContent = "Product Name";
+            
+            // Update QR code when product name changes
+            if (productNameValue) {
+                setTimeout(generateQRCode, 100);
+            }
         }
         
         const category = document.getElementById('Category');
-        if (category && category.value) {
-            previewCategory.textContent = category.value;
-        } else {
-            previewCategory.textContent = "Category";
+        if (category) {
+            previewCategory.textContent = category.value || "Category";
         }
         
         const manufacturer = document.getElementById('Manufacturer');
         if (manufacturer && manufacturer.value) {
             previewManufacturer.textContent = manufacturer.value;
-        } else {
+        } else if (typeof previewManufacturer !== 'undefined') {
             previewManufacturer.textContent = "Manufacturer";
         }
         
         const location = document.getElementById('Location');
-        if (location && location.value) {
-            previewLocation.textContent = location.value;
-        } else {
-            previewLocation.textContent = "Not specified";
+        if (location) {
+            previewLocation.textContent = location.value || "Not specified";
         }
         
         const mfgDate = document.getElementById('ManufactureDate');
@@ -2415,12 +2321,10 @@ function initializeSteps() {
         }
         
         const maintenance = document.getElementById('MaintenanceInfo');
-        if (maintenance && maintenance.value) {
-            previewMaintenance.textContent = maintenance.value.length > 15 ? 
-                maintenance.value.substring(0, 15) + '...' : 
-                maintenance.value;
-        } else {
-            previewMaintenance.textContent = "No info";
+        if (maintenance) {
+            previewMaintenance.textContent = maintenance.value ? 
+                (maintenance.value.length > 15 ? maintenance.value.substring(0, 15) + '...' : maintenance.value) : 
+                "No info";
         }
         
         // Update custom fields - with deduplication and 2-column layout
@@ -2502,8 +2406,111 @@ function initializeSteps() {
                 fieldSection.style.display = hasCustomFields ? 'block' : 'none';
             }
         }
+        
+        // Force visibility of preview elements
+        preview.style.display = 'block';
+        if (cardBack) cardBack.style.display = 'block';
     }
 
+    // Initialize Load More Templates button
+    function initializeLoadMoreTemplates() {
+        const loadMoreBtn = document.getElementById('load-more-templates');
+        const expandedContainer = document.getElementById('expanded-template-container');
+        const loadMoreText = document.querySelector('.load-more-text');
+        const showLessText = document.querySelector('.show-less-text');
+        
+        loadMoreBtn.addEventListener('click', function() {
+            const isExpanded = !expandedContainer.classList.contains('hidden');
+            
+            if (isExpanded) {
+                // Hide expanded templates
+                expandedContainer.classList.add('hidden');
+                loadMoreText.classList.remove('hidden');
+                showLessText.classList.add('hidden');
+            } else {
+                // Show expanded templates
+                expandedContainer.classList.remove('hidden');
+                loadMoreText.classList.add('hidden');
+                showLessText.classList.remove('hidden');
+            }
+        });
+    }
+    
+    // Template toast functions
+    window.showTemplateToast = function(templateName) {
+        const toast = document.getElementById('template-toast');
+        const message = document.getElementById('template-toast-message');
+        
+        message.textContent = `Template "${templateName}" has been applied successfully`;
+        
+        toast.classList.remove('hidden', '-translate-y-12', 'opacity-0');
+        toast.classList.add('translate-y-0', 'opacity-100');
+        
+        setTimeout(hideTemplateToast, 3000);
+    };
+    
+    window.hideTemplateToast = function() {
+        const toast = document.getElementById('template-toast');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('-translate-y-12', 'opacity-0');
+        
+        setTimeout(() => {
+            toast.classList.add('hidden');
+        }, 300);
+    };
+    
+    // Validate entire form
+    function validateForm() {
+        let isValid = true;
+        const requiredFields = document.querySelectorAll('[required]');
+        
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                field.classList.add('border-red-500');
+                isValid = false;
+                
+                // Show the appropriate step if there's an error
+                const step = field.closest('.form-section');
+                if (step && step.classList.contains('hidden')) {
+                    const stepNumber = step.getAttribute('data-step');
+                    showStep(parseInt(stepNumber));
+                }
+            } else {
+                field.classList.remove('border-red-500');
+            }
+        });
+        
+        if (!isValid) {
+            showNotification('Please fill in all required fields', 'error');
+        }
+        
+        return isValid;
+    }
+    
+    // Show a specific step
+    function showStep(stepNumber) {
+        const formSections = document.querySelectorAll('.form-section');
+        formSections.forEach(section => {
+            section.classList.add('hidden');
+        });
+        
+        document.querySelector(`.form-section[data-step="${stepNumber}"]`).classList.remove('hidden');
+        
+        // Update step indicator
+        document.querySelector('.step-indicator').textContent = `Step ${stepNumber} of 3`;
+        
+        // Update step circles
+        const steps = document.querySelectorAll('.step');
+        steps.forEach(step => {
+            step.classList.remove('active');
+        });
+        
+        document.querySelector(`.step[data-step="${stepNumber}"]`).classList.add('active');
+        
+        // Update form progress
+        updateFormProgress(stepNumber);
+    }
+    
     // Initialize template modal
     function initializeTemplateModal() {
         // Modal elements
