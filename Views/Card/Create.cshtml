@@ -625,7 +625,8 @@
                 
                 <div class="form-group">
                     <label class="form-label">Background Color</label>
-                    <div class="flex">
+                    <div class="flex items-center">
+                        <div class="template-color-preview w-8 h-8 rounded-lg border border-gray-300 mr-2" style="background-color: #f0f9ff;"></div>
                         <input type="color" id="template-bg-color" class="w-10 h-10 border border-gray-300 rounded-lg cursor-pointer" value="#f0f9ff">
                         <input type="text" id="template-bg-color-text" class="form-input ml-2 flex-grow" value="#f0f9ff">
                     </div>
@@ -814,6 +815,26 @@
 function updateQrColors() {
     document.getElementById('qrFgColorHidden').value = document.getElementById('qr-fg-color').value || '#000000';
     document.getElementById('qrBgColorHidden').value = document.getElementById('qr-bg-color').value || '#FFFFFF';
+}
+
+const rotatePreviewBtn = document.getElementById('rotate-preview');
+const cardFlipContainer = document.querySelector('.card-flip-container');
+
+if (rotatePreviewBtn && cardFlipContainer) {
+    rotatePreviewBtn.addEventListener('click', function() {
+        cardFlipContainer.classList.toggle('flipped');
+    });
+
+    // Also add click functionality to the card itself for easier flipping
+    const cardPreviewContainer = document.getElementById('card-preview-container');
+    if (cardPreviewContainer) {
+        cardPreviewContainer.addEventListener('click', function(e) {
+            // Don't flip if clicking rotate button (to prevent double toggling)
+            if (!e.target.closest('#rotate-preview')) {
+                cardFlipContainer.classList.toggle('flipped');
+            }
+        });
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -1893,37 +1914,38 @@ async function applyTemplate(templateId) {
 }
 
     // Create a template card element
-    function createTemplateCard(template) {
-        const card = document.createElement('div');
-        card.className = 'template-card cursor-pointer border rounded-lg overflow-hidden hover:border-primary-500 hover:shadow transition-all relative group';
-        card.setAttribute('data-template', template.id);
-        card.setAttribute('data-category', template.category.toLowerCase().replace(/\s+/g, '-'));
-        
-        const bgColor = getBackgroundClass(template.bgColor);
-        const iconColor = getColorClass(template.icon);
-        
-        card.innerHTML = `
-            <div class="absolute top-1 right-1 flex template-actions opacity-0 group-hover:opacity-100 z-10">
-                <button type="button" class="edit-template-btn p-1 text-gray-500 hover:text-primary-600 bg-white rounded-full shadow-sm" data-template="${template.id}">
-                    <i class="fas fa-edit"></i>
-                </button>
-            </div>
-            <div class="h-20 bg-${bgColor} flex items-center justify-center">
-                <i class="fas fa-${template.icon} text-${iconColor} text-2xl"></i>
-            </div>
-            <div class="p-2 bg-white border-t border-gray-100">
-                <h4 class="font-medium text-sm text-gray-800">${template.name}</h4>
-                <p class="text-xs text-gray-500 mt-0.5">${template.category}</p>
-            </div>
-            <div class="absolute inset-0 bg-primary-500 bg-opacity-0 hover:bg-opacity-10 transition-all flex items-center justify-center">
-                <span class="bg-white text-primary-600 px-2 py-1 rounded-full text-xs font-medium opacity-0 group-hover:opacity-100 transform scale-0 group-hover:scale-100 transition-all shadow-sm">
-                    Select Template
-                </span>
-            </div>
-        `;
-        
-        return card;
-    }
+function createTemplateCard(template) {
+    const card = document.createElement('div');
+    card.className = 'template-card cursor-pointer border rounded-lg overflow-hidden hover:border-primary-500 hover:shadow transition-all relative group';
+    card.setAttribute('data-template', template.id);
+    card.setAttribute('data-category', template.category.toLowerCase().replace(/\s+/g, '-'));
+    
+    // Use actual background color instead of trying to map to class
+    const bgColorStyle = template.bgColor || '#f0f9ff';
+    const iconColor = getColorClass(template.icon);
+    
+    card.innerHTML = `
+        <div class="absolute top-1 right-1 flex template-actions opacity-0 group-hover:opacity-100 z-10">
+            <button type="button" class="edit-template-btn p-1 text-gray-500 hover:text-primary-600 bg-white rounded-full shadow-sm" data-template="${template.id}">
+                <i class="fas fa-edit"></i>
+            </button>
+        </div>
+        <div class="h-20 flex items-center justify-center" style="background-color: ${bgColorStyle}">
+            <i class="fas fa-${template.icon} text-${iconColor} text-2xl"></i>
+        </div>
+        <div class="p-2 bg-white border-t border-gray-100">
+            <h4 class="font-medium text-sm text-gray-800">${template.name}</h4>
+            <p class="text-xs text-gray-500 mt-0.5">${template.category}</p>
+        </div>
+        <div class="absolute inset-0 bg-primary-500 bg-opacity-0 hover:bg-opacity-10 transition-all flex items-center justify-center">
+            <span class="bg-white text-primary-600 px-2 py-1 rounded-full text-xs font-medium opacity-0 group-hover:opacity-100 transform scale-0 group-hover:scale-100 transition-all shadow-sm">
+                Select Template
+            </span>
+        </div>
+    `;
+    
+    return card;
+}
 
     // Helper functions for template colors
     function getBackgroundClass(bgColor) {
@@ -2705,12 +2727,26 @@ function initializeTemplateModal() {
     const templateBgColorText = document.getElementById('template-bg-color-text');
     
     templateBgColor.addEventListener('input', function() {
-        templateBgColorText.value = this.value;
+    templateBgColorText.value = this.value;
+    // Update color preview icon
+    const colorPreview = document.querySelector('.template-color-preview');
+    if (colorPreview) {
+        colorPreview.style.backgroundColor = this.value;
+        }
     });
     
     templateBgColorText.addEventListener('input', function() {
+    try {
         templateBgColor.value = this.value;
-    });
+        // Update color preview icon
+        const colorPreview = document.querySelector('.template-color-preview');
+        if (colorPreview) {
+            colorPreview.style.backgroundColor = this.value;
+        }
+    } catch (e) {
+        // Invalid color value, ignore
+    }
+});
     
     // Add field button
     addFieldBtn.addEventListener('click', () => addCustomField());
