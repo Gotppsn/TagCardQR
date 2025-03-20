@@ -21,11 +21,15 @@ namespace CardTagManager.Models
         
         [Required]
         [StringLength(50)]
-        public string Icon { get; set; } = string.Empty;
+        public string Icon { get; set; } = "flask";
         
         [Required]
         [StringLength(20)]
         public string BgColor { get; set; } = "#f0f9ff";
+        
+        // Add IconColor property
+        [StringLength(50)]
+        public string IconColor { get; set; } = "primary-500";
         
         // Store fields as JSON
         [Column(TypeName = "nvarchar(max)")]

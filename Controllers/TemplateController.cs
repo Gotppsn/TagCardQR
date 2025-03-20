@@ -1,4 +1,4 @@
-// Controllers/TemplateController.cs
+// Path: Controllers/TemplateController.cs
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -78,6 +78,12 @@ namespace CardTagManager.Controllers
                 template.CreatedAt = DateTime.Now;
                 template.UpdatedAt = DateTime.Now;
 
+                // Ensure IconColor has a default value if not provided
+                if (string.IsNullOrEmpty(template.IconColor))
+                {
+                    template.IconColor = "primary-500";
+                }
+
                 _context.Templates.Add(template);
                 await _context.SaveChangesAsync();
 
@@ -112,6 +118,7 @@ namespace CardTagManager.Controllers
                 existingTemplate.Category = template.Category;
                 existingTemplate.Icon = template.Icon;
                 existingTemplate.BgColor = template.BgColor;
+                existingTemplate.IconColor = template.IconColor ?? "primary-500";
                 existingTemplate.FieldsJson = template.FieldsJson;
                 existingTemplate.UpdatedAt = DateTime.Now;
 
@@ -149,25 +156,27 @@ namespace CardTagManager.Controllers
                 return StatusCode(500, new { error = "An error occurred while deleting the template." });
             }
         }
-[HttpGet("Categories")]
-public async Task<ActionResult<IEnumerable<string>>> GetCategories()
-{
-    try
-    {
-        var categories = await _context.Templates
-            .Select(t => t.Category)
-            .Distinct()
-            .OrderBy(c => c)
-            .ToListAsync();
-        
-        return categories;
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, "Error retrieving categories");
-        return StatusCode(500, new { error = "An error occurred while retrieving categories." });
-    }
-}
+
+        [HttpGet("Categories")]
+        public async Task<ActionResult<IEnumerable<string>>> GetCategories()
+        {
+            try
+            {
+                var categories = await _context.Templates
+                    .Select(t => t.Category)
+                    .Distinct()
+                    .OrderBy(c => c)
+                    .ToListAsync();
+                
+                return categories;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving categories");
+                return StatusCode(500, new { error = "An error occurred while retrieving categories." });
+            }
+        }
+
         // POST: api/Template/Categories
         [HttpPost("Categories")]
         public async Task<ActionResult<string>> AddCategory(string categoryName)
@@ -192,6 +201,7 @@ public async Task<ActionResult<IEnumerable<string>>> GetCategories()
                         Category = categoryName,
                         Icon = "tag",
                         BgColor = "#f0f9ff",
+                        IconColor = "primary-500",
                         CreatedBy = User.Identity.Name,
                         CreatedAt = DateTime.Now,
                         UpdatedAt = DateTime.Now,

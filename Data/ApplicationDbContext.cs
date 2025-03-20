@@ -18,7 +18,6 @@ namespace CardTagManager.Data
         public DbSet<IssueReport> IssueReports { get; set; }
         public DbSet<Template> Templates { get; set; }
 
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -123,6 +122,20 @@ namespace CardTagManager.Data
                 .Property(t => t.Category)
                 .IsRequired()
                 .HasMaxLength(100);
+
+            modelBuilder.Entity<Template>()
+                .Property(t => t.Icon)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            modelBuilder.Entity<Template>()
+                .Property(t => t.BgColor)
+                .IsRequired()
+                .HasMaxLength(20);
+
+            modelBuilder.Entity<Template>()
+                .Property(t => t.IconColor)
+                .HasMaxLength(50);
 
             modelBuilder.Entity<Template>()
                 .Property(t => t.CreatedAt)
