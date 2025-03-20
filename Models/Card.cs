@@ -15,30 +15,16 @@ namespace CardTagManager.Models
         [Display(Name = "Product Name")]
         public string ProductName { get; set; } = string.Empty;
         
-        // Compatibility property for Name
-        public string Name { 
-            get => ProductName; 
-            set => ProductName = value; 
-        }
-        
-        [Required]
         [StringLength(100)]
-        public string Category { get; set; } = string.Empty;
-
-        [StringLength(100)]
-        public string Manufacturer { get; set; } = "Unknown";
+        public string Category { get; set; } = "Uncategorized";
         
-        // Compatibility property for Company
-        public string Company { 
-            get => Manufacturer; 
-            set => Manufacturer = value; 
-        }
+        [Column(TypeName = "nvarchar(max)")]
+        public string CustomFieldsData { get; set; } = "{}";
         
-        [Display(Name = "Model Number")]
-        public string ModelNumber { get; set; } = string.Empty;
+        public string? ImagePath { get; set; }
         
-        [Display(Name = "Serial Number")]
-        public string SerialNumber { get; set; } = string.Empty;
+        [NotMapped]
+        public IFormFile? ImageFile { get; set; }
         
         [StringLength(255)]
         public string Location { get; set; } = string.Empty;
@@ -76,18 +62,6 @@ namespace CardTagManager.Models
         [StringLength(20)]
         public string QrBgColor { get; set; } = "#FFFFFF";
         
-        [Display(Name = "Card Layout")]
-        [StringLength(20)]
-        public string Layout { get; set; } = "standard";
-        
-        public string? ImagePath { get; set; }
-        
-        [NotMapped]
-        public IFormFile? ImageFile { get; set; }
-        
-        [Column(TypeName = "nvarchar(max)")]
-        public string CustomFieldsData { get; set; } = "{}";
-        
         [StringLength(100)]
         public string Username { get; set; } = string.Empty;
         
@@ -106,5 +80,18 @@ namespace CardTagManager.Models
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
+        
+        // For backward compatibility with the form
+        [NotMapped]
+        public string Name { 
+            get => ProductName; 
+            set => ProductName = value; 
+        }
+        
+        [NotMapped]
+        public string Company { 
+            get => "Unknown"; 
+            set { } // No-op since we're not storing this
+        }
     }
 }

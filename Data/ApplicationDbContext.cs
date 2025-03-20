@@ -33,10 +33,9 @@ namespace CardTagManager.Data
 
             modelBuilder.Entity<Card>()
                 .Property(c => c.Category)
-                .IsRequired(false) // Make this optional since we set a default
+                .IsRequired(false)
                 .HasMaxLength(100);
                 
-            // Make these properties optional
             modelBuilder.Entity<Card>()
                 .Property(c => c.ImagePath)
                 .IsRequired(false);
@@ -46,7 +45,6 @@ namespace CardTagManager.Data
                 .IsRequired(false)
                 .HasDefaultValue("{}");
 
-            // Set database-generated properties for timestamps
             modelBuilder.Entity<Card>()
                 .Property(c => c.CreatedAt)
                 .HasDefaultValueSql("GETDATE()");

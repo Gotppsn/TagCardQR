@@ -119,9 +119,6 @@ namespace CardTagManager.Controllers
                 }
 
                 // Set defaults for required fields
-                if (string.IsNullOrEmpty(card.Manufacturer))
-                    card.Manufacturer = "Unknown";
-
                 if (string.IsNullOrEmpty(card.Category))
                     card.Category = "Uncategorized";
 
@@ -143,70 +140,32 @@ namespace CardTagManager.Controllers
                 // Process custom fields
                 ProcessCustomFields(card);
 
-                // Remove problematic model state entries
-                string[] keysToRemove = { "ImageFile", "Email", "Manufacturer", "Category" };
-                foreach (var key in keysToRemove)
-                {
-                    if (ModelState.ContainsKey(key))
-                        ModelState.Remove(key);
-                }
-
-                // Log model state for debugging
-                foreach (var state in ModelState)
-                {
-                    if (state.Value.Errors.Count > 0)
-                    {
-                        _logger.LogWarning($"Validation error for {state.Key}: {string.Join(", ", state.Value.Errors.Select(e => e.ErrorMessage))}");
-                    }
-                }
+                // Remove fields that may cause validation issues
+                ModelState.Remove("ImageFile");
+                ModelState.Remove("Email");
 
                 if (!ModelState.IsValid)
                 {
-                    var errors = string.Join("; ", ModelState.Values
-                        .SelectMany(v => v.Errors)
-                        .Select(e => e.ErrorMessage));
-
-                    _logger.LogWarning($"Model validation failed: {errors}");
                     return View(card);
                 }
 
                 // Handle image upload
-if (card.ImageFile != null && card.ImageFile.Length > 0)
-{
-    try
-    {
-        _logger.LogInformation($"Uploading file: {card.ImageFile.FileName}, Size: {card.ImageFile.Length} bytes");
-        
-        var fileResponse = await _fileUploadService.UploadFile(card.ImageFile);
-        if (fileResponse.IsSuccess)
-        {
-            card.ImagePath = fileResponse.FileUrl;
-            _logger.LogInformation($"File uploaded successfully: {card.ImagePath}");
-        }
-        else
-        {
-            _logger.LogWarning($"File upload failed: {fileResponse.ErrorMessage}");
-            ModelState.AddModelError("ImageFile", "Failed to upload image: " + fileResponse.ErrorMessage);
-            return View(card);
-        }
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, "Error uploading image");
-        ModelState.AddModelError("ImageFile", "Error uploading image: " + ex.Message);
-        return View(card);
-    }
-}
-else
-{
-    _logger.LogInformation("No image file provided or file is empty");
-}
+                if (card.ImageFile != null && card.ImageFile.Length > 0)
+                {
+                    var fileResponse = await _fileUploadService.UploadFile(card.ImageFile);
+                    if (fileResponse.IsSuccess)
+                    {
+                        card.ImagePath = fileResponse.FileUrl;
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("ImageFile", "Failed to upload image: " + fileResponse.ErrorMessage);
+                        return View(card);
+                    }
+                }
 
                 card.CreatedAt = DateTime.Now;
                 card.UpdatedAt = DateTime.Now;
-
-                TempData["QrFgColor"] = card.QrFgColor;
-                TempData["QrBgColor"] = card.QrBgColor;
 
                 _context.Cards.Add(card);
                 await _context.SaveChangesAsync();
@@ -229,8 +188,8 @@ else
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unexpected error in Create action");
-                ModelState.AddModelError(string.Empty, "An unexpected error occurred: " + ex.Message);
+                _logger.LogError(ex, "Error creating card");
+                ModelState.AddModelError(string.Empty, ex.Message);
                 return View(card);
             }
         }
@@ -590,37 +549,30 @@ else
         }
 
         // Helper method to process custom fields from form
-private void ProcessCustomFields(Card card)
-{
-    Dictionary<string, string> customFields = new Dictionary<string, string>();
-    
-    foreach (var key in Request.Form.Keys)
-    {
-        if (key.StartsWith("custom-"))
+        private void ProcessCustomFields(Card card)
         {
-            string fieldName = key.Substring("custom-".Length);
-            string fieldValue = Request.Form[key];
+            Dictionary<string, string> customFields = new Dictionary<string, string>();
             
-            // Don't add empty fields
-            if (!string.IsNullOrEmpty(fieldValue))
+            foreach (var key in Request.Form.Keys)
             {
-                customFields.Add(fieldName, fieldValue);
+                if (key.StartsWith("custom-"))
+                {
+                    string fieldName = key.Substring("custom-".Length);
+                    string fieldValue = Request.Form[key];
+                    
+                    if (!string.IsNullOrEmpty(fieldValue))
+                    {
+                        customFields.Add(fieldName, fieldValue);
+                    }
+                }
             }
-        }
-    }
 
-    if (customFields.Count > 0)
-    {
-        card.CustomFieldsData = System.Text.Json.JsonSerializer.Serialize(customFields);
-    }
-    else
-    {
-        card.CustomFieldsData = "{}"; // Default empty JSON object
-    }
-    
-    // Log custom fields for debugging
-    _logger.LogInformation($"Processed {customFields.Count} custom fields for card");
-}
+            card.CustomFieldsData = customFields.Count > 0 
+                ? System.Text.Json.JsonSerializer.Serialize(customFields)
+                : "{}";
+            
+            _logger.LogInformation($"Processed {customFields.Count} custom fields for card");
+        }
 
         // Helper method to generate card data for QR code
         private string GenerateCardQrData(Card card)
