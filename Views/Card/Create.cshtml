@@ -541,14 +541,20 @@
                                 </div>
                             </div>
                             
-                            <div class="mb-4">
+                            <div class="mb-3">
                                 <span id="preview-category" class="px-2 py-1 text-xs font-semibold rounded-full inline-block" style="background-color: #0284c7; color: #ffffff">
                                     Rust Coating Chemical
                                 </span>
                                 <h3 id="preview-name" class="text-xl font-bold mt-2" style="color: #0284c7">Product Name</h3>
                                 <p id="preview-manufacturer" class="text-md">Manufacturer</p>
-                                <div id="preview-custom-fields" class="mt-2 text-sm"></div>
                             </div>
+                            
+                            <!-- Enhanced custom fields section -->
+                            <div class="border-t border-b border-gray-200 py-2 mb-2">
+                                <h4 class="text-sm font-semibold mb-1" style="color: #0284c7">Product Fields:</h4>
+                                <div id="preview-custom-fields" class="grid grid-cols-1 gap-1"></div>
+                            </div>
+                            
                             <div class="space-y-2 mt-auto text-sm">
                                 <p class="flex items-center">
                                     <i class="fas fa-map-marker-alt mr-3" style="color: #0284c7"></i>
@@ -2173,7 +2179,8 @@ function displayCustomTemplateFields(template, container) {
             html += `<textarea id="${fieldId}" name="${fieldId}" class="form-input pl-9 h-20" ${field.required !== false ? 'required' : ''}
                      placeholder="${field.placeholder || ''}"></textarea>`;
         } else if (field.type === 'select') {
-            html += `<select id="${fieldId}" name="${fieldId}" class="form-input pl-9" ${field.required !== false ? 'required' : ''}>`;
+            html += `<select id="${fieldId}" name="${fieldId}" class="form-input pl-9" ${field.required !== false ? 'required' : ''}>
+                    <option value="">Select ${field.name}</option>`;
             if (field.options && Array.isArray(field.options)) {
                 field.options.forEach(option => {
                     html += `<option value="${option}">${option}</option>`;
@@ -2195,12 +2202,28 @@ function displayCustomTemplateFields(template, container) {
         container.innerHTML += html;
     });
     
-    // ADD THIS: Attach event listeners to all newly created fields
+    // Add a special class to the container to indicate it has template fields
+    container.classList.add('has-template-fields');
+    
+    // Add heading to make fields more organized
+    if (fields.length > 0) {
+        container.insertAdjacentHTML('afterbegin', `
+            <h4 class="text-md font-semibold text-primary-600 mb-3 flex items-center">
+                <i class="fas fa-clipboard-list mr-2"></i>
+                Product Specific Fields
+            </h4>
+        `);
+    }
+    
+    // Attach event listeners to all newly created fields
     setTimeout(() => {
         const newInputs = container.querySelectorAll('input, textarea, select');
         newInputs.forEach(input => {
             input.addEventListener('input', updateTagPreview);
             input.addEventListener('change', updateTagPreview);
+            
+            // Trigger preview update immediately when selecting a template
+            updateTagPreview();
         });
     }, 0);
 }
@@ -2402,22 +2425,44 @@ function updateTagPreview() {
         
         // Get all custom fields including dynamically added template fields
         const customInputs = document.querySelectorAll('[id^="custom-"]');
+        let hasCustomFields = false;
+        
         customInputs.forEach(field => {
             if (field.value) {
+                hasCustomFields = true;
                 // Convert field ID to readable name
                 const fieldName = field.id.replace('custom-', '')
                                        .replace(/-/g, ' ')
                                        .replace(/\b\w/g, l => l.toUpperCase());
                 
                 const fieldElement = document.createElement('div');
-                fieldElement.className = 'flex items-center space-x-2 text-sm mt-1';
+                fieldElement.className = 'flex items-center text-sm py-1 border-b border-gray-100 last:border-0';
+                
+                // Get the field icon if available
+                let fieldIcon = 'tag';
+                const fieldRow = document.querySelector(`[data-field-name="${fieldName}"]`);
+                if (fieldRow) {
+                    const iconElement = fieldRow.querySelector('.fas');
+                    if (iconElement) {
+                        fieldIcon = iconElement.className.replace('fas fa-', '');
+                    }
+                }
+                
                 fieldElement.innerHTML = `
-                    <span class="font-semibold">${fieldName}:</span>&nbsp;<span>${field.value}</span>
+                    <i class="fas fa-${fieldIcon} mr-2" style="color: ${accentColor}; width: 16px;"></i>
+                    <span class="font-semibold w-1/3">${fieldName}:</span>
+                    <span class="flex-1">${field.value}</span>
                 `;
                 
                 previewCustomFields.appendChild(fieldElement);
             }
         });
+        
+        // Hide the field section if no custom fields
+        const fieldSection = previewCustomFields.closest('.border-t.border-b');
+        if (fieldSection) {
+            fieldSection.style.display = hasCustomFields ? 'block' : 'none';
+        }
     }
     
     // Update layout
