@@ -108,6 +108,7 @@ namespace CardTagManager.Controllers
             {
                 _logger.LogInformation($"Creating card: {card.ProductName}, Category: {card.Category}");
 
+                // Set user info
                 if (User.Identity.IsAuthenticated)
                 {
                     card.Username = User.FindFirstValue("Username") ?? User.Identity.Name;
@@ -116,6 +117,13 @@ namespace CardTagManager.Controllers
                     card.UserFullName = User.FindFirstValue("FullName") ?? "";
                     card.PlantName = User.FindFirstValue("PlantName") ?? "";
                 }
+
+                // Set defaults for required fields
+                if (string.IsNullOrEmpty(card.Manufacturer))
+                    card.Manufacturer = "Unknown";
+
+                if (string.IsNullOrEmpty(card.Category))
+                    card.Category = "Uncategorized";
 
                 if (string.IsNullOrEmpty(card.BackgroundColor))
                     card.BackgroundColor = "#ffffff";
@@ -132,13 +140,25 @@ namespace CardTagManager.Controllers
                 if (string.IsNullOrEmpty(card.QrBgColor))
                     card.QrBgColor = "#FFFFFF";
 
+                // Process custom fields
                 ProcessCustomFields(card);
 
-                if (ModelState.ContainsKey("ImageFile"))
-                    ModelState.Remove("ImageFile");
+                // Remove problematic model state entries
+                string[] keysToRemove = { "ImageFile", "Email", "Manufacturer", "Category" };
+                foreach (var key in keysToRemove)
+                {
+                    if (ModelState.ContainsKey(key))
+                        ModelState.Remove(key);
+                }
 
-                if (ModelState.ContainsKey("Email"))
-                    ModelState.Remove("Email");
+                // Log model state for debugging
+                foreach (var state in ModelState)
+                {
+                    if (state.Value.Errors.Count > 0)
+                    {
+                        _logger.LogWarning($"Validation error for {state.Key}: {string.Join(", ", state.Value.Errors.Select(e => e.ErrorMessage))}");
+                    }
+                }
 
                 if (!ModelState.IsValid)
                 {
@@ -150,6 +170,7 @@ namespace CardTagManager.Controllers
                     return View(card);
                 }
 
+                // Handle image upload
                 if (card.ImageFile != null && card.ImageFile.Length > 0)
                 {
                     try

@@ -25,9 +25,8 @@ namespace CardTagManager.Models
         [StringLength(100)]
         public string Category { get; set; } = string.Empty;
 
-        [Required]
         [StringLength(100)]
-        public string Manufacturer { get; set; } = string.Empty;
+        public string Manufacturer { get; set; } = "Unknown";
         
         // Compatibility property for Company
         public string Company { 
