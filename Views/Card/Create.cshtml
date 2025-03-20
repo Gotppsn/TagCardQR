@@ -105,7 +105,7 @@
             <!-- Add hidden fields for QR colors -->
             <input type="hidden" name="QrFgColor" id="qrFgColorHidden" value="#000000" />
             <input type="hidden" name="QrBgColor" id="qrBgColorHidden" value="#FFFFFF" />
-            <input type="hidden" name="TemplateType" id="templateTypeHidden" value="" />
+            
             <!-- Default layout value -->
             <input type="hidden" name="Layout" id="layoutHidden" value="standard" />
             <!-- Add hidden field for custom fields data -->
@@ -479,7 +479,6 @@
                                     Rust Coating Chemical
                                 </span>
                                 <h3 id="preview-name" class="text-xl font-bold mt-1" style="color: #0284c7">Product Name</h3>
-                                <p id="preview-manufacturer" class="text-md">Manufacturer</p>
                             </div>
                             
                             <!-- Enhanced custom fields section - now with 2 columns -->
@@ -553,6 +552,7 @@
                 <h3 class="text-lg font-bold text-white" id="template-modal-title">Create New Template</h3>
                 <button type="button" class="text-white hover:text-gray-200 focus:outline-none" id="close-template-modal">
                     <i class="fas fa-times"></i>
+                    <input type="hidden" name="TemplateType" id="templateTypeHidden" value="" />
                 </button>
             </div>
         </div>
