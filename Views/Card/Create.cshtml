@@ -1922,7 +1922,9 @@ function createTemplateCard(template) {
     
     // Use actual background color instead of trying to map to class
     const bgColorStyle = template.bgColor || '#f0f9ff';
-    const iconColor = getColorClass(template.icon);
+    
+    // Direct color assignment for icon using template.iconColor if available
+    const iconColorClass = template.iconColor ? template.iconColor : getIconColorClass(template.icon);
     
     card.innerHTML = `
         <div class="absolute top-1 right-1 flex template-actions opacity-0 group-hover:opacity-100 z-10">
@@ -1931,7 +1933,7 @@ function createTemplateCard(template) {
             </button>
         </div>
         <div class="h-20 flex items-center justify-center" style="background-color: ${bgColorStyle}">
-            <i class="fas fa-${template.icon} text-${iconColor} text-2xl"></i>
+            <i class="fas fa-${template.icon} text-${iconColorClass} text-2xl"></i>
         </div>
         <div class="p-2 bg-white border-t border-gray-100">
             <h4 class="font-medium text-sm text-gray-800">${template.name}</h4>
@@ -1961,26 +1963,30 @@ function createTemplateCard(template) {
         return colorMap[bgColor] || 'gray-50'; // Default to gray-50
     }
 
-    function getColorClass(icon) {
-        // Map icons to appropriate color classes
-        const iconMap = {
-            'flask': 'blue-500',
-            'vial': 'blue-500',
-            'leaf': 'green-500',
-            'seedling': 'green-500',
-            'cogs': 'yellow-600',
-            'tools': 'yellow-600',
-            'wrench': 'yellow-600',
-            'microchip': 'green-500',
-            'laptop': 'green-500',
-            'paint-brush': 'red-500',
-            'palette': 'red-500',
-            'shield-alt': 'orange-500',
-            'hard-hat': 'orange-500'
-        };
-        
-        return iconMap[icon] || 'primary-500'; // Default to primary-500
-    }
+function getIconColorClass(icon) {
+    // Map icons to appropriate color classes
+    const iconMap = {
+        'flask': 'blue-500',
+        'vial': 'blue-500',
+        'leaf': 'green-500',
+        'seedling': 'green-500',
+        'cogs': 'yellow-600',
+        'tools': 'yellow-600',
+        'wrench': 'yellow-600',
+        'microchip': 'purple-500',
+        'laptop': 'indigo-500',
+        'paint-brush': 'red-500',
+        'palette': 'pink-500',
+        'shield-alt': 'orange-500',
+        'hard-hat': 'yellow-500',
+        'cube': 'blue-400',
+        'box': 'amber-600',
+        'globe': 'teal-500',
+        'bolt': 'yellow-400'
+    };
+    
+    return iconMap[icon] || 'primary-500'; // Default to primary-500
+}
 
     // Function to create template fields
     function createTemplateFields(template, container) {
@@ -2454,6 +2460,40 @@ function initializeTemplateModal() {
             openTemplateModal('edit', templateId);
         }
     });
+
+        // Add icon color selection in the modal
+    const iconColorSelect = document.createElement('div');
+    iconColorSelect.className = 'form-group mt-4';
+    iconColorSelect.innerHTML = `
+        <label class="form-label">Icon Color</label>
+        <div class="flex flex-wrap gap-2 mt-1">
+            <span class="color-preset w-8 h-8 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform bg-blue-500" data-icon-color="blue-500"></span>
+            <span class="color-preset w-8 h-8 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform bg-green-500" data-icon-color="green-500"></span>
+            <span class="color-preset w-8 h-8 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform bg-red-500" data-icon-color="red-500"></span>
+            <span class="color-preset w-8 h-8 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform bg-yellow-500" data-icon-color="yellow-500"></span>
+            <span class="color-preset w-8 h-8 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform bg-purple-500" data-icon-color="purple-500"></span>
+            <span class="color-preset w-8 h-8 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform bg-gray-500" data-icon-color="gray-500"></span>
+        </div>
+        <input type="hidden" id="template-icon-color" value="primary-500">
+    `;
+    
+    // Insert the icon color selector after the background color field
+    const bgColorField = document.querySelector('.template-color-preview').closest('.form-group');
+    bgColorField.insertAdjacentElement('afterend', iconColorSelect);
+    
+    // Add event listeners for icon color selection
+    document.querySelectorAll('[data-icon-color]').forEach(colorOption => {
+        colorOption.addEventListener('click', function() {
+            const color = this.getAttribute('data-icon-color');
+            document.getElementById('template-icon-color').value = color;
+            
+            // Mark selected color
+            document.querySelectorAll('[data-icon-color]').forEach(opt => {
+                opt.classList.remove('ring-2', 'ring-black', 'ring-opacity-50');
+            });
+            this.classList.add('ring-2', 'ring-black', 'ring-opacity-50');
+        });
+    });
     
     // Open template modal function
     async function openTemplateModal(mode, templateId = null) {
@@ -2553,6 +2593,18 @@ function initializeTemplateModal() {
                 document.getElementById('template-icon').value = template.icon;
             }
             
+            // Set icon color if available
+            if (template.iconColor) {
+                document.getElementById('template-icon-color').value = template.iconColor;
+                const colorOption = document.querySelector(`[data-icon-color="${template.iconColor}"]`);
+                if (colorOption) {
+                    document.querySelectorAll('[data-icon-color]').forEach(opt => {
+                        opt.classList.remove('ring-2', 'ring-black', 'ring-opacity-50');
+                    });
+                    colorOption.classList.add('ring-2', 'ring-black', 'ring-opacity-50');
+                }
+            }
+
             // Parse fields
             let fields = [];
             try {
@@ -2846,6 +2898,7 @@ function initializeTemplateModal() {
         const templateCategory = document.getElementById('template-category').value;
         const templateIcon = document.getElementById('template-icon').value;
         const templateBgColor = document.getElementById('template-bg-color').value;
+        const templateIconColor = document.getElementById('template-icon-color').value || 'primary-500';
         
         // Collect fields data
         const fields = [];
@@ -2883,6 +2936,7 @@ function initializeTemplateModal() {
             category: templateCategory,
             icon: templateIcon,
             bgColor: templateBgColor,
+            iconColor: templateIconColor,
             fieldsJson: JSON.stringify(fields)
         };
         
