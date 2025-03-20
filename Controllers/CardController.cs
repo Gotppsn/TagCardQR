@@ -1,4 +1,3 @@
-// Path: Controllers/CardController.cs
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -146,6 +145,7 @@ namespace CardTagManager.Controllers
 
                 if (!ModelState.IsValid)
                 {
+                    _logger.LogWarning($"Model validation failed: {string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage))}");
                     return View(card);
                 }
 
@@ -167,24 +167,38 @@ namespace CardTagManager.Controllers
                 card.CreatedAt = DateTime.Now;
                 card.UpdatedAt = DateTime.Now;
 
+                // Add debugging
+                _logger.LogInformation($"Adding card to database: {card.ProductName}");
+                
                 _context.Cards.Add(card);
-                await _context.SaveChangesAsync();
+                
+                // Explicitly call SaveChanges and catch any exceptions
+                try {
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation($"Card saved successfully with ID: {card.Id}");
+                    
+                    var createHistory = new CardHistory
+                    {
+                        CardId = card.Id,
+                        FieldName = "Creation",
+                        OldValue = "",
+                        NewValue = "Initial product creation",
+                        ChangedAt = DateTime.Now,
+                        ChangedBy = User.Identity.Name
+                    };
 
-                var createHistory = new CardHistory
+                    _context.CardHistories.Add(createHistory);
+                    await _context.SaveChangesAsync();
+                    
+                    TempData["SuccessMessage"] = $"Product '{card.ProductName}' created successfully.";
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
                 {
-                    CardId = card.Id,
-                    FieldName = "Creation",
-                    OldValue = "",
-                    NewValue = "Initial product creation",
-                    ChangedAt = DateTime.Now,
-                    ChangedBy = User.Identity.Name
-                };
-
-                _context.CardHistories.Add(createHistory);
-                await _context.SaveChangesAsync();
-
-                TempData["SuccessMessage"] = $"Product '{card.ProductName}' created successfully.";
-                return RedirectToAction(nameof(Index));
+                    _logger.LogError(ex, $"Database error saving card: {ex.Message}");
+                    ModelState.AddModelError(string.Empty, $"Database error: {ex.Message}");
+                    return View(card);
+                }
             }
             catch (Exception ex)
             {
