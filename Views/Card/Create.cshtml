@@ -625,30 +625,37 @@
                 
                 <div class="form-group">
                     <label class="form-label">Background Color</label>
-                    <div class="flex items-center">
-                        <div class="template-color-preview w-8 h-8 rounded-lg border border-gray-300 mr-2" style="background-color: #f0f9ff;"></div>
-                        <input type="color" id="template-bg-color" class="w-10 h-10 border border-gray-300 rounded-lg cursor-pointer" value="#f0f9ff">
-                        <input type="text" id="template-bg-color-text" class="form-input ml-2 flex-grow" value="#f0f9ff">
-                    </div>
-                    <div class="color-presets mt-2 flex flex-wrap gap-2">
-                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#f0f9ff" style="background-color: #f0f9ff;"></span>
-                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#f0fdf4" style="background-color: #f0fdf4;"></span>
-                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#fef3c7" style="background-color: #fef3c7;"></span>
-                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#fdf2f8" style="background-color: #fdf2f8;"></span>
+                    <div class="color-picker-wrapper">
+                        <div class="flex">
+                            <input type="color" id="template-bg-color" class="w-10 h-10 border border-gray-300 rounded-lg cursor-pointer" value="#f0f9ff">
+                            <input type="text" id="template-bg-color-text" class="form-input ml-2 flex-grow" value="#f0f9ff">
+                        </div>
+                        <div class="color-presets mt-2 flex flex-wrap gap-2">
+                            <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#f0f9ff" style="background-color: #f0f9ff;"></span>
+                            <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#f0fdf4" style="background-color: #f0fdf4;"></span>
+                            <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#fef3c7" style="background-color: #fef3c7;"></span>
+                            <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#fdf2f8" style="background-color: #fdf2f8;"></span>
+                        </div>
                     </div>
                 </div>
                 
                 <div class="form-group">
                     <label class="form-label">Icon Color</label>
-                    <div class="flex flex-wrap gap-2 mt-1">
-                        <span class="color-preset w-8 h-8 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform bg-blue-500" data-icon-color="blue-500"></span>
-                        <span class="color-preset w-8 h-8 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform bg-green-500" data-icon-color="green-500"></span>
-                        <span class="color-preset w-8 h-8 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform bg-red-500" data-icon-color="red-500"></span>
-                        <span class="color-preset w-8 h-8 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform bg-yellow-500" data-icon-color="yellow-500"></span>
-                        <span class="color-preset w-8 h-8 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform bg-purple-500" data-icon-color="purple-500"></span>
-                        <span class="color-preset w-8 h-8 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform bg-gray-500" data-icon-color="gray-500"></span>
+                    <div class="color-picker-wrapper">
+                        <div class="flex">
+                            <input type="color" class="color-input w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer" id="template-icon-color-picker" value="#0284c7">
+                            <input type="text" class="form-input ml-2 flex-grow" id="template-icon-color-text" value="#0284c7">
+                        </div>
+                        <div class="color-presets mt-2 flex flex-wrap gap-2">
+                            <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#0284c7" style="background-color: #0284c7;"></span>
+                            <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#16a34a" style="background-color: #16a34a;"></span>
+                            <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#dc2626" style="background-color: #dc2626;"></span>
+                            <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#eab308" style="background-color: #eab308;"></span>
+                            <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#8b5cf6" style="background-color: #8b5cf6;"></span>
+                            <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#6b7280" style="background-color: #6b7280;"></span>
+                        </div>
+                        <input type="hidden" id="template-icon-color" value="#0284c7">
                     </div>
-                    <input type="hidden" id="template-icon-color" value="primary-500">
                 </div>
                 
                 <div class="border-t border-gray-200 pt-4 mt-4">
@@ -1546,6 +1553,34 @@ function initializeSteps() {
             }
         });
         
+        // Template icon color picker
+        const templateIconColor = document.getElementById('template-icon-color-picker');
+        const templateIconColorText = document.getElementById('template-icon-color-text');
+
+        templateIconColor.addEventListener('input', function() {
+            templateIconColorText.value = this.value;
+            document.getElementById('template-icon-color').value = this.value;
+            
+            // Update active icon color
+            document.querySelectorAll('.icon-option.active i').forEach(icon => {
+                icon.style.color = this.value;
+            });
+        });
+
+        templateIconColorText.addEventListener('input', function() {
+            try {
+                templateIconColor.value = this.value;
+                document.getElementById('template-icon-color').value = this.value;
+                
+                // Update active icon color
+                document.querySelectorAll('.icon-option.active i').forEach(icon => {
+                    icon.style.color = this.value;
+                });
+            } catch (e) {
+                // Invalid color value, ignore
+            }
+        });
+        
         // Color presets
         document.querySelectorAll('.color-preset').forEach(preset => {
             preset.addEventListener('click', function() {
@@ -1555,14 +1590,23 @@ function initializeSteps() {
                 if (parent) {
                     const colorInput = parent.querySelector('input[type="color"]');
                     const textInput = parent.querySelector('input[type="text"]');
+                    const hiddenInput = parent.querySelector('input[type="hidden"]');
                     const colorPreview = parent.querySelector('.color-preview');
                     
                     if (colorInput && textInput) {
                         colorInput.value = color;
                         textInput.value = color;
                         
+                        // Trigger change event to update preview
+                        colorInput.dispatchEvent(new Event('input'));
+                        
                         if (colorPreview) {
                             colorPreview.style.backgroundColor = color;
+                        }
+                        
+                        // Update hidden input if exists
+                        if (hiddenInput) {
+                            hiddenInput.value = color;
                         }
                         
                         // If this is the background color preset
@@ -1570,8 +1614,13 @@ function initializeSteps() {
                             syncIconWithBackgroundColor(color);
                         }
                         
-                        // Trigger change event to update preview
-                        colorInput.dispatchEvent(new Event('input'));
+                        // If this is the icon color preset
+                        if (colorInput.id === 'template-icon-color-picker') {
+                            // Update active icon color
+                            document.querySelectorAll('.icon-option.active i').forEach(icon => {
+                                icon.style.color = color;
+                            });
+                        }
                     }
                 }
             });
@@ -1658,7 +1707,7 @@ function initializeSteps() {
                 if (file.size > 5 * 1024 * 1024) { // 5MB limit
                     showNotification('Image must be less than 5MB', 'error');
                     return;
-                }
+                    }
                 
                 // Update file input
                 const dataTransfer = new DataTransfer();
@@ -2515,6 +2564,10 @@ function initializeSteps() {
                 document.getElementById('template-bg-color').value = template.bgColor || '#f0f9ff';
                 document.getElementById('template-bg-color-text').value = template.bgColor || '#f0f9ff';
                 
+                // Set icon color values
+                document.getElementById('template-icon-color-picker').value = template.iconColor || '#0284c7';
+                document.getElementById('template-icon-color-text').value = template.iconColor || '#0284c7';
+                
                 // Select icon
                 const iconElement = document.querySelector(`.icon-option[data-icon="${template.icon}"]`);
                 if (iconElement) {
@@ -2526,20 +2579,8 @@ function initializeSteps() {
                     
                     iconElement.classList.add('border-primary-500', 'active');
                     iconElement.querySelector('i').classList.remove('text-gray-500');
-                    iconElement.querySelector('i').classList.add('text-primary-500');
+                    iconElement.querySelector('i').style.color = template.iconColor || '#0284c7';
                     document.getElementById('template-icon').value = template.icon;
-                }
-                
-                // Set icon color if available
-                if (template.iconColor) {
-                    document.getElementById('template-icon-color').value = template.iconColor;
-                    const colorOption = document.querySelector(`[data-icon-color="${template.iconColor}"]`);
-                    if (colorOption) {
-                        document.querySelectorAll('[data-icon-color]').forEach(opt => {
-                            opt.classList.remove('ring-2', 'ring-black', 'ring-opacity-50');
-                        });
-                        colorOption.classList.add('ring-2', 'ring-black', 'ring-opacity-50');
-                    }
                 }
 
                 // Parse fields
@@ -2703,46 +2744,16 @@ function initializeSteps() {
                 
                 // Add active class to this option
                 this.classList.add('border-primary-500', 'active');
-                this.querySelector('i').classList.remove('text-gray-500');
-                this.querySelector('i').classList.add('text-primary-500');
+                const iconElement = this.querySelector('i');
+                iconElement.classList.remove('text-gray-500');
                 
                 // Update hidden input
                 document.getElementById('template-icon').value = this.getAttribute('data-icon');
                 
-                // Apply current icon color from template-icon-color
+                // Apply current icon color
                 const iconColorValue = document.getElementById('template-icon-color').value;
-                this.querySelector('i').style.color = iconColorValue;
+                iconElement.style.color = iconColorValue;
             });
-        });
-        
-        // Connect color inputs
-        const templateBgColor = document.getElementById('template-bg-color');
-        const templateBgColorText = document.getElementById('template-bg-color-text');
-        
-        templateBgColor.addEventListener('input', function() {
-            templateBgColorText.value = this.value;
-            // Update color preview icon
-            const colorPreview = document.querySelector('.template-color-preview');
-            if (colorPreview) {
-                colorPreview.style.backgroundColor = this.value;
-            }
-            // Sync icon color with background
-            syncIconWithBackgroundColor(this.value);
-        });
-        
-        templateBgColorText.addEventListener('input', function() {
-            try {
-                templateBgColor.value = this.value;
-                // Update color preview icon
-                const colorPreview = document.querySelector('.template-color-preview');
-                if (colorPreview) {
-                    colorPreview.style.backgroundColor = this.value;
-                }
-                // Sync icon color with background
-                syncIconWithBackgroundColor(this.value);
-            } catch (e) {
-                // Invalid color value, ignore
-            }
         });
         
         // Add field button
@@ -2843,7 +2854,7 @@ function initializeSteps() {
             const templateCategory = document.getElementById('template-category').value;
             const templateIcon = document.getElementById('template-icon').value;
             const templateBgColor = document.getElementById('template-bg-color').value;
-            const templateIconColor = document.getElementById('template-icon-color').value || 'primary-500';
+            const templateIconColor = document.getElementById('template-icon-color').value || '#0284c7';
             
             // Collect fields data
             const fields = [];
