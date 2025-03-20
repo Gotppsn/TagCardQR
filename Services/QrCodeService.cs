@@ -1,4 +1,6 @@
 // Path: Services/QrCodeService.cs
+// Implement QR code generation service
+
 using System;
 using System.IO;
 using QRCoder;

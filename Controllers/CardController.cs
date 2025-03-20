@@ -107,7 +107,7 @@ namespace CardTagManager.Controllers
         // POST: Card/Create - Handles form submission for new card
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Card card, IFormFile ImageFile)
+        public async Task<IActionResult> Create(Card card)
         {
             try
             {
@@ -144,6 +144,9 @@ namespace CardTagManager.Controllers
                 if (string.IsNullOrEmpty(card.Layout))
                     card.Layout = "standard";
 
+                // Process custom fields from form
+                ProcessCustomFields(card);
+
                 // Remove specific validation errors before checking model state
                 if (ModelState.ContainsKey("ImageFile"))
                     ModelState.Remove("ImageFile");
@@ -163,12 +166,12 @@ namespace CardTagManager.Controllers
                 }
 
                 // Handle image upload if a file was provided
-                if (ImageFile != null && ImageFile.Length > 0)
+                if (card.ImageFile != null && card.ImageFile.Length > 0)
                 {
                     try
                     {
-                        _logger.LogInformation($"Uploading image: {ImageFile.FileName}, Size: {ImageFile.Length}");
-                        var fileResponse = await _fileUploadService.UploadFile(ImageFile);
+                        _logger.LogInformation($"Uploading image: {card.ImageFile.FileName}, Size: {card.ImageFile.Length}");
+                        var fileResponse = await _fileUploadService.UploadFile(card.ImageFile);
                         if (fileResponse.IsSuccess)
                         {
                             // Save the image URL to the card
@@ -276,12 +279,15 @@ namespace CardTagManager.Controllers
         // POST: Card/Edit/5 - Handles form submission for card updates
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Card card, IFormFile ImageFile)
+        public async Task<IActionResult> Edit(int id, Card card)
         {
             if (id != card.Id)
             {
                 return NotFound();
             }
+
+            // Process custom fields from form
+            ProcessCustomFields(card);
 
             // Remove specific validation errors before checking model state
             if (ModelState.ContainsKey("ImageFile"))
@@ -351,7 +357,7 @@ namespace CardTagManager.Controllers
                     card.Layout = existingCard.Layout ?? "standard";
 
                 // Handle image upload if a file was provided
-                if (ImageFile != null && ImageFile.Length > 0)
+                if (card.ImageFile != null && card.ImageFile.Length > 0)
                 {
                     try
                     {
@@ -361,7 +367,7 @@ namespace CardTagManager.Controllers
                             await _fileUploadService.DeleteFile(existingCard.ImagePath);
                         }
 
-                        var fileResponse = await _fileUploadService.UploadFile(ImageFile);
+                        var fileResponse = await _fileUploadService.UploadFile(card.ImageFile);
                         if (fileResponse.IsSuccess)
                         {
                             // Save the image URL to the card
@@ -438,7 +444,8 @@ namespace CardTagManager.Controllers
                         p.Name != "Department" &&
                         p.Name != "Email" &&
                         p.Name != "UserFullName" &&
-                        p.Name != "PlantName")
+                        p.Name != "PlantName" &&
+                        p.Name != "ImageFile")
                     .ToList();
 
                 foreach (var prop in propertiesToTrack)
@@ -539,6 +546,20 @@ namespace CardTagManager.Controllers
                     if (histories.Any())
                     {
                         _context.CardHistories.RemoveRange(histories);
+                    }
+
+                    // Delete reminders
+                    var reminders = await _context.MaintenanceReminders.Where(r => r.CardId == id).ToListAsync();
+                    if (reminders.Any())
+                    {
+                        _context.MaintenanceReminders.RemoveRange(reminders);
+                    }
+
+                    // Delete documents
+                    var documents = await _context.CardDocuments.Where(d => d.CardId == id).ToListAsync();
+                    if (documents.Any())
+                    {
+                        _context.CardDocuments.RemoveRange(documents);
                     }
 
                     _context.Cards.Remove(card);
@@ -790,6 +811,28 @@ namespace CardTagManager.Controllers
 
             // Return just the URL so QR code scanners will open it
             return scanUrl;
+        }
+
+        // Helper method to process custom fields from form
+        private void ProcessCustomFields(Card card)
+        {
+            // Find all custom field inputs (those starting with "custom-")
+            Dictionary<string, string> customFields = new Dictionary<string, string>();
+            foreach (var key in Request.Form.Keys)
+            {
+                if (key.StartsWith("custom-"))
+                {
+                    string fieldName = key.Substring("custom-".Length);
+                    string fieldValue = Request.Form[key];
+                    customFields.Add(fieldName, fieldValue);
+                }
+            }
+
+            // Store fields in CustomFieldsData if any found
+            if (customFields.Count > 0)
+            {
+                card.CustomFieldsData = System.Text.Json.JsonSerializer.Serialize(customFields);
+            }
         }
 
         private bool CardExists(int id)
@@ -1068,6 +1111,7 @@ namespace CardTagManager.Controllers
                 return RedirectToAction("Details", new { id = id });
             }
         }
+        
         [HttpGet]
         public async Task<IActionResult> GetCardHistory(int id)
         {
@@ -1163,7 +1207,8 @@ namespace CardTagManager.Controllers
                 _logger.LogError(ex, $"Error retrieving maintenance history for card {id}");
                 return StatusCode(500, new { error = "An error occurred while retrieving maintenance history." });
             }
-        }        
+        }
+        
         [HttpGet]
         public async Task<IActionResult> GetCardIssues(int id)
         {

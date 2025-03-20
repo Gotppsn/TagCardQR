@@ -2,7 +2,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel;
 using Microsoft.AspNetCore.Http;
 
 namespace CardTagManager.Models
@@ -21,28 +20,6 @@ namespace CardTagManager.Models
             get => ProductName; 
             set => ProductName = value; 
         }
-        
-        // LDAP populated fields - make Email not required
-        [ReadOnly(true)]
-        [Display(Name = "Username")]
-        public string Username { get; set; } = string.Empty;
-        
-        [ReadOnly(true)]
-        [Display(Name = "Department")]
-        public string Department { get; set; } = string.Empty;
-        
-        [ReadOnly(true)]
-        [Display(Name = "Email Address")]
-        [EmailAddress]
-        public string? Email { get; set; } = string.Empty; // Changed to nullable
-        
-        [ReadOnly(true)]
-        [Display(Name = "User's Name")]
-        public string UserFullName { get; set; } = string.Empty;
-        
-        [ReadOnly(true)]
-        [Display(Name = "Plant Name")]
-        public string PlantName { get; set; } = string.Empty;
         
         [Required]
         [StringLength(100)]
@@ -73,6 +50,22 @@ namespace CardTagManager.Models
         [Display(Name = "Maintenance Information")]
         public string MaintenanceInfo { get; set; } = string.Empty;
         
+        // User information fields
+        [StringLength(100)]
+        public string Username { get; set; } = string.Empty;
+        
+        [StringLength(100)]
+        public string Department { get; set; } = string.Empty;
+        
+        [EmailAddress]
+        public string? Email { get; set; } = string.Empty;
+        
+        [StringLength(100)]
+        public string UserFullName { get; set; } = string.Empty;
+        
+        [StringLength(100)]
+        public string PlantName { get; set; } = string.Empty;
+        
         [Required]
         [Display(Name = "Manufacture Date")]
         [DataType(DataType.Date)]
@@ -97,11 +90,9 @@ namespace CardTagManager.Models
         [Display(Name = "Accent Color")]
         public string AccentColor { get; set; } = "#0284c7";
         
-        // Added to store card layout selection
         [Display(Name = "Card Layout")]
         public string Layout { get; set; } = "standard";
         
-        // Add QR Code Options as database fields (removing [NotMapped])
         [Display(Name = "QR Foreground Color")]
         public string QrFgColor { get; set; } = "#000000";
         
@@ -115,5 +106,9 @@ namespace CardTagManager.Models
         // Non-persistent properties for form handling
         [NotMapped]
         public IFormFile? ImageFile { get; set; }
+        
+        // Storage for custom template fields data
+        [NotMapped]
+        public string CustomFieldsData { get; set; } = "{}";
     }
 }

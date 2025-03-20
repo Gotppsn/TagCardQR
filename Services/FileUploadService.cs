@@ -31,61 +31,72 @@ namespace CardTagManager.Services
         }
 
         public async Task<FileResponse> UploadFile(IFormFile file, string folderPath = "CardImages")
+{
+    if (file == null || file.Length == 0)
+    {
+        return new FileResponse
         {
-            if (file == null || file.Length == 0)
-            {
-                return new FileResponse
-                {
-                    IsSuccess = false,
-                    ErrorMessage = "No file was uploaded."
-                };
-            }
+            IsSuccess = false,
+            ErrorMessage = "No file was uploaded."
+        };
+    }
 
-            var fileResponse = new FileResponse();
-            var tokenKey = GetToken();
+    var fileResponse = new FileResponse();
+    var tokenKey = GetToken();
 
-            // Read file bytes
-            byte[] fileBytes;
-            using (var ms = new MemoryStream())
-            {
-                await file.CopyToAsync(ms);
-                fileBytes = ms.ToArray();
-            }
-
-            // Create RestClient with options
-            var options = new RestClientOptions(GetApiUrl())
-            {
-                MaxTimeout = -1,
-            };
-            
-            var client = new RestClient(options);
-            var request = new RestRequest("api/Service_File/Upload", Method.Post);
-            
-            request.AddHeader("Token", tokenKey);
-            request.AlwaysMultipartFormData = true;
-            request.AddFile("fileUpload", fileBytes, HttpUtility.UrlEncode(file.FileName), file.ContentType);
-            request.AddParameter("FolderPath", folderPath);
-            
-            var response = await client.ExecuteAsync(request);
-            
-            if (response.IsSuccessful)
-            {
-                fileResponse = JsonConvert.DeserializeObject<FileResponse>(response.Content);
-                fileResponse.FileBytes = fileBytes;
-                
-                if (!fileResponse.IsSuccess)
-                {
-                    throw new Exception(fileResponse.ErrorMessage);
-                }
-            }
-            else
-            {
-                fileResponse.IsSuccess = false;
-                fileResponse.ErrorMessage = $"API Error: {response.ErrorMessage}";
-            }
-
-            return fileResponse;
+    try
+    {
+        // Read file bytes
+        byte[] fileBytes;
+        using (var ms = new MemoryStream())
+        {
+            await file.CopyToAsync(ms);
+            fileBytes = ms.ToArray();
         }
+
+        // Create RestClient with options
+        var options = new RestClientOptions(GetApiUrl())
+        {
+            MaxTimeout = -1,
+        };
+        
+        var client = new RestClient(options);
+        var request = new RestRequest("api/Service_File/Upload", Method.Post);
+        
+        request.AddHeader("Token", tokenKey);
+        request.AlwaysMultipartFormData = true;
+        request.AddFile("fileUpload", fileBytes, HttpUtility.UrlEncode(file.FileName), file.ContentType);
+        request.AddParameter("FolderPath", folderPath);
+        
+        var response = await client.ExecuteAsync(request);
+        
+        if (response.IsSuccessful)
+        {
+            fileResponse = JsonConvert.DeserializeObject<FileResponse>(response.Content);
+            fileResponse.FileBytes = fileBytes;
+            
+            if (!fileResponse.IsSuccess)
+            {
+                throw new Exception(fileResponse.ErrorMessage);
+            }
+        }
+        else
+        {
+            fileResponse.IsSuccess = false;
+            fileResponse.ErrorMessage = $"API Error: {response.ErrorMessage}";
+        }
+    }
+    catch (Exception ex)
+    {
+        fileResponse.IsSuccess = false;
+        fileResponse.ErrorMessage = $"Upload error: {ex.Message}";
+        
+        // Log the error but don't rethrow to allow for graceful degradation
+        Console.WriteLine($"File upload failed: {ex.Message}");
+    }
+
+    return fileResponse;
+}
 
         public async Task<FileResponse> DeleteFile(string fileUrl)
         {
