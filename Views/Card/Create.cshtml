@@ -3,32 +3,40 @@
 @{
     ViewData["Title"] = "Create New Product";
 }
-<div class="mb-6">
-    <a asp-action="Index" class="inline-flex items-center text-primary-600 hover:text-primary-700 transition-colors group">
+
+<div class="transition-all duration-300 mb-6 flex items-center">
+    <a asp-action="Index" class="inline-flex items-center bg-white rounded-lg px-3 py-2 text-primary-600 hover:text-primary-700 hover:bg-primary-50 transition-colors group shadow-sm border border-gray-200">
         <i class="fas fa-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i> Back to Library
     </a>
+    <h1 class="text-2xl font-bold text-gray-800 ml-4">Create New Product Tag</h1>
 </div>
 
 <!-- Form Progress Indicator -->
-<div class="form-progress mb-6">
+<div class="form-progress bg-white rounded-xl p-6 shadow-sm border border-gray-200 mb-6">
     <div class="flex items-center justify-between max-w-2xl mx-auto">
-        <div class="step active" data-step="1">
-            <div class="step-circle bg-primary-600 text-white h-8 w-8 rounded-full flex items-center justify-center shadow-sm">1</div>
-            <div class="step-label text-sm font-medium mt-1">Basic Info</div>
+        <div class="step active flex flex-col items-center" data-step="1">
+            <div class="step-circle bg-primary-600 text-white h-10 w-10 rounded-full flex items-center justify-center shadow-sm">
+                <i class="fas fa-info-circle"></i>
+            </div>
+            <div class="step-label text-sm font-medium mt-2">Basic Info</div>
         </div>
         <div class="step-connector h-1 flex-grow bg-gray-200 mx-2 relative">
-            <div class="absolute inset-0 bg-primary-600 step-progress" style="width: 0%"></div>
+            <div class="absolute inset-0 bg-primary-600 step-progress transition-all duration-500" style="width: 0%"></div>
         </div>
-        <div class="step" data-step="2">
-            <div class="step-circle bg-gray-200 text-gray-600 h-8 w-8 rounded-full flex items-center justify-center shadow-sm">2</div>
-            <div class="step-label text-sm font-medium mt-1">Details</div>
+        <div class="step flex flex-col items-center" data-step="2">
+            <div class="step-circle bg-gray-200 text-gray-600 h-10 w-10 rounded-full flex items-center justify-center shadow-sm">
+                <i class="fas fa-clipboard-list"></i>
+            </div>
+            <div class="step-label text-sm font-medium mt-2">Details</div>
         </div>
         <div class="step-connector h-1 flex-grow bg-gray-200 mx-2 relative">
-            <div class="absolute inset-0 bg-primary-600 step-progress" style="width: 0%"></div>
+            <div class="absolute inset-0 bg-primary-600 step-progress transition-all duration-500" style="width: 0%"></div>
         </div>
-        <div class="step" data-step="3">
-            <div class="step-circle bg-gray-200 text-gray-600 h-8 w-8 rounded-full flex items-center justify-center shadow-sm">3</div>
-            <div class="step-label text-sm font-medium mt-1">Appearance</div>
+        <div class="step flex flex-col items-center" data-step="3">
+            <div class="step-circle bg-gray-200 text-gray-600 h-10 w-10 rounded-full flex items-center justify-center shadow-sm">
+                <i class="fas fa-palette"></i>
+            </div>
+            <div class="step-label text-sm font-medium mt-2">Appearance</div>
         </div>
     </div>
 </div>
@@ -36,58 +44,80 @@
 <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 fade-in">
     <!-- Form Section (3 columns) -->
     <div class="lg:col-span-3">
-        <div class="card">
-            <div class="card-header">
+        <div class="card shadow-sm border border-gray-200 rounded-xl bg-white overflow-hidden">
+            <div class="card-header bg-gradient-to-r from-blue-50 to-blue-100 border-b border-gray-200 p-5">
                 <h2 class="text-xl font-bold text-gray-800 flex items-center">
                     <i class="fas fa-plus-circle text-primary-500 mr-2"></i> Add New Product
                 </h2>
-                <p class="text-sm text-gray-500 mt-1">Fill in the details for your product tag</p>
+                <p class="text-sm text-gray-600 mt-1">Fill in the details for your product tag</p>
             </div>
             
             <!-- Template Gallery -->
-            <div class="px-6 pt-4 pb-2">
+            <div class="px-6 pt-5 pb-3 bg-white border-b border-gray-100">
                 <div class="flex justify-between items-center mb-3">
-                    <h3 class="text-sm font-medium text-gray-700 flex items-center">
-                        <i class="fas fa-th-large text-primary-400 mr-2"></i> 
+                    <h3 class="text-md font-semibold text-gray-700 flex items-center">
+                        <i class="fas fa-th-large text-primary-500 mr-2"></i> 
                         Template Library
-                        <span class="ml-2 px-2 py-0.5 bg-blue-50 text-blue-600 text-xs rounded-full">Quick Start</span>
+                        <span class="ml-2 px-2 py-0.5 bg-blue-100 text-blue-600 text-xs rounded-full border border-blue-200">Quick Start</span>
                     </h3>
-                    <button type="button" id="create-template-btn" class="text-sm inline-flex items-center text-primary-600 hover:text-primary-700 px-2 py-1 rounded hover:bg-primary-50 transition-all">
+                    <button type="button" id="create-template-btn" class="text-sm inline-flex items-center bg-primary-50 text-primary-600 hover:text-primary-700 px-3 py-1.5 rounded-lg hover:bg-primary-100 transition-all shadow-sm">
                         <i class="fas fa-plus-circle mr-1"></i> New Template
                     </button>
                 </div>
                 
                 <!-- Template Categories Tabs -->
-                <div class="template-tabs flex border-b border-gray-200 mb-3 overflow-x-auto pb-1 scrollbar-hide">
-                    <button type="button" class="template-tab active whitespace-nowrap px-3 py-1.5 text-sm font-medium border-b-2 border-primary-500 text-primary-600" data-category="all">All Templates</button>
+                <div class="template-tabs flex border-b border-gray-200 mb-4 overflow-x-auto pb-1 scrollbar-hide">
+                    <button type="button" class="template-tab active whitespace-nowrap px-4 py-2 text-sm font-medium border-b-2 border-primary-500 text-primary-600" data-category="all">All Templates</button>
                     <!-- Dynamic categories will be inserted here -->
                 </div>
                 
                 <!-- Search Templates -->
-                <div class="mb-3">
+                <div class="mb-4">
                     <div class="relative">
-                        <input type="text" id="template-search" class="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition-colors" placeholder="Search templates...">
+                        <input type="text" id="template-search" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition-colors shadow-sm" placeholder="Search templates...">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <i class="fas fa-search text-gray-400"></i>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Templates Container (Dynamic) -->
-                <div id="template-container" class="grid grid-cols-3 gap-3 mb-4">
-                    <!-- Templates will be loaded dynamically from API -->
+                <!-- Templates Container -->
+                <div id="template-container" class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-5 transition-all duration-300">
+                    <!-- Templates will be loaded dynamically -->
+                    <!-- Template placeholder while loading -->
+                    <div class="animate-pulse rounded-lg border border-gray-200 overflow-hidden bg-gray-50">
+                        <div class="h-20 bg-gray-100"></div>
+                        <div class="p-2">
+                            <div class="h-4 bg-gray-200 rounded mb-2 w-3/4"></div>
+                            <div class="h-3 bg-gray-200 rounded w-1/2"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="animate-pulse rounded-lg border border-gray-200 overflow-hidden bg-gray-50">
+                        <div class="h-20 bg-gray-100"></div>
+                        <div class="p-2">
+                            <div class="h-4 bg-gray-200 rounded mb-2 w-3/4"></div>
+                            <div class="h-3 bg-gray-200 rounded w-1/2"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="animate-pulse rounded-lg border border-gray-200 overflow-hidden bg-gray-50">
+                        <div class="h-20 bg-gray-100"></div>
+                        <div class="p-2">
+                            <div class="h-4 bg-gray-200 rounded mb-2 w-3/4"></div>
+                            <div class="h-3 bg-gray-200 rounded w-1/2"></div>
+                        </div>
+                    </div>
                 </div>
                 
-                <!-- Expanded Templates Container (Dynamic) -->
-                <div id="expanded-template-container" class="grid grid-cols-3 gap-3 mb-4 hidden">
-                    <!-- More templates will be loaded dynamically from API -->
-                </div>
+                <!-- Expanded Templates Container -->
+                <div id="expanded-template-container" class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-5 hidden"></div>
                 
                 <!-- Load More Button -->
-                <div class="text-center mt-2 mb-4">
-                    <button type="button" id="load-more-templates" class="text-sm text-primary-600 hover:text-primary-700 px-3 py-1 border border-primary-200 rounded-full hover:bg-primary-50 transition-all">
-                        <span class="load-more-text"><i class="fas fa-chevron-down mr-1"></i> Load More Templates</span>
-                        <span class="show-less-text hidden"><i class="fas fa-chevron-up mr-1"></i> Show Less</span>
+                <div class="text-center mt-3 mb-4">
+                    <button type="button" id="load-more-templates" class="text-sm text-primary-600 hover:text-primary-700 px-4 py-1.5 border border-primary-200 rounded-lg hover:bg-primary-50 transition-all shadow-sm">
+                        <span class="load-more-text flex items-center justify-center"><i class="fas fa-chevron-down mr-1"></i> Load More Templates</span>
+                        <span class="show-less-text hidden flex items-center justify-center"><i class="fas fa-chevron-up mr-1"></i> Show Less</span>
                     </button>
                 </div>
                 
@@ -100,7 +130,7 @@
                 </div>
             </div>
             
-        <form asp-action="Create" method="post" id="product-form" enctype="multipart/form-data">
+        <form asp-action="Create" method="post" id="product-form" enctype="multipart/form-data" class="relative">
             @Html.AntiForgeryToken()
             <!-- Add hidden fields for QR colors -->
             <input type="hidden" name="QrFgColor" id="qrFgColorHidden" value="#000000" />
@@ -110,11 +140,11 @@
             <input type="hidden" name="Layout" id="layoutHidden" value="standard" />
             <!-- Add hidden field for custom fields data -->
             <input type="hidden" name="CustomFieldsData" id="customFieldsDataHidden" value="{}" />
-                <div class="card-body">
+                <div class="card-body p-5 bg-white">
                     <!-- Step 1: Basic Information -->
                     <div class="form-section" data-step="1">
-                        <h3 class="text-md font-semibold text-gray-700 mb-4 pb-2 border-b flex items-center">
-                            <i class="fas fa-info-circle text-primary-400 mr-2"></i> Basic Information
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4 pb-2 border-b flex items-center">
+                            <i class="fas fa-info-circle text-primary-500 mr-2"></i> Basic Information
                         </h3>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -126,7 +156,7 @@
                                         <span class="ml-auto text-xs text-gray-400" id="name-counter">0/100</span>
                                     </label>
                                     <div class="relative">
-                                        <input asp-for="ProductName" class="form-input pl-9" required placeholder="RustShield Pro 5000" maxlength="100" onkeyup="countChars(this, 'name-counter', 100)">
+                                        <input asp-for="ProductName" class="form-input pl-9 focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" required placeholder="RustShield Pro 5000" maxlength="100" onkeyup="countChars(this, 'name-counter', 100)">
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <i class="fas fa-tag text-gray-400"></i>
                                         </div>
@@ -143,7 +173,7 @@
                                         <span class="text-red-500 ml-1">*</span>
                                     </label>
                                     <div class="relative">
-                                        <input asp-for="Category" class="form-input pl-9" id="Category" required onchange="updateFieldVisibility(this.value)">
+                                        <input asp-for="Category" class="form-input pl-9 focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" id="Category" required onchange="updateFieldVisibility(this.value)">
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <i class="fas fa-folder text-gray-400"></i>
                                         </div>
@@ -153,21 +183,21 @@
                                 
                                 <div class="form-group">
                                     <label class="form-label">Product Image</label>
-                                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:bg-gray-50 transition-colors cursor-pointer group" id="dropzone">
+                                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-5 text-center hover:bg-gray-50 transition-colors cursor-pointer group hover:border-primary-400" id="dropzone">
                                         <input type="file" class="hidden" id="product-image" name="ImageFile" accept="image/*">
                                         <div class="flex flex-col items-center justify-center">
-                                            <i class="fas fa-cloud-upload-alt text-2xl text-gray-400 mb-2 group-hover:text-primary-400 transition-colors"></i>
-                                            <p class="text-sm text-gray-500 mb-1">Drag and drop an image here or click to browse</p>
+                                            <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-3 group-hover:text-primary-500 transition-colors"></i>
+                                            <p class="text-sm text-gray-600 mb-1">Drag and drop an image here or click to browse</p>
                                             <p class="text-xs text-gray-400">PNG, JPG up to 5MB</p>
                                         </div>
                                     </div>
-                                    <div id="image-preview" class="hidden mt-2">
-                                        <div class="flex items-center justify-between bg-gray-50 rounded-lg p-2">
+                                    <div id="image-preview" class="hidden mt-3">
+                                        <div class="flex items-center justify-between bg-gray-50 rounded-lg p-3 border border-gray-200">
                                             <div class="flex items-center">
-                                                <img src="" alt="Preview" class="w-10 h-10 object-cover rounded mr-2 border border-gray-200">
+                                                <img src="" alt="Preview" class="w-12 h-12 object-cover rounded-lg mr-3 border border-gray-200 shadow-sm">
                                                 <span class="text-sm text-gray-700 truncate max-w-[180px] filename">filename.jpg</span>
                                             </div>
-                                            <button type="button" class="text-red-500 hover:text-red-700 p-1 hover:bg-red-50 rounded transition-colors" id="remove-image">
+                                            <button type="button" class="text-red-500 hover:text-red-700 p-1.5 hover:bg-red-50 rounded-full transition-colors" id="remove-image">
                                                 <i class="fas fa-times"></i>
                                             </button>
                                         </div>
@@ -177,10 +207,10 @@
                             
                             <div class="space-y-4" id="template-fields-container">
                                 <!-- Template-specific fields will be added here dynamically -->
-                                <div class="p-4 bg-gray-50 rounded-lg text-center relative overflow-hidden">
+                                <div class="p-6 bg-gray-50 rounded-lg text-center relative overflow-hidden border border-gray-200">
                                     <div class="absolute inset-0 bg-gray-200 opacity-10 pattern-dots"></div>
-                                    <i class="fas fa-arrow-left text-gray-400 text-2xl mb-2"></i>
-                                    <p class="text-gray-600">Select a template to see additional fields</p>
+                                    <i class="fas fa-arrow-left text-gray-400 text-2xl mb-3"></i>
+                                    <p class="text-gray-600 font-medium">Select a template to see additional fields</p>
                                     <div class="mt-2 text-sm text-gray-500">
                                         <p>Templates will pre-fill fields based on product type</p>
                                     </div>
@@ -189,12 +219,12 @@
                         </div>
                         
                         <!-- Dynamic Custom Fields Container -->
-                        <div id="custom-fields-container" class="mt-4 pt-4 border-t border-gray-200">
+                        <div id="custom-fields-container" class="mt-6 pt-4 border-t border-gray-200">
                             <!-- Custom fields will be inserted here -->
                         </div>
                         
-                        <div class="flex justify-end mt-6">
-                            <button type="button" class="btn-primary next-step shadow-sm" data-next="2">
+                        <div class="flex justify-end mt-8">
+                            <button type="button" class="btn-primary next-step rounded-lg px-5 py-2.5" data-next="2">
                                 Continue to Details <i class="fas fa-arrow-right ml-2"></i>
                             </button>
                         </div>
@@ -202,15 +232,15 @@
                     
                     <!-- Step 2: Product Details -->
                     <div class="form-section hidden" data-step="2">
-                        <h3 class="text-md font-semibold text-gray-700 mb-4 pb-2 border-b flex items-center">
-                            <i class="fas fa-clipboard-list text-primary-400 mr-2"></i> Product Details
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4 pb-2 border-b flex items-center">
+                            <i class="fas fa-clipboard-list text-primary-500 mr-2"></i> Product Details
                         </h3>
                         
-                        <div class="space-y-4">
+                        <div class="space-y-5">
                             <div class="form-group">
                                 <label asp-for="Location" class="form-label">Location</label>
                                 <div class="relative">
-                                    <input asp-for="Location" class="form-input pl-9" placeholder="Chemical Storage Room A">
+                                    <input asp-for="Location" class="form-input pl-9 focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" placeholder="Chemical Storage Room A">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-map-marker-alt text-gray-400"></i>
                                     </div>
@@ -222,10 +252,10 @@
                             <div class="form-group field-group chemical-field" style="display: none;">
                                 <label for="StorageConditions" class="form-label flex items-center">
                                     Storage Conditions
-                                    <span class="ml-2 px-2 py-0.5 bg-blue-50 text-blue-600 text-xs rounded-full">Chemical Only</span>
+                                    <span class="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full border border-blue-200">Chemical Only</span>
                                 </label>
                                 <div class="relative">
-                                    <textarea id="StorageConditions" name="custom-StorageConditions" class="form-input h-20 pl-9" 
+                                    <textarea id="StorageConditions" name="custom-StorageConditions" class="form-input h-24 pl-9 focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" 
                                               placeholder="Store at 10-15°C, away from direct sunlight, in a well-ventilated area"></textarea>
                                     <div class="absolute top-3 left-0 pl-3 flex items-start pointer-events-none">
                                         <i class="fas fa-temperature-low text-gray-400"></i>
@@ -237,10 +267,10 @@
                             <div class="form-group field-group design-field" style="display: none;">
                                 <label for="Dimensions" class="form-label flex items-center">
                                     Dimensions
-                                    <span class="ml-2 px-2 py-0.5 bg-red-50 text-red-600 text-xs rounded-full">Design Only</span>
+                                    <span class="ml-2 px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full border border-red-200">Design Only</span>
                                 </label>
                                 <div class="relative">
-                                    <input type="text" id="Dimensions" name="custom-Dimensions" class="form-input pl-9" 
+                                    <input type="text" id="Dimensions" name="custom-Dimensions" class="form-input pl-9 focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" 
                                           placeholder="1920x1080px, 300DPI">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-ruler-combined text-gray-400"></i>
@@ -251,7 +281,7 @@
                             <div class="form-group">
                                 <label asp-for="MaintenanceInfo" class="form-label">Maintenance Information</label>
                                 <div class="relative">
-                                    <textarea asp-for="MaintenanceInfo" class="form-input h-20 pl-9" 
+                                    <textarea asp-for="MaintenanceInfo" class="form-input h-24 pl-9 focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" 
                                               placeholder="Regular maintenance requirements and recommendations"></textarea>
                                     <div class="absolute top-3 left-0 pl-3 flex items-start pointer-events-none">
                                         <i class="fas fa-wrench text-gray-400"></i>
@@ -261,14 +291,14 @@
                             </div>
                         </div>
                         
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5 bg-gray-50 p-4 rounded-lg border border-gray-200">
                             <div class="form-group">
                                 <label asp-for="ManufactureDate" class="form-label">
                                     Manufacture Date
                                     <span class="text-red-500 ml-1">*</span>
                                 </label>
                                 <div class="relative">
-                                    <input asp-for="ManufactureDate" type="date" class="form-input pl-9" required value="@DateTime.Now.ToString("yyyy-MM-dd")">
+                                    <input asp-for="ManufactureDate" type="date" class="form-input pl-9 focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" required value="@DateTime.Now.ToString("yyyy-MM-dd")">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-calendar-day text-gray-400"></i>
                                     </div>
@@ -282,7 +312,7 @@
                                     <span class="text-red-500 ml-1">*</span>
                                 </label>
                                 <div class="relative">
-                                    <input asp-for="PurchaseDate" type="date" class="form-input pl-9" required value="@DateTime.Now.ToString("yyyy-MM-dd")">
+                                    <input asp-for="PurchaseDate" type="date" class="form-input pl-9 focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" required value="@DateTime.Now.ToString("yyyy-MM-dd")">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-shopping-cart text-gray-400"></i>
                                     </div>
@@ -296,7 +326,7 @@
                                     <span class="text-red-500 ml-1">*</span>
                                 </label>
                                 <div class="relative">
-                                    <input asp-for="WarrantyExpiration" type="date" class="form-input pl-9 warranty-input" required value="@DateTime.Now.AddYears(1).ToString("yyyy-MM-dd")">
+                                    <input asp-for="WarrantyExpiration" type="date" class="form-input pl-9 focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow warranty-input" required value="@DateTime.Now.AddYears(1).ToString("yyyy-MM-dd")">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-shield-alt text-gray-400"></i>
                                     </div>
@@ -306,13 +336,13 @@
                         </div>
 
                         <!-- License field (Only for design templates) -->
-                        <div class="form-group field-group design-field mt-4" style="display: none;">
+                        <div class="form-group field-group design-field mt-5" style="display: none;">
                             <label for="LicenseInfo" class="form-label flex items-center">
                                 License Information
-                                <span class="ml-2 px-2 py-0.5 bg-red-50 text-red-600 text-xs rounded-full">Design Only</span>
+                                <span class="ml-2 px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full border border-red-200">Design Only</span>
                             </label>
                             <div class="relative">
-                                <select id="LicenseInfo" name="custom-LicenseInfo" class="form-input pl-9">
+                                <select id="LicenseInfo" name="custom-LicenseInfo" class="form-input pl-9 focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow">
                                     <option value="Internal Use Only">Internal Use Only</option>
                                     <option value="Company Licensed">Company Licensed</option>
                                     <option value="Perpetual License">Perpetual License</option>
@@ -325,11 +355,11 @@
                             </div>
                         </div>
                         
-                        <div class="flex justify-between mt-6">
-                            <button type="button" class="btn-secondary prev-step shadow-sm" data-prev="1">
+                        <div class="flex justify-between mt-8">
+                            <button type="button" class="btn-secondary prev-step rounded-lg px-5 py-2.5 hover:bg-gray-100" data-prev="1">
                                 <i class="fas fa-arrow-left mr-2"></i> Back to Basic Info
                             </button>
-                            <button type="button" class="btn-primary next-step shadow-sm" data-next="3">
+                            <button type="button" class="btn-primary next-step rounded-lg px-5 py-2.5" data-next="3">
                                 Continue to Appearance <i class="fas fa-arrow-right ml-2"></i>
                             </button>
                         </div>
@@ -337,8 +367,8 @@
                     
                     <!-- Step 3: Appearance -->
                     <div class="form-section hidden" data-step="3">
-                        <h3 class="text-md font-semibold text-gray-700 mb-4 pb-2 border-b flex items-center">
-                            <i class="fas fa-palette text-primary-400 mr-2"></i> Card Appearance
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4 pb-2 border-b flex items-center">
+                            <i class="fas fa-palette text-primary-500 mr-2"></i> Card Appearance
                         </h3>
                         
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -347,14 +377,14 @@
                                 <div class="color-picker-wrapper">
                                 <div class="flex">
                                     <input asp-for="BackgroundColor" type="color" class="color-input hidden" id="bg-color-picker" value="#ffffff">
-                                    <div class="color-preview w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer" id="bg-color-preview" style="background-color: #ffffff"></div>
-                                    <input asp-for="BackgroundColor" type="text" class="form-input ml-2 flex-grow" placeholder="#ffffff" value="#ffffff">
+                                    <div class="color-preview w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer hover:scale-105 transition-transform" id="bg-color-preview" style="background-color: #ffffff"></div>
+                                    <input asp-for="BackgroundColor" type="text" class="form-input ml-2 flex-grow focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" placeholder="#ffffff" value="#ffffff">
                                 </div>
-                                    <div class="color-presets mt-2 flex flex-wrap gap-2">
-                                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#ffffff" style="background-color: #ffffff;"></span>
-                                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#f8fafc" style="background-color: #f8fafc;"></span>
-                                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#f0f9ff" style="background-color: #f0f9ff;"></span>
-                                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#1e293b" style="background-color: #1e293b;"></span>
+                                    <div class="color-presets mt-3 flex flex-wrap gap-2">
+                                        <span class="color-preset w-8 h-8 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#ffffff" style="background-color: #ffffff;"></span>
+                                        <span class="color-preset w-8 h-8 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#f8fafc" style="background-color: #f8fafc;"></span>
+                                        <span class="color-preset w-8 h-8 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#f0f9ff" style="background-color: #f0f9ff;"></span>
+                                        <span class="color-preset w-8 h-8 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#1e293b" style="background-color: #1e293b;"></span>
                                     </div>
                                 </div>
                                 <span asp-validation-for="BackgroundColor" class="form-error"></span>
@@ -364,14 +394,14 @@
                                 <label asp-for="TextColor" class="form-label">Text Color</label>
                                 <div class="color-picker-wrapper">
                                     <div class="flex">
-                                        <input type="color" class="color-input w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer" id="text-color-picker" value="#000000">
-                                        <input asp-for="TextColor" type="text" class="form-input ml-2 flex-grow" placeholder="#000000" value="#000000">
+                                        <input type="color" class="color-input w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer hover:scale-105 transition-transform" id="text-color-picker" value="#000000">
+                                        <input asp-for="TextColor" type="text" class="form-input ml-2 flex-grow focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" placeholder="#000000" value="#000000">
                                     </div>
-                                    <div class="color-presets mt-2 flex flex-wrap gap-2">
-                                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#000000" style="background-color: #000000;"></span>
-                                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#1e293b" style="background-color: #1e293b;"></span>
-                                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#ffffff" style="background-color: #ffffff;"></span>
-                                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#64748b" style="background-color: #64748b;"></span>
+                                    <div class="color-presets mt-3 flex flex-wrap gap-2">
+                                        <span class="color-preset w-8 h-8 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#000000" style="background-color: #000000;"></span>
+                                        <span class="color-preset w-8 h-8 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#1e293b" style="background-color: #1e293b;"></span>
+                                        <span class="color-preset w-8 h-8 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#ffffff" style="background-color: #ffffff;"></span>
+                                        <span class="color-preset w-8 h-8 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#64748b" style="background-color: #64748b;"></span>
                                     </div>
                                 </div>
                                 <span asp-validation-for="TextColor" class="form-error"></span>
@@ -381,51 +411,51 @@
                                 <label asp-for="AccentColor" class="form-label">Accent Color</label>
                                 <div class="color-picker-wrapper">
                                     <div class="flex">
-                                        <input type="color" class="color-input w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer" id="accent-color-picker" value="#0284c7">
-                                        <input asp-for="AccentColor" type="text" class="form-input ml-2 flex-grow" placeholder="#0284c7" value="#0284c7">
+                                        <input type="color" class="color-input w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer hover:scale-105 transition-transform" id="accent-color-picker" value="#0284c7">
+                                        <input asp-for="AccentColor" type="text" class="form-input ml-2 flex-grow focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" placeholder="#0284c7" value="#0284c7">
                                     </div>
-                                    <div class="color-presets mt-2 flex flex-wrap gap-2">
-                                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#0284c7" style="background-color: #0284c7;"></span>
-                                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#f97316" style="background-color: #f97316;"></span>
-                                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#16a34a" style="background-color: #16a34a;"></span>
-                                        <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#9333ea" style="background-color: #9333ea;"></span>
+                                    <div class="color-presets mt-3 flex flex-wrap gap-2">
+                                        <span class="color-preset w-8 h-8 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#0284c7" style="background-color: #0284c7;"></span>
+                                        <span class="color-preset w-8 h-8 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#f97316" style="background-color: #f97316;"></span>
+                                        <span class="color-preset w-8 h-8 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#16a34a" style="background-color: #16a34a;"></span>
+                                        <span class="color-preset w-8 h-8 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#9333ea" style="background-color: #9333ea;"></span>
                                     </div>
                                 </div>
                                 <span asp-validation-for="AccentColor" class="form-error"></span>
                             </div>
                         </div>
                         
-                        <div class="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-100">
-                            <h4 class="text-sm font-medium mb-3 flex items-center">
-                                <i class="fas fa-qrcode text-primary-400 mr-2"></i> QR Code Options
+                        <div class="mt-6 p-5 bg-gray-50 rounded-lg border border-gray-200 shadow-sm">
+                            <h4 class="text-md font-medium mb-4 flex items-center">
+                                <i class="fas fa-qrcode text-primary-500 mr-2"></i> QR Code Customization
                             </h4>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                                 <div>
-                                    <label class="text-xs text-gray-600 block mb-1">Foreground Color</label>
+                                    <label class="text-sm text-gray-600 block mb-2 font-medium">Foreground Color</label>
                                     <div class="flex">
-                                        <input type="color" class="w-10 h-10 border border-gray-300 rounded-lg cursor-pointer" value="#000000" id="qr-fg-color">
-                                        <input type="text" class="form-input ml-2 flex-grow text-sm" value="#000000" id="qr-fg-color-text">
+                                        <input type="color" class="w-10 h-10 border border-gray-300 rounded-lg cursor-pointer hover:scale-105 transition-transform" value="#000000" id="qr-fg-color">
+                                        <input type="text" class="form-input ml-2 flex-grow text-sm focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" value="#000000" id="qr-fg-color-text">
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="text-xs text-gray-600 block mb-1">Background Color</label>
+                                    <label class="text-sm text-gray-600 block mb-2 font-medium">Background Color</label>
                                     <div class="flex">
-                                        <input type="color" class="w-10 h-10 border border-gray-300 rounded-lg cursor-pointer" value="#ffffff" id="qr-bg-color">
-                                        <input type="text" class="form-input ml-2 flex-grow text-sm" value="#ffffff" id="qr-bg-color-text">
+                                        <input type="color" class="w-10 h-10 border border-gray-300 rounded-lg cursor-pointer hover:scale-105 transition-transform" value="#ffffff" id="qr-bg-color">
+                                        <input type="text" class="form-input ml-2 flex-grow text-sm focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" value="#ffffff" id="qr-bg-color-text">
                                     </div>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="flex justify-between mt-6">
-                            <button type="button" class="btn-secondary prev-step shadow-sm" data-prev="2">
+                        <div class="flex justify-between mt-8">
+                            <button type="button" class="btn-secondary prev-step rounded-lg px-5 py-2.5 hover:bg-gray-100" data-prev="2">
                                 <i class="fas fa-arrow-left mr-2"></i> Back to Details
                             </button>
-                            <button type="submit" class="btn-primary relative group shadow-sm" id="submit-form-btn">
+                            <button type="submit" class="btn-primary relative group rounded-lg px-5 py-2.5" id="submit-form-btn">
                                 <span class="flex items-center">
                                     <i class="fas fa-save mr-2"></i> Create Product
                                 </span>
-                                <span class="absolute inset-0 flex items-center justify-center bg-primary-600 rounded-md opacity-0 transition-opacity group-hover:opacity-0 group-active:opacity-100">
+                                <span class="absolute inset-0 flex items-center justify-center bg-primary-600 rounded-lg opacity-0 transition-opacity group-hover:opacity-0 group-active:opacity-100">
                                     <i class="fas fa-spinner fa-spin"></i>
                                 </span>
                             </button>
@@ -433,12 +463,13 @@
                     </div>
                 </div>
                 
-                <div class="card-footer">
+                <div class="card-footer bg-gray-50 p-4 border-t border-gray-200">
                     <div class="flex justify-between items-center">
-                        <div class="text-sm text-gray-500">
+                        <div class="text-sm text-gray-500 flex items-center">
+                            <i class="fas fa-info-circle mr-1 text-gray-400"></i>
                             <span class="text-red-500">*</span> Required fields
                         </div>
-                        <div class="text-sm text-gray-500">
+                        <div class="text-sm bg-white px-3 py-1 rounded-full border border-gray-200 text-gray-600 font-medium">
                             <span class="step-indicator">Step 1 of 3</span>
                         </div>
                     </div>
@@ -450,44 +481,44 @@
     <!-- Preview Section (2 columns) -->
     <div class="lg:col-span-2">
         <div class="sticky top-6 space-y-4">
-            <div class="flex justify-between items-center mb-2">
+            <div class="flex justify-between items-center mb-3 bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
                 <h3 class="text-lg font-bold text-gray-800 flex items-center">
                     <i class="fas fa-eye text-primary-500 mr-2"></i> Live Preview
                 </h3>
                 <div class="preview-controls flex gap-2">
-                    <button type="button" class="text-sm text-gray-600 hover:text-gray-800 flex items-center p-1 hover:bg-gray-100 rounded transition-colors" id="rotate-preview">
+                    <button type="button" class="text-sm text-gray-600 hover:text-gray-800 flex items-center p-2 hover:bg-gray-100 rounded-lg transition-colors" id="rotate-preview">
                         <i class="fas fa-sync-alt mr-1"></i> Flip Card
                     </button>
                 </div>
             </div>
             
-    <div class="card shadow-lg transition-all duration-300" id="card-preview-container">
+    <div class="card shadow-lg transition-all duration-300 rounded-xl border border-gray-200" id="card-preview-container">
                 <div class="card-flip-container">
                     <!-- Front of card -->
-                    <div class="business-card card-side card-front" id="tag-preview" style="background-color: #ffffff; color: #000000">
-                        <div class="p-4 h-full flex flex-col relative">
+                    <div class="business-card card-side card-front rounded-xl" id="tag-preview" style="background-color: #ffffff; color: #000000">
+                        <div class="p-5 h-full flex flex-col relative">
                             <!-- Template indicator badge -->
                             <div class="absolute -top-8 right-0 transform translate-y-12 transition-transform duration-300 opacity-70 hover:opacity-100">
-                                <div class="template-badge px-2 py-1 bg-white text-primary-600 text-xs font-medium rounded-t-lg shadow-sm">
+                                <div class="template-badge px-3 py-1.5 bg-white text-primary-600 text-xs font-medium rounded-t-lg shadow-sm border border-gray-200 border-b-0">
                                     <i id="preview-template-icon" class="fas fa-flask mr-1"></i>
                                     <span id="preview-template-name">No Template</span>
                                 </div>
                             </div>
                             
-                            <div class="mb-2">
-                                <span id="preview-category" class="px-2 py-1 text-xs font-semibold rounded-full inline-block" style="background-color: #0284c7; color: #ffffff">
+                            <div class="mb-3">
+                                <span id="preview-category" class="px-3 py-1 text-xs font-semibold rounded-full inline-block" style="background-color: #0284c7; color: #ffffff">
                                     Rust Coating Chemical
                                 </span>
-                                <h3 id="preview-name" class="text-xl font-bold mt-1" style="color: #0284c7">Product Name</h3>
+                                <h3 id="preview-name" class="text-xl font-bold mt-2" style="color: #0284c7">Product Name</h3>
                             </div>
                             
                             <!-- Enhanced custom fields section - now with 2 columns -->
-                            <div class="border-t border-b border-gray-200 py-2 mb-2 overflow-y-auto max-h-32">
-                                <h4 id="preview-fields-title" class="text-sm font-semibold mb-1" style="color: #0284c7">Product Fields:</h4>
-                                <div id="preview-custom-fields" class="grid grid-cols-2 gap-1 text-xs"></div>
+                            <div class="border-t border-b border-gray-200 py-2 mb-3 overflow-y-auto max-h-32">
+                                <h4 id="preview-fields-title" class="text-sm font-semibold mb-2" style="color: #0284c7">Product Fields:</h4>
+                                <div id="preview-custom-fields" class="grid grid-cols-2 gap-x-2 gap-y-1 text-xs"></div>
                             </div>
                             
-                            <div class="grid grid-cols-2 gap-x-2 gap-y-1 mt-auto text-sm">
+                            <div class="grid grid-cols-2 gap-x-3 gap-y-2 mt-auto text-sm">
                                 <p class="flex items-center text-xs">
                                     <i class="fas fa-map-marker-alt mr-2" style="color: #0284c7"></i>
                                     <span class="font-medium">Location:</span>&nbsp;<span id="preview-location" class="truncate">Not specified</span>
@@ -509,13 +540,13 @@
                     </div>
                     
                     <!-- Back of card (QR Code) -->
-                    <div class="business-card card-side card-back" style="background-color: #ffffff;">
+                    <div class="business-card card-side card-back rounded-xl" style="background-color: #ffffff;">
                         <div class="p-6 h-full flex flex-col items-center justify-center">
-                            <div class="qr-preview p-3 bg-white border border-gray-200 rounded-lg shadow-sm">
-                                <div class="w-40 h-40 bg-white flex items-center justify-center rounded" id="card-qr-code-display">
+                            <div class="qr-preview p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
+                                <div class="w-40 h-40 bg-white flex items-center justify-center rounded-lg shadow-inner" id="card-qr-code-display">
                                     <i class="fas fa-qrcode text-gray-400 text-4xl"></i>
                                 </div>
-                                <p class="text-center text-sm mt-2 text-gray-700 font-medium" id="qr-product-name">Product Name</p>
+                                <p class="text-center text-sm mt-3 text-gray-700 font-medium" id="qr-product-name">Product Name</p>
                                 <p class="text-center text-xs mt-1 text-gray-500">Scan for product details</p>
                             </div>
                         </div>
@@ -523,18 +554,19 @@
                 </div>
             </div>
             
-            <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded shadow-sm">
+            <div class="bg-gradient-to-r from-blue-50 to-blue-100 border-l-4 border-blue-400 p-4 rounded-lg shadow-sm">
                 <div class="flex">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-info-circle text-blue-400"></i>
+                    <div class="flex-shrink-0 text-blue-500">
+                        <i class="fas fa-lightbulb text-xl"></i>
                     </div>
                     <div class="ml-3">
-                        <h3 class="text-sm font-medium text-blue-800">Tips for effective product tags</h3>
-                        <ul class="mt-2 text-sm text-blue-700 list-disc list-inside">
-                            <li>Use clear, descriptive product names</li>
-                            <li>Keep maintenance information concise and specific</li>
-                            <li>Choose contrasting colors for better readability</li>
-                            <li>Always include current location information</li>
+                        <h3 class="text-md font-medium text-blue-800">Tips for effective product tags</h3>
+                        <ul class="mt-2 text-sm text-blue-700 list-disc list-inside space-y-1">
+                            <li>Use clear, descriptive product names that are easily recognizable</li>
+                            <li>Keep maintenance information concise and focused on key requirements</li>
+                            <li>Choose high contrast colors for better readability when printed</li>
+                            <li>Always include specific location information for quick identification</li>
+                            <li>Add QR codes for easy access to detailed documentation</li>
                         </ul>
                     </div>
                 </div>
@@ -546,24 +578,25 @@
 <!-- Create Template Modal -->
 <div id="create-template-modal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
     <div class="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"></div>
-    <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 relative z-10 transform transition-all duration-300 opacity-0 scale-95">
-        <div class="p-5 border-b border-gray-200 bg-gradient-to-r from-blue-500 to-primary-500 rounded-t-lg">
+    <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full mx-4 relative z-10 transform transition-all duration-300 opacity-0 scale-95">
+        <div class="p-5 border-b border-gray-200 bg-gradient-to-r from-blue-500 to-primary-500 rounded-t-xl">
             <div class="flex justify-between items-center">
                 <h3 class="text-lg font-bold text-white" id="template-modal-title">Create New Template</h3>
-                <button type="button" class="text-white hover:text-gray-200 focus:outline-none" id="close-template-modal">
+                <button type="button" class="text-white hover:text-gray-200 focus:outline-none p-2 hover:bg-white hover:bg-opacity-10 rounded-full transition-colors" id="close-template-modal">
                     <i class="fas fa-times"></i>
-                    <input type="hidden" name="TemplateType" id="templateTypeHidden" value="" />
                 </button>
             </div>
         </div>
-        <div class="p-5 max-h-[70vh] overflow-y-auto">
-            <form id="template-form" class="space-y-4">
+        <div class="p-6 max-h-[70vh] overflow-y-auto">
+            <form id="template-form" class="space-y-5">
                 <input type="hidden" id="template-edit-id" value="" />
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input type="hidden" name="TemplateType" id="templateTypeHidden" value="" />
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div class="form-group">
                         <label class="form-label">Template Name <span class="text-red-500">*</span></label>
                         <div class="relative">
-                            <input type="text" id="template-name" class="form-input pl-9" placeholder="E.g., Laboratory Equipment" required>
+                            <input type="text" id="template-name" class="form-input pl-9 focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" placeholder="E.g., Laboratory Equipment" required>
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i class="fas fa-bookmark text-gray-400"></i>
                             </div>
@@ -572,7 +605,7 @@
                     <div class="form-group">
                         <label class="form-label">Category <span class="text-red-500">*</span></label>
                         <div class="relative">
-                            <input type="text" id="template-category" class="form-input pl-9" placeholder="E.g., Lab Equipment" required>
+                            <input type="text" id="template-category" class="form-input pl-9 focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" placeholder="E.g., Lab Equipment" required>
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i class="fas fa-folder text-gray-400"></i>
                             </div>
@@ -582,7 +615,7 @@
                 
                 <div class="form-group">
                     <label class="form-label">Icon Selection <span class="text-red-500">*</span></label>
-                    <div class="grid grid-cols-4 md:grid-cols-6 gap-3 mt-1">
+                    <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 mt-2">
                         <div class="icon-option border rounded-lg p-3 flex items-center justify-center cursor-pointer hover:border-primary-500 hover:shadow-sm transition-all active" data-icon="flask">
                             <i class="fas fa-flask text-primary-500 text-2xl"></i>
                         </div>
@@ -623,63 +656,65 @@
                     <input type="hidden" id="template-icon" value="flask">
                 </div>
                 
-                <div class="form-group">
-                    <label class="form-label">Background Color</label>
-                    <div class="color-picker-wrapper">
-                        <div class="flex">
-                            <input type="color" id="template-bg-color" class="w-10 h-10 border border-gray-300 rounded-lg cursor-pointer" value="#f0f9ff">
-                            <input type="text" id="template-bg-color-text" class="form-input ml-2 flex-grow" value="#f0f9ff">
-                        </div>
-                        <div class="color-presets mt-2 flex flex-wrap gap-2">
-                            <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#f0f9ff" style="background-color: #f0f9ff;"></span>
-                            <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#f0fdf4" style="background-color: #f0fdf4;"></span>
-                            <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#fef3c7" style="background-color: #fef3c7;"></span>
-                            <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#fdf2f8" style="background-color: #fdf2f8;"></span>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="form-group">
+                        <label class="form-label">Background Color</label>
+                        <div class="color-picker-wrapper">
+                            <div class="flex">
+                                <input type="color" id="template-bg-color" class="w-10 h-10 border border-gray-300 rounded-lg cursor-pointer hover:scale-105 transition-transform" value="#f0f9ff">
+                                <input type="text" id="template-bg-color-text" class="form-input ml-2 flex-grow focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" value="#f0f9ff">
+                            </div>
+                            <div class="color-presets mt-2 flex flex-wrap gap-2">
+                                <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#f0f9ff" style="background-color: #f0f9ff;"></span>
+                                <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#f0fdf4" style="background-color: #f0fdf4;"></span>
+                                <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#fef3c7" style="background-color: #fef3c7;"></span>
+                                <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#fdf2f8" style="background-color: #fdf2f8;"></span>
+                            </div>
                         </div>
                     </div>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Icon Color</label>
-                    <div class="color-picker-wrapper">
-                        <div class="flex">
-                            <input type="color" class="color-input w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer" id="template-icon-color-picker" value="#0284c7">
-                            <input type="text" class="form-input ml-2 flex-grow" id="template-icon-color-text" value="#0284c7">
+                    
+                    <div class="form-group">
+                        <label class="form-label">Icon Color</label>
+                        <div class="color-picker-wrapper">
+                            <div class="flex">
+                                <input type="color" class="color-input w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer hover:scale-105 transition-transform" id="template-icon-color-picker" value="#0284c7">
+                                <input type="text" class="form-input ml-2 flex-grow focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" id="template-icon-color-text" value="#0284c7">
+                            </div>
+                            <div class="color-presets mt-2 flex flex-wrap gap-2">
+                                <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#0284c7" style="background-color: #0284c7;"></span>
+                                <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#16a34a" style="background-color: #16a34a;"></span>
+                                <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#dc2626" style="background-color: #dc2626;"></span>
+                                <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#eab308" style="background-color: #eab308;"></span>
+                                <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#8b5cf6" style="background-color: #8b5cf6;"></span>
+                                <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#6b7280" style="background-color: #6b7280;"></span>
+                            </div>
+                            <input type="hidden" id="template-icon-color" value="#0284c7">
                         </div>
-                        <div class="color-presets mt-2 flex flex-wrap gap-2">
-                            <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#0284c7" style="background-color: #0284c7;"></span>
-                            <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#16a34a" style="background-color: #16a34a;"></span>
-                            <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#dc2626" style="background-color: #dc2626;"></span>
-                            <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#eab308" style="background-color: #eab308;"></span>
-                            <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#8b5cf6" style="background-color: #8b5cf6;"></span>
-                            <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#6b7280" style="background-color: #6b7280;"></span>
-                        </div>
-                        <input type="hidden" id="template-icon-color" value="#0284c7">
                     </div>
                 </div>
                 
                 <div class="border-t border-gray-200 pt-4 mt-4">
                     <div class="flex justify-between items-center mb-3">
                         <h4 class="text-md font-semibold text-gray-700 flex items-center">
-                            <i class="fas fa-layer-group text-primary-400 mr-2"></i> Custom Fields
+                            <i class="fas fa-layer-group text-primary-500 mr-2"></i> Custom Fields
                         </h4>
-                        <button type="button" id="add-field-btn" class="text-sm inline-flex items-center text-primary-600 hover:text-primary-700 px-2 py-1 rounded hover:bg-blue-50 transition-colors">
+                        <button type="button" id="add-field-btn" class="text-sm inline-flex items-center bg-primary-50 text-primary-600 hover:text-primary-700 px-3 py-1.5 rounded-lg hover:bg-primary-100 transition-all shadow-sm">
                             <i class="fas fa-plus-circle mr-1"></i> Add Field
                         </button>
                     </div>
                     
                     <div id="custom-fields" class="space-y-4 max-h-[300px] overflow-y-auto pr-2">
                         <!-- Fields will be added here -->
-                        <div class="custom-field-row flex items-start gap-2 p-3 border border-gray-100 rounded-lg bg-gray-50 hover:bg-white hover:shadow-sm transition-all">
+                        <div class="custom-field-row flex items-start gap-3 p-4 border border-gray-200 rounded-lg bg-gray-50 hover:bg-white hover:shadow-sm transition-all">
                             <div class="flex-grow">
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div class="form-group mb-2">
                                         <label class="form-label text-sm">Field Name <span class="text-red-500">*</span></label>
-                                        <input type="text" class="form-input py-2 text-sm field-name" placeholder="E.g., Lab ID" required>
+                                        <input type="text" class="form-input py-2 text-sm field-name focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" placeholder="E.g., Lab ID" required>
                                     </div>
                                     <div class="form-group mb-2">
                                         <label class="form-label text-sm">Field Type <span class="text-red-500">*</span></label>
-                                        <select class="form-input py-2 text-sm field-type">
+                                        <select class="form-input py-2 text-sm field-type focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow">
                                             <option value="text">Text</option>
                                             <option value="select">Dropdown</option>
                                             <option value="number">Number</option>
@@ -689,7 +724,7 @@
                                     </div>
                                     <div class="form-group mb-2">
                                         <label class="form-label text-sm">Icon</label>
-                                        <select class="form-input py-2 text-sm field-icon">
+                                        <select class="form-input py-2 text-sm field-icon focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow">
                                             <option value="tag">Tag</option>
                                             <option value="info-circle">Info</option>
                                             <option value="check-circle">Check</option>
@@ -701,17 +736,17 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div class="field-options hidden mt-2">
+                                <div class="field-options hidden mt-3">
                                     <label class="form-label text-sm">Options (comma separated)</label>
-                                    <input type="text" class="form-input py-2 text-sm field-options-input" placeholder="Option 1, Option 2, Option 3">
+                                    <input type="text" class="form-input py-2 text-sm field-options-input focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" placeholder="Option 1, Option 2, Option 3">
                                 </div>
-                                <div class="form-group mt-2">
+                                <div class="form-group mt-3">
                                     <label class="form-label text-sm">Placeholder</label>
-                                    <input type="text" class="form-input py-2 text-sm field-placeholder" placeholder="Enter placeholder text">
+                                    <input type="text" class="form-input py-2 text-sm field-placeholder focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" placeholder="Enter placeholder text">
                                 </div>
                                 <div class="form-group mt-2">
                                     <div class="flex items-center">
-                                        <input type="checkbox" class="field-required mr-2" id="field-required-checkbox" checked>
+                                        <input type="checkbox" class="field-required mr-2 h-4 w-4 text-primary-600 focus:ring-primary-500 rounded" id="field-required-checkbox" checked>
                                         <label for="field-required-checkbox" class="text-sm">Required</label>
                                     </div>
                                 </div>
@@ -726,14 +761,14 @@
                 </div>
             </form>
         </div>
-        <div class="p-5 border-t border-gray-200 bg-gray-50 flex justify-end rounded-b-lg">
-            <button type="button" class="btn-secondary mr-2 shadow-sm" id="cancel-template-btn">
+        <div class="p-5 border-t border-gray-200 bg-gray-50 flex justify-end rounded-b-xl">
+            <button type="button" class="btn-secondary mr-2 rounded-lg px-4 py-2 hover:bg-gray-100" id="cancel-template-btn">
                 Cancel
             </button>
-            <button type="button" class="btn-danger mr-2 shadow-sm hidden" id="delete-template-btn">
+            <button type="button" class="btn-danger mr-2 rounded-lg px-4 py-2 hidden" id="delete-template-btn">
                 <i class="fas fa-trash mr-2"></i> Delete Template
             </button>
-            <button type="button" class="btn-primary shadow-sm" id="save-template-btn">
+            <button type="button" class="btn-primary rounded-lg px-4 py-2" id="save-template-btn">
                 <i class="fas fa-save mr-2"></i> Save Template
             </button>
         </div>
@@ -743,20 +778,20 @@
 <!-- Delete Template Confirmation Modal -->
 <div id="delete-template-modal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
     <div class="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"></div>
-    <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 relative z-10 transform transition-all duration-300 opacity-0 scale-95">
+    <div class="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 relative z-10 transform transition-all duration-300 opacity-0 scale-95">
         <div class="p-5 border-b border-gray-200 bg-red-50">
             <div class="flex justify-between items-center">
                 <h3 class="text-lg font-bold text-red-700 flex items-center">
                     <i class="fas fa-exclamation-triangle text-red-500 mr-2"></i> Delete Template
                 </h3>
-                <button type="button" class="text-gray-400 hover:text-gray-600 focus:outline-none" id="close-delete-modal">
+                <button type="button" class="text-gray-400 hover:text-gray-600 focus:outline-none p-2 hover:bg-gray-100 rounded-full transition-colors" id="close-delete-modal">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
         </div>
         <div class="p-5">
             <p class="text-gray-700">Are you sure you want to delete this template? This action cannot be undone.</p>
-            <div class="mt-3 p-3 border border-red-100 rounded-lg bg-red-50">
+            <div class="mt-4 p-4 border border-red-100 rounded-lg bg-red-50">
                 <p class="flex items-center text-red-600 font-medium">
                     <i class="fas fa-folder mr-2"></i>
                     <span id="delete-template-name"></span>
@@ -764,12 +799,12 @@
             </div>
             <input type="hidden" id="delete-template-id" value="" />
         </div>
-        <div class="p-5 border-t border-gray-200 bg-gray-50 flex justify-end">
-            <button type="button" class="btn-secondary mr-2 shadow-sm" id="cancel-delete-btn">
+        <div class="p-5 border-t border-gray-200 bg-gray-50 flex justify-end rounded-b-xl">
+            <button type="button" class="btn-secondary mr-2 rounded-lg px-4 py-2 hover:bg-gray-100" id="cancel-delete-btn">
                 Cancel
             </button>
-            <button type="button" class="btn-danger shadow-sm" id="confirm-delete-btn">
-                <i class="fas fa-trash mr-2"></i> Delete
+            <button type="button" class="btn-danger rounded-lg px-4 py-2" id="confirm-delete-btn">
+                <i class="fas fa-trash mr-2"></i> Delete Template
             </button>
         </div>
     </div>
@@ -778,11 +813,11 @@
 <!-- Add Category Modal -->
 <div id="add-category-modal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
     <div class="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"></div>
-    <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 relative z-10 transform transition-all duration-300 opacity-0 scale-95">
-        <div class="p-5 border-b border-gray-200 bg-gradient-to-r from-blue-500 to-primary-500 rounded-t-lg">
+    <div class="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 relative z-10 transform transition-all duration-300 opacity-0 scale-95">
+        <div class="p-5 border-b border-gray-200 bg-gradient-to-r from-blue-500 to-primary-500 rounded-t-xl">
             <div class="flex justify-between items-center">
                 <h3 class="text-lg font-bold text-white">Add New Category</h3>
-                <button type="button" class="text-white hover:text-gray-200 focus:outline-none" id="close-category-modal">
+                <button type="button" class="text-white hover:text-gray-200 focus:outline-none p-2 hover:bg-white hover:bg-opacity-10 rounded-full transition-colors" id="close-category-modal">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -792,7 +827,7 @@
                 <div class="form-group">
                     <label class="form-label">Category Name <span class="text-red-500">*</span></label>
                     <div class="relative">
-                        <input type="text" id="new-category-name" class="form-input pl-9" placeholder="E.g., Laboratory Equipment" required>
+                        <input type="text" id="new-category-name" class="form-input pl-9 focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" placeholder="E.g., Laboratory Equipment" required>
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <i class="fas fa-folder text-gray-400"></i>
                         </div>
@@ -800,11 +835,11 @@
                 </div>
             </form>
         </div>
-        <div class="p-5 border-t border-gray-200 bg-gray-50 flex justify-end rounded-b-lg">
-            <button type="button" class="btn-secondary mr-2 shadow-sm" id="cancel-category-btn">
+        <div class="p-5 border-t border-gray-200 bg-gray-50 flex justify-end rounded-b-xl">
+            <button type="button" class="btn-secondary mr-2 rounded-lg px-4 py-2 hover:bg-gray-100" id="cancel-category-btn">
                 Cancel
             </button>
-            <button type="button" class="btn-primary shadow-sm" id="save-category-btn">
+            <button type="button" class="btn-primary rounded-lg px-4 py-2" id="save-category-btn">
                 <i class="fas fa-save mr-2"></i> Save Category
             </button>
         </div>
@@ -812,7 +847,7 @@
 </div>
 
 <!-- Template Applied Toast Notification -->
-<div id="template-toast" class="fixed top-6 right-6 bg-white shadow-lg rounded-lg p-4 transform -translate-y-12 opacity-0 transition-all duration-300 z-50 max-w-sm border border-gray-100 hidden">
+<div id="template-toast" class="fixed top-6 right-6 bg-white shadow-lg rounded-lg p-4 transform -translate-y-12 opacity-0 transition-all duration-300 z-50 max-w-sm border border-gray-200 hidden">
     <div class="flex items-center">
         <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-green-100 text-green-500 mr-3">
             <i class="fas fa-check"></i>
@@ -1306,7 +1341,7 @@ function initializeSteps() {
     const stepIndicator = document.querySelector('.step-indicator');
     const steps = document.querySelectorAll('.step');
     const progressBars = document.querySelectorAll('.step-progress');
-    const templateLibrary = document.querySelector('.px-6.pt-4.pb-2'); // Template library section
+    const templateLibrary = document.querySelector('.px-6.pt-5.pb-3'); // Template library section
     
     // Handle next button clicks
     nextButtons.forEach(button => {
@@ -1722,7 +1757,7 @@ function initializeSteps() {
                 if (file.size > 5 * 1024 * 1024) { // 5MB limit
                     showNotification('Image must be less than 5MB', 'error');
                     return;
-                    }
+                }
                 
                 // Update file input
                 const dataTransfer = new DataTransfer();
@@ -1747,7 +1782,7 @@ function initializeSteps() {
             previewImage.src = '';
             previewFilename.textContent = '';
             imagePreview.classList.add('hidden');
-            dropzone.classList.remove('border-primary-400', 'borpreview-400', 'border-opacity-20', 'bg-primary-50', 'bg-opacity-30');
+            dropzone.classList.remove('border-primary-400', 'border-opacity-20', 'bg-primary-50', 'bg-opacity-30');
         });
     }
 
@@ -1772,7 +1807,7 @@ function initializeSteps() {
             categories.forEach(category => {
                 const tabButton = document.createElement('button');
                 tabButton.type = 'button';
-                tabButton.className = 'template-tab whitespace-nowrap px-3 py-1.5 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700';
+                tabButton.className = 'template-tab whitespace-nowrap px-4 py-2 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700';
                 const categoryValue = category.toLowerCase().replace(/\s+/g, '-');
                 tabButton.setAttribute('data-category', categoryValue);
                 tabButton.textContent = category;
@@ -1927,7 +1962,7 @@ function initializeSteps() {
         recentTemplates.forEach(template => {
             const chip = document.createElement('button');
             chip.type = 'button';
-            chip.className = 'template-chip px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded-full hover:bg-primary-50 hover:text-primary-600 transition-colors';
+            chip.className = 'template-chip px-3 py-1.5 text-xs bg-gray-100 text-gray-700 rounded-full hover:bg-primary-50 hover:text-primary-600 transition-colors shadow-sm';
             chip.setAttribute('data-template', template.id);
             
             chip.innerHTML = `<i class="fas fa-${template.icon} mr-1"></i> ${template.name}`;
@@ -1945,7 +1980,7 @@ function initializeSteps() {
             }
         });
         
-        // NOW initialize template tabs after templates are loaded
+        // Initialize template tabs after templates are loaded
         initializeTemplateTabs();
     }
 
@@ -1975,7 +2010,7 @@ function initializeSteps() {
                 }
             }
             
-            // Important: Clear and repopulate template fields
+            // Clear and repopulate template fields
             const templateFieldsContainer = document.getElementById('template-fields-container');
             templateFieldsContainer.innerHTML = '';
             displayCustomTemplateFields(template, templateFieldsContainer);
@@ -2034,15 +2069,15 @@ function initializeSteps() {
                         <i class="fas fa-edit"></i>
                     </button>
                 </div>
-                <div class="h-20 flex items-center justify-center" style="background-color: ${bgColorStyle}">
-                    <i class="fas fa-${template.icon}" style="color: ${iconColor}; font-size: 1.5rem;"></i>
+                <div class="h-24 flex items-center justify-center" style="background-color: ${bgColorStyle}">
+                    <i class="fas fa-${template.icon}" style="color: ${iconColor}; font-size: 1.75rem;"></i>
                 </div>
-                <div class="p-2 bg-white border-t border-gray-100">
+                <div class="p-3 bg-white border-t border-gray-100">
                     <h4 class="font-medium text-sm text-gray-800">${template.name}</h4>
                     <p class="text-xs text-gray-500 mt-0.5">${template.category}</p>
                 </div>
                 <div class="absolute inset-0 bg-primary-500 bg-opacity-0 hover:bg-opacity-10 transition-all flex items-center justify-center">
-                    <span class="bg-white text-primary-600 px-2 py-1 rounded-full text-xs font-medium opacity-0 group-hover:opacity-100 transform scale-0 group-hover:scale-100 transition-all shadow-sm">
+                    <span class="bg-white text-primary-600 px-3 py-1.5 rounded-lg text-xs font-medium opacity-0 group-hover:opacity-100 transform scale-0 group-hover:scale-100 transition-all shadow-sm">
                         Select Template
                     </span>
                 </div>
@@ -2055,15 +2090,15 @@ function initializeSteps() {
                         <i class="fas fa-edit"></i>
                     </button>
                 </div>
-                <div class="h-20 flex items-center justify-center" style="background-color: ${bgColorStyle}">
+                <div class="h-24 flex items-center justify-center" style="background-color: ${bgColorStyle}">
                     <i class="fas fa-${template.icon} text-${iconColor} text-2xl"></i>
                 </div>
-                <div class="p-2 bg-white border-t border-gray-100">
+                <div class="p-3 bg-white border-t border-gray-100">
                     <h4 class="font-medium text-sm text-gray-800">${template.name}</h4>
                     <p class="text-xs text-gray-500 mt-0.5">${template.category}</p>
                 </div>
                 <div class="absolute inset-0 bg-primary-500 bg-opacity-0 hover:bg-opacity-10 transition-all flex items-center justify-center">
-                    <span class="bg-white text-primary-600 px-2 py-1 rounded-full text-xs font-medium opacity-0 group-hover:opacity-100 transform scale-0 group-hover:scale-100 transition-all shadow-sm">
+                    <span class="bg-white text-primary-600 px-3 py-1.5 rounded-lg text-xs font-medium opacity-0 group-hover:opacity-100 transform scale-0 group-hover:scale-100 transition-all shadow-sm">
                         Select Template
                     </span>
                 </div>
@@ -2138,10 +2173,10 @@ function initializeSteps() {
                     <div class="relative">`;
             
             if (field.type === 'textarea') {
-                html += `<textarea id="${fieldId}" name="${fieldId}" class="form-input pl-9 h-20" ${field.required !== false ? 'required' : ''}
+                html += `<textarea id="${fieldId}" name="${fieldId}" class="form-input pl-9 h-20 focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" ${field.required !== false ? 'required' : ''}
                          placeholder="${field.placeholder || ''}"></textarea>`;
             } else if (field.type === 'select') {
-                html += `<select id="${fieldId}" name="${fieldId}" class="form-input pl-9" ${field.required !== false ? 'required' : ''}>
+                html += `<select id="${fieldId}" name="${fieldId}" class="form-input pl-9 focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" ${field.required !== false ? 'required' : ''}>
                         <option value="">Select ${field.name}</option>`;
                 if (field.options && Array.isArray(field.options)) {
                     field.options.forEach(option => {
@@ -2150,7 +2185,7 @@ function initializeSteps() {
                 }
                 html += `</select>`;
             } else {
-                html += `<input type="${field.type || 'text'}" id="${fieldId}" name="${fieldId}" class="form-input pl-9"
+                html += `<input type="${field.type || 'text'}" id="${fieldId}" name="${fieldId}" class="form-input pl-9 focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow"
                         ${field.required !== false ? 'required' : ''} placeholder="${field.placeholder || ''}">`;
             }
             
@@ -2281,7 +2316,7 @@ function initializeSteps() {
                     <span class="text-red-500 ml-1">*</span>
                 </label>
                 <div class="relative">
-                    <input id="Manufacturer" name="Manufacturer" class="form-input pl-9" required placeholder="Manufacturer Name">
+                    <input id="Manufacturer" name="Manufacturer" class="form-input pl-9 focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" required placeholder="Manufacturer Name">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <i class="fas fa-industry text-gray-400"></i>
                     </div>
@@ -2319,7 +2354,7 @@ function initializeSteps() {
         previewCategory.style.backgroundColor = accentColor;
         previewCategory.style.color = '#ffffff'; // Set text color to white for better readability
         
-        // Update Product Fields title color - FIX 1
+        // Update Product Fields title color
         if (previewFieldsTitle) {
             previewFieldsTitle.style.color = accentColor;
         }
@@ -2471,6 +2506,7 @@ function initializeSteps() {
 
     // Initialize template modal
     function initializeTemplateModal() {
+        // Modal elements
         const createBtn = document.getElementById('create-template-btn');
         const modal = document.getElementById('create-template-modal');
         const closeBtn = document.getElementById('close-template-modal');
@@ -2561,6 +2597,111 @@ function initializeSteps() {
             }, 10);
         }
         
+        // Add custom field row
+        function addCustomField(fieldData = null) {
+            const newField = document.createElement('div');
+            newField.className = 'custom-field-row flex items-start gap-3 p-4 border border-gray-200 rounded-lg bg-gray-50 hover:bg-white hover:shadow-sm transition-all';
+            
+            const fieldId = Date.now();
+            
+            newField.innerHTML = `
+                <div class="flex-grow">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="form-group mb-2">
+                            <label class="form-label text-sm">Field Name <span class="text-red-500">*</span></label>
+                            <input type="text" class="form-input py-2 text-sm field-name focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" placeholder="E.g., Lab ID" required>
+                        </div>
+                        <div class="form-group mb-2">
+                            <label class="form-label text-sm">Field Type <span class="text-red-500">*</span></label>
+                            <select class="form-input py-2 text-sm field-type focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow">
+                                <option value="text">Text</option>
+                                <option value="select">Dropdown</option>
+                                <option value="number">Number</option>
+                                <option value="date">Date</option>
+                                <option value="textarea">Text Area</option>
+                            </select>
+                        </div>
+                        <div class="form-group mb-2">
+                            <label class="form-label text-sm">Icon</label>
+                            <select class="form-input py-2 text-sm field-icon focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow">
+                                <option value="tag">Tag</option>
+                                <option value="info-circle">Info</option>
+                                <option value="check-circle">Check</option>
+                                <option value="flag">Flag</option>
+                                <option value="clipboard">Clipboard</option>
+                                <option value="calendar">Calendar</option>
+                                <option value="user">User</option>
+                                <option value="link">Link</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="field-options hidden mt-3">
+                        <label class="form-label text-sm">Options (comma separated)</label>
+                        <input type="text" class="form-input py-2 text-sm field-options-input focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" placeholder="Option 1, Option 2, Option 3">
+                    </div>
+                    <div class="form-group mt-3">
+                        <label class="form-label text-sm">Placeholder</label>
+                        <input type="text" class="form-input py-2 text-sm field-placeholder focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" placeholder="Enter placeholder text">
+                    </div>
+                    <div class="form-group mt-2">
+                        <div class="flex items-center">
+                            <input type="checkbox" class="field-required mr-2 h-4 w-4 text-primary-600 focus:ring-primary-500 rounded" id="field-required-checkbox-${fieldId}" checked>
+                            <label for="field-required-checkbox-${fieldId}" class="text-sm">Required</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex-shrink-0 mt-6">
+                    <button type="button" class="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full transition-colors remove-field-btn">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+            
+            customFields.appendChild(newField);
+            
+            // Add event listener for field type change
+            const fieldTypeSelect = newField.querySelector('.field-type');
+            fieldTypeSelect.addEventListener('change', function() {
+                const optionsDiv = newField.querySelector('.field-options');
+                optionsDiv.classList.toggle('hidden', this.value !== 'select');
+            });
+            
+            // If field data provided, populate the field
+            if (fieldData) {
+                populateFieldRow(newField, fieldData);
+            }
+            
+            return newField;
+        }
+        
+        // Populate field row with data
+        function populateFieldRow(row, fieldData) {
+            const nameInput = row.querySelector('.field-name');
+            const typeSelect = row.querySelector('.field-type');
+            const iconSelect = row.querySelector('.field-icon');
+            const placeholderInput = row.querySelector('.field-placeholder');
+            const requiredCheckbox = row.querySelector('.field-required');
+            const optionsDiv = row.querySelector('.field-options');
+            const optionsInput = row.querySelector('.field-options-input');
+            
+            nameInput.value = fieldData.name || '';
+            typeSelect.value = fieldData.type || 'text';
+            iconSelect.value = fieldData.icon || 'tag';
+            placeholderInput.value = fieldData.placeholder || '';
+            
+            if (requiredCheckbox) {
+                requiredCheckbox.checked = fieldData.required !== false;
+            }
+            
+            if (fieldData.type === 'select') {
+                optionsDiv.classList.remove('hidden');
+                
+                if (optionsInput && fieldData.options && Array.isArray(fieldData.options)) {
+                    optionsInput.value = fieldData.options.join(', ');
+                }
+            }
+        }
+        
         // Populate template form with data
         async function populateTemplateForm(templateId) {
             try {
@@ -2572,6 +2713,7 @@ function initializeSteps() {
                 // Set template ID and delete ID
                 document.getElementById('template-edit-id').value = template.id;
                 document.getElementById('delete-template-id').value = template.id;
+                document.getElementById('delete-template-name').textContent = template.name;
                 
                 // Populate basic fields
                 document.getElementById('template-name').value = template.name || '';
@@ -2582,6 +2724,7 @@ function initializeSteps() {
                 // Set icon color values
                 document.getElementById('template-icon-color-picker').value = template.iconColor || '#0284c7';
                 document.getElementById('template-icon-color-text').value = template.iconColor || '#0284c7';
+                document.getElementById('template-icon-color').value = template.iconColor || '#0284c7';
                 
                 // Select icon
                 const iconElement = document.querySelector(`.icon-option[data-icon="${template.icon}"]`);
@@ -2620,104 +2763,6 @@ function initializeSteps() {
             } catch (error) {
                 console.error('Error populating template form:', error);
                 showNotification('Error loading template', 'error');
-            }
-        }
-        
-        // Add custom field row
-        function addCustomField(fieldData = null) {
-            const newField = document.createElement('div');
-            newField.className = 'custom-field-row flex items-start gap-2 p-3 border border-gray-100 rounded-lg bg-gray-50 hover:bg-white hover:shadow-sm transition-all';
-            
-            const fieldId = Date.now();
-            
-            newField.innerHTML = `
-                <div class="flex-grow">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <div class="form-group mb-2">
-                            <label class="form-label text-sm">Field Name <span class="text-red-500">*</span></label>
-                            <input type="text" class="form-input py-2 text-sm field-name" placeholder="E.g., Lab ID" required>
-                        </div>
-                        <div class="form-group mb-2">
-                            <label class="form-label text-sm">Field Type <span class="text-red-500">*</span></label>
-                            <select class="form-input py-2 text-sm field-type">
-                                <option value="text">Text</option>
-                                <option value="select">Dropdown</option>
-                                <option value="number">Number</option>
-                                <option value="date">Date</option>
-                                <option value="textarea">Text Area</option>
-                            </select>
-                        </div>
-                        <div class="form-group mb-2">
-                            <label class="form-label text-sm">Icon</label>
-                            <select class="form-input py-2 text-sm field-icon">
-                                <option value="tag">Tag</option>
-                                <option value="info-circle">Info</option>
-                                <option value="check-circle">Check</option>
-                                <option value="flag">Flag</option>
-                                <option value="clipboard">Clipboard</option>
-                                <option value="calendar">Calendar</option>
-                                <option value="user">User</option>
-                                <option value="link">Link</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="field-options hidden mt-2">
-                        <label class="form-label text-sm">Options (comma separated)</label>
-                        <input type="text" class="form-input py-2 text-sm field-options-input" placeholder="Option 1, Option 2, Option 3">
-                    </div>
-                    <div class="form-group mt-2">
-                        <label class="form-label text-sm">Placeholder</label>
-                        <input type="text" class="form-input py-2 text-sm field-placeholder" placeholder="Enter placeholder text">
-                    </div>
-                    <div class="form-group mt-2">
-                        <div class="flex items-center">
-                            <input type="checkbox" class="field-required mr-2" id="field-required-checkbox-${fieldId}" checked>
-                            <label for="field-required-checkbox-${fieldId}" class="text-sm">Required</label>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex-shrink-0 mt-6">
-                    <button type="button" class="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full transition-colors remove-field-btn">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            `;
-            
-            customFields.appendChild(newField);
-            
-            // Add event listener for field type change
-            const fieldTypeSelect = newField.querySelector('.field-type');
-            fieldTypeSelect.addEventListener('change', function() {
-                const optionsDiv = newField.querySelector('.field-options');
-                optionsDiv.classList.toggle('hidden', this.value !== 'select');
-            });
-            
-            // If field data provided, populate the field
-            if (fieldData) {
-                const nameInput = newField.querySelector('.field-name');
-                const typeSelect = newField.querySelector('.field-type');
-                const iconSelect = newField.querySelector('.field-icon');
-                const placeholderInput = newField.querySelector('.field-placeholder');
-                const requiredCheckbox = newField.querySelector('.field-required');
-                const optionsDiv = newField.querySelector('.field-options');
-                const optionsInput = newField.querySelector('.field-options-input');
-                
-                nameInput.value = fieldData.name || '';
-                typeSelect.value = fieldData.type || 'text';
-                iconSelect.value = fieldData.icon || 'tag';
-                placeholderInput.value = fieldData.placeholder || '';
-                
-                if (requiredCheckbox) {
-                    requiredCheckbox.checked = fieldData.required !== false;
-                }
-                
-                if (fieldData.type === 'select') {
-                    optionsDiv.classList.remove('hidden');
-                    
-                    if (optionsInput && fieldData.options && Array.isArray(fieldData.options)) {
-                        optionsInput.value = fieldData.options.join(', ');
-                    }
-                }
             }
         }
         
@@ -2772,7 +2817,9 @@ function initializeSteps() {
         });
         
         // Add field button
-        addFieldBtn.addEventListener('click', () => addCustomField());
+        addFieldBtn.addEventListener('click', function() {
+            addCustomField();
+        });
         
         // Remove field button
         customFields.addEventListener('click', function(e) {
@@ -2812,7 +2859,7 @@ function initializeSteps() {
             }, 10);
         });
         
-        // Confirm delete
+        // Confirm delete button
         confirmDeleteBtn.addEventListener('click', async function() {
             const templateId = document.getElementById('delete-template-id').value;
             
@@ -2842,7 +2889,7 @@ function initializeSteps() {
             }
         });
         
-        // Save template
+        // Save template button
         saveBtn.addEventListener('click', async function() {
             // Validate form
             const form = document.getElementById('template-form');
@@ -2929,54 +2976,10 @@ function initializeSteps() {
         });
     }
 
-    // Add category button click handler
-    document.getElementById('add-category-btn').addEventListener('click', function() {
-        const modal = document.getElementById('add-category-modal');
-        modal.classList.remove('hidden');
-        
-        // Animate modal
-        setTimeout(() => {
-            modal.querySelector('.bg-white').classList.remove('opacity-0', 'scale-95');
-            modal.querySelector('.bg-white').classList.add('opacity-100', 'scale-100');
-            
-            // Focus the input
-            document.getElementById('new-category-name').focus();
-        }, 10);
-    });
-
-    // Close modal function
-    function closeCategoryModal() {
-        const modal = document.getElementById('add-category-modal');
-        modal.querySelector('.bg-white').classList.remove('opacity-100', 'scale-100');
-        modal.querySelector('.bg-white').classList.add('opacity-0', 'scale-95');
-        
-        setTimeout(() => {
-            modal.classList.add('hidden');
-            document.getElementById('new-category-name').value = '';
-        }, 300);
-    }
-
-    // Close and cancel button handlers
-    document.getElementById('close-category-modal').addEventListener('click', closeCategoryModal);
-    document.getElementById('cancel-category-btn').addEventListener('click', closeCategoryModal);
-
-    // Save category button handler
-    document.getElementById('save-category-btn').addEventListener('click', function() {
-        const categoryName = document.getElementById('new-category-name').value.trim();
-        
-        if (!categoryName) {
-            document.getElementById('new-category-name').classList.add('border-red-500');
-            return;
-        }
-        
-        closeCategoryModal();
-        addNewCategory(categoryName);
-    });
-
     // Notification system
     window.showNotification = function(message, type = 'success') {
         const toast = document.createElement('div');
-        toast.className = 'fixed bottom-4 right-4 bg-white shadow-lg rounded-lg p-4 transform translate-y-0 opacity-0 transition-all duration-300 z-50 max-w-sm border border-gray-100';
+        toast.className = 'fixed bottom-4 right-4 bg-white shadow-lg rounded-lg p-4 transform translate-y-0 opacity-0 transition-all duration-300 z-50 max-w-sm border border-gray-200';
         
         let iconClass, iconColor, bgColor;
         if (type === 'success') {
