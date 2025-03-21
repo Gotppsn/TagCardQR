@@ -209,6 +209,22 @@ namespace CardTagManager.Controllers
             return View(card);
         }
 
+        // GET: Card/QrCode/5
+        public async Task<IActionResult> QrCode(int id)
+        {
+            var card = await _context.Cards.FindAsync(id);
+            if (card == null)
+            {
+                return NotFound();
+            }
+
+            // Generate QR code for display
+            string qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card);
+            ViewBag.QrCodeImage = qrCodeImageData;
+
+            return View(card);
+        }
+
         // GET: Card/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
