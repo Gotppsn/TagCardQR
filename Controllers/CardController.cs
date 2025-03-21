@@ -388,6 +388,137 @@ namespace CardTagManager.Controllers
             return View(card);
         }
         
+        // GET: Card/Delete/5
+        public async Task<IActionResult> Delete(int id)
+        {
+            _logger.LogInformation($"Delete GET request for product ID: {id}");
+            
+            var card = await _context.Cards.FindAsync(id);
+            if (card == null)
+            {
+                _logger.LogWarning($"Delete attempt for non-existent product ID: {id}");
+                return NotFound();
+            }
+
+            try
+            {
+                // Generate QR code for display
+                string qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card);
+                ViewBag.QrCodeImage = qrCodeImageData;
+                
+                // Get related data for context
+                var recentDeletions = await _context.CardHistories
+                    .Where(h => h.FieldName == "Status" && h.NewValue == "Deleted")
+                    .OrderByDescending(h => h.ChangedAt)
+                    .Take(3)
+                    .ToListAsync();
+                
+                ViewBag.RecentDeletions = recentDeletions;
+                
+                // Check if this product has related items
+                var hasRelatedItems = await _context.MaintenanceReminders
+                    .AnyAsync(m => m.CardId == id);
+                
+                ViewBag.HasRelatedItems = hasRelatedItems;
+                
+                return View(card);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error preparing delete view for product ID: {id}");
+                TempData["ErrorMessage"] = "An error occurred while preparing the deletion page.";
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        // POST: Card/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            _logger.LogInformation($"Delete POST request for product ID: {id}");
+            
+            try
+            {
+                var card = await _context.Cards.FindAsync(id);
+                if (card == null)
+                {
+                    _logger.LogWarning($"Delete confirmation for non-existent product ID: {id}");
+                    return NotFound();
+                }
+
+                // Store product information for the success message
+                string productName = card.ProductName;
+                
+                // Track deletion in history
+                var deletionHistory = new CardHistory
+                {
+                    CardId = id,
+                    FieldName = "Status",
+                    OldValue = "Active",
+                    NewValue = "Deleted",
+                    ChangedAt = DateTime.Now,
+                    ChangedBy = User.Identity?.Name ?? "system"
+                };
+                
+                _context.CardHistories.Add(deletionHistory);
+                
+                // Delete the associated image file if exists
+                if (!string.IsNullOrEmpty(card.ImagePath))
+                {
+                    try
+                    {
+                        await _fileUploadService.DeleteFile(card.ImagePath);
+                        _logger.LogInformation($"Successfully deleted image file for product ID: {id}");
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log but continue with deletion
+                        _logger.LogWarning(ex, $"Failed to delete image file for product ID: {id}");
+                    }
+                }
+                
+                // Delete related maintenance reminders
+                var reminders = await _context.MaintenanceReminders
+                    .Where(m => m.CardId == id)
+                    .ToListAsync();
+                
+                if (reminders.Any())
+                {
+                    _context.MaintenanceReminders.RemoveRange(reminders);
+                    _logger.LogInformation($"Deleted {reminders.Count} related maintenance reminders for product ID: {id}");
+                }
+                
+                // Delete related documents
+                var documents = await _context.CardDocuments
+                    .Where(d => d.CardId == id)
+                    .ToListAsync();
+                
+                if (documents.Any())
+                {
+                    _context.CardDocuments.RemoveRange(documents);
+                    _logger.LogInformation($"Deleted {documents.Count} related documents for product ID: {id}");
+                }
+                
+                // Delete the card
+                _context.Cards.Remove(card);
+                await _context.SaveChangesAsync();
+                
+                _logger.LogInformation($"Successfully deleted product ID: {id}, Name: {productName}");
+                
+                // Add success message for the index page
+                TempData["SuccessMessage"] = $"Product '{productName}' has been permanently deleted.";
+                
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error deleting product ID: {id}");
+                TempData["ErrorMessage"] = "An error occurred while deleting the product. Please try again or contact support.";
+                return RedirectToAction(nameof(Delete), new { id });
+            }
+        }
+        
         // Helper method to track card changes
         private async Task TrackCardChanges(Card originalCard, Card updatedCard)
         {

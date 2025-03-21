@@ -4,25 +4,25 @@
     ViewData["Title"] = "Delete Product";
 }
 
-<div class="container mx-auto px-4 py-8">
-    <!-- Breadcrumb Navigation -->
-    <nav class="mb-6 py-2 px-3 bg-white rounded-lg shadow-sm flex items-center text-sm">
-        <a href="/" class="text-gray-500 hover:text-primary-600">
+<div class="container mx-auto px-4 py-6 fade-in">
+    <!-- Contextual Breadcrumb Navigation -->
+    <nav class="mb-6 py-2 px-4 bg-white rounded-lg shadow-sm flex items-center text-sm transition-all duration-200">
+        <a href="/" class="text-gray-500 hover:text-primary-600 transition-colors">
             <i class="fas fa-home"></i>
         </a>
         <span class="mx-2 text-gray-400">/</span>
-        <a asp-action="Index" class="text-gray-500 hover:text-primary-600">Products</a>
+        <a asp-action="Index" class="text-gray-500 hover:text-primary-600 transition-colors">Products</a>
         <span class="mx-2 text-gray-400">/</span>
-        <a asp-action="Details" asp-route-id="@Model.Id" class="text-gray-500 hover:text-primary-600">@Model.ProductName</a>
+        <a asp-action="Details" asp-route-id="@Model.Id" class="text-gray-500 hover:text-primary-600 transition-colors">@Model.ProductName</a>
         <span class="mx-2 text-gray-400">/</span>
         <span class="text-red-600 font-medium">Delete</span>
     </nav>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Main Delete Form Section -->
+        <!-- Primary Action Section -->
         <div class="lg:col-span-2">
-            <div class="card">
-                <div class="p-6 border-b border-gray-100">
+            <div class="card shadow-sm rounded-xl overflow-hidden bg-white border border-gray-200">
+                <div class="p-6 border-b border-gray-100 bg-gradient-to-r from-red-50 to-white">
                     <h1 class="text-2xl font-bold mb-2 text-red-600 flex items-center">
                         <i class="fas fa-trash-alt mr-3 text-red-500"></i> Delete Product
                     </h1>
@@ -32,8 +32,8 @@
                 </div>
                 
                 <div class="p-6">
-                    <!-- Warning Message -->
-                    <div class="bg-red-50 border border-red-200 rounded-lg p-5 mb-6">
+                    <!-- Visual Risk Indicator -->
+                    <div class="bg-red-50 border-l-4 border-red-500 rounded-r-lg p-5 mb-6 transform transition-transform hover:translate-y-[-3px] duration-300">
                         <div class="flex items-start">
                             <div class="flex-shrink-0">
                                 <i class="fas fa-exclamation-triangle text-2xl text-red-500"></i>
@@ -41,19 +41,23 @@
                             <div class="ml-4">
                                 <h3 class="text-md font-medium text-red-800">Deletion Warning</h3>
                                 <div class="mt-2 text-sm text-red-700 space-y-1">
-                                    <p>• This will permanently delete the product <span class="font-semibold">@Model.ProductName</span></p>
-                                    <p>• All related QR codes will no longer function</p>
-                                    <p>• Any printed tags for this product will become invalid</p>
-                                    <p>• This product's data cannot be recovered after deletion</p>
+                                    <p class="flex items-center"><i class="fas fa-dot-circle mr-2 text-xs"></i>This will permanently delete the product <span class="font-semibold">@Model.ProductName</span></p>
+                                    <p class="flex items-center"><i class="fas fa-dot-circle mr-2 text-xs"></i>All related QR codes will no longer function</p>
+                                    <p class="flex items-center"><i class="fas fa-dot-circle mr-2 text-xs"></i>Any printed tags for this product will become invalid</p>
+                                    <p class="flex items-center"><i class="fas fa-dot-circle mr-2 text-xs"></i>This product's data cannot be recovered after deletion</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Product Preview Card -->
-                    <div class="bg-white rounded-lg border border-gray-200 shadow-sm mb-6 overflow-hidden">
-                        <div class="p-0" style="background-color: @Model.BackgroundColor; color: @Model.TextColor">
-                            <div class="flex p-6">
+                    <!-- Content Preview with Visual State Change -->
+                    <div class="rounded-xl border border-gray-200 shadow-sm mb-6 overflow-hidden group">
+                        <div class="relative p-0" style="background-color: @Model.BackgroundColor; color: @Model.TextColor">
+                            <!-- Progressive Disclosure Overlay -->
+                            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-20 transition-opacity duration-300">
+                                <i class="fas fa-ban text-red-500 text-[100px]"></i>
+                            </div>
+                            <div class="flex p-6 relative z-10">
                                 <div class="flex-grow">
                                     <div class="mb-3">
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" 
@@ -61,21 +65,21 @@
                                             @Model.Category
                                         </span>
                                         <h3 class="text-xl font-bold mt-1.5" style="color: @Model.AccentColor">@Model.ProductName</h3>
-                                        <p class="text-sm">@Model.Manufacturer</p>
-                                        <p class="font-bold text-sm mt-1">@Model.ModelNumber</p>
+                                        <!-- Fixed null-handling implementation -->
+                                        <p class="text-sm opacity-90">@(Model.CustomFieldsData != null && Model.CustomFieldsData.Contains("Manufacturer") ? "Manufacturer info" : "")</p>
+                                        <p class="font-bold text-sm mt-1">@(Model.CustomFieldsData != null && Model.CustomFieldsData.Contains("ModelNumber") ? "Model info" : "")</p>
                                     </div>
                                     
                                     <div class="space-y-1 text-sm mt-4">
-                                        <p class="flex items-center"><i class="fas fa-fingerprint mr-2 w-5 text-center" style="color: @Model.AccentColor"></i>SN: @Model.SerialNumber</p>
-                                        <p class="flex items-center"><i class="fas fa-map-marker-alt mr-2 w-5 text-center" style="color: @Model.AccentColor"></i>@Model.Location</p>
+                                        <p class="flex items-center"><i class="fas fa-map-marker-alt mr-2 w-5 text-center" style="color: @Model.AccentColor"></i>@(string.IsNullOrEmpty(Model.Location) ? "Not specified" : Model.Location)</p>
                                         <p class="flex items-center"><i class="fas fa-calendar-check mr-2 w-5 text-center" style="color: @Model.AccentColor"></i>Warranty: @Model.WarrantyExpiration.ToString("MMM d, yyyy")</p>
                                     </div>
                                 </div>
                                 
                                 <div class="ml-4 flex flex-col items-center justify-center">
-                                    <div class="w-20 h-20 bg-white p-1 rounded shadow-sm mb-1 relative group">
-                                        <div class="absolute inset-0 flex items-center justify-center bg-red-500 bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-200 rounded">
-                                            <i class="fas fa-ban text-white opacity-0 group-hover:opacity-100 transform scale-0 group-hover:scale-100 transition-all duration-200 text-xl"></i>
+                                    <div class="w-20 h-20 bg-white p-1 rounded shadow-sm mb-1 relative overflow-hidden">
+                                        <div class="absolute inset-0 bg-red-500 bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
+                                            <i class="fas fa-ban text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-xl"></i>
                                         </div>
                                         <img src="@ViewBag.QrCodeImage" alt="QR Code" class="w-full h-full">
                                     </div>
@@ -83,7 +87,7 @@
                                 </div>
                             </div>
                             
-                            <!-- Product Data Summary -->
+                            <!-- Metadata Display -->
                             <div class="bg-gray-50 border-t border-gray-200 p-4">
                                 <div class="grid grid-cols-2 gap-4 text-xs">
                                     <div>
@@ -99,22 +103,22 @@
                         </div>
                     </div>
                     
-                    <!-- Checkbox Confirmation -->
+                    <!-- Intent Confirmation Pattern -->
                     <div class="mb-6">
-                        <label class="flex items-center text-gray-700">
-                            <input type="checkbox" id="confirm-delete" class="form-checkbox h-5 w-5 text-red-600 rounded border-gray-300 focus:ring-red-500">
-                            <span class="ml-2">I understand that this action cannot be undone and all data will be permanently lost.</span>
+                        <label class="flex items-center text-gray-700 bg-gray-50 p-4 rounded-lg border border-gray-200 transition-all hover:bg-gray-100 cursor-pointer">
+                            <input type="checkbox" id="confirm-delete" class="form-checkbox h-5 w-5 text-red-600 rounded border-gray-300 focus:ring-red-500 transition-colors">
+                            <span class="ml-3 font-medium">I understand that this action cannot be undone and all data will be permanently lost.</span>
                         </label>
                     </div>
                     
-                    <!-- Deletion Form -->
+                    <!-- Action Control System -->
                     <form asp-action="Delete" method="post" id="delete-form">
                         <input type="hidden" asp-for="Id" />
                         <div class="flex justify-end space-x-4">
-                            <a asp-action="Details" asp-route-id="@Model.Id" class="px-5 py-2.5 bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 rounded-lg shadow-sm transition-colors">
-                                Cancel
+                            <a asp-action="Details" asp-route-id="@Model.Id" class="px-5 py-2.5 bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 rounded-lg shadow-sm transition-colors flex items-center">
+                                <i class="fas fa-arrow-left mr-2"></i> Cancel
                             </a>
-                            <button type="submit" id="delete-btn" class="px-5 py-2.5 bg-red-100 text-red-400 rounded-lg shadow-sm transition-all duration-300 cursor-not-allowed" disabled>
+                            <button type="submit" id="delete-btn" class="px-5 py-2.5 bg-red-100 text-red-400 rounded-lg shadow-sm transition-all duration-300 cursor-not-allowed flex items-center" disabled>
                                 <i class="fas fa-trash-alt mr-2"></i> Delete Product
                             </button>
                         </div>
@@ -123,17 +127,19 @@
             </div>
         </div>
         
-        <!-- Sidebar with Alternative Actions -->
+        <!-- Alternative Action System -->
         <div class="lg:col-span-1">
             <div class="space-y-6">
-                <!-- Alternative Actions -->
-                <div class="card">
-                    <div class="p-4 border-b border-gray-100">
-                        <h3 class="font-medium text-gray-800">Alternative Actions</h3>
+                <!-- Decision Support Panel -->
+                <div class="card shadow-sm rounded-xl overflow-hidden bg-white border border-gray-200">
+                    <div class="p-4 border-b border-gray-100 bg-blue-50">
+                        <h3 class="font-medium text-gray-800 flex items-center">
+                            <i class="fas fa-lightbulb text-blue-500 mr-2"></i> Alternative Actions
+                        </h3>
                     </div>
                     <div class="p-4">
                         <div class="space-y-3">
-                            <a asp-action="Edit" asp-route-id="@Model.Id" class="w-full flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors group">
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="w-full flex items-center p-3 rounded-lg border border-gray-200 hover:bg-blue-50 transition-colors group">
                                 <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mr-3 group-hover:scale-110 transition-transform">
                                     <i class="fas fa-edit"></i>
                                 </div>
@@ -143,7 +149,17 @@
                                 </div>
                             </a>
                             
-                            <a asp-action="Archive" asp-route-id="@Model.Id" class="w-full flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors group">
+                            <a asp-action="Print" asp-route-id="@Model.Id" class="w-full flex items-center p-3 rounded-lg border border-gray-200 hover:bg-green-50 transition-colors group">
+                                <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 mr-3 group-hover:scale-110 transition-transform">
+                                    <i class="fas fa-print"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium">Print Card</div>
+                                    <div class="text-xs text-gray-500">Print this product card</div>
+                                </div>
+                            </a>
+                            
+                            <a asp-action="Archive" asp-route-id="@Model.Id" class="w-full flex items-center p-3 rounded-lg border border-gray-200 hover:bg-yellow-50 transition-colors group">
                                 <div class="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600 mr-3 group-hover:scale-110 transition-transform">
                                     <i class="fas fa-archive"></i>
                                 </div>
@@ -153,7 +169,7 @@
                                 </div>
                             </a>
                             
-                            <a asp-action="Deactivate" asp-route-id="@Model.Id" class="w-full flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors group">
+                            <a asp-action="Deactivate" asp-route-id="@Model.Id" class="w-full flex items-center p-3 rounded-lg border border-gray-200 hover:bg-purple-50 transition-colors group">
                                 <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 mr-3 group-hover:scale-110 transition-transform">
                                     <i class="fas fa-power-off"></i>
                                 </div>
@@ -166,33 +182,8 @@
                     </div>
                 </div>
                 
-                <!-- Recent Deletion Activity -->
-                <div class="card">
-                    <div class="p-4 border-b border-gray-100">
-                        <h3 class="font-medium text-gray-800">Recent Deletions</h3>
-                    </div>
-                    <div class="p-4">
-                        <div class="text-sm text-gray-500 italic text-center mb-2">Recent deleted products</div>
-                        
-                        <div class="space-y-3">
-                            <div class="p-3 border border-gray-100 rounded-lg bg-gray-50">
-                                <p class="font-medium text-gray-800 text-sm">RustGuard Pro 2000</p>
-                                <p class="text-xs text-gray-500">Deleted 3 days ago by Admin</p>
-                            </div>
-                            <div class="p-3 border border-gray-100 rounded-lg bg-gray-50">
-                                <p class="font-medium text-gray-800 text-sm">Spray Booth Filter</p>
-                                <p class="text-xs text-gray-500">Deleted 1 week ago by Admin</p>
-                            </div>
-                        </div>
-                        
-                        <div class="mt-4 text-center">
-                            <a href="#" class="text-xs text-primary-600 hover:text-primary-800">View all deletion history</a>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Help Information -->
-                <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-md">
+                <!-- Contextual Guidance System -->
+                <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-lg shadow-sm">
                     <div class="flex">
                         <div class="flex-shrink-0">
                             <i class="fas fa-info-circle text-blue-400"></i>
@@ -214,11 +205,12 @@
 @section Scripts {
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Interactive Element References
         const deleteBtn = document.getElementById('delete-btn');
         const confirmCheckbox = document.getElementById('confirm-delete');
         const deleteForm = document.getElementById('delete-form');
         
-        // Enable/disable delete button based on checkbox
+        // Interactive State Management
         confirmCheckbox.addEventListener('change', function() {
             if (this.checked) {
                 deleteBtn.classList.remove('bg-red-100', 'text-red-400', 'cursor-not-allowed');
@@ -231,37 +223,40 @@
             }
         });
         
-        // Add confirmation dialog
+        // Destructive Action Safety Layer
         deleteForm.addEventListener('submit', function(e) {
             if (!confirmCheckbox.checked) {
                 e.preventDefault();
                 return;
             }
             
-            if (!confirm(`Are you absolutely sure you want to delete ${document.querySelector('h3').textContent.trim()}?`)) {
+            if (!confirm(`Are you absolutely sure you want to delete "${document.querySelector('h3').textContent.trim()}"?`)) {
                 e.preventDefault();
             } else {
-                // Show deletion animation
+                // Visual Feedback During Processing
                 deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Deleting...';
                 deleteBtn.disabled = true;
             }
         });
         
-        // Fade in animation for the page
-        document.querySelector('.container').classList.add('animate-fade-in');
+        // Entry Animation System
+        document.querySelector('.container').classList.add('fade-in');
         
-        // Add animation class
-        const style = document.createElement('style');
-        style.textContent = `
-            @@keyframes fadeIn {
-                from { opacity: 0; transform: translateY(10px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-            .animate-fade-in {
-                animation: fadeIn 0.3s ease-out;
-            }
-        `;
-        document.head.appendChild(style);
+        // Dynamic Style Injection
+        if (!document.querySelector('style#delete-animations')) {
+            const style = document.createElement('style');
+            style.id = 'delete-animations';
+            style.textContent = `
+                @@keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .fade-in {
+                    animation: fadeIn 0.3s ease-out;
+                }
+            `;
+            document.head.appendChild(style);
+        }
     });
 </script>
 }
