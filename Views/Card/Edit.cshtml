@@ -252,7 +252,7 @@
                             </div>
                         </div>
                         
-                        <!-- MOVED: Dynamic Custom Fields Container - Moved to Basic Information step -->
+                        <!-- Dynamic Custom Fields Container -->
                         <div id="custom-fields-container" class="mt-6 pt-4 border-t border-gray-200">
                             <!-- Custom fields will be inserted here -->
                         </div>
@@ -930,6 +930,23 @@ document.getElementById('product-form').addEventListener('submit', function(e) {
     
     // Update QR colors before submission
     updateQrColors();
+    
+    // Don't prevent form submission by default - only if validation clearly fails
+    try {
+        const isValid = validateForm();
+        if (!isValid) {
+            console.error('Form validation failed');
+            e.preventDefault();
+            return false;
+        }
+        // Continue with submission if validation passes
+        console.log('Form submission proceeding');
+        return true;
+    } catch (error) {
+        console.error('Validation error:', error);
+        // Continue with submission if validation function throws an error
+        return true;
+    }
 });
 
 // On page load, populate custom fields from existing data
