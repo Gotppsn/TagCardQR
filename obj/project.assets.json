@@ -994,13 +994,16 @@
           }
         }
       },
-      "QRCoder/1.6.0": {
+      "QRCoder/1.4.1": {
         "type": "package",
+        "dependencies": {
+          "System.Drawing.Common": "4.7.0"
+        },
         "compile": {
-          "lib/net6.0/QRCoder.dll": {}
+          "lib/netstandard2.0/QRCoder.dll": {}
         },
         "runtime": {
-          "lib/net6.0/QRCoder.dll": {}
+          "lib/netstandard2.0/QRCoder.dll": {}
         }
       },
       "RestSharp/112.1.0": {
@@ -3628,24 +3631,18 @@
         "packageIcon.png"
       ]
     },
-    "QRCoder/1.6.0": {
-      "sha512": "XmPA81eo+oRxBuyVdswsSkTGTE1d3thfF11Z1PdD7oB56A6HU4G4AAOdySmGRMb/cljwlFTMWUtosGEnwpS6GA==",
+    "QRCoder/1.4.1": {
+      "sha512": "W8KwCwsOJe9SI7Cm7XeIMawd08F/US6xNw34lg2Qnx6m7GYYakxbyBQaNoW1Q75oJOmX/32sJUZr6Cix2B6GUQ==",
       "type": "package",
-      "path": "qrcoder/1.6.0",
+      "path": "qrcoder/1.4.1",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "lib/net35/QRCoder.dll",
         "lib/net40/QRCoder.dll",
-        "lib/net5.0-windows7.0/QRCoder.dll",
-        "lib/net5.0/QRCoder.dll",
-        "lib/net6.0-windows7.0/QRCoder.dll",
-        "lib/net6.0/QRCoder.dll",
-        "lib/netstandard1.3/QRCoder.dll",
+        "lib/netstandard1.1/QRCoder.dll",
         "lib/netstandard2.0/QRCoder.dll",
-        "nuget-icon.png",
-        "nuget-readme.md",
-        "qrcoder.1.6.0.nupkg.sha512",
+        "qrcoder.1.4.1.nupkg.sha512",
         "qrcoder.nuspec"
       ]
     },
@@ -5007,7 +5004,7 @@
       "Microsoft.EntityFrameworkCore.SqlServer >= 9.0.3",
       "Microsoft.EntityFrameworkCore.Tools >= 9.0.3",
       "Newtonsoft.Json >= 13.0.3",
-      "QRCoder >= 1.6.0",
+      "QRCoder >= 1.4.1",
       "RestSharp >= 112.1.0",
       "System.DirectoryServices.AccountManagement >= 9.0.3",
       "System.Drawing.Common >= 9.0.3",
@@ -5084,7 +5081,7 @@
           },
           "QRCoder": {
             "target": "Package",
-            "version": "[1.6.0, )"
+            "version": "[1.4.1, )"
           },
           "RestSharp": {
             "target": "Package",

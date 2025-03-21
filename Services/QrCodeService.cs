@@ -6,17 +6,16 @@ using CardTagManager.Models;
 using QRCoder;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Text;
 
 namespace CardTagManager.Services
 {
     public class QrCodeService
     {
         // Generate QR code as a base64 encoded image string for inline display
-        public async Task<string> GenerateQrCodeImage(Card card)
+        public Task<string> GenerateQrCodeImage(Card card)
         {
             if (card == null)
-                return string.Empty;
+                return Task.FromResult(string.Empty);
                 
             try
             {
@@ -41,7 +40,7 @@ namespace CardTagManager.Services
                             qrBitmap.Save(ms, ImageFormat.Png);
                             var imageBytes = ms.ToArray();
                             
-                            return $"data:image/png;base64,{Convert.ToBase64String(imageBytes)}";
+                            return Task.FromResult($"data:image/png;base64,{Convert.ToBase64String(imageBytes)}");
                         }
                     }
                 }
@@ -49,15 +48,15 @@ namespace CardTagManager.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"Error generating QR code: {ex.Message}");
-                return string.Empty;
+                return Task.FromResult(string.Empty);
             }
         }
         
         // Generate QR code as a byte array for file download
-        public async Task<byte[]> GenerateQrCodeBytes(Card card)
+        public Task<byte[]> GenerateQrCodeBytes(Card card)
         {
             if (card == null)
-                return Array.Empty<byte>();
+                return Task.FromResult(Array.Empty<byte>());
                 
             try
             {
@@ -80,7 +79,7 @@ namespace CardTagManager.Services
                         using (var ms = new MemoryStream())
                         {
                             qrBitmap.Save(ms, ImageFormat.Png);
-                            return ms.ToArray();
+                            return Task.FromResult(ms.ToArray());
                         }
                     }
                 }
@@ -88,7 +87,7 @@ namespace CardTagManager.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"Error generating QR code: {ex.Message}");
-                return Array.Empty<byte>();
+                return Task.FromResult(Array.Empty<byte>());
             }
         }
     }
