@@ -52,17 +52,20 @@
                 <!-- Product Information -->
                 <div class="mb-4" style="color: @Model.TextColor">
                     <h2 class="text-xl font-bold" style="color: @Model.AccentColor">@Model.ProductName</h2>
-                    <p class="text-lg">@Model.Manufacturer</p>
+                    @if (!string.IsNullOrEmpty(Model.Location))
+                    {
+                        <p class="text-lg">@Model.Location</p>
+                    }
                 </div>
                 
                 <div class="grid grid-cols-2 gap-4 text-sm text-gray-600">
                     <div class="flex items-center justify-center border border-gray-100 rounded-lg p-2 bg-gray-50">
-                        <i class="fas fa-tag mr-2" style="color: @Model.AccentColor"></i>
-                        <span class="font-medium">@Model.ModelNumber</span>
+                        <i class="fas fa-calendar-day mr-2" style="color: @Model.AccentColor"></i>
+                        <span class="font-medium">@Model.ManufactureDate.ToString("MM/dd/yyyy")</span>
                     </div>
                     <div class="flex items-center justify-center border border-gray-100 rounded-lg p-2 bg-gray-50">
-                        <i class="fas fa-fingerprint mr-2" style="color: @Model.AccentColor"></i>
-                        <span class="font-medium">@Model.SerialNumber</span>
+                        <i class="fas fa-shield-alt mr-2" style="color: @Model.AccentColor"></i>
+                        <span class="font-medium">@Model.WarrantyExpiration.ToString("MM/dd/yyyy")</span>
                     </div>
                     <div class="flex items-center justify-center border border-gray-100 rounded-lg p-2 bg-gray-50 col-span-2">
                         <i class="fas fa-map-marker-alt mr-2" style="color: @Model.AccentColor"></i>

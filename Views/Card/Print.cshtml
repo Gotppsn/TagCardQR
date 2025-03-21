@@ -195,14 +195,11 @@
                                         @Model.Category
                                     </span>
                                     <h3 class="card-name mt-1" style="color: @Model.AccentColor">@Model.ProductName</h3>
-                                    <p class="card-title">@Model.Manufacturer</p>
                                     <div class="flex items-center space-x-2 text-sm">
                                         <span class="font-medium">Model:</span>
-                                        <span>@Model.ModelNumber</span>
                                     </div>
                                     
                                     <div class="card-details">
-                                        <p><i class="fas fa-fingerprint" style="color: @Model.AccentColor"></i><span>SN: @Model.SerialNumber</span></p>
                                         <p><i class="fas fa-map-marker-alt" style="color: @Model.AccentColor"></i><span>@Model.Location</span></p>
                                         <p><i class="fas fa-calendar-day" style="color: @Model.AccentColor"></i><span>Mfg: @Model.ManufactureDate.ToString("MM/dd/yyyy")</span></p>
                                         <p class="warranty-info"><i class="fas fa-shield-alt" style="color: @Model.AccentColor"></i><span>Warranty: @Model.WarrantyExpiration.ToString("MM/dd/yyyy")</span></p>

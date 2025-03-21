@@ -100,16 +100,18 @@
             <div class="flex flex-wrap gap-2">
                 <select class="px-3 py-2 border border-gray-300 rounded-lg text-sm" id="filter-category">
                     <option value="">All Categories</option>
-                    <option value="Equipment">Equipment</option>
-                    <option value="Chemical">Chemical Products</option>
-                    <option value="Safety">Safety Equipment</option>
+                    @foreach(var category in Model.Select(c => c.Category).Distinct().Where(c => !string.IsNullOrEmpty(c)))
+                    {
+                        <option value="@category">@category</option>
+                    }
                 </select>
                 
                 <select class="px-3 py-2 border border-gray-300 rounded-lg text-sm" id="filter-location">
                     <option value="">All Locations</option>
-                    <option value="Lab">Laboratory</option>
-                    <option value="Storage">Storage Room</option>
-                    <option value="Office">Office</option>
+                    @foreach(var location in Model.Select(c => c.Location).Distinct().Where(l => !string.IsNullOrEmpty(l)))
+                    {
+                        <option value="@location">@location</option>
+                    }
                 </select>
                 
                 <button class="px-3 py-2 border border-gray-300 bg-white rounded-lg text-sm hover:bg-gray-50 transition-colors flex items-center gap-2">
@@ -186,22 +188,23 @@
                         <div class="print-card" style="background-color: @product.BackgroundColor; color: @product.TextColor;">
                             <div class="card-content">
                                 <div class="card-info">
-                                    <span class="category-badge" style="background-color: @product.AccentColor; color: @product.BackgroundColor">
-                                        @product.Category
-                                    </span>
+                                    @if (!string.IsNullOrEmpty(product.Category))
+                                    {
+                                        <span class="category-badge" style="background-color: @product.AccentColor; color: @product.BackgroundColor">
+                                            @product.Category
+                                        </span>
+                                    }
                                     <h3 class="card-name mt-1" style="color: @product.AccentColor">@product.ProductName</h3>
-                                    <p class="card-title">@product.Manufacturer</p>
                                     
                                     <div class="card-details">
-                                        <p><i class="fas fa-tag" style="color: @product.AccentColor"></i><span>@product.ModelNumber</span></p>
-                                        <p><i class="fas fa-fingerprint" style="color: @product.AccentColor"></i><span>SN: @product.SerialNumber</span></p>
                                         <p><i class="fas fa-map-marker-alt" style="color: @product.AccentColor"></i><span>@product.Location</span></p>
+                                        <p><i class="fas fa-calendar-day" style="color: @product.AccentColor"></i><span>Mfg: @product.ManufactureDate.ToString("MM/dd/yyyy")</span></p>
                                         <p><i class="fas fa-calendar-check" style="color: @product.AccentColor"></i><span>Warranty: @product.WarrantyExpiration.ToString("MM/dd/yyyy")</span></p>
                                     </div>
                                 </div>
                                 
                                 <div class="card-qr">
-                                    <img src="@ViewBag.QrCodes[product.Id]" alt="QR Code" class="qr-code" />
+                                    <img src="@ViewBag.QrCodeImages[product.Id]" alt="QR Code" class="qr-code-image" />
                                     <p class="scan-text">Scan for Details</p>
                                 </div>
                             </div>
