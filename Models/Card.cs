@@ -48,12 +48,12 @@ namespace CardTagManager.Models
         [StringLength(20)]
         public string QrBgColor { get; set; } = "#ffffff";
         
-        public string ImagePath { get; set; } = string.Empty; // Added default value
+        public string ImagePath { get; set; } = string.Empty;
         
         [NotMapped]
         public IFormFile ImageFile { get; set; }
         
-        // Store custom fields from templates as JSON
+        // Store custom fields as JSON
         [Column(TypeName = "nvarchar(max)")]
         public string CustomFieldsData { get; set; } = "{}";
         
@@ -61,7 +61,6 @@ namespace CardTagManager.Models
         
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
         
-        // Creator information
-        public string CreatedBy { get; set; } = string.Empty; // Added default value
+        public string CreatedBy { get; set; } = string.Empty;
     }
 }
