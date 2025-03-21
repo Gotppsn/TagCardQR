@@ -1,0 +1,1199 @@
+@model CardTagManager.Models.Card
+
+@{
+    ViewData["Title"] = "Product Information";
+    Layout = "_Layout";
+}
+
+<div class="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 flex flex-col">
+    <!-- Header Banner -->
+    <div class="bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                        <i class="fas fa-tag text-white"></i>
+                    </div>
+                    <h1 class="text-xl font-bold">Product Information</h1>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button id="share-btn" class="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors">
+                        <i class="fas fa-share-alt"></i>
+                    </button>
+                    <a href="@Url.Action("Print", new { id = Model.Id })" target="_blank" class="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors">
+                        <i class="fas fa-print"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Menu -->
+    <div class="sticky top-0 bg-white z-20 shadow-sm">
+        <div class="container mx-auto px-4">
+            <div class="flex overflow-x-auto scrollbar-none py-2">
+                <a href="#product-card" class="flex-shrink-0 px-4 py-2 mx-1 rounded-full bg-primary-600 text-white text-sm font-medium">
+                    Overview
+                </a>
+                <a href="#product-details" class="flex-shrink-0 px-4 py-2 mx-1 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 text-sm font-medium transition-colors">
+                    Details
+                </a>
+                <a href="#maintenance" class="flex-shrink-0 px-4 py-2 mx-1 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 text-sm font-medium transition-colors">
+                    Maintenance
+                </a>
+                <a href="#documentation" class="flex-shrink-0 px-4 py-2 mx-1 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 text-sm font-medium transition-colors">
+                    Documents
+                </a>
+                <a href="#contact" class="flex-shrink-0 px-4 py-2 mx-1 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 text-sm font-medium transition-colors">
+                    Contact
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-6 flex-grow">
+        <!-- Product Card -->
+        <div id="product-card" class="bg-white rounded-xl shadow-lg overflow-hidden mb-6 transform transition-transform hover:scale-[1.01]">
+            <!-- Product Status Indicator -->
+            @if (Model.WarrantyExpiration < DateTime.Now)
+            {
+                <div class="bg-red-500 text-white text-sm py-1 px-4 text-center font-medium">
+                    <i class="fas fa-exclamation-triangle mr-1"></i> Warranty Expired
+                </div>
+            }
+            else if (Model.WarrantyExpiration < DateTime.Now.AddMonths(3))
+            {
+                <div class="bg-yellow-500 text-white text-sm py-1 px-4 text-center font-medium">
+                    <i class="fas fa-clock mr-1"></i> Warranty Expiring Soon
+                </div>
+            }
+            else
+            {
+                <div class="bg-green-500 text-white text-sm py-1 px-4 text-center font-medium">
+                    <i class="fas fa-shield-alt mr-1"></i> In Warranty
+                </div>
+            }
+
+            <!-- Product Header -->
+            <div class="p-6" style="background-color: @Model.BackgroundColor; color: @Model.TextColor;">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" 
+                              style="background-color: @Model.AccentColor; color: @Model.BackgroundColor">
+                            @Model.Category
+                        </span>
+                        <h2 class="text-2xl font-bold mt-2 mb-1" style="color: @Model.AccentColor">@Model.ProductName</h2>
+                        <p class="text-lg">@Model.Manufacturer</p>
+                    </div>
+                    <div class="bg-white/10 p-2 rounded-lg">
+                        @if (!string.IsNullOrEmpty(Model.ImagePath))
+                        {
+                            <img src="@Model.ImagePath" alt="Product image" class="rounded w-20 h-20 object-cover" />
+                        }
+                        else
+                        {
+                            <div class="w-20 h-20 rounded flex items-center justify-center" style="background-color: @Model.AccentColor; color: @Model.BackgroundColor">
+                                <i class="fas fa-box text-2xl"></i>
+                            </div>
+                        }
+                    </div>
+                </div>
+                
+                <div class="mt-4 space-y-2">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm opacity-70">Model Number</p>
+                            <p class="font-medium flex items-center">
+                                <i class="fas fa-tag mr-2" style="color: @Model.AccentColor"></i>
+                                @Model.ModelNumber
+                            </p>
+                        </div>
+                        <div>
+                            <p class="text-sm opacity-70">Serial Number</p>
+                            <p class="font-medium flex items-center">
+                                <i class="fas fa-fingerprint mr-2" style="color: @Model.AccentColor"></i>
+                                @Model.SerialNumber
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <p class="text-sm opacity-70">Location</p>
+                        <p class="font-medium flex items-center">
+                            <i class="fas fa-map-marker-alt mr-2" style="color: @Model.AccentColor"></i>
+                            @Model.Location
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Warranty Timeline -->
+            <div class="p-4 border-b border-gray-100">
+                <div class="relative">
+                    <div class="h-1 bg-gray-200 rounded-full">
+                        @{
+                            var totalDays = (Model.WarrantyExpiration - Model.PurchaseDate).TotalDays;
+                            var elapsedDays = (DateTime.Now - Model.PurchaseDate).TotalDays;
+                            var elapsedPercent = Math.Min(100, Math.Max(0, (elapsedDays / totalDays) * 100));
+                            
+                            string progressClass = elapsedPercent < 70 ? "bg-green-500" : 
+                                                 elapsedPercent < 90 ? "bg-yellow-500" : "bg-red-500";
+                        }
+                        <div class="absolute left-0 top-0 h-1 @progressClass rounded-full" style="width: @elapsedPercent%"></div>
+                    </div>
+                    <div class="flex justify-between mt-2 text-xs text-gray-500">
+                        <div>
+                            <div class="mb-1">Purchase</div>
+                            <div class="font-medium text-gray-700">@Model.PurchaseDate.ToString("MMM d, yyyy")</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="mb-1">Today</div>
+                            <div class="font-medium text-gray-700">@DateTime.Now.ToString("MMM d, yyyy")</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="mb-1">Warranty End</div>
+                            <div class="font-medium @(Model.WarrantyExpiration < DateTime.Now ? "text-red-600" : "text-gray-700")">
+                                @Model.WarrantyExpiration.ToString("MMM d, yyyy")
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Details Section -->
+            <div id="product-details" class="p-6 border-t border-gray-100">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Product Details</h3>
+                
+                <div class="grid grid-cols-2 gap-x-4 gap-y-6">
+                    <div>
+                        <p class="text-sm text-gray-500">Manufacture Date</p>
+                        <p class="font-medium text-gray-800">@Model.ManufactureDate.ToString("MMM d, yyyy")</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Purchase Date</p>
+                        <p class="font-medium text-gray-800">@Model.PurchaseDate.ToString("MMM d, yyyy")</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Warranty Until</p>
+                        <p class="font-medium text-gray-800 @(Model.WarrantyExpiration < DateTime.Now ? "text-red-600" : "")">
+                            @Model.WarrantyExpiration.ToString("MMM d, yyyy")
+                            @if (Model.WarrantyExpiration > DateTime.Now)
+                            {
+                                <span class="text-xs text-gray-500">(@((Model.WarrantyExpiration - DateTime.Now).Days) days left)</span>
+                            }
+                            else
+                            {
+                                <span class="text-xs text-red-500">(@Math.Abs((Model.WarrantyExpiration - DateTime.Now).Days) days ago)</span>
+                            }
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Last Updated</p>
+                        <p class="font-medium text-gray-800">@Model.UpdatedAt.ToString("MMM d, yyyy")</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Maintenance Information -->
+            <div id="maintenance" class="px-6 py-4 bg-blue-50 border-t border-blue-100">
+                <div class="flex">
+                    <div class="flex-shrink-0 mr-4">
+                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                            <i class="fas fa-wrench text-blue-500"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-md font-medium text-blue-800">Maintenance Information</h4>
+                        <p class="mt-1 text-sm text-blue-700">@(string.IsNullOrEmpty(Model.MaintenanceInfo) ? "No maintenance information available" : Model.MaintenanceInfo)</p>
+                        
+                        <div class="mt-3">
+                            <h5 class="text-sm font-medium text-blue-800">Next Maintenance:</h5>
+                            <div id="maintenance-reminders" class="mt-2">
+                                <div class="p-2 bg-white/50 rounded-lg shadow-sm border border-blue-200">
+                                    <div class="loader-spinner">
+                                        <i class="fas fa-spinner fa-spin text-blue-500 mr-2"></i> Loading maintenance schedule...
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <a href="#" id="report-issue-btn" class="flex items-center justify-center bg-white rounded-lg p-4 shadow-md hover:shadow-lg transition-shadow">
+                <i class="fas fa-exclamation-circle text-orange-500 mr-3"></i>
+                <span class="font-medium">Report Issue</span>
+            </a>
+            <a href="#contact" class="flex items-center justify-center bg-white rounded-lg p-4 shadow-md hover:shadow-lg transition-shadow">
+                <i class="fas fa-headset text-primary-500 mr-3"></i>
+                <span class="font-medium">Contact Support</span>
+            </a>
+        </div>
+
+        <!-- Maintenance History -->
+        <div id="maintenance-history" class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+            <div class="px-6 py-4 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
+                <h3 class="font-semibold text-gray-800">Maintenance History</h3>
+            </div>
+            <!-- Sample history items -->
+            <div class="p-4" id="maintenance-history-content">
+                <div class="loader-spinner text-center py-4">
+                    <i class="fas fa-spinner fa-spin text-primary-500 mr-2"></i> Loading maintenance history...
+                </div>
+            </div>
+        </div>
+
+        <!-- Issue Reports -->
+        <div id="issues" class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+            <div class="px-6 py-4 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
+                <h3 class="font-semibold text-gray-800">Issue Reports</h3>
+            </div>
+            <div class="p-4" id="issues-container">
+                <div class="loader-spinner text-center py-4">
+                    <i class="fas fa-spinner fa-spin text-primary-500 mr-2"></i> Loading issues...
+                </div>
+            </div>
+        </div>
+
+        <!-- Documentation & Resources -->
+        <div id="documentation" class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+            <div class="px-6 py-4 bg-gray-50 border-b border-gray-100">
+                <h3 class="font-semibold text-gray-800">Documentation & Resources</h3>
+            </div>
+            <div class="p-6" id="documents-container">
+                <div class="loader-spinner text-center py-4">
+                    <i class="fas fa-spinner fa-spin text-primary-500 mr-2"></i> Loading documents...
+                </div>
+            </div>
+        </div>
+        
+        <!-- Contact Support Section - MODIFIED: Removed form, only showing contact info -->
+        <div id="contact" class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+            <div class="px-6 py-4 bg-gray-50 border-b border-gray-100">
+                <h3 class="font-semibold text-gray-800">Contact Support</h3>
+            </div>
+            <div class="p-6">
+                <h4 class="text-md font-medium text-gray-800 mb-4">Contact Information</h4>
+                
+                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    @if (!string.IsNullOrEmpty(Model.UserFullName) || !string.IsNullOrEmpty(Model.Email) || !string.IsNullOrEmpty(Model.Department))
+                    {
+                        <div class="space-y-3">
+                            @if (!string.IsNullOrEmpty(Model.UserFullName))
+                            {
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-user text-primary-600"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <div class="text-sm text-gray-500">Contact Person</div>
+                                        <div class="font-medium">@Model.UserFullName</div>
+                                    </div>
+                                </div>
+                            }
+                            
+                            @if (!string.IsNullOrEmpty(Model.Email))
+                            {
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-envelope text-blue-600"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <div class="text-sm text-gray-500">Email Address</div>
+                                        <div class="font-medium">
+                                            <a href="mailto:@Model.Email" class="text-blue-600 hover:underline">@Model.Email</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            
+                            @if (!string.IsNullOrEmpty(Model.Department))
+                            {
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-building text-green-600"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <div class="text-sm text-gray-500">Department</div>
+                                        <div class="font-medium">@Model.Department</div>
+                                    </div>
+                                </div>
+                            }
+                            
+                            @if (!string.IsNullOrEmpty(Model.PlantName))
+                            {
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-industry text-purple-600"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <div class="text-sm text-gray-500">Plant/Location</div>
+                                        <div class="font-medium">@Model.PlantName</div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4 text-gray-500">
+                            <i class="fas fa-user-slash text-3xl mb-2"></i>
+                            <p>No contact information available for this product.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Issue Modal - MODIFIED: Removed follow-up checkbox, auto-fill name/email -->
+    <div id="report-issue-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 transform transition-all">
+            <div class="flex justify-between items-center p-5 border-b">
+                <h3 class="text-lg font-semibold">Report an Issue</h3>
+                <button id="close-report-modal" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-5">
+                <form id="issue-report-form">
+                    <input type="hidden" name="productId" value="@Model.Id">
+                    <input type="hidden" name="productName" value="@Model.ProductName">
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Issue Type</label>
+                        <select name="issueType" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" required>
+                            <option value="">Select Issue Type</option>
+                            <option value="Malfunction">Device Malfunction</option>
+                            <option value="Maintenance">Maintenance Required</option>
+                            <option value="Damage">Physical Damage</option>
+                            <option value="Missing">Missing Parts</option>
+                            <option value="Performance">Performance Issues</option>
+                            <option value="Safety">Safety Concern</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+                        <div class="flex space-x-4">
+                            <label class="flex items-center">
+                                <input type="radio" name="priority" value="Low" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300">
+                                <span class="ml-2 text-sm text-gray-700">Low</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="priority" value="Medium" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300" checked>
+                                <span class="ml-2 text-sm text-gray-700">Medium</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="priority" value="High" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300">
+                                <span class="ml-2 text-sm text-gray-700">High</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="priority" value="Critical" class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300">
+                                <span class="ml-2 text-sm text-red-700">Critical</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Issue Description</label>
+                        <textarea name="description" rows="4" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
+                                  placeholder="Please describe the issue in detail..." required></textarea>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">When did you notice this issue?</label>
+                        <input type="date" name="reportDate" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Your Contact Information</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Auto-filled with LDAP info -->
+                            <input type="text" name="reporterName" class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
+                                   value="@(User.Identity?.IsAuthenticated == true ? User.FindFirst("FullName")?.Value ?? User.Identity.Name : "")" readonly>
+                            <!-- Auto-filled with LDAP info -->
+                            <input type="email" name="reporterEmail" class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
+                                   value="@(User.Identity?.IsAuthenticated == true ? User.FindFirst("Email")?.Value ?? "" : "")" readonly>
+                        </div>
+                        <input type="tel" name="reporterPhone" class="w-full mt-4 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
+                               placeholder="Your Phone Number (optional)">
+                    </div>
+                    
+                    <div class="mt-6 flex justify-end">
+                        <button type="button" id="cancel-report" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-md mr-2 hover:bg-gray-200">
+                            Cancel
+                        </button>
+                        <button type="submit" id="submit-issue" class="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 flex items-center">
+                            <span>Submit Report</span>
+                            <i class="fas fa-spinner fa-spin ml-2 hidden" id="issue-spinner"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Document Preview Modal -->
+    <div id="document-preview-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 transform transition-all flex flex-col h-3/4">
+            <div class="flex justify-between items-center p-5 border-b">
+                <h3 class="text-lg font-semibold" id="document-preview-title">Document Preview</h3>
+                <button id="close-doc-preview-modal" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-5 flex-grow overflow-auto" id="document-preview-content">
+                <div class="flex justify-center items-center h-full">
+                    <i class="fas fa-spinner fa-spin text-2xl text-primary-500"></i>
+                </div>
+            </div>
+            <div class="p-5 border-t flex justify-between">
+                <button id="download-document-btn" class="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700">
+                    <i class="fas fa-download mr-2"></i> Download
+                </button>
+                <button id="close-preview-btn" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast-notification" class="fixed bottom-4 right-4 bg-white rounded-lg shadow-lg border border-gray-100 p-4 max-w-sm transform translate-y-20 opacity-0 transition-all duration-300 z-50 hidden">
+        <div class="flex items-center">
+            <div id="toast-icon" class="flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-green-100">
+                <i id="toast-icon-symbol" class="fas fa-check text-green-500"></i>
+            </div>
+            <div class="ml-3 flex-1">
+                <p id="toast-message" class="text-sm font-medium text-gray-900">Information copied to clipboard</p>
+                <p id="toast-description" class="text-sm text-gray-500">You can now paste it anywhere you need</p>
+            </div>
+            <button id="close-toast" class="ml-auto text-gray-400 hover:text-gray-500">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Menu navigation highlighting
+        initNavigation();
+        
+        // Show/hide report issue modal
+        initReportIssueModal();
+        
+        // Handle issue form submission
+        initIssueFormSubmission();
+        
+        // Load documents
+        loadDocuments();
+        
+        // Load maintenance reminders and history
+        loadMaintenanceData();
+        
+        // Initialize document preview modal
+        initDocumentPreview();
+        
+        // Initialize copy to clipboard functionality
+        initCopyToClipboard();
+        
+        // Toast notification system
+        initToastNotifications();
+
+        // Load issue data
+        try {
+            console.log("Calling loadIssueData");
+            loadIssueData();
+        } catch (e) {
+            console.error("Error in loadIssueData:", e);
+            const issuesContainer = document.getElementById('issues-container');
+            if (issuesContainer) {
+                issuesContainer.innerHTML = `<div class="text-center text-red-500">Error loading issues: ${e.message}</div>`;
+            }
+        }
+    });
+    
+    // Navigation functionality
+    function initNavigation() {
+        const menuLinks = document.querySelectorAll('.sticky a');
+        const sections = document.querySelectorAll('[id]');
+        
+        window.addEventListener('scroll', function() {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if(pageYOffset >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            menuLinks.forEach(link => {
+                link.classList.remove('bg-primary-600', 'text-white');
+                link.classList.add('bg-gray-100', 'text-gray-700');
+                if(link.getAttribute('href') === '#' + current) {
+                    link.classList.remove('bg-gray-100', 'text-gray-700');
+                    link.classList.add('bg-primary-600', 'text-white');
+                }
+            });
+        });
+        
+        // Smooth scrolling for anchor links
+        menuLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 100,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    }
+    
+    // Report Issue Modal functionality
+    function initReportIssueModal() {
+        const reportIssueBtn = document.getElementById('report-issue-btn');
+        const reportIssueModal = document.getElementById('report-issue-modal');
+        const closeReportModal = document.getElementById('close-report-modal');
+        const cancelReport = document.getElementById('cancel-report');
+        
+        // Set default date to today
+        const reportDateField = document.querySelector('input[name="reportDate"]');
+        if (reportDateField) {
+            const today = new Date();
+            reportDateField.value = today.toISOString().split('T')[0];
+        }
+        
+        if (reportIssueBtn && reportIssueModal) {
+            reportIssueBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                reportIssueModal.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+            });
+        }
+        
+        if (closeReportModal) {
+            closeReportModal.addEventListener('click', closeModal);
+        }
+        
+        if (cancelReport) {
+            cancelReport.addEventListener('click', closeModal);
+        }
+        
+        function closeModal() {
+            reportIssueModal.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        }
+        
+        // Close modal when clicking outside
+        if (reportIssueModal) {
+            reportIssueModal.addEventListener('click', function(e) {
+                if (e.target === reportIssueModal) {
+                    closeModal();
+                }
+            });
+        }
+    }
+    
+    // Issue form submission handling
+    function initIssueFormSubmission() {
+        const issueForm = document.getElementById('issue-report-form');
+        
+        if (issueForm) {
+            issueForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Show loading spinner
+                document.getElementById('issue-spinner').classList.remove('hidden');
+                
+                // Get form data
+                const formData = new FormData(this);
+                
+                // Convert to match server model properties
+                const issueData = {
+                    CardId: parseInt(formData.get('productId')),
+                    IssueType: formData.get('issueType'),
+                    Priority: formData.get('priority'),
+                    Description: formData.get('description'),
+                    ReportDate: new Date(formData.get('reportDate')).toISOString(),
+                    ReporterName: formData.get('reporterName'),
+                    ReporterEmail: formData.get('reporterEmail'),
+                    ReporterPhone: formData.get('reporterPhone') || '',
+                    Status: "Open",
+                    Resolution: "" // Add empty Resolution field
+                };
+                
+                // Get CSRF token
+                const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
+                
+                // API call
+                fetch('/Card/ReportIssue', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': token
+                    },
+                    body: JSON.stringify(issueData)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(errorData => {
+                            throw new Error(errorData.error || 'Server error');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Hide spinner
+                    document.getElementById('issue-spinner').classList.add('hidden');
+                    
+                    // Hide modal
+                    document.getElementById('report-issue-modal').classList.add('hidden');
+                    document.body.classList.remove('overflow-hidden');
+                    
+                    // Show success toast
+                    showToast('Issue reported', 'Your issue has been submitted successfully', 'success');
+                    
+                    // Reset form
+                    issueForm.reset();
+                    
+                    // Set default date again
+                    const reportDateField = document.querySelector('input[name="reportDate"]');
+                    if (reportDateField) {
+                        const today = new Date();
+                        reportDateField.value = today.toISOString().split('T')[0];
+                    }
+                })
+                .catch(error => {
+                    console.error('Error submitting issue report:', error);
+                    
+                    // Hide spinner
+                    document.getElementById('issue-spinner').classList.add('hidden');
+                    
+                    // Show error toast
+                    showToast('Error', error.message || 'Failed to submit issue report', 'error');
+                });
+            });
+        }
+    }
+    
+    // Load documents
+    function loadDocuments() {
+        const documentsContainer = document.getElementById('documents-container');
+        const productId = @Model.Id;
+        
+        // Fetch documents (in a real app, this would be an actual API call)
+        fetch(`/Card/GetCardDocuments/${productId}`)
+            .then(response => response.json())
+            .then(documents => {
+                if (documents && documents.length > 0) {
+                    // Clear loading spinner
+                    documentsContainer.innerHTML = '';
+                    
+                    // Create document list
+                    const documentList = document.createElement('div');
+                    documentList.className = 'space-y-4';
+                    
+                    documents.forEach(doc => {
+                        // Determine icon based on file type
+                        let fileIcon = 'fa-file';
+                        let iconColor = 'text-gray-600';
+                        
+                        if (doc.fileType) {
+                            if (doc.fileType.includes('pdf')) {
+                                fileIcon = 'fa-file-pdf';
+                                iconColor = 'text-red-600';
+                            } else if (doc.fileType.includes('image')) {
+                                fileIcon = 'fa-file-image';
+                                iconColor = 'text-blue-600';
+                            } else if (doc.fileType.includes('excel') || doc.fileType.includes('spreadsheet')) {
+                                fileIcon = 'fa-file-excel';
+                                iconColor = 'text-green-600';
+                            } else if (doc.fileType.includes('word') || doc.fileType.includes('document')) {
+                                fileIcon = 'fa-file-word';
+                                iconColor = 'text-blue-600';
+                            }
+                        }
+                        
+                        const documentItem = document.createElement('div');
+                        documentItem.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors';
+                        documentItem.innerHTML = `
+                            <div class="flex items-center flex-1">
+                                <div class="w-10 h-10 flex items-center justify-center bg-white rounded-lg ${iconColor}">
+                                    <i class="fas ${fileIcon}"></i>
+                                </div>
+                                <div class="ml-3 overflow-hidden">
+                                    <p class="font-medium truncate">${doc.title}</p>
+                                    <p class="text-xs text-gray-500">${doc.documentType} • ${formatFileSize(doc.fileSize)}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center">
+                                <button type="button" class="p-2 text-gray-400 hover:text-primary-600 document-preview-btn" 
+                                        data-id="${doc.id}" data-title="${doc.title}" data-path="${doc.filePath}">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <a href="/Card/DownloadDocument/${doc.id}" class="p-2 text-gray-400 hover:text-primary-600" 
+                                   download="${doc.fileName}" target="_blank">
+                                    <i class="fas fa-download"></i>
+                                </a>
+                            </div>
+                        `;
+                        
+                        documentList.appendChild(documentItem);
+                    });
+                    
+                    documentsContainer.appendChild(documentList);
+                } else {
+                    // No documents found
+                    documentsContainer.innerHTML = `
+                        <div class="text-center py-4">
+                            <div class="w-12 h-12 mx-auto rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-2">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <p class="text-gray-500 text-sm">No documentation available for this product.</p>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching documents:', error);
+                documentsContainer.innerHTML = `
+                    <div class="text-center py-4">
+                        <div class="w-12 h-12 mx-auto rounded-full bg-red-100 flex items-center justify-center text-red-500 mb-2">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <p class="text-red-500 text-sm">Failed to load documents. Please try again later.</p>
+                    </div>
+                `;
+            });
+    }
+    
+    // Load maintenance data
+    function loadMaintenanceData() {
+        const remindersContainer = document.getElementById('maintenance-reminders');
+        const historyContainer = document.getElementById('maintenance-history-content');
+        const productId = @Model.Id;
+        
+        // Fetch reminders
+        fetch(`/Card/GetCardReminders/${productId}`)
+            .then(response => response.json())
+            .then(reminders => {
+                if (reminders && reminders.length > 0) {
+                    // Sort by due date (closest first)
+                    reminders.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+                    
+                    // Display next reminder
+                    const nextReminder = reminders[0];
+                    const dueDate = new Date(nextReminder.dueDate);
+                    const isPastDue = dueDate < new Date();
+                    
+                    remindersContainer.innerHTML = `
+                        <div class="p-2 ${isPastDue ? 'bg-red-50 border-red-200' : 'bg-white border-blue-200'} rounded-lg border shadow-sm">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 ${isPastDue ? 'text-red-500' : 'text-blue-500'}">
+                                    <i class="fas ${isPastDue ? 'fa-exclamation-circle' : 'fa-calendar-check'}"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="font-medium ${isPastDue ? 'text-red-800' : 'text-blue-800'}">${nextReminder.title}</p>
+                                    <p class="text-xs ${isPastDue ? 'text-red-700' : 'text-blue-600'}">
+                                        ${isPastDue ? 'Overdue: ' : 'Due: '}
+                                        ${formatDate(dueDate)}
+                                        (${isPastDue ? `${getDaysDiff(dueDate, new Date())} days overdue` : `${getDaysDiff(new Date(), dueDate)} days remaining`})
+                                    </p>
+                                </div>
+                            </div>
+                            ${nextReminder.notes ? `<p class="mt-2 text-xs text-gray-600 border-t pt-2">${nextReminder.notes}</p>` : ''}
+                        </div>
+                    `;
+                    
+                    // Add link to view all
+                    if (reminders.length > 1) {
+                        remindersContainer.innerHTML += `
+                            <div class="mt-2 text-right">
+                                <a href="#" id="view-all-reminders" class="text-xs text-blue-600 hover:text-blue-800">
+                                    View all ${reminders.length} reminders
+                                </a>
+                            </div>
+                        `;
+                    }
+                    
+                    // Populate maintenance history (show last 3 reminders)
+                    const historyItems = reminders.slice(0, 3);
+                    
+                    if (historyItems.length > 0) {
+                        historyContainer.innerHTML = `
+                            <div class="space-y-4">
+                                ${historyItems.map(item => {
+                                    const itemDate = new Date(item.dueDate);
+                                    const isCompleted = itemDate < new Date();
+                                    
+                                    return `
+                                        <div class="flex">
+                                            <div class="flex-shrink-0 mr-3">
+                                                <div class="w-8 h-8 rounded-full ${isCompleted ? 'bg-green-100' : 'bg-blue-100'} flex items-center justify-center">
+                                                    <i class="fas ${isCompleted ? 'fa-check' : 'fa-clock'} ${isCompleted ? 'text-green-600' : 'text-blue-600'}"></i>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <h4 class="text-sm font-medium">${item.title}</h4>
+                                                <p class="text-xs text-gray-500">
+                                                    ${isCompleted ? 'Completed on: ' : 'Scheduled for: '}
+                                                    ${formatDate(itemDate)}
+                                                </p>
+                                                ${item.notes ? `<p class="text-xs text-gray-600 mt-1">${item.notes}</p>` : ''}
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        `;
+                    } else {
+                        historyContainer.innerHTML = noDataTemplate('No maintenance history available');
+                    }
+                } else {
+                    // No reminders found
+                    remindersContainer.innerHTML = `
+                        <div class="p-2 bg-white border-blue-200 rounded-lg border shadow-sm">
+                            <p class="text-center text-gray-500 text-sm py-2">No scheduled maintenance</p>
+                        </div>
+                    `;
+                    
+                    // No history either
+                    historyContainer.innerHTML = noDataTemplate('No maintenance history available');
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching maintenance data:', error);
+                remindersContainer.innerHTML = `
+                    <div class="p-2 bg-red-50 border-red-200 rounded-lg border shadow-sm">
+                        <p class="text-center text-red-500 text-sm py-2">Failed to load maintenance data</p>
+                    </div>
+                `;
+                
+                historyContainer.innerHTML = noDataTemplate('Failed to load maintenance history');
+            });
+    }
+    
+    // Initialize document preview modal
+    function initDocumentPreview() {
+        const previewModal = document.getElementById('document-preview-modal');
+        const closePreviewBtn = document.getElementById('close-doc-preview-modal');
+        const closePreviewBtn2 = document.getElementById('close-preview-btn');
+        const downloadBtn = document.getElementById('download-document-btn');
+        const previewTitle = document.getElementById('document-preview-title');
+        const previewContent = document.getElementById('document-preview-content');
+        
+        // Event delegation for document preview buttons
+        document.addEventListener('click', function(e) {
+            const previewBtn = e.target.closest('.document-preview-btn');
+            
+            if (previewBtn) {
+                const docId = previewBtn.getAttribute('data-id');
+                const docTitle = previewBtn.getAttribute('data-title');
+                const docPath = previewBtn.getAttribute('data-path');
+                
+                // Set modal title
+                previewTitle.textContent = docTitle;
+                
+                // Show loading state
+                previewContent.innerHTML = `
+                    <div class="flex justify-center items-center h-full">
+                        <i class="fas fa-spinner fa-spin text-2xl text-primary-500"></i>
+                    </div>
+                `;
+                
+                // Set download button link
+                downloadBtn.setAttribute('data-id', docId);
+                
+                // Show modal
+                previewModal.classList.remove('hidden');
+                
+                // Attempt to display the file (this is simplified - would need proper implementation based on file type)
+                if (docPath) {
+                    if (docPath.toLowerCase().endsWith('.pdf')) {
+                        previewContent.innerHTML = `<iframe src="${docPath}" width="100%" height="100%" frameborder="0"></iframe>`;
+                    } else if (docPath.toLowerCase().match(/\.(jpe?g|png|gif|bmp|svg)$/)) {
+                        previewContent.innerHTML = `<img src="${docPath}" alt="${docTitle}" class="max-w-full max-h-full mx-auto">`;
+                    } else {
+                        previewContent.innerHTML = `
+                            <div class="flex flex-col items-center justify-center h-full">
+                                <div class="text-6xl text-gray-400 mb-4">
+                                    <i class="fas fa-file-alt"></i>
+                                </div>
+                                <p class="text-lg font-medium text-gray-700">Preview not available</p>
+                                <p class="text-gray-500 mb-6">This document type cannot be previewed directly.</p>
+                                <a href="/Card/DownloadDocument/${docId}" class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700" download>
+                                    <i class="fas fa-download mr-2"></i> Download to view
+                                </a>
+                            </div>
+                        `;
+                    }
+                } else {
+                    previewContent.innerHTML = `
+                        <div class="flex flex-col items-center justify-center h-full">
+                            <div class="text-6xl text-red-400 mb-4">
+                                <i class="fas fa-exclamation-circle"></i>
+                            </div>
+                            <p class="text-lg font-medium text-gray-700">File not found</p>
+                            <p class="text-gray-500">The document could not be loaded.</p>
+                        </div>
+                    `;
+                }
+            }
+        });
+        
+        // Close modal events
+        if (closePreviewBtn) {
+            closePreviewBtn.addEventListener('click', () => {
+                previewModal.classList.add('hidden');
+            });
+        }
+        
+        if (closePreviewBtn2) {
+            closePreviewBtn2.addEventListener('click', () => {
+                previewModal.classList.add('hidden');
+            });
+        }
+        
+        // Close modal when clicking outside
+        if (previewModal) {
+            previewModal.addEventListener('click', function(e) {
+                if (e.target === previewModal) {
+                    previewModal.classList.add('hidden');
+                }
+            });
+        }
+        
+        // Download button action
+        if (downloadBtn) {
+            downloadBtn.addEventListener('click', function() {
+                const docId = this.getAttribute('data-id');
+                if (docId) {
+                    window.open(`/Card/DownloadDocument/${docId}`, '_blank');
+                }
+            });
+        }
+    }
+    
+    // Initialize copy to clipboard functionality
+    function initCopyToClipboard() {
+        const infoItems = document.querySelectorAll('.font-medium:not(button):not(h3):not(h4)');
+        infoItems.forEach(item => {
+            if (item.textContent.trim()) {
+                item.classList.add('cursor-pointer', 'hover:text-primary-600', 'transition-colors');
+                item.title = "Click to copy";
+                
+                item.addEventListener('click', function() {
+                    const text = this.innerText;
+                    copyToClipboard(text);
+                    showToast('Copied to clipboard', text, 'success');
+                });
+            }
+        });
+    }
+    
+    function copyToClipboard(text) {
+        const tempElement = document.createElement('textarea');
+        tempElement.value = text;
+        document.body.appendChild(tempElement);
+        tempElement.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempElement);
+    }
+    
+    // Toast notification system
+    function initToastNotifications() {
+        const toast = document.getElementById('toast-notification');
+        const closeToast = document.getElementById('close-toast');
+        
+        if (closeToast && toast) {
+            closeToast.addEventListener('click', function() {
+                toast.classList.add('translate-y-20', 'opacity-0');
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                }, 300);
+            });
+        }
+    }
+    
+    function showToast(message, description = '', type = 'success') {
+        const toast = document.getElementById('toast-notification');
+        const toastMessage = document.getElementById('toast-message');
+        const toastDescription = document.getElementById('toast-description');
+        const toastIcon = document.getElementById('toast-icon');
+        const toastIconSymbol = document.getElementById('toast-icon-symbol');
+        
+        toastMessage.textContent = message;
+        toastDescription.textContent = description;
+        
+        // Set icon and colors based on type
+        if (type === 'success') {
+            toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-green-100';
+            toastIconSymbol.className = 'fas fa-check text-green-500';
+        } else if (type === 'error') {
+            toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-red-100';
+            toastIconSymbol.className = 'fas fa-times text-red-500';
+        } else if (type === 'warning') {
+            toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-yellow-100';
+            toastIconSymbol.className = 'fas fa-exclamation text-yellow-500';
+        } else if (type === 'info') {
+            toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-blue-100';
+            toastIconSymbol.className = 'fas fa-info text-blue-500';
+        }
+        
+        // Show toast
+        toast.classList.remove('hidden');
+        // Use a small delay to ensure the transition works
+        setTimeout(() => {
+            toast.classList.remove('translate-y-20', 'opacity-0');
+        }, 10);
+        
+        // Auto hide after 5 seconds
+        setTimeout(() => {
+            toast.classList.add('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 300);
+        }, 5000);
+    }
+
+    // Load issue data function
+    function loadIssueData() {
+        console.log("loadIssueData called");
+        const issuesContainer = document.getElementById('issues-container');
+        const productId = @Model.Id;
+        
+        console.log(`Fetching issues for product ID: ${productId}`);
+        
+        // Show loading state explicitly
+        issuesContainer.innerHTML = `
+            <div class="text-center py-4">
+                <i class="fas fa-spinner fa-spin text-primary-500 mr-2"></i> Loading issues...
+            </div>
+        `;
+        
+        fetch(`/Card/GetCardIssues/${productId}`)
+            .then(response => {
+                console.log("Response received:", response);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(issues => {
+                console.log("Issues data:", issues);
+                if (issues && issues.length > 0) {
+                    // Clear loading spinner
+                    issuesContainer.innerHTML = '';
+                    
+                    // Create issues list
+                    const issueList = document.createElement('div');
+                    issueList.className = 'space-y-4';
+                    
+                    issues.forEach(issue => {
+                        // Determine status color
+                        let statusColor = 'bg-blue-100 text-blue-800';
+                        if (issue.status === 'Open') {
+                            statusColor = 'bg-yellow-100 text-yellow-800';
+                        } else if (issue.status === 'In Progress') {
+                            statusColor = 'bg-blue-100 text-blue-800';
+                        } else if (issue.status === 'Resolved') {
+                            statusColor = 'bg-green-100 text-green-800';
+                        } else if (issue.status === 'Closed') {
+                            statusColor = 'bg-gray-100 text-gray-800';
+                        }
+                        
+                        const issueDate = new Date(issue.reportDate);
+                        
+                        const issueItem = document.createElement('div');
+                        issueItem.className = 'p-4 bg-white border border-gray-200 rounded-lg shadow-sm';
+                        issueItem.innerHTML = `
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColor}">${issue.status}</span>
+                                        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100">${issue.priority}</span>
+                                    </div>
+                                    <h4 class="font-medium mt-2">${issue.issueType}</h4>
+                                    <p class="text-sm text-gray-600 mt-1">${issue.description}</p>
+                                    <div class="text-xs text-gray-500 mt-2">Reported on ${formatDate(issueDate)} by ${issue.reporterName}</div>
+                                </div>
+                            </div>
+                            ${issue.resolution ? `<div class="mt-3 pt-3 border-t border-gray-100">
+                                <p class="text-sm font-medium text-gray-700">Resolution:</p>
+                                <p class="text-sm text-gray-600">${issue.resolution}</p>
+                            </div>` : ''}
+                        `;
+                        
+                        issueList.appendChild(issueItem);
+                    });
+                    
+                    issuesContainer.appendChild(issueList);
+                } else {
+                    // No issues found
+                    issuesContainer.innerHTML = `
+                        <div class="text-center py-4">
+                            <div class="w-12 h-12 mx-auto rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-2">
+                                <i class="fas fa-clipboard-check"></i>
+                            </div>
+                            <p class="text-gray-500 text-sm">No issues reported for this product.</p>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error loading issues:', error);
+                issuesContainer.innerHTML = `
+                    <div class="text-center py-4">
+                        <div class="w-12 h-12 mx-auto rounded-full bg-red-100 flex items-center justify-center text-red-500 mb-2">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <p class="text-red-500 text-sm">Failed to load issues: ${error.message}</p>
+                    </div>
+                `;
+            });
+    }
+    
+    // Helper functions
+    function formatDate(date) {
+        const options = { year: 'numeric', month: 'short', day: 'numeric' };
+        return date.toLocaleDateString('en-US', options);
+    }
+    
+    function formatFileSize(bytes) {
+        if (!bytes || bytes === 0) return '0 Bytes';
+        
+        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(1024));
+        
+        return parseFloat((bytes / Math.pow(1024, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+    
+    function getDaysDiff(startDate, endDate) {
+        return Math.ceil(Math.abs((endDate - startDate) / (1000 * 60 * 60 * 24)));
+    }
+    
+    function noDataTemplate(message) {
+        return `
+            <div class="text-center py-4">
+                <div class="w-12 h-12 mx-auto rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-2">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <p class="text-gray-500 text-sm">${message}</p>
+            </div>
+        `;
+    }
+</script>
+}

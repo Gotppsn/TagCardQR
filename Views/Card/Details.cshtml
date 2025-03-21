@@ -326,6 +326,74 @@
                             <span class="text-xs text-gray-500 uppercase font-medium mb-1">Category</span>
                             <span class="font-medium text-gray-800">@(string.IsNullOrEmpty(Model.Category) ? "Not specified" : Model.Category)</span>
                         </div>
+                        
+                        <div class="flex flex-col">
+                            <span class="text-xs text-gray-500 uppercase font-medium mb-1">Location</span>
+                            <span class="font-medium text-gray-800">@(string.IsNullOrEmpty(Model.Location) ? "Not specified" : Model.Location)</span>
+                        </div>
+                        
+                        <div class="flex flex-col">
+                            <span class="text-xs text-gray-500 uppercase font-medium mb-1">Manufacture Date</span>
+                            <span class="font-medium text-gray-800">@Model.ManufactureDate.ToString("MMMM d, yyyy")</span>
+                        </div>
+                        
+                        <div class="flex flex-col">
+                            <span class="text-xs text-gray-500 uppercase font-medium mb-1">Purchase Date</span>
+                            <span class="font-medium text-gray-800">@Model.PurchaseDate.ToString("MMMM d, yyyy")</span>
+                        </div>
+                        
+                        <div class="flex flex-col">
+                            <span class="text-xs text-gray-500 uppercase font-medium mb-1">Warranty Until</span>
+                            <span class="font-medium text-gray-800">@Model.WarrantyExpiration.ToString("MMMM d, yyyy")</span>
+                        </div>
+                        
+                        <div class="flex flex-col md:col-span-2">
+                            <span class="text-xs text-gray-500 uppercase font-medium mb-1">Maintenance Information</span>
+                            <span class="font-medium text-gray-800">@(string.IsNullOrEmpty(Model.MaintenanceInfo) ? "Not specified" : Model.MaintenanceInfo)</span>
+                        </div>
+                        
+                        @if (!string.IsNullOrEmpty(Model.CustomFieldsData) && Model.CustomFieldsData != "{}")
+                        {
+                            <div class="flex flex-col md:col-span-2">
+                                <span class="text-xs text-gray-500 uppercase font-medium mb-1">Custom Fields</span>
+                                <div class="font-medium text-gray-800">
+                                    @try
+                                    {
+                                        var customFields = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(Model.CustomFieldsData);
+                                        if (customFields != null && customFields.Count > 0)
+                                        {
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                                                @foreach (var field in customFields)
+                                                {
+                                                    <div class="flex items-center">
+                                                        <span class="text-sm font-medium text-gray-600 mr-2">@field.Key:</span>
+                                                        <span class="text-sm text-gray-800">@field.Value</span>
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span>No custom fields</span>
+                                        }
+                                    }
+                                    catch
+                                    {
+                                        <span>Invalid custom fields data</span>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        
+                        <div class="flex flex-col">
+                            <span class="text-xs text-gray-500 uppercase font-medium mb-1">Created By</span>
+                            <span class="font-medium text-gray-800">@(string.IsNullOrEmpty(Model.CreatedBy) ? "System" : Model.CreatedBy)</span>
+                        </div>
+                        
+                        <div class="flex flex-col">
+                            <span class="text-xs text-gray-500 uppercase font-medium mb-1">Created At</span>
+                            <span class="font-medium text-gray-800">@Model.CreatedAt.ToString("MMMM d, yyyy h:mm tt")</span>
+                        </div>
                     </div>
                 </div>
             </div>
