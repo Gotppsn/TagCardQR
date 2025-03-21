@@ -193,6 +193,22 @@ namespace CardTagManager.Controllers
             return RedirectToAction(nameof(Details), new { id });
         }
 
+        // GET: Card/ScanShow/5
+        public async Task<IActionResult> ScanShow(int id)
+        {
+            var card = await _context.Cards.FindAsync(id);
+            if (card == null)
+            {
+                return NotFound();
+            }
+
+            // Generate QR code for display
+            string qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card);
+            ViewBag.QrCodeImage = qrCodeImageData;
+
+            return View(card);
+        }
+
         // GET: Card/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
@@ -773,6 +789,86 @@ namespace CardTagManager.Controllers
         private bool CardExists(int id)
         {
             return _context.Cards.Any(e => e.Id == id);
+        }
+        
+        // GET: Card/GetCardIssues/5 
+        [HttpGet]
+        public async Task<IActionResult> GetCardIssues(int id)
+        {
+            var issues = await _context.IssueReports
+                .Where(i => i.CardId == id)
+                .OrderByDescending(i => i.ReportDate)
+                .ToListAsync();
+                
+            return Json(issues);
+        }
+        
+        // POST: Card/ReportIssue
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ReportIssue([FromBody] IssueReport issue)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            
+            try
+            {
+                // Validate the card exists
+                var card = await _context.Cards.FindAsync(issue.CardId);
+                if (card == null)
+                {
+                    return NotFound(new { error = "Product not found" });
+                }
+                
+                // Set default values
+                issue.CreatedAt = DateTime.Now;
+                issue.Status = "Open";
+                
+                _context.IssueReports.Add(issue);
+                await _context.SaveChangesAsync();
+                
+                return Json(new { success = true, issueId = issue.Id });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating issue report");
+                return StatusCode(500, new { error = "An error occurred while creating the issue report" });
+            }
+        }
+        
+        // GET: Card/GetCardDocuments/5
+        [HttpGet]
+        public async Task<IActionResult> GetCardDocuments(int id)
+        {
+            var documents = await _context.CardDocuments
+                .Where(d => d.CardId == id)
+                .OrderByDescending(d => d.UploadedAt)
+                .ToListAsync();
+                
+            return Json(documents);
+        }
+        
+        // GET: Card/DownloadDocument/5
+        public async Task<IActionResult> DownloadDocument(int id)
+        {
+            var document = await _context.CardDocuments.FindAsync(id);
+            if (document == null)
+            {
+                return NotFound();
+            }
+            
+            // In a real implementation, you would retrieve the file from storage
+            // For now, redirect to the file URL
+            if (!string.IsNullOrEmpty(document.FilePath))
+            {
+                return Redirect(document.FilePath);
+            }
+            else
+            {
+                return NotFound("Document file not found");
+            }
         }
     }
 }

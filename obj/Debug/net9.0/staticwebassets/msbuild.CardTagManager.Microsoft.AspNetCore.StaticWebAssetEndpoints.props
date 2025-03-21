@@ -39,14 +39,14 @@
     <StaticWebAssetEndpoint Include="_content/CardTagManager/css/tailwind.css">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\tailwind.css'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-AcTRx0Xwv8Qss2\u002B9tVtDUUbOJc4wq1Ae\u002BzrkDbCr8Xo="}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"62229"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022AcTRx0Xwv8Qss2\u002B9tVtDUUbOJc4wq1Ae\u002BzrkDbCr8Xo=\u0022"},{"Name":"Last-Modified","Value":"Fri, 21 Mar 2025 07:33:30 GMT"}]]]></ResponseHeaders>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-YOvvOSlDSTJBt6E17uUJxkkbYiLpId4MIU6Yp740fAA="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"63829"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022YOvvOSlDSTJBt6E17uUJxkkbYiLpId4MIU6Yp740fAA=\u0022"},{"Name":"Last-Modified","Value":"Fri, 21 Mar 2025 07:43:09 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
-    <StaticWebAssetEndpoint Include="_content/CardTagManager/css/tailwind.p6dd47ksrs.css">
+    <StaticWebAssetEndpoint Include="_content/CardTagManager/css/tailwind.wwk2t29wae.css">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\tailwind.css'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"p6dd47ksrs"},{"Name":"integrity","Value":"sha256-AcTRx0Xwv8Qss2\u002B9tVtDUUbOJc4wq1Ae\u002BzrkDbCr8Xo="},{"Name":"label","Value":"_content/CardTagManager/css/tailwind.css"}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"62229"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022AcTRx0Xwv8Qss2\u002B9tVtDUUbOJc4wq1Ae\u002BzrkDbCr8Xo=\u0022"},{"Name":"Last-Modified","Value":"Fri, 21 Mar 2025 07:33:30 GMT"}]]]></ResponseHeaders>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"wwk2t29wae"},{"Name":"integrity","Value":"sha256-YOvvOSlDSTJBt6E17uUJxkkbYiLpId4MIU6Yp740fAA="},{"Name":"label","Value":"_content/CardTagManager/css/tailwind.css"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"63829"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022YOvvOSlDSTJBt6E17uUJxkkbYiLpId4MIU6Yp740fAA=\u0022"},{"Name":"Last-Modified","Value":"Fri, 21 Mar 2025 07:43:09 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/CardTagManager/favicon.61n19gt1b8.ico">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\favicon.ico'))</AssetFile>
