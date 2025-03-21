@@ -53,61 +53,6 @@ namespace CardTagManager.Data
                 .Property(c => c.UpdatedAt)
                 .HasDefaultValueSql("GETDATE()");
 
-            // Configure CardHistory
-            modelBuilder.Entity<CardHistory>()
-                .HasKey(ch => ch.Id);
-
-            modelBuilder.Entity<CardHistory>()
-                .HasOne(ch => ch.Card)
-                .WithMany()
-                .HasForeignKey(ch => ch.CardId);
-                
-            // Configure MaintenanceReminder
-            modelBuilder.Entity<MaintenanceReminder>()
-                .HasKey(r => r.Id);
-
-            modelBuilder.Entity<MaintenanceReminder>()
-                .HasOne(r => r.Card)
-                .WithMany()
-                .HasForeignKey(r => r.CardId)
-                .OnDelete(DeleteBehavior.Cascade);
-                
-            modelBuilder.Entity<MaintenanceReminder>()
-                .Property(r => r.CreatedAt)
-                .HasDefaultValueSql("GETDATE()");
-                
-            modelBuilder.Entity<MaintenanceReminder>()
-                .Property(r => r.UpdatedAt)
-                .HasDefaultValueSql("GETDATE()");
-                
-            // Configure CardDocument
-            modelBuilder.Entity<CardDocument>()
-                .HasKey(d => d.Id);
-                
-            modelBuilder.Entity<CardDocument>()
-                .HasOne(d => d.Card)
-                .WithMany()
-                .HasForeignKey(d => d.CardId)
-                .OnDelete(DeleteBehavior.Cascade);
-                
-            modelBuilder.Entity<CardDocument>()
-                .Property(d => d.UploadedAt)
-                .HasDefaultValueSql("GETDATE()");
-                
-            // Configure IssueReport
-            modelBuilder.Entity<IssueReport>()
-                .HasKey(ir => ir.Id);
-                
-            modelBuilder.Entity<IssueReport>()
-                .HasOne(ir => ir.Card)
-                .WithMany()
-                .HasForeignKey(ir => ir.CardId)
-                .OnDelete(DeleteBehavior.Cascade);
-                
-            modelBuilder.Entity<IssueReport>()
-                .Property(ir => ir.CreatedAt)
-                .HasDefaultValueSql("GETDATE()");
-
             // Template entity configuration
             modelBuilder.Entity<Template>()
                 .HasKey(t => t.Id);

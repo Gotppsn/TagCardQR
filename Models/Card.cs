@@ -12,40 +12,26 @@ namespace CardTagManager.Models
         
         [Required]
         [StringLength(100)]
-        [Display(Name = "Product Name")]
-        public string ProductName { get; set; } = string.Empty;
+        public string ProductName { get; set; }
         
         [StringLength(100)]
-        public string Category { get; set; } = "Uncategorized";
+        public string Category { get; set; }
         
-        [Column(TypeName = "nvarchar(max)")]
-        public string CustomFieldsData { get; set; } = "{}";
-        
-        public string? ImagePath { get; set; }
-        
-        [NotMapped]
-        public IFormFile? ImageFile { get; set; }
-        
-        [StringLength(255)]
-        public string Location { get; set; } = string.Empty;
-        
-        [Display(Name = "Maintenance Information")]
-        public string MaintenanceInfo { get; set; } = string.Empty;
+        public string Location { get; set; }
         
         [Required]
-        [Display(Name = "Manufacture Date")]
         [DataType(DataType.Date)]
-        public DateTime ManufactureDate { get; set; } = DateTime.Now;
+        public DateTime ManufactureDate { get; set; }
         
         [Required]
-        [Display(Name = "Purchase Date")]
         [DataType(DataType.Date)]
-        public DateTime PurchaseDate { get; set; } = DateTime.Now;
+        public DateTime PurchaseDate { get; set; }
         
         [Required]
-        [Display(Name = "Warranty Expiration")]
         [DataType(DataType.Date)]
-        public DateTime WarrantyExpiration { get; set; } = DateTime.Now.AddYears(1);
+        public DateTime WarrantyExpiration { get; set; }
+        
+        public string MaintenanceInfo { get; set; }
         
         [StringLength(20)]
         public string BackgroundColor { get; set; } = "#ffffff";
@@ -60,38 +46,22 @@ namespace CardTagManager.Models
         public string QrFgColor { get; set; } = "#000000";
         
         [StringLength(20)]
-        public string QrBgColor { get; set; } = "#FFFFFF";
+        public string QrBgColor { get; set; } = "#ffffff";
         
-        [StringLength(100)]
-        public string Username { get; set; } = string.Empty;
+        public string ImagePath { get; set; }
         
-        [StringLength(100)]
-        public string Department { get; set; } = string.Empty;
+        [NotMapped]
+        public IFormFile ImageFile { get; set; }
         
-        [EmailAddress]
-        public string? Email { get; set; }
-        
-        [StringLength(100)]
-        public string UserFullName { get; set; } = string.Empty;
-        
-        [StringLength(100)]
-        public string PlantName { get; set; } = string.Empty;
+        // Store custom fields from templates as JSON
+        [Column(TypeName = "nvarchar(max)")]
+        public string CustomFieldsData { get; set; } = "{}";
         
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
         
-        // For backward compatibility with the form
-        [NotMapped]
-        public string Name { 
-            get => ProductName; 
-            set => ProductName = value; 
-        }
-        
-        [NotMapped]
-        public string Company { 
-            get => "Unknown"; 
-            set { } // No-op since we're not storing this
-        }
+        // Creator information
+        public string CreatedBy { get; set; }
     }
 }
