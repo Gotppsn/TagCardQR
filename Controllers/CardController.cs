@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Text.Json;
 using CardTagManager.Data;
 using CardTagManager.Models;
 using CardTagManager.Services;
@@ -98,10 +99,31 @@ namespace CardTagManager.Controllers
                         }
                     }
 
-                    // Ensure CustomFieldsData is valid JSON
+                    // Validate and sanitize CustomFieldsData
                     if (string.IsNullOrEmpty(card.CustomFieldsData))
                     {
                         card.CustomFieldsData = "{}";
+                    }
+                    else
+                    {
+                        try
+                        {
+                            // Validate JSON by parsing and re-serializing
+                            // This ensures proper JSON structure and fixes any malformed input
+                            var customFields = JsonSerializer.Deserialize<Dictionary<string, string>>(card.CustomFieldsData);
+                            
+                            // Log the field names for debugging
+                            _logger.LogInformation($"Custom fields: {string.Join(", ", customFields.Keys)}");
+                            
+                            // Re-serialize with sanitized data
+                            card.CustomFieldsData = JsonSerializer.Serialize(customFields);
+                        }
+                        catch (Exception ex)
+                        {
+                            // If invalid JSON, set to empty object
+                            card.CustomFieldsData = "{}";
+                            _logger.LogWarning($"Invalid CustomFieldsData JSON - reset to empty object. Error: {ex.Message}");
+                        }
                     }
 
                     // Set timestamps
@@ -218,12 +240,6 @@ namespace CardTagManager.Controllers
                             var uploadResult = await _fileUploadService.UploadFile(card.ImageFile);
                             if (uploadResult.IsSuccess)
                             {
-                                // If there's an existing image, we could delete it, but let's keep it for now
-                                // if (!string.IsNullOrEmpty(originalCard.ImagePath))
-                                // {
-                                //     await _fileUploadService.DeleteFile(originalCard.ImagePath);
-                                // }
-                                
                                 // Record the image change
                                 if (originalCard.ImagePath != uploadResult.FileUrl)
                                 {
@@ -276,6 +292,42 @@ namespace CardTagManager.Controllers
                     {
                         // Make sure we preserve the original image path if no new image is uploaded
                         card.ImagePath = originalCard.ImagePath;
+                    }
+
+                    // Validate and sanitize CustomFieldsData
+                    if (string.IsNullOrEmpty(card.CustomFieldsData))
+                    {
+                        card.CustomFieldsData = "{}";
+                    }
+                    else
+                    {
+                        try
+                        {
+                            // Parse and re-serialize to ensure valid JSON structure
+                            var customFields = JsonSerializer.Deserialize<Dictionary<string, string>>(card.CustomFieldsData);
+                            card.CustomFieldsData = JsonSerializer.Serialize(customFields);
+                            
+                            // Track custom fields changes if they differ from original
+                            if (originalCard.CustomFieldsData != card.CustomFieldsData)
+                            {
+                                var fieldsHistory = new CardHistory
+                                {
+                                    CardId = card.Id,
+                                    FieldName = "Custom Fields",
+                                    OldValue = "Previous Fields Data",
+                                    NewValue = "Updated Fields Data",
+                                    ChangedAt = DateTime.Now,
+                                    ChangedBy = User.Identity?.Name ?? "system"
+                                };
+                                _context.CardHistories.Add(fieldsHistory);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            // If invalid JSON, preserve original values
+                            card.CustomFieldsData = originalCard.CustomFieldsData;
+                            _logger.LogWarning($"Invalid CustomFieldsData JSON during edit - kept original. Error: {ex.Message}");
+                        }
                     }
 
                     // Track changes for history
@@ -495,20 +547,6 @@ namespace CardTagManager.Controllers
                     FieldName = "QR Background Color",
                     OldValue = originalCard.QrBgColor ?? "#FFFFFF",
                     NewValue = updatedCard.QrBgColor ?? "#FFFFFF",
-                    ChangedAt = DateTime.Now,
-                    ChangedBy = User.Identity?.Name ?? "system"
-                });
-            }
-            
-            // Compare custom fields data
-            if (originalCard.CustomFieldsData != updatedCard.CustomFieldsData)
-            {
-                changedProperties.Add(new CardHistory
-                {
-                    CardId = originalCard.Id,
-                    FieldName = "Custom Fields",
-                    OldValue = "Previous Fields",
-                    NewValue = "Updated Fields",
                     ChangedAt = DateTime.Now,
                     ChangedBy = User.Identity?.Name ?? "system"
                 });
