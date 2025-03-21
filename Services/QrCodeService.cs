@@ -6,6 +6,7 @@ using CardTagManager.Models;
 using QRCoder;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Text;
 
 namespace CardTagManager.Services
 {

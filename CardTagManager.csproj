@@ -17,7 +17,7 @@
     <PackageReference Include="QRCoder" Version="1.6.0" />
     <PackageReference Include="RestSharp" Version="112.1.0" />
     <PackageReference Include="System.DirectoryServices.AccountManagement" Version="9.0.3" />
-    <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
+    <PackageReference Include="System.Drawing.Common" Version="9.0.3" />
     <PackageReference Include="ZXing.Net" Version="0.16.10" />
   </ItemGroup>
   <Target Name="BuildTailwindCSS" BeforeTargets="Build">
