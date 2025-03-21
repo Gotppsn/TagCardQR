@@ -141,7 +141,7 @@ namespace CardTagManager.Controllers
                         TempData["SuccessMessage"] = $"Product '{card.ProductName}' created successfully.";
                         
                         // Redirect to the detail page
-                        return RedirectToAction(nameof(Detail), new { id = card.Id });
+                        return RedirectToAction(nameof(Details), new { id = card.Id });
                     } catch (Exception dbEx) {
                         _logger.LogError(dbEx, "Database save error");
                         ModelState.AddModelError("", $"Database error: {dbEx.Message}");
@@ -170,8 +170,8 @@ namespace CardTagManager.Controllers
             return View(card);
         }
 
-        // GET: Card/Detail/5
-        public async Task<IActionResult> Detail(int id)
+        // GET: Card/Details/5
+        public async Task<IActionResult> Details(int id)
         {
             var card = await _context.Cards.FindAsync(id);
             if (card == null)
@@ -184,6 +184,13 @@ namespace CardTagManager.Controllers
             ViewBag.QrCodeImage = qrCodeImageData;
 
             return View(card);
+        }
+        
+        // This method is kept for backwards compatibility if there are existing links
+        // GET: Card/Detail/5
+        public async Task<IActionResult> Detail(int id)
+        {
+            return RedirectToAction(nameof(Details), new { id });
         }
 
         // GET: Card/Edit/5
@@ -346,7 +353,7 @@ namespace CardTagManager.Controllers
                     await _qrCodeService.GenerateQrCodeImage(card);
                     
                     TempData["SuccessMessage"] = $"Product '{card.ProductName}' updated successfully.";
-                    return RedirectToAction(nameof(Detail), new { id = card.Id });
+                    return RedirectToAction(nameof(Details), new { id = card.Id });
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -746,6 +753,20 @@ namespace CardTagManager.Controllers
             filename = string.Join("_", filename.Split(Path.GetInvalidFileNameChars()));
             
             return File(qrCodeBytes, "image/png", $"{filename}_QRCode.png");
+        }
+
+        // GET: Card/GetCardHistory/5
+        [HttpGet]
+        public async Task<IActionResult> GetCardHistory(int id)
+        {
+            // Get card history for the specified card
+            var history = await _context.CardHistories
+                .Where(h => h.CardId == id)
+                .OrderByDescending(h => h.ChangedAt)
+                .Take(20) // Limit to recent 20 records
+                .ToListAsync();
+                
+            return Json(history);
         }
 
         // Helper method to check if a card exists
