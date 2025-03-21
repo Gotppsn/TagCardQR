@@ -48,7 +48,7 @@ namespace CardTagManager.Models
         [StringLength(20)]
         public string QrBgColor { get; set; } = "#ffffff";
         
-        public string ImagePath { get; set; }
+        public string ImagePath { get; set; } = string.Empty; // Added default value
         
         [NotMapped]
         public IFormFile ImageFile { get; set; }
@@ -62,6 +62,6 @@ namespace CardTagManager.Models
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
         
         // Creator information
-        public string CreatedBy { get; set; }
+        public string CreatedBy { get; set; } = string.Empty; // Added default value
     }
 }
