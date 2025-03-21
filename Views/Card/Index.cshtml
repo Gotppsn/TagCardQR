@@ -4,12 +4,12 @@
     ViewData["Title"] = "Product Library";
 }
 
-<!-- Dashboard Stats Section -->
-<div class="bg-white rounded-xl shadow-md p-6 mb-8">
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div class="stats-card bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
+<!-- Dashboard Stats Section - Redesigned with gradient backgrounds and improved spacing -->
+<div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="stats-card bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200 hover:shadow-md transition-all duration-300 cursor-pointer">
             <div class="flex items-center">
-                <div class="bg-blue-500 text-white p-3 rounded-lg shadow-md">
+                <div class="bg-blue-500 text-white p-3 rounded-lg shadow-sm">
                     <i class="fas fa-layer-group"></i>
                 </div>
                 <div class="ml-4">
@@ -19,33 +19,33 @@
             </div>
         </div>
 
-        <div class="stats-card bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg border border-green-200">
+        <div class="stats-card bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg border border-green-200 hover:shadow-md transition-all duration-300 cursor-pointer">
             <div class="flex items-center">
-                <div class="bg-green-500 text-white p-3 rounded-lg shadow-md">
+                <div class="bg-green-500 text-white p-3 rounded-lg shadow-sm">
                     <i class="fas fa-tools"></i>
                 </div>
                 <div class="ml-4">
                     <p class="text-sm text-gray-500 font-medium">Equipment</p>
-                    <p class="text-2xl font-bold text-gray-800">@Model.Count(p => p.Category.ToLower().Contains("equipment"))</p>
+                    <p class="text-2xl font-bold text-gray-800">@Model.Count(p => p.Category?.ToLower().Contains("equipment") == true)</p>
                 </div>
             </div>
         </div>
 
-        <div class="stats-card bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-lg border border-purple-200">
+        <div class="stats-card bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-lg border border-purple-200 hover:shadow-md transition-all duration-300 cursor-pointer">
             <div class="flex items-center">
-                <div class="bg-purple-500 text-white p-3 rounded-lg shadow-md">
+                <div class="bg-purple-500 text-white p-3 rounded-lg shadow-sm">
                     <i class="fas fa-flask"></i>
                 </div>
                 <div class="ml-4">
                     <p class="text-sm text-gray-500 font-medium">Chemicals</p>
-                    <p class="text-2xl font-bold text-gray-800">@Model.Count(p => p.Category.ToLower().Contains("chemical"))</p>
+                    <p class="text-2xl font-bold text-gray-800">@Model.Count(p => p.Category?.ToLower().Contains("chemical") == true)</p>
                 </div>
             </div>
         </div>
 
-        <div class="stats-card bg-gradient-to-r from-red-50 to-red-100 p-4 rounded-lg border border-red-200">
+        <div class="stats-card bg-gradient-to-r from-red-50 to-red-100 p-4 rounded-lg border border-red-200 hover:shadow-md transition-all duration-300 cursor-pointer">
             <div class="flex items-center">
-                <div class="bg-red-500 text-white p-3 rounded-lg shadow-md">
+                <div class="bg-red-500 text-white p-3 rounded-lg shadow-sm">
                     <i class="fas fa-exclamation-circle"></i>
                 </div>
                 <div class="ml-4">
@@ -57,19 +57,24 @@
     </div>
 </div>
 
-<!-- Header Section with Quick Actions -->
-<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+<!-- Header Section with Quick Actions - Enhanced with animation and visual hierarchy -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
     <div class="space-y-2">
-        <h1 class="text-3xl font-bold text-gray-900">Product Tag Library</h1>
+        <h1 class="text-3xl font-bold text-gray-900 flex items-center">
+            <span class="bg-blue-500 text-white p-1.5 rounded-lg shadow-sm mr-3">
+                <i class="fas fa-tags"></i>
+            </span>
+            Product Tag Library
+        </h1>
         <p class="text-gray-500">Manage your inventory with QR-enabled product tags</p>
     </div>
     
     <div class="flex flex-wrap gap-3">
-        <a asp-action="Create" class="btn-primary shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all">
+        <a asp-action="Create" class="btn-primary shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
             <i class="fas fa-plus-circle mr-2"></i> Add New Product
         </a>
         <div class="relative group">
-            <button id="actions-menu-btn" class="btn-secondary">
+            <button id="actions-menu-btn" class="btn-secondary flex items-center justify-center px-4 py-2 bg-white hover:bg-gray-50 text-gray-700 rounded-lg border border-gray-200 shadow-sm">
                 <i class="fas fa-ellipsis-h mr-2"></i> More Actions
             </button>
             <div id="actions-dropdown" class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl z-10 hidden group-focus-within:block transform origin-top-right transition-all border border-gray-100">
@@ -86,27 +91,23 @@
                     <a asp-action="ScanResult" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50">
                         <i class="fas fa-qrcode w-5 mr-2 text-gray-500"></i> Scan Results
                     </a>
-                    <a asp-action="ScanShow" asp-route-id="1" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50">
-                        <i class="fas fa-info-circle w-5 mr-2 text-gray-500"></i> Product Information
-                    </a>
                     <hr class="my-1 border-gray-100">
                     <a href="#" id="settings-btn" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50">
                         <i class="fas fa-cog w-5 mr-2 text-gray-500"></i> Settings
                     </a>
                 </div>
             </div>
-    </div>
         </div>
     </div>
 </div>
 
-<!-- Advanced Search & Filters -->
-<div class="bg-white rounded-xl shadow-md overflow-hidden mb-8 transition-all hover:shadow-lg">
+<!-- Search & Filters - Redesigned for better usability -->
+<div class="bg-white rounded-xl shadow-sm overflow-hidden mb-6 transition-all hover:shadow-md">
     <div class="p-4 border-b border-gray-100 flex justify-between items-center">
         <h2 class="font-bold text-gray-700 flex items-center">
-            <i class="fas fa-search text-primary-500 mr-2"></i> Find Products
+            <i class="fas fa-search text-blue-500 mr-2"></i> Find Products
         </h2>
-        <button id="advanced-search-toggle" class="text-sm text-primary-600 hover:text-primary-800 flex items-center">
+        <button id="advanced-search-toggle" class="text-sm text-blue-600 hover:text-blue-800 flex items-center">
             Advanced Filters <i class="fas fa-chevron-down ml-1 transition-transform" id="toggle-icon"></i>
         </button>
     </div>
@@ -115,19 +116,19 @@
     <div class="p-4">
         <div class="relative">
             <input type="text" id="product-search" placeholder="Search by name, model, serial number, or location..." 
-                   class="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all" />
+                   class="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" />
             <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
                 <i class="fas fa-search"></i>
             </div>
         </div>
     </div>
     
-    <!-- Advanced Search Panel (Hidden by Default) -->
+    <!-- Advanced Search Panel -->
     <div id="advanced-search-panel" class="p-4 bg-gray-50 border-t border-gray-100 hidden">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                <select id="category-filter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors">
+                <select id="category-filter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                     <option value="">All Categories</option>
                     <option value="coating">Coating Chemicals</option>
                     <option value="equipment">Equipment</option>
@@ -138,7 +139,7 @@
             
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
-                <select id="location-filter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors">
+                <select id="location-filter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                     <option value="">All Locations</option>
                     <option value="chemical">Chemical Storage</option>
                     <option value="building">Building 2</option>
@@ -149,7 +150,7 @@
             
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Warranty Status</label>
-                <select id="warranty-filter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors">
+                <select id="warranty-filter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                     <option value="">All Status</option>
                     <option value="active">Active Warranty</option>
                     <option value="expiring">Expiring Soon (30 days)</option>
@@ -162,13 +163,13 @@
             <button id="clear-filters" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 mr-2">
                 Clear Filters
             </button>
-            <button id="apply-filters" class="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700">
+            <button id="apply-filters" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
                 Apply Filters
             </button>
         </div>
     </div>
     
-    <!-- Quick Filters -->
+    <!-- Quick Filters - Enhanced with active states -->
     <div class="p-4 border-t border-gray-100 flex flex-wrap items-center gap-2">
         <span class="text-sm font-medium text-gray-500">Quick Filters:</span>
         
@@ -190,10 +191,13 @@
     </div>
 </div>
 
-<!-- View Toggle -->
-<div class="flex justify-end mb-4">
+<!-- View Toggle - Improved with better visual indicators -->
+<div class="flex justify-between items-center mb-4">
+    <div class="text-sm text-gray-500">
+        Showing <span class="font-medium text-gray-700" id="filtered-count">@Model.Count()</span> products
+    </div>
     <div class="inline-flex rounded-md shadow-sm">
-        <button id="grid-view-btn" class="px-3 py-2 bg-primary-600 text-white rounded-l-md hover:bg-primary-700 transition-colors">
+        <button id="grid-view-btn" class="px-3 py-2 bg-blue-600 text-white rounded-l-md hover:bg-blue-700 transition-colors">
             <i class="fas fa-th-large"></i>
         </button>
         <button id="list-view-btn" class="px-3 py-2 bg-white text-gray-700 rounded-r-md hover:bg-gray-50 transition-colors border border-gray-200">
@@ -202,27 +206,27 @@
     </div>
 </div>
 
-<!-- Empty State -->
+<!-- Empty State - Redesigned with better visual appeal -->
 @if (!Model.Any())
 {
-    <div class="bg-white rounded-xl shadow-md p-8 text-center fade-in">
-        <div class="mx-auto w-20 h-20 rounded-full bg-primary-50 text-primary-500 flex items-center justify-center mb-4">
+    <div class="bg-white rounded-xl shadow-sm p-8 text-center fade-in">
+        <div class="mx-auto w-20 h-20 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center mb-4">
             <i class="fas fa-box-open text-3xl"></i>
         </div>
         <h3 class="text-xl font-semibold text-gray-800 mb-2">No products found</h3>
         <p class="text-gray-500 mb-6 max-w-md mx-auto">Get started by adding your first product. You can add details and customize its product tag.</p>
-        <a asp-action="Create" class="btn-primary inline-flex shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all">
+        <a asp-action="Create" class="btn-primary inline-flex shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
             <i class="fas fa-plus-circle mr-2"></i> Add First Product
         </a>
     </div>
 }
 else
 {
-    <!-- Products Grid View (Default) -->
+    <!-- Products Grid View - Redesigned with better card layout and information hierarchy -->
     <div id="grid-view" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 fade-in">
         @foreach (var product in Model)
         {
-            <div class="product-item group" data-updated="@product.UpdatedAt.ToString("yyyy-MM-dd")" data-category="@product.Category.ToLower()" data-warranty="@(product.WarrantyExpiration < DateTime.Now ? "expired" : (product.WarrantyExpiration < DateTime.Now.AddMonths(1) ? "expiring" : "active"))">
+            <div class="product-item group" data-updated="@product.UpdatedAt.ToString("yyyy-MM-dd")" data-category="@(product.Category?.ToLower() ?? string.Empty)" data-warranty="@(product.WarrantyExpiration < DateTime.Now ? "expired" : (product.WarrantyExpiration < DateTime.Now.AddMonths(1) ? "expiring" : "active"))">
                 <div class="h-full bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 transform hover:-translate-y-1">
                     <!-- Warranty Status Indicator -->
                     @if (product.WarrantyExpiration < DateTime.Now)
@@ -239,7 +243,7 @@ else
                     }
                     
                     <!-- Card Header with Category Badge and Product Name -->
-                    <div class="p-6 relative" style="background-color: @product.BackgroundColor; color: @product.TextColor;">
+                    <div class="p-5 relative" style="background-color: @product.BackgroundColor; color: @product.TextColor;">
                         <div class="flex justify-between items-start">
                             <div>
                                 <span class="inline-flex items-center px-3 py-1 text-xs font-bold rounded-full" 
@@ -247,9 +251,12 @@ else
                                     @product.Category
                                 </span>
                                 <h3 class="text-xl font-bold mt-2 mb-1" style="color: @product.AccentColor">@product.ProductName</h3>
-                                <p class="flex items-center font-semibold text-sm mb-4">
+                                <p class="flex items-center font-semibold text-sm mb-3 opacity-90">
                                     <i class="fas fa-industry mr-2" style="color: @product.AccentColor"></i>
-                                    @product.Manufacturer
+                                    @(string.IsNullOrEmpty(product.CustomFieldsData?.ToString()) ? "No manufacturer data" : 
+                                      product.CustomFieldsData.Contains("Manufacturer") ? 
+                                      Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(product.CustomFieldsData)
+                                      .FirstOrDefault(kv => kv.Key.Contains("Manufacturer")).Value : "No manufacturer data")
                                 </p>
                             </div>
                             
@@ -258,44 +265,52 @@ else
                                 <button class="p-2 rounded-full hover:bg-white hover:bg-opacity-20 transition-colors">
                                     <i class="fas fa-ellipsis-v"></i>
                                 </button>
-                            <div class="dropdown-menu hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border border-gray-100 group-hover:block">
-                                <a asp-action="Edit" asp-route-id="@product.Id" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                                    <i class="fas fa-edit mr-2"></i> Edit
-                                </a>
-                                <a asp-action="Print" asp-route-id="@product.Id" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                                    <i class="fas fa-print mr-2"></i> Print Tag
-                                </a>
-                                <a asp-action="QrCode" asp-route-id="@product.Id" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                                    <i class="fas fa-qrcode mr-2"></i> Show QR Code
-                                </a>
-                                <a asp-action="ScanShow" asp-route-id="@product.Id" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                                    <i class="fas fa-info-circle mr-2"></i> Product Information
-                                </a>
-                                <a asp-action="Delete" asp-route-id="@product.Id" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50">
-                                    <i class="fas fa-trash-alt mr-2"></i> Delete
-                                </a>
-                            </div>
+                                <div class="dropdown-menu hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border border-gray-100 group-hover:block">
+                                    <a asp-action="Edit" asp-route-id="@product.Id" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                        <i class="fas fa-edit mr-2"></i> Edit
+                                    </a>
+                                    <a asp-action="Print" asp-route-id="@product.Id" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                        <i class="fas fa-print mr-2"></i> Print Tag
+                                    </a>
+                                    <a asp-action="QrCode" asp-route-id="@product.Id" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                        <i class="fas fa-qrcode mr-2"></i> Show QR Code
+                                    </a>
+                                    <a asp-action="ScanShow" asp-route-id="@product.Id" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                        <i class="fas fa-info-circle mr-2"></i> Product Information
+                                    </a>
+                                    <a href="#" class="delete-product-btn block px-4 py-2 text-sm text-red-600 hover:bg-red-50" data-id="@product.Id" data-name="@product.ProductName">
+                                        <i class="fas fa-trash-alt mr-2"></i> Delete
+                                    </a>
+                                </div>
                             </div>
                         </div>
+                        
+                        <!-- Product Image (if available) -->
+                        @if (!string.IsNullOrEmpty(product.ImagePath))
+                        {
+                            <div class="mt-2 mb-3 flex justify-center">
+                                <img src="@product.ImagePath" alt="@product.ProductName" class="h-24 object-contain rounded-md border border-gray-200" />
+                            </div>
+                        }
                         
                         <!-- Product Details -->
                         <div class="space-y-2 text-sm">
                             <p class="flex items-center">
-                                <i class="fas fa-tag mr-3 w-5 text-center" style="color: @product.AccentColor"></i>
-                                <span class="font-medium">Model:</span>&nbsp;@product.ModelNumber
-                            </p>
-                            <p class="flex items-center">
-                                <i class="fas fa-fingerprint mr-3 w-5 text-center" style="color: @product.AccentColor"></i>
-                                <span class="font-medium">Serial:</span>&nbsp;@product.SerialNumber
-                            </p>
-                            <p class="flex items-center">
                                 <i class="fas fa-map-marker-alt mr-3 w-5 text-center" style="color: @product.AccentColor"></i>
-                                <span class="font-medium">Location:</span>&nbsp;@product.Location
+                                <span class="font-medium">Location:</span>&nbsp;@(string.IsNullOrEmpty(product.Location) ? "Not specified" : product.Location)
                             </p>
                             <p class="flex items-center">
                                 <i class="fas fa-calendar-check mr-3 w-5 text-center" style="color: @product.AccentColor"></i>
                                 <span class="font-medium">Warranty:</span>&nbsp;@product.WarrantyExpiration.ToString("MMM d, yyyy")
                             </p>
+                            @if (!string.IsNullOrEmpty(product.MaintenanceInfo))
+                            {
+                                <p class="flex items-center">
+                                    <i class="fas fa-wrench mr-3 w-5 text-center" style="color: @product.AccentColor"></i>
+                                    <span class="font-medium">Maintenance:</span>&nbsp;
+                                    <span class="truncate">@(product.MaintenanceInfo.Length > 30 ? product.MaintenanceInfo.Substring(0, 30) + "..." : product.MaintenanceInfo)</span>
+                                </p>
+                            }
                         </div>
                     </div>
                     
@@ -305,7 +320,7 @@ else
                             <i class="far fa-clock mr-2"></i> 
                             @if ((DateTime.Now - product.UpdatedAt).TotalHours < 24)
                             {
-                                <span class="font-medium text-primary-600">Updated today</span>
+                                <span class="font-medium text-blue-600">Updated today</span>
                             }
                             else
                             {
@@ -313,20 +328,25 @@ else
                             }
                         </span>
                         
-                        <a asp-action="Details" asp-route-id="@product.Id" class="px-3 py-1 bg-primary-50 text-primary-600 rounded-md hover:bg-primary-100 transition-colors text-sm font-medium">
-                            View Details <i class="fas fa-arrow-right ml-1"></i>
-                        </a>
+                        <div class="flex gap-2">
+                            <a asp-action="Print" asp-route-id="@product.Id" class="px-2 py-1 bg-gray-200 text-gray-600 rounded hover:bg-gray-300 transition-colors text-xs">
+                                <i class="fas fa-print"></i>
+                            </a>
+                            <a asp-action="Details" asp-route-id="@product.Id" class="px-3 py-1 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-colors text-sm font-medium">
+                                View <i class="fas fa-arrow-right ml-1"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         }
     </div>
     
-    <!-- Products List View (Hidden by Default) -->
+    <!-- Products List View - Redesigned for better data scanning -->
     <div id="list-view" class="hidden space-y-4">
         @foreach (var product in Model)
         {
-            <div class="product-item" data-updated="@product.UpdatedAt.ToString("yyyy-MM-dd")" data-category="@product.Category.ToLower()" data-warranty="@(product.WarrantyExpiration < DateTime.Now ? "expired" : (product.WarrantyExpiration < DateTime.Now.AddMonths(1) ? "expiring" : "active"))">
+            <div class="product-item" data-updated="@product.UpdatedAt.ToString("yyyy-MM-dd")" data-category="@(product.Category?.ToLower() ?? string.Empty)" data-warranty="@(product.WarrantyExpiration < DateTime.Now ? "expired" : (product.WarrantyExpiration < DateTime.Now.AddMonths(1) ? "expiring" : "active"))">
                 <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 overflow-hidden">
                     <div class="flex flex-col md:flex-row">
                         <!-- Colored sidebar with category -->
@@ -357,11 +377,17 @@ else
                                     </div>
                                     
                                     <h3 class="text-lg font-bold" style="color: @product.AccentColor">@product.ProductName</h3>
-                                    <p class="text-sm text-gray-600">@product.Manufacturer • Model: @product.ModelNumber • SN: @product.SerialNumber</p>
+                                    <p class="text-sm text-gray-600 mt-1">
+                                        @(string.IsNullOrEmpty(product.CustomFieldsData?.ToString()) ? "No manufacturer data" : 
+                                          product.CustomFieldsData.Contains("Manufacturer") ? 
+                                          Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(product.CustomFieldsData)
+                                          .FirstOrDefault(kv => kv.Key.Contains("Manufacturer")).Value : "No manufacturer data")
+                                        • Location: @(string.IsNullOrEmpty(product.Location) ? "Not specified" : product.Location)
+                                    </p>
                                 </div>
                                 
                                 <div class="flex items-center space-x-2 mt-4 md:mt-0">
-                                    <a asp-action="Details" asp-route-id="@product.Id" class="px-3 py-1 bg-primary-50 text-primary-600 rounded-md hover:bg-primary-100 text-sm">
+                                    <a asp-action="Details" asp-route-id="@product.Id" class="px-3 py-1 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 text-sm">
                                         <i class="fas fa-eye mr-1"></i> View
                                     </a>
                                     <a asp-action="Edit" asp-route-id="@product.Id" class="px-3 py-1 bg-gray-50 text-gray-600 rounded-md hover:bg-gray-100 text-sm">
@@ -370,16 +396,13 @@ else
                                     <a asp-action="Print" asp-route-id="@product.Id" class="px-3 py-1 bg-gray-50 text-gray-600 rounded-md hover:bg-gray-100 text-sm">
                                         <i class="fas fa-print mr-1"></i> Print
                                     </a>
-                                    <a asp-action="ScanShow" asp-route-id="@product.Id" class="px-3 py-1 bg-gray-50 text-gray-600 rounded-md hover:bg-gray-100 text-sm">
-                                        <i class="fas fa-info-circle mr-1"></i> Info
-                                    </a>
+                                    <button class="delete-product-btn px-3 py-1 bg-red-50 text-red-600 rounded-md hover:bg-red-100 text-sm" data-id="@product.Id" data-name="@product.ProductName">
+                                        <i class="fas fa-trash mr-1"></i> Delete
+                                    </button>
                                 </div>
                             </div>
                             
                             <div class="mt-3 flex flex-wrap items-center text-sm text-gray-500">
-                                <span class="mr-4 flex items-center">
-                                    <i class="fas fa-map-marker-alt mr-1" style="color: @product.AccentColor"></i> @product.Location
-                                </span>
                                 <span class="mr-4 flex items-center">
                                     <i class="fas fa-calendar-check mr-1" style="color: @product.AccentColor"></i> Warranty: @product.WarrantyExpiration.ToString("MMM d, yyyy")
                                 </span>
@@ -387,7 +410,7 @@ else
                                     <i class="far fa-clock mr-1" style="color: @product.AccentColor"></i> 
                                     @if ((DateTime.Now - product.UpdatedAt).TotalHours < 24)
                                     {
-                                        <span class="font-medium text-primary-600">Updated today</span>
+                                        <span class="font-medium text-blue-600">Updated today</span>
                                     }
                                     else
                                     {
@@ -396,12 +419,56 @@ else
                                 </span>
                             </div>
                         </div>
+
+                        <!-- QR Code preview (small) -->
+                        <div class="hidden md:flex items-center justify-center p-4 border-l border-gray-100 bg-gray-50">
+                            <div class="flex flex-col items-center">
+                                <div class="qr-code-container w-16 h-16 bg-white p-1 border border-gray-200 rounded-md shadow-sm" data-qr="PRODUCT:@product.Id:@product.ProductName"></div>
+                                <span class="text-xs text-gray-500 mt-1">Scan</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         }
     </div>
 }
+
+<!-- Confirmation Modal -->
+<div id="delete-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+    <div class="absolute inset-0 bg-black bg-opacity-30 backdrop-blur-sm"></div>
+    <div class="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 relative z-10 transform transition-all duration-300 opacity-0 scale-95">
+        <div class="p-5 border-b border-gray-200 bg-red-50">
+            <div class="flex justify-between items-center">
+                <h3 class="text-lg font-bold text-red-700">Delete Product</h3>
+                <button type="button" class="text-gray-400 hover:text-gray-600" id="close-delete-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="p-5">
+            <p class="text-gray-700">Are you sure you want to delete this product? This action cannot be undone.</p>
+            <div class="mt-4 p-4 border border-red-100 rounded-lg bg-red-50">
+                <p class="flex items-center text-red-600 font-medium" id="delete-product-name">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    <span></span>
+                </p>
+            </div>
+            <input type="hidden" id="delete-product-id" value="" />
+        </div>
+        <div class="p-5 border-t border-gray-200 bg-gray-50 flex justify-end rounded-b-xl">
+            <button type="button" class="btn-secondary mr-2 rounded-lg px-4 py-2 hover:bg-gray-100" id="cancel-delete-btn">
+                Cancel
+            </button>
+            <form id="delete-form" asp-action="Delete" method="post">
+                <input type="hidden" name="id" id="form-delete-id" />
+                <button type="submit" class="btn-danger rounded-lg px-4 py-2 bg-red-500 hover:bg-red-600 text-white" id="confirm-delete-btn">
+                    <i class="fas fa-trash mr-2"></i> Delete Product
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
 
 <!-- Toast Notification -->
 <div id="toast" class="fixed bottom-4 right-4 hidden transform transition-transform duration-300 z-50">
@@ -421,9 +488,14 @@ else
     </div>
 </div>
 
+<!-- Updated script - enhanced for better UX interactions -->
 @section Scripts {
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Initialize QR codes
+        initializeQrCodes();
+
         // Advanced search toggle
         const advancedToggle = document.getElementById('advanced-search-toggle');
         const advancedPanel = document.getElementById('advanced-search-panel');
@@ -447,8 +519,8 @@ else
                 gridView.classList.remove('hidden');
                 listView.classList.add('hidden');
                 gridViewBtn.classList.remove('bg-white', 'text-gray-700');
-                gridViewBtn.classList.add('bg-primary-600', 'text-white');
-                listViewBtn.classList.remove('bg-primary-600', 'text-white');
+                gridViewBtn.classList.add('bg-blue-600', 'text-white');
+                listViewBtn.classList.remove('bg-blue-600', 'text-white');
                 listViewBtn.classList.add('bg-white', 'text-gray-700');
                 
                 // Show toast notification
@@ -459,8 +531,8 @@ else
                 gridView.classList.add('hidden');
                 listView.classList.remove('hidden');
                 listViewBtn.classList.remove('bg-white', 'text-gray-700');
-                listViewBtn.classList.add('bg-primary-600', 'text-white');
-                gridViewBtn.classList.remove('bg-primary-600', 'text-white');
+                listViewBtn.classList.add('bg-blue-600', 'text-white');
+                gridViewBtn.classList.remove('bg-blue-600', 'text-white');
                 gridViewBtn.classList.add('bg-white', 'text-gray-700');
                 
                 // Show toast notification
@@ -504,6 +576,11 @@ else
                         product.classList.remove('fade-in');
                     }
                 });
+                
+                // Update filtered count
+                if (document.getElementById('filtered-count')) {
+                    document.getElementById('filtered-count').textContent = visibleCount;
+                }
                 
                 // Check if we have visible products
                 updateNoResultsMessage(searchTerm, visibleCount);
@@ -572,12 +649,81 @@ else
                 }
             });
             
+            // Update filtered count
+            if (document.getElementById('filtered-count')) {
+                document.getElementById('filtered-count').textContent = visibleCount;
+            }
+            
             // Show message if no products match filter
             updateNoResultsMessage('', visibleCount, filterType);
             
             // Show toast notification
             showToast('Filter applied', `Showing ${visibleCount} products matching your filter.`);
         }
+        
+        // Initialize QR codes
+        function initializeQrCodes() {
+            const qrCodeContainers = document.querySelectorAll('.qr-code-container');
+            qrCodeContainers.forEach(container => {
+                const data = container.getAttribute('data-qr');
+                if (data && typeof QRCode !== 'undefined') {
+                    new QRCode(container, {
+                        text: data,
+                        width: 64,
+                        height: 64,
+                        colorDark: "#000000",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+                }
+            });
+        }
+        
+        // Delete product functionality
+        const deleteButtons = document.querySelectorAll('.delete-product-btn');
+        const deleteModal = document.getElementById('delete-modal');
+        const closeDeleteModalBtn = document.getElementById('close-delete-modal');
+        const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+        const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+        const deleteProductName = document.getElementById('delete-product-name').querySelector('span');
+        const deleteProductId = document.getElementById('delete-product-id');
+        const formDeleteId = document.getElementById('form-delete-id');
+        
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const productId = this.getAttribute('data-id');
+                const productName = this.getAttribute('data-name');
+                
+                deleteProductName.textContent = productName;
+                deleteProductId.value = productId;
+                formDeleteId.value = productId;
+                
+                // Show modal with animation
+                deleteModal.classList.remove('hidden');
+                setTimeout(() => {
+                    deleteModal.querySelector('.bg-white').classList.remove('opacity-0', 'scale-95');
+                    deleteModal.querySelector('.bg-white').classList.add('opacity-100', 'scale-100');
+                }, 10);
+            });
+        });
+        
+        // Close delete modal function
+        function closeDeleteModal() {
+            const modalContent = deleteModal.querySelector('.bg-white');
+            modalContent.classList.remove('opacity-100', 'scale-100');
+            modalContent.classList.add('opacity-0', 'scale-95');
+            
+            setTimeout(() => {
+                deleteModal.classList.add('hidden');
+            }, 300);
+        }
+        
+        // Close delete modal events
+        if (closeDeleteModalBtn) closeDeleteModalBtn.addEventListener('click', closeDeleteModal);
+        if (cancelDeleteBtn) cancelDeleteBtn.addEventListener('click', closeDeleteModal);
         
         // Toast notification
         function showToast(message, description = '', type = 'success') {
@@ -679,7 +825,7 @@ else
                                 <button id="clear-filters-btn" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
                                     Clear Filters
                                 </button>
-                                <a href="@Url.Action("Create")" class="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700">
+                                <a href="@Url.Action("Create")" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
                                     <i class="fas fa-plus-circle mr-2"></i> Add New Product
                                 </a>
                             </div>
@@ -714,6 +860,11 @@ else
                                     product.style.display = '';
                                     product.classList.add('fade-in');
                                 });
+                                
+                                // Update filtered count
+                                if (document.getElementById('filtered-count')) {
+                                    document.getElementById('filtered-count').textContent = products.length;
+                                }
                                 
                                 // Remove no results message
                                 noResults.remove();
@@ -777,6 +928,11 @@ else
                     }
                 });
                 
+                // Update filtered count
+                if (document.getElementById('filtered-count')) {
+                    document.getElementById('filtered-count').textContent = visibleCount;
+                }
+                
                 // Update no results message
                 updateNoResultsMessage('', visibleCount, 'advanced');
                 
@@ -811,6 +967,11 @@ else
                     product.classList.add('fade-in');
                 });
                 
+                // Update filtered count
+                if (document.getElementById('filtered-count')) {
+                    document.getElementById('filtered-count').textContent = products.length;
+                }
+                
                 // Reset active filter button
                 if (filterButtons[0]) {
                     filterButtons.forEach(btn => {
@@ -830,6 +991,18 @@ else
                 // Show toast
                 showToast('Filters cleared', 'Showing all products.', 'info');
             });
+        }
+        
+        // Check URL parameters for success message
+        const urlParams = new URLSearchParams(window.location.search);
+        const successMessage = urlParams.get('success');
+        if (successMessage) {
+            showToast('Success', decodeURIComponent(successMessage), 'success');
+            
+            // Remove the success parameter from URL without refreshing
+            const url = new URL(window.location);
+            url.searchParams.delete('success');
+            window.history.replaceState({}, '', url);
         }
     });
 </script>
