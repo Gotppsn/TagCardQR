@@ -1,8 +1,8 @@
 // Path: Services/QrCodeService.cs
-// Implement QR code generation service
-
 using System;
 using System.IO;
+using System.Threading.Tasks;
+using CardTagManager.Models;
 using QRCoder;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -11,48 +11,84 @@ namespace CardTagManager.Services
 {
     public class QrCodeService
     {
-        public string GenerateQrCodeAsBase64(string textData, string foregroundColor = "#000000", string backgroundColor = "#FFFFFF")
+        // Generate QR code as a base64 encoded image string for inline display
+        public async Task<string> GenerateQrCodeImage(Card card)
         {
-            // Create QR code generator
-            using (var qrGenerator = new QRCodeGenerator())
+            if (card == null)
+                return string.Empty;
+                
+            try
             {
-                // Create QR code data
-                var qrCodeData = qrGenerator.CreateQrCode(textData, QRCodeGenerator.ECCLevel.Q);
+                // Create QR code data with structured format
+                string qrData = $"PRODUCT:{card.ProductName}:CAT:{card.Category}:ID:{card.Id}";
                 
-                // Convert hex colors to RGB
-                var fgColor = HexToColor(foregroundColor);
-                var bgColor = HexToColor(backgroundColor);
+                // Parse colors from hex format
+                Color fgColor = ColorTranslator.FromHtml(card.QrFgColor ?? "#000000"); 
+                Color bgColor = ColorTranslator.FromHtml(card.QrBgColor ?? "#FFFFFF");
                 
-                // Use QRCode with custom colors
-                using (var qrCode = new QRCode(qrCodeData))
+                // Generate QR code using QRCoder library
+                using (var qrGenerator = new QRCodeGenerator())
                 {
-                    // Generate bitmap with custom colors
-                    using (var qrBitmap = qrCode.GetGraphic(20, fgColor, bgColor, true))
+                    var qrCodeData = qrGenerator.CreateQrCode(qrData, QRCodeGenerator.ECCLevel.Q);
+                    using (var qrCode = new QRCode(qrCodeData))
                     {
-                        // Convert bitmap to Base64 string
+                        var qrBitmap = qrCode.GetGraphic(20, fgColor, bgColor, true);
+                        
+                        // Convert to base64 string for direct embedding in HTML
                         using (var ms = new MemoryStream())
                         {
                             qrBitmap.Save(ms, ImageFormat.Png);
-                            byte[] byteImage = ms.ToArray();
-                            return $"data:image/png;base64,{Convert.ToBase64String(byteImage)}";
+                            var imageBytes = ms.ToArray();
+                            
+                            return $"data:image/png;base64,{Convert.ToBase64String(imageBytes)}";
                         }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error generating QR code: {ex.Message}");
+                return string.Empty;
+            }
         }
         
-        private Color HexToColor(string hexColor)
+        // Generate QR code as a byte array for file download
+        public async Task<byte[]> GenerateQrCodeBytes(Card card)
         {
-            // Remove # if present
-            if (hexColor.StartsWith("#"))
-                hexColor = hexColor.Substring(1);
+            if (card == null)
+                return Array.Empty<byte>();
                 
-            // Convert hex to RGB
-            int r = Convert.ToInt32(hexColor.Substring(0, 2), 16);
-            int g = Convert.ToInt32(hexColor.Substring(2, 2), 16);
-            int b = Convert.ToInt32(hexColor.Substring(4, 2), 16);
-            
-            return Color.FromArgb(r, g, b);
+            try
+            {
+                // Create QR code data
+                string qrData = $"PRODUCT:{card.ProductName}:CAT:{card.Category}:ID:{card.Id}";
+                
+                // Parse colors
+                Color fgColor = ColorTranslator.FromHtml(card.QrFgColor ?? "#000000"); 
+                Color bgColor = ColorTranslator.FromHtml(card.QrBgColor ?? "#FFFFFF");
+                
+                // Generate QR code
+                using (var qrGenerator = new QRCodeGenerator())
+                {
+                    var qrCodeData = qrGenerator.CreateQrCode(qrData, QRCodeGenerator.ECCLevel.Q);
+                    using (var qrCode = new QRCode(qrCodeData))
+                    {
+                        var qrBitmap = qrCode.GetGraphic(20, fgColor, bgColor, true);
+                        
+                        // Convert to byte array for file downloads
+                        using (var ms = new MemoryStream())
+                        {
+                            qrBitmap.Save(ms, ImageFormat.Png);
+                            return ms.ToArray();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error generating QR code: {ex.Message}");
+                return Array.Empty<byte>();
+            }
         }
     }
 }

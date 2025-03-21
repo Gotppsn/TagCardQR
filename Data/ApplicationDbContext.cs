@@ -52,8 +52,37 @@ namespace CardTagManager.Data
             modelBuilder.Entity<Card>()
                 .Property(c => c.UpdatedAt)
                 .HasDefaultValueSql("GETDATE()");
+                
+            // Configure CardHistory entity
+            modelBuilder.Entity<CardHistory>()
+                .HasKey(h => h.Id);
+                
+            modelBuilder.Entity<CardHistory>()
+                .HasOne(h => h.Card)
+                .WithMany()
+                .HasForeignKey(h => h.CardId)
+                .OnDelete(DeleteBehavior.Cascade);
+                
+            modelBuilder.Entity<CardHistory>()
+                .Property(h => h.FieldName)
+                .IsRequired()
+                .HasMaxLength(50);
+                
+            modelBuilder.Entity<CardHistory>()
+                .Property(h => h.OldValue)
+                .IsRequired(false)
+                .HasMaxLength(500);
+                
+            modelBuilder.Entity<CardHistory>()
+                .Property(h => h.NewValue)
+                .IsRequired(false)
+                .HasMaxLength(500);
+                
+            modelBuilder.Entity<CardHistory>()
+                .Property(h => h.ChangedAt)
+                .HasDefaultValueSql("GETDATE()");
 
-            // Template entity configuration
+            // Template entity configuration 
             modelBuilder.Entity<Template>()
                 .HasKey(t => t.Id);
 

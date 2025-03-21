@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using CardTagManager.Data;
 using CardTagManager.Models;
 using CardTagManager.Services;
@@ -156,6 +157,10 @@ namespace CardTagManager.Controllers
                 return NotFound();
             }
 
+            // Generate QR code for display
+            string qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card);
+            ViewBag.QrCodeImage = qrCodeImageData;
+
             return View(card);
         }
 
@@ -167,6 +172,19 @@ namespace CardTagManager.Controllers
             {
                 return NotFound();
             }
+            
+            // Get card history for display
+            var history = await _context.CardHistories
+                .Where(h => h.CardId == id)
+                .OrderByDescending(h => h.ChangedAt)
+                .Take(10) // Get the most recent 10 changes
+                .ToListAsync();
+                
+            ViewBag.History = history;
+            
+            // Generate QR code for display
+            string qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card);
+            ViewBag.QrCodeImage = qrCodeImageData;
             
             return View(card);
         }
@@ -185,33 +203,95 @@ namespace CardTagManager.Controllers
             {
                 try
                 {
-                    // Handle image update if a new file is provided
-                    if (card.ImageFile != null)
+                    // Get the original card from the database to compare changes
+                    var originalCard = await _context.Cards.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
+                    if (originalCard == null)
                     {
-                        var uploadResult = await _fileUploadService.UploadFile(card.ImageFile);
-                        if (uploadResult.IsSuccess)
+                        return NotFound();
+                    }
+                    
+                    // Handle image update if a new file is provided
+                    if (card.ImageFile != null && card.ImageFile.Length > 0)
+                    {
+                        try
                         {
-                            // If there's an existing image, delete it (optional)
-                            if (!string.IsNullOrEmpty(card.ImagePath))
+                            var uploadResult = await _fileUploadService.UploadFile(card.ImageFile);
+                            if (uploadResult.IsSuccess)
                             {
-                                await _fileUploadService.DeleteFile(card.ImagePath);
+                                // If there's an existing image, we could delete it, but let's keep it for now
+                                // if (!string.IsNullOrEmpty(originalCard.ImagePath))
+                                // {
+                                //     await _fileUploadService.DeleteFile(originalCard.ImagePath);
+                                // }
+                                
+                                // Record the image change
+                                if (originalCard.ImagePath != uploadResult.FileUrl)
+                                {
+                                    var imageHistory = new CardHistory
+                                    {
+                                        CardId = card.Id,
+                                        FieldName = "Image",
+                                        OldValue = originalCard.ImagePath ?? "None",
+                                        NewValue = "Updated Image",
+                                        ChangedAt = DateTime.Now,
+                                        ChangedBy = User.Identity?.Name ?? "system"
+                                    };
+                                    _context.CardHistories.Add(imageHistory);
+                                }
+                                
+                                card.ImagePath = uploadResult.FileUrl;
                             }
-                            
-                            card.ImagePath = uploadResult.FileUrl;
+                            else
+                            {
+                                ModelState.AddModelError("ImageFile", $"Failed to upload image: {uploadResult.ErrorMessage}");
+                                
+                                // Load card history for re-displaying the edit form
+                                var history = await _context.CardHistories
+                                    .Where(h => h.CardId == id)
+                                    .OrderByDescending(h => h.ChangedAt)
+                                    .Take(10)
+                                    .ToListAsync();
+                                    
+                                ViewBag.History = history;
+                                return View(card);
+                            }
                         }
-                        else
+                        catch (Exception ex)
                         {
-                            ModelState.AddModelError("ImageFile", $"Failed to upload image: {uploadResult.ErrorMessage}");
+                            _logger.LogError(ex, "Error uploading image during edit");
+                            ModelState.AddModelError("ImageFile", $"Upload error: {ex.Message}");
+                            
+                            // Load card history for re-displaying the edit form
+                            var history = await _context.CardHistories
+                                .Where(h => h.CardId == id)
+                                .OrderByDescending(h => h.ChangedAt)
+                                .Take(10)
+                                .ToListAsync();
+                                
+                            ViewBag.History = history;
                             return View(card);
                         }
                     }
+                    else
+                    {
+                        // Make sure we preserve the original image path if no new image is uploaded
+                        card.ImagePath = originalCard.ImagePath;
+                    }
+
+                    // Track changes for history
+                    await TrackCardChanges(originalCard, card);
 
                     // Update timestamp
                     card.UpdatedAt = DateTime.Now;
+                    card.CreatedAt = originalCard.CreatedAt; // Preserve original creation date
+                    card.CreatedBy = originalCard.CreatedBy; // Preserve original creator
                     
                     // Update in database
                     _context.Update(card);
                     await _context.SaveChangesAsync();
+                    
+                    // Generate updated QR code
+                    await _qrCodeService.GenerateQrCodeImage(card);
                     
                     TempData["SuccessMessage"] = $"Product '{card.ProductName}' updated successfully.";
                     return RedirectToAction(nameof(Detail), new { id = card.Id });
@@ -229,12 +309,217 @@ namespace CardTagManager.Controllers
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error updating card");
+                    _logger.LogError(ex, $"Error updating card {id}");
                     ModelState.AddModelError("", "An error occurred while updating the product. Please try again.");
+                    
+                    // Load card history for re-displaying the edit form
+                    var history = await _context.CardHistories
+                        .Where(h => h.CardId == id)
+                        .OrderByDescending(h => h.ChangedAt)
+                        .Take(10)
+                        .ToListAsync();
+                        
+                    ViewBag.History = history;
                     return View(card);
                 }
             }
+
+            // If model state is invalid, reload history and redisplay form
+            var cardHistory = await _context.CardHistories
+                .Where(h => h.CardId == id)
+                .OrderByDescending(h => h.ChangedAt)
+                .Take(10)
+                .ToListAsync();
+                
+            ViewBag.History = cardHistory;
+            
             return View(card);
+        }
+        
+        // Helper method to track card changes
+        private async Task TrackCardChanges(Card originalCard, Card updatedCard)
+        {
+            var changedProperties = new List<CardHistory>();
+            
+            // Compare basic properties
+            if (originalCard.ProductName != updatedCard.ProductName)
+            {
+                changedProperties.Add(new CardHistory
+                {
+                    CardId = originalCard.Id,
+                    FieldName = "Product Name",
+                    OldValue = originalCard.ProductName,
+                    NewValue = updatedCard.ProductName,
+                    ChangedAt = DateTime.Now,
+                    ChangedBy = User.Identity?.Name ?? "system"
+                });
+            }
+            
+            if (originalCard.Category != updatedCard.Category)
+            {
+                changedProperties.Add(new CardHistory
+                {
+                    CardId = originalCard.Id,
+                    FieldName = "Category",
+                    OldValue = originalCard.Category,
+                    NewValue = updatedCard.Category,
+                    ChangedAt = DateTime.Now,
+                    ChangedBy = User.Identity?.Name ?? "system"
+                });
+            }
+            
+            if (originalCard.Location != updatedCard.Location)
+            {
+                changedProperties.Add(new CardHistory
+                {
+                    CardId = originalCard.Id,
+                    FieldName = "Location",
+                    OldValue = originalCard.Location ?? "None",
+                    NewValue = updatedCard.Location ?? "None",
+                    ChangedAt = DateTime.Now,
+                    ChangedBy = User.Identity?.Name ?? "system"
+                });
+            }
+            
+            if (originalCard.MaintenanceInfo != updatedCard.MaintenanceInfo)
+            {
+                changedProperties.Add(new CardHistory
+                {
+                    CardId = originalCard.Id,
+                    FieldName = "Maintenance Info",
+                    OldValue = originalCard.MaintenanceInfo ?? "None",
+                    NewValue = updatedCard.MaintenanceInfo ?? "None",
+                    ChangedAt = DateTime.Now,
+                    ChangedBy = User.Identity?.Name ?? "system"
+                });
+            }
+            
+            if (originalCard.ManufactureDate.Date != updatedCard.ManufactureDate.Date)
+            {
+                changedProperties.Add(new CardHistory
+                {
+                    CardId = originalCard.Id,
+                    FieldName = "Manufacture Date",
+                    OldValue = originalCard.ManufactureDate.ToShortDateString(),
+                    NewValue = updatedCard.ManufactureDate.ToShortDateString(),
+                    ChangedAt = DateTime.Now,
+                    ChangedBy = User.Identity?.Name ?? "system"
+                });
+            }
+            
+            if (originalCard.PurchaseDate.Date != updatedCard.PurchaseDate.Date)
+            {
+                changedProperties.Add(new CardHistory
+                {
+                    CardId = originalCard.Id,
+                    FieldName = "Purchase Date",
+                    OldValue = originalCard.PurchaseDate.ToShortDateString(),
+                    NewValue = updatedCard.PurchaseDate.ToShortDateString(),
+                    ChangedAt = DateTime.Now,
+                    ChangedBy = User.Identity?.Name ?? "system"
+                });
+            }
+            
+            if (originalCard.WarrantyExpiration.Date != updatedCard.WarrantyExpiration.Date)
+            {
+                changedProperties.Add(new CardHistory
+                {
+                    CardId = originalCard.Id,
+                    FieldName = "Warranty Expiration",
+                    OldValue = originalCard.WarrantyExpiration.ToShortDateString(),
+                    NewValue = updatedCard.WarrantyExpiration.ToShortDateString(),
+                    ChangedAt = DateTime.Now,
+                    ChangedBy = User.Identity?.Name ?? "system"
+                });
+            }
+            
+            // Compare appearance settings
+            if (originalCard.BackgroundColor != updatedCard.BackgroundColor)
+            {
+                changedProperties.Add(new CardHistory
+                {
+                    CardId = originalCard.Id,
+                    FieldName = "Background Color",
+                    OldValue = originalCard.BackgroundColor,
+                    NewValue = updatedCard.BackgroundColor,
+                    ChangedAt = DateTime.Now,
+                    ChangedBy = User.Identity?.Name ?? "system"
+                });
+            }
+            
+            if (originalCard.TextColor != updatedCard.TextColor)
+            {
+                changedProperties.Add(new CardHistory
+                {
+                    CardId = originalCard.Id,
+                    FieldName = "Text Color",
+                    OldValue = originalCard.TextColor,
+                    NewValue = updatedCard.TextColor,
+                    ChangedAt = DateTime.Now,
+                    ChangedBy = User.Identity?.Name ?? "system"
+                });
+            }
+            
+            if (originalCard.AccentColor != updatedCard.AccentColor)
+            {
+                changedProperties.Add(new CardHistory
+                {
+                    CardId = originalCard.Id,
+                    FieldName = "Accent Color",
+                    OldValue = originalCard.AccentColor,
+                    NewValue = updatedCard.AccentColor,
+                    ChangedAt = DateTime.Now,
+                    ChangedBy = User.Identity?.Name ?? "system"
+                });
+            }
+            
+            // Compare QR code colors if they exist
+            if (originalCard.QrFgColor != updatedCard.QrFgColor)
+            {
+                changedProperties.Add(new CardHistory
+                {
+                    CardId = originalCard.Id,
+                    FieldName = "QR Foreground Color",
+                    OldValue = originalCard.QrFgColor ?? "#000000",
+                    NewValue = updatedCard.QrFgColor ?? "#000000",
+                    ChangedAt = DateTime.Now,
+                    ChangedBy = User.Identity?.Name ?? "system"
+                });
+            }
+            
+            if (originalCard.QrBgColor != updatedCard.QrBgColor)
+            {
+                changedProperties.Add(new CardHistory
+                {
+                    CardId = originalCard.Id,
+                    FieldName = "QR Background Color",
+                    OldValue = originalCard.QrBgColor ?? "#FFFFFF",
+                    NewValue = updatedCard.QrBgColor ?? "#FFFFFF",
+                    ChangedAt = DateTime.Now,
+                    ChangedBy = User.Identity?.Name ?? "system"
+                });
+            }
+            
+            // Compare custom fields data
+            if (originalCard.CustomFieldsData != updatedCard.CustomFieldsData)
+            {
+                changedProperties.Add(new CardHistory
+                {
+                    CardId = originalCard.Id,
+                    FieldName = "Custom Fields",
+                    OldValue = "Previous Fields",
+                    NewValue = "Updated Fields",
+                    ChangedAt = DateTime.Now,
+                    ChangedBy = User.Identity?.Name ?? "system"
+                });
+            }
+            
+            // Add all changes to the database if there are any
+            if (changedProperties.Count > 0)
+            {
+                _context.CardHistories.AddRange(changedProperties);
+                await _context.SaveChangesAsync();
+            }
         }
 
         // GET: Card/Print/5
@@ -245,6 +530,10 @@ namespace CardTagManager.Controllers
             {
                 return NotFound();
             }
+            
+            // Generate QR code for printing
+            string qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card);
+            ViewBag.QrCodeImage = qrCodeImageData;
 
             return View(card);
         }
@@ -253,7 +542,41 @@ namespace CardTagManager.Controllers
         public async Task<IActionResult> PrintAll()
         {
             var cards = await _context.Cards.ToListAsync();
+            
+            // Generate QR codes for all cards
+            var cardIds = cards.Select(c => c.Id).ToList();
+            ViewBag.QrCodeImages = new Dictionary<int, string>();
+            
+            foreach (var card in cards)
+            {
+                ViewBag.QrCodeImages[card.Id] = await _qrCodeService.GenerateQrCodeImage(card);
+            }
+            
             return View(cards);
+        }
+        
+        // GET: Card/DownloadQrCode/5
+        public async Task<IActionResult> DownloadQrCode(int id)
+        {
+            var card = await _context.Cards.FindAsync(id);
+            if (card == null)
+            {
+                return NotFound();
+            }
+            
+            // Generate QR code image for download
+            var qrCodeBytes = await _qrCodeService.GenerateQrCodeBytes(card);
+            
+            if (qrCodeBytes == null || qrCodeBytes.Length == 0)
+            {
+                return NotFound("Could not generate QR code");
+            }
+            
+            // Create a safe filename based on the product name
+            var filename = card.ProductName.Replace(" ", "_");
+            filename = string.Join("_", filename.Split(Path.GetInvalidFileNameChars()));
+            
+            return File(qrCodeBytes, "image/png", $"{filename}_QRCode.png");
         }
 
         // Helper method to check if a card exists
