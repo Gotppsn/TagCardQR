@@ -883,13 +883,22 @@ document.getElementById('product-form').addEventListener('submit', function(e) {
     // Update QR colors before submission
     updateQrColors();
     
-    // Validate form
-    if (!validateForm()) {
-        e.preventDefault(); // Only prevent if invalid
-        return false;
+    // Don't prevent form submission by default - only if validation clearly fails
+    try {
+        const isValid = validateForm();
+        if (!isValid) {
+            console.error('Form validation failed');
+            e.preventDefault();
+            return false;
+        }
+        // Continue with submission if validation passes
+        console.log('Form submission proceeding');
+        return true;
+    } catch (error) {
+        console.error('Validation error:', error);
+        // Continue with submission if validation function throws an error
+        return true;
     }
-    
-    return true;
 });
 
 // Function to update QR color values to hidden fields
@@ -2459,20 +2468,24 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Validate entire form
     function validateForm() {
-        let isValid = true;
-        const requiredFields = document.querySelectorAll('[required]');
+    let isValid = true;
+    let invalidFields = [];
+    
+    try {
+        // Only check required fields in visible sections
+        const activeStep = document.querySelector('.form-section:not(.hidden)');
+        if (!activeStep) return true; // No active step found, allow submission
+        
+        const requiredFields = activeStep.querySelectorAll('[required]');
         
         requiredFields.forEach(field => {
+            // Skip hidden fields
+            if (field.closest('.hidden')) return;
+            
             if (!field.value.trim()) {
                 field.classList.add('border-red-500');
                 isValid = false;
-                
-                // Show the appropriate step if there's an error
-                const step = field.closest('.form-section');
-                if (step && step.classList.contains('hidden')) {
-                    const stepNumber = step.getAttribute('data-step');
-                    showStep(parseInt(stepNumber));
-                }
+                invalidFields.push(field.id || field.name);
             } else {
                 field.classList.remove('border-red-500');
             }
@@ -2480,10 +2493,19 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (!isValid) {
             showNotification('Please fill in all required fields', 'error');
+            // Focus the first invalid field
+            if (invalidFields.length > 0) {
+                const firstInvalidField = document.getElementById(invalidFields[0]);
+                if (firstInvalidField) firstInvalidField.focus();
+            }
         }
-        
-        return isValid;
+    } catch (error) {
+        console.error('Validation error:', error);
+        return true; // Allow submission if validation throws an error
     }
+    
+    return isValid;
+}
     
     // Show a specific step
     function showStep(stepNumber) {

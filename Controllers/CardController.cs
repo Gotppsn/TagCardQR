@@ -49,59 +49,93 @@ namespace CardTagManager.Controllers
         }
 
         // POST: Card/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Card card)
+ [HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Create(Card card)
+{
+    try {
+        _logger.LogInformation($"Create POST called for product: {card.ProductName}");
+        
+        if (ModelState.IsValid)
         {
-            if (ModelState.IsValid)
+            // Set creator info
+            card.CreatedBy = User.Identity?.Name ?? "anonymous";
+            
+            // Handle file upload if provided
+            if (card.ImageFile != null && card.ImageFile.Length > 0)
             {
                 try
                 {
-                    // Set creator info
-                    card.CreatedBy = User.Identity.Name;
-                    
-                    // Handle file upload
-                    if (card.ImageFile != null)
+                    var uploadResult = await _fileUploadService.UploadFile(card.ImageFile);
+                    if (uploadResult.IsSuccess)
                     {
-                        // Upload to service
-                        var uploadResult = await _fileUploadService.UploadFile(card.ImageFile);
-                        if (uploadResult.IsSuccess)
-                        {
-                            card.ImagePath = uploadResult.FileUrl;
-                        }
-                        else
-                        {
-                            _logger.LogError($"Failed to upload image: {uploadResult.ErrorMessage}");
-                            ModelState.AddModelError("ImageFile", $"Failed to upload image: {uploadResult.ErrorMessage}");
-                            return View(card);
-                        }
+                        card.ImagePath = uploadResult.FileUrl;
+                        _logger.LogInformation($"Image uploaded: {card.ImagePath}");
                     }
-
-                    // Set timestamps
-                    card.CreatedAt = DateTime.Now;
-                    card.UpdatedAt = DateTime.Now;
-
-                    // Add to database
-                    _context.Cards.Add(card);
-                    await _context.SaveChangesAsync();
-
-                    // Set success message for UI
-                    TempData["SuccessMessage"] = $"Product '{card.ProductName}' created successfully.";
-                    
-                    // Redirect to the detail page
-                    return RedirectToAction(nameof(Detail), new { id = card.Id });
+                    else
+                    {
+                        _logger.LogWarning($"Image upload failed: {uploadResult.ErrorMessage}");
+                        // Continue without image rather than failing
+                        ModelState.AddModelError("ImageFile", $"Upload failed: {uploadResult.ErrorMessage}");
+                    }
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error creating card");
-                    ModelState.AddModelError("", "An error occurred while saving the product. Please try again.");
-                    return View(card);
+                    _logger.LogError(ex, "Error uploading image");
+                    // Continue without image rather than failing
+                    ModelState.AddModelError("ImageFile", $"Upload error: {ex.Message}");
                 }
             }
 
-            // If validation fails, redisplay form
-            return View(card);
+            // Ensure CustomFieldsData is valid JSON
+            if (string.IsNullOrEmpty(card.CustomFieldsData))
+            {
+                card.CustomFieldsData = "{}";
+            }
+
+            // Set timestamps
+            card.CreatedAt = DateTime.Now;
+            card.UpdatedAt = DateTime.Now;
+
+            // Add to database
+            _context.Cards.Add(card);
+            
+            try {
+                await _context.SaveChangesAsync();
+                _logger.LogInformation($"Product created successfully, ID: {card.Id}");
+                
+                // Set success message for UI
+                TempData["SuccessMessage"] = $"Product '{card.ProductName}' created successfully.";
+                
+                // Redirect to the detail page
+                return RedirectToAction(nameof(Detail), new { id = card.Id });
+            } catch (Exception dbEx) {
+                _logger.LogError(dbEx, "Database save error");
+                ModelState.AddModelError("", $"Database error: {dbEx.Message}");
+                return View(card);
+            }
         }
+        else
+        {
+            _logger.LogWarning("Model validation failed");
+            foreach (var state in ModelState)
+            {
+                if (state.Value.Errors.Count > 0)
+                {
+                    _logger.LogWarning($"Field: {state.Key}, Errors: {string.Join(", ", state.Value.Errors.Select(e => e.ErrorMessage))}");
+                }
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Unexpected error creating card");
+        ModelState.AddModelError("", $"Error: {ex.Message}");
+    }
+
+    // If validation fails, redisplay form
+    return View(card);
+}
 
         // GET: Card/Detail/5
         public async Task<IActionResult> Detail(int id)

@@ -10,7 +10,7 @@ namespace CardTagManager.Models
     {
         public int Id { get; set; }
         
-        [Required]
+        [Required(ErrorMessage = "Product name is required")]
         [StringLength(100)]
         public string ProductName { get; set; }
         
@@ -21,15 +21,15 @@ namespace CardTagManager.Models
         
         [Required]
         [DataType(DataType.Date)]
-        public DateTime ManufactureDate { get; set; }
+        public DateTime ManufactureDate { get; set; } = DateTime.Now;
         
         [Required]
         [DataType(DataType.Date)]
-        public DateTime PurchaseDate { get; set; }
+        public DateTime PurchaseDate { get; set; } = DateTime.Now;
         
         [Required]
         [DataType(DataType.Date)]
-        public DateTime WarrantyExpiration { get; set; }
+        public DateTime WarrantyExpiration { get; set; } = DateTime.Now.AddYears(1);
         
         public string MaintenanceInfo { get; set; }
         
