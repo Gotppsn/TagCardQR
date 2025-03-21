@@ -84,7 +84,21 @@
                             @Model.Category
                         </span>
                         <h2 class="text-2xl font-bold mt-2 mb-1" style="color: @Model.AccentColor">@Model.ProductName</h2>
-                        <p class="text-lg">@Model.Manufacturer</p>
+                        
+                        @{
+                            // Parse CustomFieldsData to get Manufacturer if available
+                            string manufacturer = "";
+                            try {
+                                if (!string.IsNullOrEmpty(Model.CustomFieldsData) && Model.CustomFieldsData != "{}")
+                                {
+                                    var customFields = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(Model.CustomFieldsData);
+                                    if (customFields.ContainsKey("Manufacturer")) {
+                                        manufacturer = customFields["Manufacturer"];
+                                    }
+                                }
+                            } catch {}
+                        }
+                        <p class="text-lg">@(string.IsNullOrEmpty(manufacturer) ? "" : manufacturer)</p>
                     </div>
                     <div class="bg-white/10 p-2 rounded-lg">
                         @if (!string.IsNullOrEmpty(Model.ImagePath))
@@ -102,18 +116,45 @@
                 
                 <div class="mt-4 space-y-2">
                     <div class="grid grid-cols-2 gap-4">
+                        @{
+                            // Parse CustomFieldsData to get ModelNumber if available
+                            string modelNumber = "";
+                            try {
+                                if (!string.IsNullOrEmpty(Model.CustomFieldsData) && Model.CustomFieldsData != "{}")
+                                {
+                                    var customFields = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(Model.CustomFieldsData);
+                                    if (customFields.ContainsKey("ModelNumber")) {
+                                        modelNumber = customFields["ModelNumber"];
+                                    }
+                                }
+                            } catch {}
+                        }
                         <div>
                             <p class="text-sm opacity-70">Model Number</p>
                             <p class="font-medium flex items-center">
                                 <i class="fas fa-tag mr-2" style="color: @Model.AccentColor"></i>
-                                @Model.ModelNumber
+                                @(string.IsNullOrEmpty(modelNumber) ? "N/A" : modelNumber)
                             </p>
                         </div>
+                        
+                        @{
+                            // Parse CustomFieldsData to get SerialNumber if available
+                            string serialNumber = "";
+                            try {
+                                if (!string.IsNullOrEmpty(Model.CustomFieldsData) && Model.CustomFieldsData != "{}")
+                                {
+                                    var customFields = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(Model.CustomFieldsData);
+                                    if (customFields.ContainsKey("SerialNumber")) {
+                                        serialNumber = customFields["SerialNumber"];
+                                    }
+                                }
+                            } catch {}
+                        }
                         <div>
                             <p class="text-sm opacity-70">Serial Number</p>
                             <p class="font-medium flex items-center">
                                 <i class="fas fa-fingerprint mr-2" style="color: @Model.AccentColor"></i>
-                                @Model.SerialNumber
+                                @(string.IsNullOrEmpty(serialNumber) ? "N/A" : serialNumber)
                             </p>
                         </div>
                     </div>
@@ -122,7 +163,7 @@
                         <p class="text-sm opacity-70">Location</p>
                         <p class="font-medium flex items-center">
                             <i class="fas fa-map-marker-alt mr-2" style="color: @Model.AccentColor"></i>
-                            @Model.Location
+                            @(string.IsNullOrEmpty(Model.Location) ? "Not specified" : Model.Location)
                         </p>
                     </div>
                 </div>
@@ -192,6 +233,28 @@
                         <p class="text-sm text-gray-500">Last Updated</p>
                         <p class="font-medium text-gray-800">@Model.UpdatedAt.ToString("MMM d, yyyy")</p>
                     </div>
+                    
+                    @if (!string.IsNullOrEmpty(Model.CustomFieldsData) && Model.CustomFieldsData != "{}")
+                    {
+                        try
+                        {
+                            var customFields = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(Model.CustomFieldsData);
+                            if (customFields != null && customFields.Count > 0)
+                            {
+                                foreach (var field in customFields)
+                                {
+                                    if (field.Key != "Manufacturer" && field.Key != "ModelNumber" && field.Key != "SerialNumber")
+                                    {
+                                        <div>
+                                            <p class="text-sm text-gray-500">@field.Key</p>
+                                            <p class="font-medium text-gray-800">@field.Value</p>
+                                        </div>
+                                    }
+                                }
+                            }
+                        }
+                        catch {}
+                    }
                 </div>
             </div>
 
@@ -271,7 +334,7 @@
             </div>
         </div>
         
-        <!-- Contact Support Section - MODIFIED: Removed form, only showing contact info -->
+        <!-- Contact Support Section -->
         <div id="contact" class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
             <div class="px-6 py-4 bg-gray-50 border-b border-gray-100">
                 <h3 class="font-semibold text-gray-800">Contact Support</h3>
@@ -280,10 +343,29 @@
                 <h4 class="text-md font-medium text-gray-800 mb-4">Contact Information</h4>
                 
                 <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                    @if (!string.IsNullOrEmpty(Model.UserFullName) || !string.IsNullOrEmpty(Model.Email) || !string.IsNullOrEmpty(Model.Department))
+                    @if (!string.IsNullOrEmpty(Model.CreatedBy) || !string.IsNullOrEmpty(Model.CustomFieldsData))
                     {
                         <div class="space-y-3">
-                            @if (!string.IsNullOrEmpty(Model.UserFullName))
+                            @{
+                                string userFullName = string.Empty;
+                                string email = string.Empty;
+                                string department = string.Empty;
+                                string plantName = string.Empty;
+                                
+                                // Try extracting from CustomFieldsData
+                                try {
+                                    if (!string.IsNullOrEmpty(Model.CustomFieldsData) && Model.CustomFieldsData != "{}")
+                                    {
+                                        var customFields = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(Model.CustomFieldsData);
+                                        if (customFields.ContainsKey("UserFullName")) userFullName = customFields["UserFullName"];
+                                        if (customFields.ContainsKey("Email")) email = customFields["Email"];
+                                        if (customFields.ContainsKey("Department")) department = customFields["Department"];
+                                        if (customFields.ContainsKey("PlantName")) plantName = customFields["PlantName"];
+                                    }
+                                } catch {}
+                            }
+
+                            @if (!string.IsNullOrEmpty(userFullName))
                             {
                                 <div class="flex items-center">
                                     <div class="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
@@ -291,12 +373,12 @@
                                     </div>
                                     <div class="ml-3">
                                         <div class="text-sm text-gray-500">Contact Person</div>
-                                        <div class="font-medium">@Model.UserFullName</div>
+                                        <div class="font-medium">@userFullName</div>
                                     </div>
                                 </div>
                             }
                             
-                            @if (!string.IsNullOrEmpty(Model.Email))
+                            @if (!string.IsNullOrEmpty(email))
                             {
                                 <div class="flex items-center">
                                     <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
@@ -305,13 +387,13 @@
                                     <div class="ml-3">
                                         <div class="text-sm text-gray-500">Email Address</div>
                                         <div class="font-medium">
-                                            <a href="mailto:@Model.Email" class="text-blue-600 hover:underline">@Model.Email</a>
+                                            <a href="mailto:@email" class="text-blue-600 hover:underline">@email</a>
                                         </div>
                                     </div>
                                 </div>
                             }
                             
-                            @if (!string.IsNullOrEmpty(Model.Department))
+                            @if (!string.IsNullOrEmpty(department))
                             {
                                 <div class="flex items-center">
                                     <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
@@ -319,12 +401,12 @@
                                     </div>
                                     <div class="ml-3">
                                         <div class="text-sm text-gray-500">Department</div>
-                                        <div class="font-medium">@Model.Department</div>
+                                        <div class="font-medium">@department</div>
                                     </div>
                                 </div>
                             }
                             
-                            @if (!string.IsNullOrEmpty(Model.PlantName))
+                            @if (!string.IsNullOrEmpty(plantName))
                             {
                                 <div class="flex items-center">
                                     <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
@@ -332,7 +414,7 @@
                                     </div>
                                     <div class="ml-3">
                                         <div class="text-sm text-gray-500">Plant/Location</div>
-                                        <div class="font-medium">@Model.PlantName</div>
+                                        <div class="font-medium">@plantName</div>
                                     </div>
                                 </div>
                             }
@@ -350,7 +432,7 @@
         </div>
     </div>
 
-    <!-- Report Issue Modal - MODIFIED: Removed follow-up checkbox, auto-fill name/email -->
+    <!-- Report Issue Modal -->
     <div id="report-issue-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
         <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 transform transition-all">
             <div class="flex justify-between items-center p-5 border-b">
@@ -361,12 +443,11 @@
             </div>
             <div class="p-5">
                 <form id="issue-report-form">
-                    <input type="hidden" name="productId" value="@Model.Id">
-                    <input type="hidden" name="productName" value="@Model.ProductName">
+                    <input type="hidden" name="CardId" value="@Model.Id">
                     
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Issue Type</label>
-                        <select name="issueType" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" required>
+                        <select name="IssueType" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" required>
                             <option value="">Select Issue Type</option>
                             <option value="Malfunction">Device Malfunction</option>
                             <option value="Maintenance">Maintenance Required</option>
@@ -382,19 +463,19 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1">Priority</label>
                         <div class="flex space-x-4">
                             <label class="flex items-center">
-                                <input type="radio" name="priority" value="Low" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300">
+                                <input type="radio" name="Priority" value="Low" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300">
                                 <span class="ml-2 text-sm text-gray-700">Low</span>
                             </label>
                             <label class="flex items-center">
-                                <input type="radio" name="priority" value="Medium" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300" checked>
+                                <input type="radio" name="Priority" value="Medium" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300" checked>
                                 <span class="ml-2 text-sm text-gray-700">Medium</span>
                             </label>
                             <label class="flex items-center">
-                                <input type="radio" name="priority" value="High" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300">
+                                <input type="radio" name="Priority" value="High" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300">
                                 <span class="ml-2 text-sm text-gray-700">High</span>
                             </label>
                             <label class="flex items-center">
-                                <input type="radio" name="priority" value="Critical" class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300">
+                                <input type="radio" name="Priority" value="Critical" class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300">
                                 <span class="ml-2 text-sm text-red-700">Critical</span>
                             </label>
                         </div>
@@ -402,26 +483,24 @@
                     
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Issue Description</label>
-                        <textarea name="description" rows="4" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
+                        <textarea name="Description" rows="4" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
                                   placeholder="Please describe the issue in detail..." required></textarea>
                     </div>
                     
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-1">When did you notice this issue?</label>
-                        <input type="date" name="reportDate" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" required>
+                        <input type="date" name="ReportDate" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" required>
                     </div>
                     
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Your Contact Information</label>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <!-- Auto-filled with LDAP info -->
-                            <input type="text" name="reporterName" class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
-                                   value="@(User.Identity?.IsAuthenticated == true ? User.FindFirst("FullName")?.Value ?? User.Identity.Name : "")" readonly>
-                            <!-- Auto-filled with LDAP info -->
-                            <input type="email" name="reporterEmail" class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
-                                   value="@(User.Identity?.IsAuthenticated == true ? User.FindFirst("Email")?.Value ?? "" : "")" readonly>
+                            <input type="text" name="ReporterName" class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
+                                   value="@(User.Identity?.IsAuthenticated == true ? User.FindFirst("FullName")?.Value ?? User.Identity.Name : "")" required placeholder="Your Name">
+                            <input type="email" name="ReporterEmail" class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
+                                   value="@(User.Identity?.IsAuthenticated == true ? User.FindFirst("Email")?.Value ?? "" : "")" required placeholder="Your Email">
                         </div>
-                        <input type="tel" name="reporterPhone" class="w-full mt-4 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
+                        <input type="tel" name="ReporterPhone" class="w-full mt-4 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
                                placeholder="Your Phone Number (optional)">
                     </div>
                     
@@ -570,7 +649,7 @@
         const cancelReport = document.getElementById('cancel-report');
         
         // Set default date to today
-        const reportDateField = document.querySelector('input[name="reportDate"]');
+        const reportDateField = document.querySelector('input[name="ReportDate"]');
         if (reportDateField) {
             const today = new Date();
             reportDateField.value = today.toISOString().split('T')[0];
@@ -623,14 +702,14 @@
                 
                 // Convert to match server model properties
                 const issueData = {
-                    CardId: parseInt(formData.get('productId')),
-                    IssueType: formData.get('issueType'),
-                    Priority: formData.get('priority'),
-                    Description: formData.get('description'),
-                    ReportDate: new Date(formData.get('reportDate')).toISOString(),
-                    ReporterName: formData.get('reporterName'),
-                    ReporterEmail: formData.get('reporterEmail'),
-                    ReporterPhone: formData.get('reporterPhone') || '',
+                    CardId: parseInt(formData.get('CardId')),
+                    IssueType: formData.get('IssueType'),
+                    Priority: formData.get('Priority'),
+                    Description: formData.get('Description'),
+                    ReportDate: new Date(formData.get('ReportDate')).toISOString(),
+                    ReporterName: formData.get('ReporterName'),
+                    ReporterEmail: formData.get('ReporterEmail'),
+                    ReporterPhone: formData.get('ReporterPhone') || '',
                     Status: "Open",
                     Resolution: "" // Add empty Resolution field
                 };
@@ -639,7 +718,7 @@
                 const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
                 
                 // API call
-                fetch('/Card/ReportIssue', {
+                fetch('/api/IssueReport', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -669,8 +748,11 @@
                     // Reset form
                     issueForm.reset();
                     
+                    // Reload issues
+                    loadIssueData();
+                    
                     // Set default date again
-                    const reportDateField = document.querySelector('input[name="reportDate"]');
+                    const reportDateField = document.querySelector('input[name="ReportDate"]');
                     if (reportDateField) {
                         const today = new Date();
                         reportDateField.value = today.toISOString().split('T')[0];
@@ -694,9 +776,14 @@
         const documentsContainer = document.getElementById('documents-container');
         const productId = @Model.Id;
         
-        // Fetch documents (in a real app, this would be an actual API call)
-        fetch(`/Card/GetCardDocuments/${productId}`)
-            .then(response => response.json())
+        // Fetch documents
+        fetch(`/api/Document/card/${productId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(documents => {
                 if (documents && documents.length > 0) {
                     // Clear loading spinner
@@ -736,7 +823,7 @@
                                 </div>
                                 <div class="ml-3 overflow-hidden">
                                     <p class="font-medium truncate">${doc.title}</p>
-                                    <p class="text-xs text-gray-500">${doc.documentType} • ${formatFileSize(doc.fileSize)}</p>
+                                    <p class="text-xs text-gray-500">${doc.documentType || 'Document'} • ${formatFileSize(doc.fileSize || 0)}</p>
                                 </div>
                             </div>
                             <div class="flex items-center">
@@ -744,7 +831,7 @@
                                         data-id="${doc.id}" data-title="${doc.title}" data-path="${doc.filePath}">
                                     <i class="fas fa-eye"></i>
                                 </button>
-                                <a href="/Card/DownloadDocument/${doc.id}" class="p-2 text-gray-400 hover:text-primary-600" 
+                                <a href="/api/Document/download/${doc.id}" class="p-2 text-gray-400 hover:text-primary-600" 
                                    download="${doc.fileName}" target="_blank">
                                     <i class="fas fa-download"></i>
                                 </a>
@@ -787,8 +874,13 @@
         const productId = @Model.Id;
         
         // Fetch reminders
-        fetch(`/Card/GetCardReminders/${productId}`)
-            .then(response => response.json())
+        fetch(`/api/Reminder/card/${productId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(reminders => {
                 if (reminders && reminders.length > 0) {
                     // Sort by due date (closest first)
@@ -934,7 +1026,7 @@
                                 </div>
                                 <p class="text-lg font-medium text-gray-700">Preview not available</p>
                                 <p class="text-gray-500 mb-6">This document type cannot be previewed directly.</p>
-                                <a href="/Card/DownloadDocument/${docId}" class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700" download>
+                                <a href="/api/Document/download/${docId}" class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700" download>
                                     <i class="fas fa-download mr-2"></i> Download to view
                                 </a>
                             </div>
@@ -981,7 +1073,7 @@
             downloadBtn.addEventListener('click', function() {
                 const docId = this.getAttribute('data-id');
                 if (docId) {
-                    window.open(`/Card/DownloadDocument/${docId}`, '_blank');
+                    window.open(`/api/Document/download/${docId}`, '_blank');
                 }
             });
         }
@@ -1055,10 +1147,7 @@
         
         // Show toast
         toast.classList.remove('hidden');
-        // Use a small delay to ensure the transition works
-        setTimeout(() => {
-            toast.classList.remove('translate-y-20', 'opacity-0');
-        }, 10);
+        toast.classList.remove('translate-y-20', 'opacity-0');
         
         // Auto hide after 5 seconds
         setTimeout(() => {
@@ -1084,7 +1173,7 @@
             </div>
         `;
         
-        fetch(`/Card/GetCardIssues/${productId}`)
+        fetch(`/api/IssueReport/card/${productId}`)
             .then(response => {
                 console.log("Response received:", response);
                 if (!response.ok) {
@@ -1168,6 +1257,9 @@
     
     // Helper functions
     function formatDate(date) {
+        if (!(date instanceof Date) || isNaN(date)) {
+            return 'Invalid date';
+        }
         const options = { year: 'numeric', month: 'short', day: 'numeric' };
         return date.toLocaleDateString('en-US', options);
     }
