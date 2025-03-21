@@ -541,6 +541,57 @@ namespace CardTagManager.Controllers
                 return RedirectToAction(nameof(Delete), new { id });
             }
         }
+
+        // GET: Card/ScanResult
+        public async Task<IActionResult> ScanResult()
+        {
+            try
+            {
+                // Create a sample list of scan results for demonstration
+                var scanResults = new List<ScanResultViewModel>();
+                
+                // Get actual cards from the database
+                var cards = await _context.Cards.Take(10).ToListAsync();
+                
+                // Create sample scan results based on actual cards
+                foreach (var card in cards)
+                {
+                    // Add a few scan results for each card
+                    scanResults.Add(new ScanResultViewModel
+                    {
+                        Id = scanResults.Count + 1,
+                        CardId = card.Id,
+                        CardName = card.ProductName,
+                        ScanTime = DateTime.Now.AddHours(-new Random().Next(1, 48)),
+                        DeviceInfo = GetRandomDeviceInfo(),
+                        Location = GetRandomLocation(),
+                        ScanResult = GetRandomScanResult()
+                    });
+                    
+                    // Add another scan with different time
+                    scanResults.Add(new ScanResultViewModel
+                    {
+                        Id = scanResults.Count + 1,
+                        CardId = card.Id,
+                        CardName = card.ProductName,
+                        ScanTime = DateTime.Now.AddDays(-new Random().Next(1, 7)),
+                        DeviceInfo = GetRandomDeviceInfo(),
+                        Location = GetRandomLocation(),
+                        ScanResult = GetRandomScanResult()
+                    });
+                }
+                
+                // Sort by scan time (most recent first)
+                scanResults = scanResults.OrderByDescending(s => s.ScanTime).ToList();
+                
+                return View(scanResults);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating scan results");
+                return View(new List<ScanResultViewModel>());
+            }
+        }
         
         // Helper method to track card changes
         private async Task TrackCardChanges(Card originalCard, Card updatedCard)
@@ -869,6 +920,54 @@ namespace CardTagManager.Controllers
             {
                 return NotFound("Document file not found");
             }
+        }
+        
+        // Helper methods for generating sample scan data
+        private string GetRandomDeviceInfo()
+        {
+            string[] devices = new[] {
+                "iPhone 14 Pro (iOS 16.4)",
+                "Samsung Galaxy S22 (Android 13)",
+                "Google Pixel 7 (Android 13)",
+                "iPad Air (iOS 16.3)",
+                "Xiaomi Mi 11 (Android 12)",
+                "OnePlus 10 Pro (Android 13)",
+                "iPhone 13 (iOS 16.4)",
+                "Samsung Galaxy Tab S8 (Android 13)"
+            };
+            
+            return devices[new Random().Next(devices.Length)];
+        }
+        
+        private string GetRandomLocation()
+        {
+            string[] locations = new[] {
+                "Production Line A",
+                "Warehouse C",
+                "Main Office",
+                "Building 3",
+                "Inspection Area",
+                "Field Location",
+                "Client Site",
+                "Storage Area B"
+            };
+            
+            return locations[new Random().Next(locations.Length)];
+        }
+        
+        private string GetRandomScanResult()
+        {
+            string[] results = new[] {
+                "Success",
+                "Success",
+                "Success",
+                "Success",
+                "Success",
+                "Failed",
+                "Partial"
+            };
+            
+            return results[new Random().Next(results.Length)];
         }
     }
 }
