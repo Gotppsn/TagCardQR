@@ -1,3 +1,4 @@
+// Path: Models/IssueReport.cs
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -39,12 +40,12 @@ namespace CardTagManager.Models
         public string ReporterEmail { get; set; }
         
         [StringLength(20)]
-        public string ReporterPhone { get; set; }
+        public string ReporterPhone { get; set; } = string.Empty;
         
         [StringLength(20)]
         public string Status { get; set; } = "Open";
         
-        public string Resolution { get; set; }
+        public string Resolution { get; set; } = string.Empty;
         
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime? ResolvedAt { get; set; }

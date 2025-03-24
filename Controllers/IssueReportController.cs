@@ -63,11 +63,16 @@ namespace CardTagManager.Controllers
         // POST: api/IssueReport
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult<IssueReport>> CreateIssue(IssueReport issue)
+        public async Task<ActionResult<IssueReport>> CreateIssue([FromBody] IssueReport issue)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return BadRequest(new {
+                    message = "Validation failed",
+                    errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                });
             }
 
             try {
@@ -78,9 +83,11 @@ namespace CardTagManager.Controllers
                     return NotFound(new { error = "Product not found" });
                 }
                 
-                // Set default values
+                // Sanitize and set default values
                 issue.CreatedAt = DateTime.Now;
                 issue.Status = "Open";
+                issue.ReporterPhone ??= string.Empty;
+                issue.Resolution ??= string.Empty;
                 
                 _context.IssueReports.Add(issue);
                 await _context.SaveChangesAsync();
@@ -89,8 +96,11 @@ namespace CardTagManager.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creating issue report");
-                return StatusCode(500, new { error = "An error occurred while creating the issue report" });
+                _logger.LogError(ex, $"Error creating issue report for card {issue.CardId}");
+                return StatusCode(500, new { 
+                    error = "An error occurred while creating the issue report",
+                    details = ex.Message 
+                });
             }
         }
 

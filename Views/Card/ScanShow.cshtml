@@ -938,6 +938,29 @@ function initReportIssueModal() {
         console.error("Error in initReportIssueModal:", e);
     }
 }
+// Helper function to display field-specific errors
+function displayFieldError(input, message) {
+    const errorContainer = input.parentElement;
+    let errorElement = errorContainer.querySelector('.error-message');
+    
+    if (!errorElement) {
+        errorElement = document.createElement('span');
+        errorElement.classList.add('error-message', 'text-xs', 'text-red-500', 'mt-1');
+        errorContainer.appendChild(errorElement);
+    }
+    
+    errorElement.textContent = message;
+}
+
+// Helper function to remove field-specific errors
+function removeFieldError(input) {
+    const errorContainer = input.parentElement;
+    const errorElement = errorContainer.querySelector('.error-message');
+    
+    if (errorElement) {
+        errorElement.remove();
+    }
+}
     
 // Issue form submission handling
 function initIssueFormSubmission() {
@@ -951,7 +974,7 @@ function initIssueFormSubmission() {
             
             // Basic validation
             let isValid = true;
-            const requiredFields = ['IssueType', 'Description', 'ReporterName', 'ReporterEmail'];
+            const requiredFields = ['IssueType', 'Description', 'ReporterName', 'ReporterEmail', 'ReportDate'];
             
             requiredFields.forEach(field => {
                 const input = this.elements[field];
@@ -959,77 +982,57 @@ function initIssueFormSubmission() {
                     isValid = false;
                     if (input) {
                         input.classList.add('border-red-500');
-                        
-                        // Add error message
-                        let errorSpan = input.parentNode.querySelector('.error-message');
-                        if (!errorSpan) {
-                            errorSpan = document.createElement('span');
-                            errorSpan.className = 'error-message text-xs text-red-500 mt-1';
-                            input.parentNode.appendChild(errorSpan);
-                        }
-                        errorSpan.textContent = `${field.replace(/([A-Z])/g, ' $1').trim()} is required`;
+                        displayFieldError(input, `${field.replace(/([A-Z])/g, ' $1').trim()} is required`);
                     }
-                } else if (input) {
+                } else {
                     input.classList.remove('border-red-500');
-                    const errorSpan = input.parentNode.querySelector('.error-message');
-                    if (errorSpan) errorSpan.remove();
+                    removeFieldError(input);
                 }
             });
             
-            // Validate email format
+            // Email validation
             const emailInput = this.elements['ReporterEmail'];
             if (emailInput && emailInput.value && !isValidEmail(emailInput.value)) {
                 isValid = false;
                 emailInput.classList.add('border-red-500');
-                
-                let errorSpan = emailInput.parentNode.querySelector('.error-message');
-                if (!errorSpan) {
-                    errorSpan = document.createElement('span');
-                    errorSpan.className = 'error-message text-xs text-red-500 mt-1';
-                    emailInput.parentNode.appendChild(errorSpan);
-                }
-                errorSpan.textContent = 'Please enter a valid email address';
+                displayFieldError(emailInput, 'Please enter a valid email address');
             }
             
             if (!isValid) {
                 return false;
             }
             
-            // Show loading spinner
+            // Prepare issue data
+            const formData = new FormData(this);
+            const issueData = {
+                CardId: parseInt(formData.get('CardId')),
+                IssueType: formData.get('IssueType'),
+                Priority: formData.get('Priority') || 'Medium',
+                Description: formData.get('Description'),
+                ReportDate: new Date(formData.get('ReportDate')).toISOString(),
+                ReporterName: formData.get('ReporterName'),
+                ReporterEmail: formData.get('ReporterEmail'),
+                ReporterPhone: formData.get('ReporterPhone') || '',
+                Status: 'Open',
+                Resolution: ''
+            };
+
+            // Show loading state
             const spinner = document.getElementById('issue-spinner');
             const submitBtn = document.getElementById('submit-issue');
             
             if (spinner) spinner.classList.remove('hidden');
             if (submitBtn) submitBtn.setAttribute('disabled', 'disabled');
             
-            // Get form data
-            const formData = new FormData(this);
+            // CSRF Token handling
+            const csrfToken = document.querySelector('input[name="__RequestVerificationToken"]');
             
-            // Convert to match server model properties
-            const issueData = {
-                CardId: parseInt(formData.get('CardId')),
-                IssueType: formData.get('IssueType'),
-                Priority: formData.get('Priority'),
-                Description: formData.get('Description'),
-                ReportDate: new Date(formData.get('ReportDate')).toISOString(),
-                ReporterName: formData.get('ReporterName'),
-                ReporterEmail: formData.get('ReporterEmail'),
-                ReporterPhone: formData.get('ReporterPhone') || '',
-                Status: "Open",
-                Resolution: "" // Required to match the model
-            };
-            
-            // Get CSRF token
-            const tokenElement = document.querySelector('input[name="__RequestVerificationToken"]');
-            const metaToken = document.querySelector('meta[name="RequestVerificationToken"]');
-            const token = tokenElement?.value || metaToken?.content || '';
-            
-            // API call
+            // Submit issue
             fetch('/api/IssueReport', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'RequestVerificationToken': token
+                    'RequestVerificationToken': csrfToken ? csrfToken.value : ''
                 },
                 body: JSON.stringify(issueData)
             })
@@ -1042,32 +1045,29 @@ function initIssueFormSubmission() {
                 return response.json();
             })
             .then(data => {
-                // Hide spinner
+                // Success handling
                 if (spinner) spinner.classList.add('hidden');
                 if (submitBtn) submitBtn.removeAttribute('disabled');
                 
-                // Close modal and reset form
                 resetIssueModal();
+                showToast('Issue Reported', 'Your issue has been successfully submitted', 'success');
                 
-                // Show success toast
-                showToast('Issue reported', 'Your issue has been submitted successfully', 'success');
-                
-                // Reload issues
+                // Reload issues section
                 loadIssueData();
             })
             .catch(error => {
-                console.error('Error submitting issue report:', error);
+                console.error('Issue Submission Error:', error);
                 
-                // Hide spinner
+                // Hide loading state
                 if (spinner) spinner.classList.add('hidden');
                 if (submitBtn) submitBtn.removeAttribute('disabled');
                 
                 // Show error toast
-                showToast('Error', error.message || 'Failed to submit issue report', 'error');
+                showToast('Submission Failed', error.message || 'Failed to submit issue', 'error');
             });
         });
-    } catch (e) {
-        console.error("Error in initIssueFormSubmission:", e);
+    } catch (error) {
+        console.error('Issue Form Setup Error:', error);
     }
 }
 
