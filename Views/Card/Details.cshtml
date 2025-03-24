@@ -846,6 +846,31 @@
     </div>
 </div>
 
+<!-- Document Preview Modal -->
+<div id="document-preview-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 transform transition-all flex flex-col h-3/4">
+        <div class="flex justify-between items-center p-5 border-b">
+            <h3 class="text-lg font-semibold" id="document-preview-title">Document Preview</h3>
+            <button id="close-doc-preview-modal" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="p-5 flex-grow overflow-auto" id="document-preview-content">
+            <div class="flex justify-center items-center h-full">
+                <i class="fas fa-spinner fa-spin text-2xl text-primary-500"></i>
+            </div>
+        </div>
+        <div class="p-5 border-t flex justify-between">
+            <button id="download-document-btn" class="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700">
+                <i class="fas fa-download mr-2"></i> Download
+            </button>
+            <button id="close-preview-btn" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200">
+                Close
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- Toast Notification -->
 <div id="toast-notification" class="fixed bottom-4 right-4 bg-white rounded-lg shadow-lg border border-gray-100 p-4 max-w-sm transform translate-y-20 opacity-0 transition-all duration-300 z-50 hidden">
     <div class="flex items-center">
@@ -866,30 +891,33 @@
     <script>
         // Wait for DOM to be fully loaded
         document.addEventListener('DOMContentLoaded', function() {
-            // Card flip functionality
-            initCardFlip();
-            
-            // Tab switching functionality
-            initTabSwitching();
-            
-            // Share functionality
-            initShareModal();
-            
-            // Reminder functionality
-            initReminders();
-            
-            // Document functionality
-            initDocuments();
-            
-            // History functionality
-            initHistory();
-            
-            // Copy to clipboard functionality
-            initCopyToClipboard();
-            
-            // Toast notifications
-            initToastNotifications();
-        });
+        // Card flip functionality
+        initCardFlip();
+        
+        // Tab switching functionality
+        initTabSwitching();
+        
+        // Share functionality
+        initShareModal();
+        
+        // Reminder functionality
+        initReminders();
+        
+        // Document functionality
+        initDocuments();
+        
+        // History functionality
+        initHistory();
+        
+        // Copy to clipboard functionality
+        initCopyToClipboard();
+        
+        // Toast notifications
+        initToastNotifications();
+        
+        // Initialize document preview modal
+        initDocumentPreview();
+    });
         
         function initCardFlip() {
             const flipCard = document.getElementById('flip-card');
@@ -1606,7 +1634,12 @@
                                     </div>
                                 </div>
                                 <div class="flex items-center space-x-2">
-                                    <a href="/api/Document/download/${doc.id}" class="p-2 text-gray-400 hover:text-primary-600" target="_blank">
+                                    <button type="button" class="p-2 text-gray-400 hover:text-primary-600 document-preview-btn" 
+                                            data-id="${doc.id}" data-title="${doc.title}" data-path="${doc.filePath}">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <a href="/api/Document/download/${doc.id}" class="p-2 text-gray-400 hover:text-primary-600" 
+                                    download="${doc.fileName}">
                                         <i class="fas fa-download"></i>
                                     </a>
                                     <button type="button" class="p-2 text-gray-400 hover:text-red-600 document-delete" data-id="${doc.id}">
@@ -1633,6 +1666,106 @@
         function initHistory() {
             // History is loaded when tab is clicked
         }
+
+        function initDocumentPreview() {
+    const previewModal = document.getElementById('document-preview-modal');
+    const closePreviewBtn = document.getElementById('close-doc-preview-modal');
+    const closePreviewBtn2 = document.getElementById('close-preview-btn');
+    const downloadBtn = document.getElementById('download-document-btn');
+    const previewTitle = document.getElementById('document-preview-title');
+    const previewContent = document.getElementById('document-preview-content');
+    
+    // Event delegation for document preview buttons
+    document.addEventListener('click', function(e) {
+        const previewBtn = e.target.closest('.document-preview-btn');
+        
+        if (previewBtn) {
+            const docId = previewBtn.getAttribute('data-id');
+            const docTitle = previewBtn.getAttribute('data-title');
+            const docPath = previewBtn.getAttribute('data-path');
+            
+            // Set modal title
+            previewTitle.textContent = docTitle;
+            
+            // Show loading state
+            previewContent.innerHTML = `
+                <div class="flex justify-center items-center h-full">
+                    <i class="fas fa-spinner fa-spin text-2xl text-primary-500"></i>
+                </div>
+            `;
+            
+            // Set download button link
+            downloadBtn.setAttribute('data-id', docId);
+            
+            // Show modal
+            previewModal.classList.remove('hidden');
+            
+            // Attempt to display the file (this is simplified - would need proper implementation based on file type)
+            if (docPath) {
+                if (docPath.toLowerCase().endsWith('.pdf')) {
+                    previewContent.innerHTML = `<iframe src="${docPath}" width="100%" height="100%" frameborder="0"></iframe>`;
+                } else if (docPath.toLowerCase().match(/\.(jpe?g|png|gif|bmp|svg)$/)) {
+                    previewContent.innerHTML = `<img src="${docPath}" alt="${docTitle}" class="max-w-full max-h-full mx-auto">`;
+                } else {
+                    previewContent.innerHTML = `
+                        <div class="flex flex-col items-center justify-center h-full">
+                            <div class="text-6xl text-gray-400 mb-4">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <p class="text-lg font-medium text-gray-700">Preview not available</p>
+                            <p class="text-gray-500 mb-6">This document type cannot be previewed directly.</p>
+                            <a href="/api/Document/download/${docId}" class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700" download>
+                                <i class="fas fa-download mr-2"></i> Download to view
+                            </a>
+                        </div>
+                    `;
+                }
+            } else {
+                previewContent.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-full">
+                        <div class="text-6xl text-red-400 mb-4">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </div>
+                        <p class="text-lg font-medium text-gray-700">File not found</p>
+                        <p class="text-gray-500">The document could not be loaded.</p>
+                    </div>
+                `;
+            }
+        }
+    });
+    
+    // Close modal events
+    if (closePreviewBtn) {
+        closePreviewBtn.addEventListener('click', () => {
+            previewModal.classList.add('hidden');
+        });
+    }
+    
+    if (closePreviewBtn2) {
+        closePreviewBtn2.addEventListener('click', () => {
+            previewModal.classList.add('hidden');
+        });
+    }
+    
+    // Close modal when clicking outside
+    if (previewModal) {
+        previewModal.addEventListener('click', function(e) {
+            if (e.target === previewModal) {
+                previewModal.classList.add('hidden');
+            }
+        });
+    }
+    
+    // Download button action
+    if (downloadBtn) {
+        downloadBtn.addEventListener('click', function() {
+            const docId = this.getAttribute('data-id');
+            if (docId) {
+                window.open(`/api/Document/download/${docId}`, '_blank');
+            }
+        });
+    }
+}
         
         function loadHistoryData() {
             const cardId = document.getElementById('card-id').value;
