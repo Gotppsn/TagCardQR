@@ -711,140 +711,153 @@
             </div>
         </div>
         
-        <!-- Scan Settings Tab -->
-        <div id="tab-scan-settings" class="tab-content hidden space-y-6">
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-lg font-bold text-gray-800">QR Scan View Settings</h3>
-                    <button type="button" id="save-scan-settings" class="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700 transition-colors flex items-center">
-                        <i class="fas fa-save mr-2"></i> Save Settings
-                    </button>
+<!-- Scan Settings Tab -->
+<div id="tab-scan-settings" class="tab-content hidden space-y-6">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-bold text-gray-800">QR Scan View Settings</h3>
+            <button type="button" id="save-scan-settings" class="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700 transition-colors flex items-center">
+                <i class="fas fa-save mr-2"></i> Save Settings
+            </button>
+        </div>
+        
+        <p class="text-sm text-gray-600 mb-6">Control what information is visible when someone scans the QR code for this product.</p>
+        
+        <!-- Public/Private Toggle -->
+        <div class="mb-6 p-4 bg-primary-50 rounded-lg border border-primary-100">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                <div>
+                    <h4 class="font-medium text-gray-800 mb-1">Access Control</h4>
+                    <p class="text-sm text-gray-600">Set whether this QR scan view requires authentication</p>
                 </div>
-                
-                <p class="text-sm text-gray-600 mb-6">Select which information will be visible when someone scans the QR code for this product.</p>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="border border-gray-200 rounded-lg p-4">
-                        <h4 class="font-medium text-gray-700 mb-3">Basic Information</h4>
-                        <div class="space-y-3">
-                            <label class="flex items-center">
-                                <input type="checkbox" name="scan_fields" value="product_name" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked disabled>
-                                <span class="ml-2 text-gray-800">Product Name <span class="text-xs text-gray-500">(Always visible)</span></span>
-                            </label>
-                            <label class="flex items-center">
-                                <input type="checkbox" name="scan_fields" value="category" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked>
-                                <span class="ml-2 text-gray-800">Category</span>
-                            </label>
-                            <label class="flex items-center">
-                                <input type="checkbox" name="scan_fields" value="location" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked>
-                                <span class="ml-2 text-gray-800">Location</span>
-                            </label>
-                            <label class="flex items-center">
-                                <input type="checkbox" name="scan_fields" value="image" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked>
-                                <span class="ml-2 text-gray-800">Product Image</span>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="border border-gray-200 rounded-lg p-4">
-                        <h4 class="font-medium text-gray-700 mb-3">Dates & Warranty</h4>
-                        <div class="space-y-3">
-                            <label class="flex items-center">
-                                <input type="checkbox" name="scan_fields" value="manufacture_date" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked>
-                                <span class="ml-2 text-gray-800">Manufacture Date</span>
-                            </label>
-                            <label class="flex items-center">
-                                <input type="checkbox" name="scan_fields" value="purchase_date" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked>
-                                <span class="ml-2 text-gray-800">Purchase Date</span>
-                            </label>
-                            <label class="flex items-center">
-                                <input type="checkbox" name="scan_fields" value="warranty" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked>
-                                <span class="ml-2 text-gray-800">Warranty Information</span>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="border border-gray-200 rounded-lg p-4">
-                        <h4 class="font-medium text-gray-700 mb-3">Custom Fields</h4>
-                        <div class="space-y-3" id="custom-fields-container">
-                            @if (!string.IsNullOrEmpty(Model.CustomFieldsData) && Model.CustomFieldsData != "{}")
+                <div class="mt-3 md:mt-0">
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="private-mode-toggle" class="sr-only peer" name="scan_settings_private">
+                        <div class="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary-600"></div>
+                        <span class="ml-3 text-sm font-medium text-gray-900">Private Mode</span>
+                    </label>
+                    <p class="text-xs text-gray-500 mt-1 ml-16">When enabled, users must log in to view details</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="border border-gray-200 rounded-lg p-4">
+                <h4 class="font-medium text-gray-700 mb-3">Basic Information</h4>
+                <div class="space-y-3">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="scan_fields" value="product_name" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked disabled>
+                        <span class="ml-2 text-gray-800">Product Name <span class="text-xs text-gray-500">(Always visible)</span></span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="scan_fields" value="category" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked>
+                        <span class="ml-2 text-gray-800">Category</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="scan_fields" value="location" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked>
+                        <span class="ml-2 text-gray-800">Location</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="scan_fields" value="image" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked>
+                        <span class="ml-2 text-gray-800">Product Image</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="border border-gray-200 rounded-lg p-4">
+                <h4 class="font-medium text-gray-700 mb-3">Dates & Warranty</h4>
+                <div class="space-y-3">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="scan_fields" value="manufacture_date" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked>
+                        <span class="ml-2 text-gray-800">Manufacture Date</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="scan_fields" value="purchase_date" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked>
+                        <span class="ml-2 text-gray-800">Purchase Date</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="scan_fields" value="warranty" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked>
+                        <span class="ml-2 text-gray-800">Warranty Information</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="border border-gray-200 rounded-lg p-4">
+                <h4 class="font-medium text-gray-700 mb-3">Custom Fields</h4>
+                <div class="space-y-3" id="custom-fields-container">
+                    @if (!string.IsNullOrEmpty(Model.CustomFieldsData) && Model.CustomFieldsData != "{}")
+                    {
+                        try
+                        {
+                            var customFields = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(Model.CustomFieldsData);
+                            if (customFields != null && customFields.Count > 0)
                             {
-                                try
+                                foreach (var field in customFields)
                                 {
-                                    var customFields = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(Model.CustomFieldsData);
-                                    if (customFields != null && customFields.Count > 0)
-                                    {
-                                        foreach (var field in customFields)
-                                        {
-                                            <label class="flex items-center">
-                                                <input type="checkbox" name="scan_fields" value="custom_@field.Key" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked>
-                                                <span class="ml-2 text-gray-800">@field.Key</span>
-                                            </label>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <p class="text-sm text-gray-500">No custom fields available</p>
-                                    }
-                                }
-                                catch
-                                {
-                                    <p class="text-sm text-gray-500">Invalid custom fields data</p>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="scan_fields" value="custom_@field.Key" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked>
+                                        <span class="ml-2 text-gray-800">@field.Key</span>
+                                    </label>
                                 }
                             }
                             else
                             {
                                 <p class="text-sm text-gray-500">No custom fields available</p>
                             }
-                        </div>
-                    </div>
-                    
-                    <div class="border border-gray-200 rounded-lg p-4">
-                        <h4 class="font-medium text-gray-700 mb-3">Additional Sections</h4>
-                        <div class="space-y-3">
-                            <label class="flex items-center">
-                                <input type="checkbox" name="scan_fields" value="maintenance" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked>
-                                <span class="ml-2 text-gray-800">Maintenance Information</span>
-                            </label>
-                            <label class="flex items-center">
-                                <input type="checkbox" name="scan_fields" value="documents" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked>
-                                <span class="ml-2 text-gray-800">Documents Section</span>
-                            </label>
-                            <label class="flex items-center">
-                                <input type="checkbox" name="scan_fields" value="issues" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked>
-                                <span class="ml-2 text-gray-800">Issues Section</span>
-                            </label>
-                            <label class="flex items-center">
-                                <input type="checkbox" name="scan_fields" value="contact" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked>
-                                <span class="ml-2 text-gray-800">Contact Information</span>
-                            </label>
-                        </div>
-                    </div>
+                        }
+                        catch
+                        {
+                            <p class="text-sm text-gray-500">Invalid custom fields data</p>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-sm text-gray-500">No custom fields available</p>
+                    }
                 </div>
-                
-                <div class="mt-8 pt-6 border-t border-gray-100">
-                    <div class="flex flex-col md:flex-row md:items-center md:justify-between">
-                        <h4 class="text-md font-medium text-gray-700 mb-3 md:mb-0">Scan View Preview</h4>
-                        <div class="flex space-x-3">
-                            <a href="@Url.Action("ScanShow", new { id = Model.Id })" target="_blank" class="flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors">
-                                <i class="fas fa-external-link-alt mr-2"></i> Open Full Preview
-                            </a>
-                            <button type="button" id="refresh-preview" class="flex items-center px-4 py-2 bg-primary-50 text-primary-600 rounded hover:bg-primary-100 transition-colors">
-                                <i class="fas fa-sync-alt mr-2"></i> Refresh Preview
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                        <div class="h-96 overflow-auto bg-white rounded-lg shadow-inner p-4">
-                            <div id="scan-preview" class="min-h-full flex items-center justify-center">
-                                <div class="text-center">
-                                    <i class="fas fa-spinner fa-spin text-xl text-primary-500 mb-2"></i>
-                                    <p class="text-gray-500">Loading preview...</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            </div>
+            
+            <div class="border border-gray-200 rounded-lg p-4">
+                <h4 class="font-medium text-gray-700 mb-3">Additional Sections</h4>
+                <div class="space-y-3">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="scan_fields" value="maintenance" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked>
+                        <span class="ml-2 text-gray-800">Maintenance Information</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="scan_fields" value="documents" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked>
+                        <span class="ml-2 text-gray-800">Documents Section</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="scan_fields" value="issues" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked>
+                        <span class="ml-2 text-gray-800">Issues Section</span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- UI Elements Visibility Section -->
+            <div class="md:col-span-2 border border-gray-200 rounded-lg p-4">
+                <h4 class="font-medium text-gray-700 mb-3">UI Elements Visibility</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="scan_ui_elements" value="hide_report_issue" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500">
+                        <span class="ml-2 text-gray-800">Hide "Report Issue" Button</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="scan_ui_elements" value="hide_contact" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500">
+                        <span class="ml-2 text-gray-800">Hide "Contact Support" Section</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-8 pt-6 border-t border-gray-100">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                <h4 class="text-md font-medium text-gray-700 mb-3 md:mb-0">Scan View Preview</h4>
+                <div class="flex space-x-3">
+                    <a href="@Url.Action("ScanShow", new { id = Model.Id })" target="_blank" class="flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors">
+                        <i class="fas fa-external-link-alt mr-2"></i> Open Full Preview
+                    </a>
                 </div>
             </div>
         </div>
@@ -2292,6 +2305,7 @@ function initScanSettings() {
     const saveScanSettingsBtn = document.getElementById('save-scan-settings');
     const refreshPreviewBtn = document.getElementById('refresh-preview');
     const scanPreviewContainer = document.getElementById('scan-preview');
+    const privateModeToggle = document.getElementById('private-mode-toggle');
     
     // Load current settings on init
     loadScanSettings();
@@ -2310,6 +2324,20 @@ function initScanSettings() {
             loadScanPreview();
         });
     }
+    
+    // Toggle Private Mode visual feedback
+    if (privateModeToggle) {
+        privateModeToggle.addEventListener('change', function() {
+            const settingsContainer = document.querySelector('.bg-primary-50');
+            if (this.checked) {
+                settingsContainer.classList.add('bg-blue-50', 'border-blue-100');
+                settingsContainer.classList.remove('bg-primary-50', 'border-primary-100');
+            } else {
+                settingsContainer.classList.add('bg-primary-50', 'border-primary-100');
+                settingsContainer.classList.remove('bg-blue-50', 'border-blue-100');
+            }
+        });
+    }
 }
 
 function loadScanSettings() {
@@ -2321,12 +2349,33 @@ function loadScanSettings() {
     if (savedSettings) {
         const settings = JSON.parse(savedSettings);
         
-        // Apply the saved settings to checkboxes
+        // Apply the saved settings to field checkboxes
         document.querySelectorAll('input[name="scan_fields"]').forEach(checkbox => {
             if (!checkbox.disabled) {
-                checkbox.checked = settings.includes(checkbox.value);
+                checkbox.checked = settings.fields.includes(checkbox.value);
             }
         });
+        
+        // Apply UI element visibility settings
+        document.querySelectorAll('input[name="scan_ui_elements"]').forEach(checkbox => {
+            checkbox.checked = settings.uiElements.includes(checkbox.value);
+        });
+        
+        // Apply private mode setting
+        const privateModeToggle = document.getElementById('private-mode-toggle');
+        if (privateModeToggle) {
+            privateModeToggle.checked = settings.privateMode || false;
+            
+            // Update container styling based on private mode
+            const settingsContainer = document.querySelector('.bg-primary-50, .bg-blue-50');
+            if (privateModeToggle.checked) {
+                settingsContainer.classList.add('bg-blue-50', 'border-blue-100');
+                settingsContainer.classList.remove('bg-primary-50', 'border-primary-100');
+            } else {
+                settingsContainer.classList.add('bg-primary-50', 'border-primary-100');
+                settingsContainer.classList.remove('bg-blue-50', 'border-blue-100');
+            }
+        }
     }
 }
 
@@ -2339,11 +2388,24 @@ function saveScanSettings() {
         selectedFields.push(checkbox.value);
     });
     
-    // Save to localStorage
-    localStorage.setItem(`scan_settings_${cardId}`, JSON.stringify(selectedFields));
+    // Get UI elements visibility settings
+    const uiElements = [];
+    document.querySelectorAll('input[name="scan_ui_elements"]:checked').forEach(checkbox => {
+        uiElements.push(checkbox.value);
+    });
     
-    // Call API to save settings to server - this would need a backend endpoint
-    // For now, we'll just use localStorage
+    // Get private mode setting
+    const privateMode = document.getElementById('private-mode-toggle').checked;
+    
+    // Create settings object
+    const settings = {
+        fields: selectedFields,
+        uiElements: uiElements,
+        privateMode: privateMode
+    };
+    
+    // Save to localStorage
+    localStorage.setItem(`scan_settings_${cardId}`, JSON.stringify(settings));
     
     // Show success message
     showToast('Settings saved', 'Your scan view settings have been saved', 'success');
@@ -2367,15 +2429,33 @@ function loadScanPreview() {
     `;
     
     // Get current settings
-    const savedSettings = localStorage.getItem(`scan_settings_${cardId}`);
-    const selectedFields = savedSettings ? JSON.parse(savedSettings) : [];
+    const savedSettingsStr = localStorage.getItem(`scan_settings_${cardId}`);
+    const savedSettings = savedSettingsStr ? JSON.parse(savedSettingsStr) : { fields: [], uiElements: [], privateMode: false };
     
-    // Create query string with selected fields
-    const queryParams = selectedFields.map(field => `field=${encodeURIComponent(field)}`).join('&');
+    // Create query parameters with all settings
+    const queryParams = new URLSearchParams();
+    
+    // Add field settings
+    savedSettings.fields.forEach(field => {
+        queryParams.append('field', field);
+    });
+    
+    // Add UI elements settings
+    savedSettings.uiElements.forEach(element => {
+        queryParams.append('ui', element);
+    });
+    
+    // Add private mode setting
+    if (savedSettings.privateMode) {
+        queryParams.append('private', 'true');
+    }
+    
+    // Create query string
+    const queryString = queryParams.toString();
     
     // Load preview iframe with settings applied
     scanPreviewContainer.innerHTML = `
-        <iframe src="@Url.Action("ScanShow", new { id = Model.Id })${queryParams ? '?' + queryParams : ''}" 
+        <iframe src="@Url.Action("ScanShow", new { id = Model.Id })${queryString ? '?' + queryString : ''}" 
                 class="w-full h-full border-0" title="Scan Preview">
         </iframe>
     `;
