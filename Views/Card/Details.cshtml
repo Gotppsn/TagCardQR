@@ -1035,13 +1035,6 @@
             </button>
         </div>
     </div>
-    
-    <!-- Device orientation toggle -->
-    <div class="px-4 py-3 border-t border-gray-100 flex justify-center">
-        <button type="button" id="toggle-orientation" class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors text-sm">
-            <i class="fas fa-mobile-alt mr-1"></i> Toggle Orientation
-        </button>
-    </div>
 </div>
 
 <!-- Add Reminder Modal -->
@@ -1683,7 +1676,7 @@
             
             // Handle form submission
             if (documentForm) {
-                documentForm.addEventListener('submit', function(e) {
+documentForm.addEventListener('submit', function(e) {
     e.preventDefault();
     
     // Validate form
@@ -1700,71 +1693,91 @@
     
     // Show loading spinner
     document.getElementById('upload-text').textContent = 'Uploading...';
-    document.getElementById('upload-spinner').classList.add('hidden');
+    document.getElementById('upload-spinner').classList.remove('hidden');
     
     // Create FormData explicitly to ensure fields are properly included
     const formData = new FormData();
     
-    // Add each form field manually
+    // Add each form field manually with proper debugging
     formData.append('cardId', document.querySelector('input[name="cardId"]').value);
     formData.append('title', document.getElementById('document-title').value);
     formData.append('documentType', document.getElementById('document-type').value);
-    
-    // Critical fix: Always append description with explicit empty string default
-    // This ensures description is never undefined or null
-    const description = document.getElementById('document-description').value || '';
-    formData.append('description', description);
+    formData.append('description', document.getElementById('document-description').value || '');
     
     // Add all files
     const files = documentFileInput.files;
     for (let i = 0; i < files.length; i++) {
         formData.append('documentFiles', files[i]);
+        console.log(`Adding file: ${files[i].name}, size: ${files[i].size}, type: ${files[i].type}`);
     }
+    
+    // Get CSRF token from meta tag
+    const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
+    
+    // Log the request details
+    console.log('Uploading files:', {
+        cardId: formData.get('cardId'),
+        title: formData.get('title'),
+        documentType: formData.get('documentType'),
+        fileCount: files.length
+    });
     
     fetch('/api/Document/UploadMultiple', {
         method: 'POST',
+        headers: {
+            'RequestVerificationToken': token
+        },
         body: formData
     })
     .then(response => {
-        if (!response.ok) {
-            return response.json().then(errorData => {
-                throw new Error(errorData.error || 'Server error');
-            }).catch(() => {
-                throw new Error(`HTTP error ${response.status}`);
-            });
-        }
-        return response.json();
+        // Log the raw response
+        console.log('Upload response status:', response.status);
+        
+        // For all responses, try to get the full text first
+        return response.text().then(text => {
+            console.log('Response text:', text);
+            
+            try {
+                // Try to parse as JSON if possible
+                const data = JSON.parse(text);
+                
+                // If response wasn't ok, throw with the parsed error
+                if (!response.ok) {
+                    throw new Error(data.error || `HTTP error ${response.status}`);
+                }
+                
+                return data;
+            } catch (e) {
+                // If parsing fails, use the raw text
+                if (!response.ok) {
+                    throw new Error(`HTTP error ${response.status}: ${text}`);
+                }
+                
+                // If we can't parse but response was ok, return empty success
+                return { success: true };
+            }
+        });
     })
     .then(data => {
         // Hide loading spinner
         document.getElementById('upload-text').textContent = 'Upload Documents';
         document.getElementById('upload-spinner').classList.add('hidden');
         
-        if (data.success) {
-            // Reset form
-            documentForm.reset();
-            filesPreview.innerHTML = '';
-            
-            // Hide upload section
-            documentUploadSection.classList.add('hidden');
-            
-            // Refresh documents
-            loadDocumentsData();
-            
-            // Show success toast
-            showToast('Documents uploaded', `Successfully uploaded ${data.count} documents`, 'success');
-        } else {
-            showToast('Error', data.error || 'Failed to upload documents', 'error');
-        }
+        // Handle success
+        documentForm.reset();
+        filesPreview.innerHTML = '';
+        documentUploadSection.classList.add('hidden');
+        loadDocumentsData();
+        showToast('Documents uploaded', `Successfully uploaded ${data.count || 1} documents`, 'success');
     })
     .catch(error => {
         console.error('Error uploading documents:', error);
         
         // Hide loading spinner
         document.getElementById('upload-text').textContent = 'Upload Documents';
-        document.getElementById('upload-spinner').classList.remove('hidden');
+        document.getElementById('upload-spinner').classList.add('hidden');
         
-        showToast('Error', 'Failed to upload documents. Please try again.', 'error');
+        showToast('Error', error.message || 'Failed to upload documents. Please try again.', 'error');
     });
 });
             }

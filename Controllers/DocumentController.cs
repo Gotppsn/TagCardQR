@@ -218,11 +218,15 @@ public async Task<ActionResult<CardDocument>> UploadMultiple(
 
             try
             {
+                // Debug logging
+                _logger.LogInformation($"Attempting to upload file: {file.FileName}, size: {file.Length}");
+                
                 // Upload file using FileUploadService
                 var fileResponse = await _fileUploadService.UploadFile(file, "CardDocuments");
                 
                 if (!fileResponse.IsSuccess)
                 {
+                    _logger.LogError($"Upload failed for {file.FileName}: {fileResponse.ErrorMessage}");
                     errors.Add($"Failed to upload {file.FileName}: {fileResponse.ErrorMessage}");
                     continue;
                 }
@@ -233,22 +237,24 @@ public async Task<ActionResult<CardDocument>> UploadMultiple(
                     : title;
                 
                 // Create new document record
-                var newDocument = new CardDocument
-                {
-                    CardId = cardId,
-                    Title = fileTitle,
-                    DocumentType = documentType,
-                    Description = description,
-                    FilePath = fileResponse.FileUrl,
-                    FileName = file.FileName,
-                    FileSize = file.Length,
-                    FileType = file.ContentType,
-                    UploadedAt = DateTime.Now,
-                    UploadedBy = User.Identity?.Name ?? "unknown"
-                };
+// Create new document record
+var newDocument = new CardDocument
+{
+    CardId = cardId,
+    Title = fileTitle,
+    DocumentType = documentType,
+    Description = description,
+    FilePath = fileResponse.FileUrl,
+    FileName = file.FileName, // Store original filename for display
+    FileSize = file.Length,
+    FileType = file.ContentType,
+    UploadedAt = DateTime.Now,
+    UploadedBy = User.Identity?.Name ?? "unknown"
+};
                 
                 _context.CardDocuments.Add(newDocument);
                 successCount++;
+                _logger.LogInformation($"Successfully added document record for {file.FileName}");
             }
             catch (Exception ex)
             {
@@ -257,10 +263,11 @@ public async Task<ActionResult<CardDocument>> UploadMultiple(
             }
         }
 
-        await _context.SaveChangesAsync();
-        
         if (successCount > 0)
         {
+            await _context.SaveChangesAsync();
+            _logger.LogInformation($"Successfully saved {successCount} document records");
+            
             return Ok(new { 
                 success = true, 
                 count = successCount,
@@ -279,7 +286,7 @@ public async Task<ActionResult<CardDocument>> UploadMultiple(
     catch (Exception ex)
     {
         _logger.LogError(ex, "Error uploading multiple documents");
-        return StatusCode(500, new { error = "An error occurred while uploading the documents." });
+        return StatusCode(500, new { error = $"An error occurred while uploading the documents: {ex.Message}" });
     }
 }
     }
