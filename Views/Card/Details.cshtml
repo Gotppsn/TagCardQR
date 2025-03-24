@@ -711,148 +711,164 @@
             </div>
         </div>
         
-<!-- Scan Settings Tab -->
-<div id="tab-scan-settings" class="tab-content hidden space-y-6">
-    <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
-        <div class="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-primary-600 to-primary-500">
-            <h3 class="text-lg font-bold text-white flex items-center">
-                <i class="fas fa-qrcode mr-2"></i> QR Scan View Settings
-            </h3>
-            <button type="button" id="save-scan-settings" class="px-4 py-2 bg-white text-primary-600 rounded-md hover:bg-gray-100 transition-all duration-200 flex items-center font-medium">
-                <i class="fas fa-save mr-2"></i> Save Settings
-            </button>
-        </div>
-        
-        <div class="p-6">
-            <p class="text-sm text-gray-600 mb-4 flex items-center">
-                <i class="fas fa-info-circle text-primary-500 mr-2"></i>
-                Control what information is visible when someone scans the QR code for this product.
-            </p>
-            
- <!-- Access Control Card -->
-<div class="mb-6 p-5 rounded-lg border transition-all duration-300" id="access-control-container">
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between">
-        <div>
-            <h4 class="text-lg font-medium text-gray-800 mb-1 flex items-center">
-                <i class="fas fa-lock text-primary-500 mr-2" id="access-control-icon"></i> Access Control
-            </h4>
-            <p class="text-sm text-gray-600">Set whether this QR scan view requires authentication</p>
-        </div>
-        <div class="mt-4 md:mt-0">
-            <div class="flex items-center space-x-3">
-                <div class="text-right hidden md:block">
-                    <p class="text-sm font-medium" id="access-mode-label">Public Mode</p>
-                    <p class="text-xs text-gray-500" id="access-mode-description">Anyone can view without login</p>
-                </div>
-                <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="private-mode-toggle" class="sr-only peer" name="scan_settings_private">
-                    <div class="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary-600"></div>
-                    <span class="ml-3 text-sm font-medium text-gray-900" id="toggle-label">Public</span>
-                </label>
-            </div>
-            <p class="text-xs text-gray-500 mt-1 ml-16 md:hidden" id="mobile-access-description">Anyone can view without login</p>
-        </div>
-    </div>
-</div>
-            
-            <!-- Settings Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Basic Information Section -->
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                    <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
-                        <h4 class="font-medium text-gray-700 flex items-center">
-                            <i class="fas fa-info-circle text-primary-500 mr-2"></i> Basic Information
-                        </h4>
-                    </div>
-                    <div class="p-4 space-y-3">
-                        <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
-                            <span class="flex items-center">
-                                <i class="fas fa-tag text-gray-400 mr-2 w-5"></i>
-                                <span class="text-gray-800">Product Name</span>
-                                <span class="ml-2 text-xs text-gray-500">(Always visible)</span>
-                            </span>
-                            <input type="checkbox" name="scan_fields" value="product_name" class="toggle-checkbox" checked disabled>
-                        </label>
-                        <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
-                            <span class="flex items-center">
-                                <i class="fas fa-folder text-gray-400 mr-2 w-5"></i>
-                                <span class="text-gray-800">Category</span>
-                            </span>
-                            <input type="checkbox" name="scan_fields" value="category" class="toggle-checkbox" checked>
-                        </label>
-                        <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
-                            <span class="flex items-center">
-                                <i class="fas fa-map-marker-alt text-gray-400 mr-2 w-5"></i>
-                                <span class="text-gray-800">Location</span>
-                            </span>
-                            <input type="checkbox" name="scan_fields" value="location" class="toggle-checkbox" checked>
-                        </label>
-                        <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
-                            <span class="flex items-center">
-                                <i class="fas fa-image text-gray-400 mr-2 w-5"></i>
-                                <span class="text-gray-800">Product Image</span>
-                            </span>
-                            <input type="checkbox" name="scan_fields" value="image" class="toggle-checkbox" checked>
-                        </label>
-                    </div>
+        <!-- Scan Settings Tab -->
+        <div id="tab-scan-settings" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
+                <div class="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-primary-600 to-primary-500">
+                    <h3 class="text-lg font-bold text-white flex items-center">
+                        <i class="fas fa-qrcode mr-2"></i> QR Scan View Settings
+                    </h3>
+                    <button type="button" id="save-scan-settings" class="px-4 py-2 bg-white text-primary-600 rounded-md hover:bg-gray-100 transition-all duration-200 flex items-center font-medium">
+                        <i class="fas fa-save mr-2"></i> Save Settings
+                    </button>
                 </div>
                 
-                <!-- Dates & Warranty Section -->
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                    <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
-                        <h4 class="font-medium text-gray-700 flex items-center">
-                            <i class="fas fa-calendar-alt text-primary-500 mr-2"></i> Dates & Warranty
-                        </h4>
+                <div class="p-6">
+                    <p class="text-sm text-gray-600 mb-4 flex items-center">
+                        <i class="fas fa-info-circle text-primary-500 mr-2"></i>
+                        Control what information is visible when someone scans the QR code for this product.
+                    </p>
+                    
+                    <!-- Access Control Card -->
+                    <div class="mb-6 p-5 rounded-lg border transition-all duration-300" id="access-control-container">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                            <div>
+                                <h4 class="text-lg font-medium text-gray-800 mb-1 flex items-center">
+                                    <i class="fas fa-lock text-primary-500 mr-2" id="access-control-icon"></i> Access Control
+                                </h4>
+                                <p class="text-sm text-gray-600">Set whether this QR scan view requires authentication</p>
+                            </div>
+                            <div class="mt-4 md:mt-0">
+                                <div class="flex items-center space-x-3">
+                                    <div class="text-right hidden md:block">
+                                        <p class="text-sm font-medium" id="access-mode-label">Public Mode</p>
+                                        <p class="text-xs text-gray-500" id="access-mode-description">Anyone can view without login</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" id="private-mode-toggle" class="sr-only peer" name="scan_settings_private">
+                                        <div class="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary-600"></div>
+                                        <span class="ml-3 text-sm font-medium text-gray-900" id="toggle-label">Public</span>
+                                    </label>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1 ml-16 md:hidden" id="mobile-access-description">Anyone can view without login</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="p-4 space-y-3">
-                        <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
-                            <span class="flex items-center">
-                                <i class="fas fa-industry text-gray-400 mr-2 w-5"></i>
-                                <span class="text-gray-800">Manufacture Date</span>
-                            </span>
-                            <input type="checkbox" name="scan_fields" value="manufacture_date" class="toggle-checkbox" checked>
-                        </label>
-                        <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
-                            <span class="flex items-center">
-                                <i class="fas fa-shopping-cart text-gray-400 mr-2 w-5"></i>
-                                <span class="text-gray-800">Purchase Date</span>
-                            </span>
-                            <input type="checkbox" name="scan_fields" value="purchase_date" class="toggle-checkbox" checked>
-                        </label>
-                        <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
-                            <span class="flex items-center">
-                                <i class="fas fa-shield-alt text-gray-400 mr-2 w-5"></i>
-                                <span class="text-gray-800">Warranty Information</span>
-                            </span>
-                            <input type="checkbox" name="scan_fields" value="warranty" class="toggle-checkbox" checked>
-                        </label>
-                    </div>
-                </div>
-                
-                <!-- Custom Fields Section -->
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                    <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
-                        <h4 class="font-medium text-gray-700 flex items-center">
-                            <i class="fas fa-puzzle-piece text-primary-500 mr-2"></i> Custom Fields
-                        </h4>
-                    </div>
-                    <div class="p-4 space-y-3" id="custom-fields-container">
-                        @if (!string.IsNullOrEmpty(Model.CustomFieldsData) && Model.CustomFieldsData != "{}")
-                        {
-                            try
-                            {
-                                var customFields = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(Model.CustomFieldsData);
-                                if (customFields != null && customFields.Count > 0)
+                            
+                    <!-- Settings Grid -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Basic Information Section -->
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                            <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
+                                <h4 class="font-medium text-gray-700 flex items-center">
+                                    <i class="fas fa-info-circle text-primary-500 mr-2"></i> Basic Information
+                                </h4>
+                            </div>
+                            <div class="p-4 space-y-3">
+                                <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
+                                    <span class="flex items-center">
+                                        <i class="fas fa-tag text-gray-400 mr-2 w-5"></i>
+                                        <span class="text-gray-800">Product Name</span>
+                                        <span class="ml-2 text-xs text-gray-500">(Always visible)</span>
+                                    </span>
+                                    <input type="checkbox" name="scan_fields" value="product_name" class="toggle-checkbox" checked disabled>
+                                </label>
+                                <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
+                                    <span class="flex items-center">
+                                        <i class="fas fa-folder text-gray-400 mr-2 w-5"></i>
+                                        <span class="text-gray-800">Category</span>
+                                    </span>
+                                    <input type="checkbox" name="scan_fields" value="category" class="toggle-checkbox" checked>
+                                </label>
+                                <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
+                                    <span class="flex items-center">
+                                        <i class="fas fa-map-marker-alt text-gray-400 mr-2 w-5"></i>
+                                        <span class="text-gray-800">Location</span>
+                                    </span>
+                                    <input type="checkbox" name="scan_fields" value="location" class="toggle-checkbox" checked>
+                                </label>
+                                <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
+                                    <span class="flex items-center">
+                                        <i class="fas fa-image text-gray-400 mr-2 w-5"></i>
+                                        <span class="text-gray-800">Product Image</span>
+                                    </span>
+                                    <input type="checkbox" name="scan_fields" value="image" class="toggle-checkbox" checked>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Dates & Warranty Section -->
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                            <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
+                                <h4 class="font-medium text-gray-700 flex items-center">
+                                    <i class="fas fa-calendar-alt text-primary-500 mr-2"></i> Dates & Warranty
+                                </h4>
+                            </div>
+                            <div class="p-4 space-y-3">
+                                <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
+                                    <span class="flex items-center">
+                                        <i class="fas fa-industry text-gray-400 mr-2 w-5"></i>
+                                        <span class="text-gray-800">Manufacture Date</span>
+                                    </span>
+                                    <input type="checkbox" name="scan_fields" value="manufacture_date" class="toggle-checkbox" checked>
+                                </label>
+                                <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
+                                    <span class="flex items-center">
+                                        <i class="fas fa-shopping-cart text-gray-400 mr-2 w-5"></i>
+                                        <span class="text-gray-800">Purchase Date</span>
+                                    </span>
+                                    <input type="checkbox" name="scan_fields" value="purchase_date" class="toggle-checkbox" checked>
+                                </label>
+                                <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
+                                    <span class="flex items-center">
+                                        <i class="fas fa-shield-alt text-gray-400 mr-2 w-5"></i>
+                                        <span class="text-gray-800">Warranty Information</span>
+                                    </span>
+                                    <input type="checkbox" name="scan_fields" value="warranty" class="toggle-checkbox" checked>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Custom Fields Section -->
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                            <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
+                                <h4 class="font-medium text-gray-700 flex items-center">
+                                    <i class="fas fa-puzzle-piece text-primary-500 mr-2"></i> Custom Fields
+                                </h4>
+                            </div>
+                            <div class="p-4 space-y-3" id="custom-fields-container">
+                                @if (!string.IsNullOrEmpty(Model.CustomFieldsData) && Model.CustomFieldsData != "{}")
                                 {
-                                    foreach (var field in customFields)
+                                    try
                                     {
-                                        <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
-                                            <span class="flex items-center">
-                                                <i class="fas fa-list-alt text-gray-400 mr-2 w-5"></i>
-                                                <span class="text-gray-800">@field.Key</span>
-                                            </span>
-                                            <input type="checkbox" name="scan_fields" value="custom_@field.Key" class="toggle-checkbox" checked>
-                                        </label>
+                                        var customFields = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(Model.CustomFieldsData);
+                                        if (customFields != null && customFields.Count > 0)
+                                        {
+                                            foreach (var field in customFields)
+                                            {
+                                                <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
+                                                    <span class="flex items-center">
+                                                        <i class="fas fa-list-alt text-gray-400 mr-2 w-5"></i>
+                                                        <span class="text-gray-800">@field.Key</span>
+                                                    </span>
+                                                    <input type="checkbox" name="scan_fields" value="custom_@field.Key" class="toggle-checkbox" checked>
+                                                </label>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <div class="text-center py-4 text-sm text-gray-500">
+                                                <i class="fas fa-info-circle mb-2 text-lg"></i>
+                                                <p>No custom fields available</p>
+                                            </div>
+                                        }
+                                    }
+                                    catch
+                                    {
+                                        <div class="text-center py-4 text-sm text-gray-500">
+                                            <i class="fas fa-exclamation-triangle mb-2 text-lg text-yellow-500"></i>
+                                            <p>Invalid custom fields data</p>
+                                        </div>
                                     }
                                 }
                                 else
@@ -862,177 +878,166 @@
                                         <p>No custom fields available</p>
                                     </div>
                                 }
-                            }
-                            catch
-                            {
-                                <div class="text-center py-4 text-sm text-gray-500">
-                                    <i class="fas fa-exclamation-triangle mb-2 text-lg text-yellow-500"></i>
-                                    <p>Invalid custom fields data</p>
-                                </div>
-                            }
-                        }
-                        else
-                        {
-                            <div class="text-center py-4 text-sm text-gray-500">
-                                <i class="fas fa-info-circle mb-2 text-lg"></i>
-                                <p>No custom fields available</p>
                             </div>
-                        }
+                        </div>
+                        
+                        <!-- Additional Sections -->
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                            <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
+                                <h4 class="font-medium text-gray-700 flex items-center">
+                                    <i class="fas fa-th-large text-primary-500 mr-2"></i> Additional Sections
+                                </h4>
+                            </div>
+                            <div class="p-4 space-y-3">
+                                <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
+                                    <span class="flex items-center">
+                                        <i class="fas fa-tools text-gray-400 mr-2 w-5"></i>
+                                        <span class="text-gray-800">Maintenance Information</span>
+                                    </span>
+                                    <input type="checkbox" name="scan_fields" value="maintenance" class="toggle-checkbox" checked>
+                                </label>
+                                <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
+                                    <span class="flex items-center">
+                                        <i class="fas fa-file-alt text-gray-400 mr-2 w-5"></i>
+                                        <span class="text-gray-800">Documents Section</span>
+                                    </span>
+                                    <input type="checkbox" name="scan_fields" value="documents" class="toggle-checkbox" checked>
+                                </label>
+                                <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
+                                    <span class="flex items-center">
+                                        <i class="fas fa-exclamation-circle text-gray-400 mr-2 w-5"></i>
+                                        <span class="text-gray-800">Issues Section</span>
+                                    </span>
+                                    <input type="checkbox" name="scan_fields" value="issues" class="toggle-checkbox" checked>
+                                </label>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                
-                <!-- Additional Sections -->
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                    <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
-                        <h4 class="font-medium text-gray-700 flex items-center">
-                            <i class="fas fa-th-large text-primary-500 mr-2"></i> Additional Sections
-                        </h4>
+                    
+                    <!-- UI Elements Visibility Section -->
+                    <div class="mt-6 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
+                            <h4 class="font-medium text-gray-700 flex items-center">
+                                <i class="fas fa-eye text-primary-500 mr-2"></i> UI Elements Visibility
+                            </h4>
+                        </div>
+                        <div class="p-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
+                                    <span class="flex items-center">
+                                        <i class="fas fa-exclamation-triangle text-gray-400 mr-2 w-5"></i>
+                                        <span class="text-gray-800">Hide "Report Issue" Button</span>
+                                    </span>
+                                    <input type="checkbox" name="scan_ui_elements" value="hide_report_issue" class="toggle-checkbox">
+                                </label>
+                                
+                                <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
+                                    <span class="flex items-center">
+                                        <i class="fas fa-headset text-gray-400 mr-2 w-5"></i>
+                                        <span class="text-gray-800">Hide "Contact Support" Section</span>
+                                    </span>
+                                    <input type="checkbox" name="scan_ui_elements" value="hide_contact_support" class="toggle-checkbox">
+                                </label>
+                                
+                                <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
+                                    <span class="flex items-center">
+                                        <i class="fas fa-info-circle text-gray-400 mr-2 w-5"></i>
+                                        <span class="text-gray-800">Hide Product Details Section</span>
+                                    </span>
+                                    <input type="checkbox" name="scan_ui_elements" value="hide_product_details" class="toggle-checkbox">
+                                </label>
+                                
+                                <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
+                                    <span class="flex items-center">
+                                        <i class="fas fa-phone-alt text-gray-400 mr-2 w-5"></i>
+                                        <span class="text-gray-800">Hide Contact Support Button</span>
+                                    </span>
+                                    <input type="checkbox" name="scan_ui_elements" value="hide_contact" class="toggle-checkbox">
+                                </label>
+                                
+                                <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
+                                    <span class="flex items-center">
+                                        <i class="fas fa-history text-gray-400 mr-2 w-5"></i>
+                                        <span class="text-gray-800">Hide Maintenance History</span>
+                                    </span>
+                                    <input type="checkbox" name="scan_ui_elements" value="hide_maintenance_history" class="toggle-checkbox">
+                                </label>
+                                
+                                <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
+                                    <span class="flex items-center">
+                                        <i class="fas fa-tools text-gray-400 mr-2 w-5"></i>
+                                        <span class="text-gray-800">Hide Maintenance Information</span>
+                                    </span>
+                                    <input type="checkbox" name="scan_ui_elements" value="hide_maintenance_info" class="toggle-checkbox">
+                                </label>
+                            </div>
+                        </div>
                     </div>
-                    <div class="p-4 space-y-3">
-                        <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
-                            <span class="flex items-center">
-                                <i class="fas fa-tools text-gray-400 mr-2 w-5"></i>
-                                <span class="text-gray-800">Maintenance Information</span>
-                            </span>
-                            <input type="checkbox" name="scan_fields" value="maintenance" class="toggle-checkbox" checked>
-                        </label>
-                        <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
-                            <span class="flex items-center">
-                                <i class="fas fa-file-alt text-gray-400 mr-2 w-5"></i>
-                                <span class="text-gray-800">Documents Section</span>
-                            </span>
-                            <input type="checkbox" name="scan_fields" value="documents" class="toggle-checkbox" checked>
-                        </label>
-                        <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
-                            <span class="flex items-center">
-                                <i class="fas fa-exclamation-circle text-gray-400 mr-2 w-5"></i>
-                                <span class="text-gray-800">Issues Section</span>
-                            </span>
-                            <input type="checkbox" name="scan_fields" value="issues" class="toggle-checkbox" checked>
-                        </label>
+                    
+                    <!-- Preview Section -->
+                    <div class="mt-8 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+                        <div class="px-4 py-3 bg-gray-50 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                            <h4 class="font-medium text-gray-700 flex items-center">
+                                <i class="fas fa-mobile-alt text-primary-500 mr-2"></i> QR Scan View Preview
+                            </h4>
+                            <div class="flex space-x-2">
+                                <button type="button" id="refresh-preview" class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors text-sm">
+                                    <i class="fas fa-sync-alt mr-1"></i> Refresh
+                                </button>
+                                <button type="button" id="fullscreen-preview" class="px-3 py-1.5 bg-primary-50 text-primary-700 rounded hover:bg-primary-100 transition-colors text-sm">
+                                    <i class="fas fa-expand-alt mr-1"></i> Fullscreen
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Responsive container with mobile-friendly dimensions -->
+                        <div id="preview-container" class="relative border-t border-gray-100">
+                            <!-- Mobile device frame for better visualization -->
+                            <div class="max-w-sm mx-auto my-6 hidden sm:block">
+                                <div class="relative border-8 border-gray-800 rounded-3xl overflow-hidden shadow-xl">
+                                    <!-- Device top notch -->
+                                    <div class="absolute top-0 inset-x-0 h-6 bg-gray-800 rounded-b-xl z-10"></div>
+                                    
+                                    <!-- Preview container with mobile aspect ratio -->
+                                    <div id="scan-preview" class="w-full h-[600px] sm:h-[640px] flex items-center justify-center bg-gray-50">
+                                        <div class="text-center p-4">
+                                            <div class="mb-4 text-primary-500"><i class="fas fa-qrcode text-6xl"></i></div>
+                                            <p class="text-gray-600 mb-4">Preview how this card will appear when scanned</p>
+                                            <button id="load-preview-btn" class="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors">
+                                                <i class="fas fa-eye mr-2"></i> Load Preview
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Mobile device home button -->
+                                <div class="w-12 h-12 mx-auto mt-3 rounded-full border-4 border-gray-800 flex items-center justify-center">
+                                    <div class="w-6 h-6 rounded-sm border-2 border-gray-800"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Simple container for small screens -->
+                            <div class="block sm:hidden">
+                                <div id="mobile-scan-preview" class="w-full h-[480px] flex items-center justify-center bg-gray-50 border border-gray-200">
+                                    <div class="text-center p-4">
+                                        <div class="mb-4 text-primary-500"><i class="fas fa-qrcode text-4xl"></i></div>
+                                        <p class="text-gray-600 mb-4 text-sm">Mobile preview</p>
+                                        <button id="mobile-load-preview-btn" class="px-3 py-1.5 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors text-sm">
+                                            <i class="fas fa-eye mr-1"></i> Load Mobile View
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Fullscreen controls -->
+                            <div class="absolute top-4 right-4 z-10 hidden" id="preview-controls">
+                                <button type="button" id="close-fullscreen" class="p-2 bg-white rounded-full shadow-lg text-gray-600 hover:text-gray-800">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            
-            <!-- UI Elements Visibility Section -->
-<div class="mt-6 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-    <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
-        <h4 class="font-medium text-gray-700 flex items-center">
-            <i class="fas fa-eye text-primary-500 mr-2"></i> UI Elements Visibility
-        </h4>
-    </div>
-    <div class="p-4">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
-                <span class="flex items-center">
-                    <i class="fas fa-exclamation-triangle text-gray-400 mr-2 w-5"></i>
-                    <span class="text-gray-800">Hide "Report Issue" Button</span>
-                </span>
-                <input type="checkbox" name="scan_ui_elements" value="hide_report_issue" class="toggle-checkbox">
-            </label>
-            
-            <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
-                <span class="flex items-center">
-                    <i class="fas fa-headset text-gray-400 mr-2 w-5"></i>
-                    <span class="text-gray-800">Hide "Contact Support" Section</span>
-                </span>
-                <input type="checkbox" name="scan_ui_elements" value="hide_contact_support" class="toggle-checkbox">
-            </label>
-            
-            <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
-                <span class="flex items-center">
-                    <i class="fas fa-info-circle text-gray-400 mr-2 w-5"></i>
-                    <span class="text-gray-800">Hide Product Details Section</span>
-                </span>
-                <input type="checkbox" name="scan_ui_elements" value="hide_product_details" class="toggle-checkbox">
-            </label>
-            
-            <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
-                <span class="flex items-center">
-                    <i class="fas fa-phone-alt text-gray-400 mr-2 w-5"></i>
-                    <span class="text-gray-800">Hide Contact Support Button</span>
-                </span>
-                <input type="checkbox" name="scan_ui_elements" value="hide_contact" class="toggle-checkbox">
-            </label>
-            
-            <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
-                <span class="flex items-center">
-                    <i class="fas fa-history text-gray-400 mr-2 w-5"></i>
-                    <span class="text-gray-800">Hide Maintenance History</span>
-                </span>
-                <input type="checkbox" name="scan_ui_elements" value="hide_maintenance_history" class="toggle-checkbox">
-            </label>
-            
-            <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
-                <span class="flex items-center">
-                    <i class="fas fa-tools text-gray-400 mr-2 w-5"></i>
-                    <span class="text-gray-800">Hide Maintenance Information</span>
-                </span>
-                <input type="checkbox" name="scan_ui_elements" value="hide_maintenance_info" class="toggle-checkbox">
-            </label>
-        </div>
-    </div>
-</div>
-            
- <!-- Preview Section -->
-<div class="mt-8 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
-    <div class="px-4 py-3 bg-gray-50 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <h4 class="font-medium text-gray-700 flex items-center">
-            <i class="fas fa-mobile-alt text-primary-500 mr-2"></i> QR Scan View Preview
-        </h4>
-        <div class="flex space-x-2">
-            <button type="button" id="refresh-preview" class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors text-sm">
-                <i class="fas fa-sync-alt mr-1"></i> Refresh
-            </button>
-            <button type="button" id="fullscreen-preview" class="px-3 py-1.5 bg-primary-50 text-primary-700 rounded hover:bg-primary-100 transition-colors text-sm">
-                <i class="fas fa-expand-alt mr-1"></i> Fullscreen
-            </button>
-        </div>
-    </div>
-    
-    <!-- Responsive container with mobile-friendly dimensions -->
-    <div id="preview-container" class="relative border-t border-gray-100">
-        <!-- Mobile device frame for better visualization -->
-        <div class="max-w-sm mx-auto my-6 hidden sm:block">
-            <div class="relative border-8 border-gray-800 rounded-3xl overflow-hidden shadow-xl">
-                <!-- Device top notch -->
-                <div class="absolute top-0 inset-x-0 h-6 bg-gray-800 rounded-b-xl z-10"></div>
-                
-                <!-- Preview container with mobile aspect ratio -->
-                <div id="scan-preview" class="w-full h-[600px] sm:h-[640px] flex items-center justify-center bg-gray-50">
-                    <div class="text-center p-4">
-                        <div class="mb-4 text-primary-500"><i class="fas fa-qrcode text-6xl"></i></div>
-                        <p class="text-gray-600 mb-4">Preview how this card will appear when scanned</p>
-                        <button id="load-preview-btn" class="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors">
-                            <i class="fas fa-eye mr-2"></i> Load Preview
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <!-- Mobile device home button -->
-            <div class="w-12 h-12 mx-auto mt-3 rounded-full border-4 border-gray-800 flex items-center justify-center">
-                <div class="w-6 h-6 rounded-sm border-2 border-gray-800"></div>
-            </div>
-        </div>
-        
-        <!-- Simple container for small screens -->
-        <div class="block sm:hidden">
-            <div id="mobile-scan-preview" class="w-full h-[480px] flex items-center justify-center bg-gray-50 border border-gray-200">
-                <div class="text-center p-4">
-                    <div class="mb-4 text-primary-500"><i class="fas fa-qrcode text-4xl"></i></div>
-                    <p class="text-gray-600 mb-4 text-sm">Mobile preview</p>
-                    <button id="mobile-load-preview-btn" class="px-3 py-1.5 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors text-sm">
-                        <i class="fas fa-eye mr-1"></i> Load Mobile View
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Fullscreen controls -->
-        <div class="absolute top-4 right-4 z-10 hidden" id="preview-controls">
-            <button type="button" id="close-fullscreen" class="p-2 bg-white rounded-full shadow-lg text-gray-600 hover:text-gray-800">
-                <i class="fas fa-times"></i>
-            </button>
         </div>
     </div>
 </div>
@@ -1676,110 +1681,110 @@
             
             // Handle form submission
             if (documentForm) {
-documentForm.addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    // Validate form
-    if (!this.checkValidity()) {
-        this.reportValidity();
-        return;
-    }
-    
-    // Check if files are selected
-    if (!documentFileInput.files || documentFileInput.files.length === 0) {
-        showToast('Error', 'Please select at least one file to upload', 'error');
-        return;
-    }
-    
-    // Show loading spinner
-    document.getElementById('upload-text').textContent = 'Uploading...';
-    document.getElementById('upload-spinner').classList.remove('hidden');
-    
-    // Create FormData explicitly to ensure fields are properly included
-    const formData = new FormData();
-    
-    // Add each form field manually with proper debugging
-    formData.append('cardId', document.querySelector('input[name="cardId"]').value);
-    formData.append('title', document.getElementById('document-title').value);
-    formData.append('documentType', document.getElementById('document-type').value);
-    formData.append('description', document.getElementById('document-description').value || '');
-    
-    // Add all files
-    const files = documentFileInput.files;
-    for (let i = 0; i < files.length; i++) {
-        formData.append('documentFiles', files[i]);
-        console.log(`Adding file: ${files[i].name}, size: ${files[i].size}, type: ${files[i].type}`);
-    }
-    
-    // Get CSRF token from meta tag
-    const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
-    
-    // Log the request details
-    console.log('Uploading files:', {
-        cardId: formData.get('cardId'),
-        title: formData.get('title'),
-        documentType: formData.get('documentType'),
-        fileCount: files.length
-    });
-    
-    fetch('/api/Document/UploadMultiple', {
-        method: 'POST',
-        headers: {
-            'RequestVerificationToken': token
-        },
-        body: formData
-    })
-    .then(response => {
-        // Log the raw response
-        console.log('Upload response status:', response.status);
-        
-        // For all responses, try to get the full text first
-        return response.text().then(text => {
-            console.log('Response text:', text);
-            
-            try {
-                // Try to parse as JSON if possible
-                const data = JSON.parse(text);
-                
-                // If response wasn't ok, throw with the parsed error
-                if (!response.ok) {
-                    throw new Error(data.error || `HTTP error ${response.status}`);
-                }
-                
-                return data;
-            } catch (e) {
-                // If parsing fails, use the raw text
-                if (!response.ok) {
-                    throw new Error(`HTTP error ${response.status}: ${text}`);
-                }
-                
-                // If we can't parse but response was ok, return empty success
-                return { success: true };
-            }
-        });
-    })
-    .then(data => {
-        // Hide loading spinner
-        document.getElementById('upload-text').textContent = 'Upload Documents';
-        document.getElementById('upload-spinner').classList.add('hidden');
-        
-        // Handle success
-        documentForm.reset();
-        filesPreview.innerHTML = '';
-        documentUploadSection.classList.add('hidden');
-        loadDocumentsData();
-        showToast('Documents uploaded', `Successfully uploaded ${data.count || 1} documents`, 'success');
-    })
-    .catch(error => {
-        console.error('Error uploading documents:', error);
-        
-        // Hide loading spinner
-        document.getElementById('upload-text').textContent = 'Upload Documents';
-        document.getElementById('upload-spinner').classList.add('hidden');
-        
-        showToast('Error', error.message || 'Failed to upload documents. Please try again.', 'error');
-    });
-});
+                documentForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Validate form
+                    if (!this.checkValidity()) {
+                        this.reportValidity();
+                        return;
+                    }
+                    
+                    // Check if files are selected
+                    if (!documentFileInput.files || documentFileInput.files.length === 0) {
+                        showToast('Error', 'Please select at least one file to upload', 'error');
+                        return;
+                    }
+                    
+                    // Show loading spinner
+                    document.getElementById('upload-text').textContent = 'Uploading...';
+                    document.getElementById('upload-spinner').classList.remove('hidden');
+                    
+                    // Create FormData explicitly to ensure fields are properly included
+                    const formData = new FormData();
+                    
+                    // Add each form field manually with proper debugging
+                    formData.append('cardId', document.querySelector('input[name="cardId"]').value);
+                    formData.append('title', document.getElementById('document-title').value);
+                    formData.append('documentType', document.getElementById('document-type').value);
+                    formData.append('description', document.getElementById('document-description').value || '');
+                    
+                    // Add all files
+                    const files = documentFileInput.files;
+                    for (let i = 0; i < files.length; i++) {
+                        formData.append('documentFiles', files[i]);
+                        console.log(`Adding file: ${files[i].name}, size: ${files[i].size}, type: ${files[i].type}`);
+                    }
+                    
+                    // Get CSRF token from meta tag
+                    const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
+                    
+                    // Log the request details
+                    console.log('Uploading files:', {
+                        cardId: formData.get('cardId'),
+                        title: formData.get('title'),
+                        documentType: formData.get('documentType'),
+                        fileCount: files.length
+                    });
+                    
+                    fetch('/api/Document/UploadMultiple', {
+                        method: 'POST',
+                        headers: {
+                            'RequestVerificationToken': token
+                        },
+                        body: formData
+                    })
+                    .then(response => {
+                        // Log the raw response
+                        console.log('Upload response status:', response.status);
+                        
+                        // For all responses, try to get the full text first
+                        return response.text().then(text => {
+                            console.log('Response text:', text);
+                            
+                            try {
+                                // Try to parse as JSON if possible
+                                const data = JSON.parse(text);
+                                
+                                // If response wasn't ok, throw with the parsed error
+                                if (!response.ok) {
+                                    throw new Error(data.error || `HTTP error ${response.status}`);
+                                }
+                                
+                                return data;
+                            } catch (e) {
+                                // If parsing fails, use the raw text
+                                if (!response.ok) {
+                                    throw new Error(`HTTP error ${response.status}: ${text}`);
+                                }
+                                
+                                // If we can't parse but response was ok, return empty success
+                                return { success: true };
+                            }
+                        });
+                    })
+                    .then(data => {
+                        // Hide loading spinner
+                        document.getElementById('upload-text').textContent = 'Upload Documents';
+                        document.getElementById('upload-spinner').classList.add('hidden');
+                        
+                        // Handle success
+                        documentForm.reset();
+                        filesPreview.innerHTML = '';
+                        documentUploadSection.classList.add('hidden');
+                        loadDocumentsData();
+                        showToast('Documents uploaded', `Successfully uploaded ${data.count || 1} documents`, 'success');
+                    })
+                    .catch(error => {
+                        console.error('Error uploading documents:', error);
+                        
+                        // Hide loading spinner
+                        document.getElementById('upload-text').textContent = 'Upload Documents';
+                        document.getElementById('upload-spinner').classList.add('hidden');
+                        
+                        showToast('Error', error.message || 'Failed to upload documents. Please try again.', 'error');
+                    });
+                });
             }
             
             // Load documents on init
@@ -1805,64 +1810,64 @@ documentForm.addEventListener('submit', function(e) {
             });
         }
         
- function handleFilesSelection(files) {
-    const filesPreview = document.getElementById('files-preview');
-    const documentFileInput = document.getElementById('document-file');
-    const documentTitleInput = document.getElementById('document-title');
-    
-    if (!files || files.length === 0) return;
-    
-    // Clear existing previews
-    filesPreview.innerHTML = '';
-    
-    // Auto-fill the title field with the first file name if field is empty
-    if (documentTitleInput && documentTitleInput.value.trim() === '' && files.length > 0) {
-        // Extract filename without extension for the title
-        const fileName = files[0].name;
-        const fileNameWithoutExt = fileName.split('.').slice(0, -1).join('.');
-        documentTitleInput.value = fileNameWithoutExt || fileName;
-    }
-    
-    // Create a preview for each file
-    Array.from(files).forEach((file, index) => {
-        const previewEl = document.createElement('div');
-        previewEl.className = 'flex items-center justify-between bg-gray-50 p-2 rounded-md';
-        previewEl.setAttribute('data-index', index);
-        
-        // Set appropriate icon based on file type
-        let iconClass = 'fa-file text-gray-500';
-        
-        if (file.type.startsWith('image/')) {
-            iconClass = 'fa-file-image text-blue-500';
-        } else if (file.type.includes('pdf')) {
-            iconClass = 'fa-file-pdf text-red-500';
-        } else if (file.type.includes('excel') || file.type.includes('spreadsheet') || file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
-            iconClass = 'fa-file-excel text-green-500';
-        } else if (file.type.includes('word') || file.type.includes('document') || file.name.endsWith('.docx') || file.name.endsWith('.doc')) {
-            iconClass = 'fa-file-word text-blue-500';
+        function handleFilesSelection(files) {
+            const filesPreview = document.getElementById('files-preview');
+            const documentFileInput = document.getElementById('document-file');
+            const documentTitleInput = document.getElementById('document-title');
+            
+            if (!files || files.length === 0) return;
+            
+            // Clear existing previews
+            filesPreview.innerHTML = '';
+            
+            // Auto-fill the title field with the first file name if field is empty
+            if (documentTitleInput && documentTitleInput.value.trim() === '' && files.length > 0) {
+                // Extract filename without extension for the title
+                const fileName = files[0].name;
+                const fileNameWithoutExt = fileName.split('.').slice(0, -1).join('.');
+                documentTitleInput.value = fileNameWithoutExt || fileName;
+            }
+            
+            // Create a preview for each file
+            Array.from(files).forEach((file, index) => {
+                const previewEl = document.createElement('div');
+                previewEl.className = 'flex items-center justify-between bg-gray-50 p-2 rounded-md';
+                previewEl.setAttribute('data-index', index);
+                
+                // Set appropriate icon based on file type
+                let iconClass = 'fa-file text-gray-500';
+                
+                if (file.type.startsWith('image/')) {
+                    iconClass = 'fa-file-image text-blue-500';
+                } else if (file.type.includes('pdf')) {
+                    iconClass = 'fa-file-pdf text-red-500';
+                } else if (file.type.includes('excel') || file.type.includes('spreadsheet') || file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+                    iconClass = 'fa-file-excel text-green-500';
+                } else if (file.type.includes('word') || file.type.includes('document') || file.name.endsWith('.docx') || file.name.endsWith('.doc')) {
+                    iconClass = 'fa-file-word text-blue-500';
+                }
+                
+                previewEl.innerHTML = `
+                    <div class="flex items-center">
+                        <i class="fas ${iconClass} mr-2"></i>
+                        <span class="text-sm truncate">${file.name}</span>
+                        <span class="text-xs text-gray-500 ml-2">${formatFileSize(file.size)}</span>
+                    </div>
+                    <button type="button" class="text-red-500 hover:text-red-700 remove-file" data-index="${index}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                
+                filesPreview.appendChild(previewEl);
+            });
+            
+            // Update UI to show the number of selected files
+            const fileCount = files.length;
+            const browseBtn = document.getElementById('browse-document');
+            if (browseBtn) {
+                browseBtn.textContent = fileCount === 1 ? '1 File Selected' : `${fileCount} Files Selected`;
+            }
         }
-        
-        previewEl.innerHTML = `
-            <div class="flex items-center">
-                <i class="fas ${iconClass} mr-2"></i>
-                <span class="text-sm truncate">${file.name}</span>
-                <span class="text-xs text-gray-500 ml-2">${formatFileSize(file.size)}</span>
-            </div>
-            <button type="button" class="text-red-500 hover:text-red-700 remove-file" data-index="${index}">
-                <i class="fas fa-times"></i>
-            </button>
-        `;
-        
-        filesPreview.appendChild(previewEl);
-    });
-    
-    // Update UI to show the number of selected files
-    const fileCount = files.length;
-    const browseBtn = document.getElementById('browse-document');
-    if (browseBtn) {
-        browseBtn.textContent = fileCount === 1 ? '1 File Selected' : `${fileCount} Files Selected`;
-    }
-}
         
         function removeFileFromSelection(index) {
             const documentFileInput = document.getElementById('document-file');
@@ -2018,104 +2023,104 @@ documentForm.addEventListener('submit', function(e) {
         }
 
         function initDocumentPreview() {
-    const previewModal = document.getElementById('document-preview-modal');
-    const closePreviewBtn = document.getElementById('close-doc-preview-modal');
-    const closePreviewBtn2 = document.getElementById('close-preview-btn');
-    const downloadBtn = document.getElementById('download-document-btn');
-    const previewTitle = document.getElementById('document-preview-title');
-    const previewContent = document.getElementById('document-preview-content');
-    
-    // Event delegation for document preview buttons
-    document.addEventListener('click', function(e) {
-        const previewBtn = e.target.closest('.document-preview-btn');
-        
-        if (previewBtn) {
-            const docId = previewBtn.getAttribute('data-id');
-            const docTitle = previewBtn.getAttribute('data-title');
-            const docPath = previewBtn.getAttribute('data-path');
+            const previewModal = document.getElementById('document-preview-modal');
+            const closePreviewBtn = document.getElementById('close-doc-preview-modal');
+            const closePreviewBtn2 = document.getElementById('close-preview-btn');
+            const downloadBtn = document.getElementById('download-document-btn');
+            const previewTitle = document.getElementById('document-preview-title');
+            const previewContent = document.getElementById('document-preview-content');
             
-            // Set modal title
-            previewTitle.textContent = docTitle;
-            
-            // Show loading state
-            previewContent.innerHTML = `
-                <div class="flex justify-center items-center h-full">
-                    <i class="fas fa-spinner fa-spin text-2xl text-primary-500"></i>
-                </div>
-            `;
-            
-            // Set download button link
-            downloadBtn.setAttribute('data-id', docId);
-            
-            // Show modal
-            previewModal.classList.remove('hidden');
-            
-            // Attempt to display the file (this is simplified - would need proper implementation based on file type)
-            if (docPath) {
-                if (docPath.toLowerCase().endsWith('.pdf')) {
-                    previewContent.innerHTML = `<iframe src="${docPath}" width="100%" height="100%" frameborder="0"></iframe>`;
-                } else if (docPath.toLowerCase().match(/\.(jpe?g|png|gif|bmp|svg)$/)) {
-                    previewContent.innerHTML = `<img src="${docPath}" alt="${docTitle}" class="max-w-full max-h-full mx-auto">`;
-                } else {
+            // Event delegation for document preview buttons
+            document.addEventListener('click', function(e) {
+                const previewBtn = e.target.closest('.document-preview-btn');
+                
+                if (previewBtn) {
+                    const docId = previewBtn.getAttribute('data-id');
+                    const docTitle = previewBtn.getAttribute('data-title');
+                    const docPath = previewBtn.getAttribute('data-path');
+                    
+                    // Set modal title
+                    previewTitle.textContent = docTitle;
+                    
+                    // Show loading state
                     previewContent.innerHTML = `
-                        <div class="flex flex-col items-center justify-center h-full">
-                            <div class="text-6xl text-gray-400 mb-4">
-                                <i class="fas fa-file-alt"></i>
-                            </div>
-                            <p class="text-lg font-medium text-gray-700">Preview not available</p>
-                            <p class="text-gray-500 mb-6">This document type cannot be previewed directly.</p>
-                            <a href="/api/Document/download/${docId}" class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700" download>
-                                <i class="fas fa-download mr-2"></i> Download to view
-                            </a>
+                        <div class="flex justify-center items-center h-full">
+                            <i class="fas fa-spinner fa-spin text-2xl text-primary-500"></i>
                         </div>
                     `;
+                    
+                    // Set download button link
+                    downloadBtn.setAttribute('data-id', docId);
+                    
+                    // Show modal
+                    previewModal.classList.remove('hidden');
+                    
+                    // Attempt to display the file (this is simplified - would need proper implementation based on file type)
+                    if (docPath) {
+                        if (docPath.toLowerCase().endsWith('.pdf')) {
+                            previewContent.innerHTML = `<iframe src="${docPath}" width="100%" height="100%" frameborder="0"></iframe>`;
+                        } else if (docPath.toLowerCase().match(/\.(jpe?g|png|gif|bmp|svg)$/)) {
+                            previewContent.innerHTML = `<img src="${docPath}" alt="${docTitle}" class="max-w-full max-h-full mx-auto">`;
+                        } else {
+                            previewContent.innerHTML = `
+                                <div class="flex flex-col items-center justify-center h-full">
+                                    <div class="text-6xl text-gray-400 mb-4">
+                                        <i class="fas fa-file-alt"></i>
+                                    </div>
+                                    <p class="text-lg font-medium text-gray-700">Preview not available</p>
+                                    <p class="text-gray-500 mb-6">This document type cannot be previewed directly.</p>
+                                    <a href="/api/Document/download/${docId}" class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700" download>
+                                        <i class="fas fa-download mr-2"></i> Download to view
+                                    </a>
+                                </div>
+                            `;
+                        }
+                    } else {
+                        previewContent.innerHTML = `
+                            <div class="flex flex-col items-center justify-center h-full">
+                                <div class="text-6xl text-red-400 mb-4">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                </div>
+                                <p class="text-lg font-medium text-gray-700">File not found</p>
+                                <p class="text-gray-500">The document could not be loaded.</p>
+                            </div>
+                        `;
+                    }
                 }
-            } else {
-                previewContent.innerHTML = `
-                    <div class="flex flex-col items-center justify-center h-full">
-                        <div class="text-6xl text-red-400 mb-4">
-                            <i class="fas fa-exclamation-circle"></i>
-                        </div>
-                        <p class="text-lg font-medium text-gray-700">File not found</p>
-                        <p class="text-gray-500">The document could not be loaded.</p>
-                    </div>
-                `;
+            });
+            
+            // Close modal events
+            if (closePreviewBtn) {
+                closePreviewBtn.addEventListener('click', () => {
+                    previewModal.classList.add('hidden');
+                });
+            }
+            
+            if (closePreviewBtn2) {
+                closePreviewBtn2.addEventListener('click', () => {
+                    previewModal.classList.add('hidden');
+                });
+            }
+            
+            // Close modal when clicking outside
+            if (previewModal) {
+                previewModal.addEventListener('click', function(e) {
+                    if (e.target === previewModal) {
+                        previewModal.classList.add('hidden');
+                    }
+                });
+            }
+            
+            // Download button action
+            if (downloadBtn) {
+                downloadBtn.addEventListener('click', function() {
+                    const docId = this.getAttribute('data-id');
+                    if (docId) {
+                        window.open(`/api/Document/download/${docId}`, '_blank');
+                    }
+                });
             }
         }
-    });
-    
-    // Close modal events
-    if (closePreviewBtn) {
-        closePreviewBtn.addEventListener('click', () => {
-            previewModal.classList.add('hidden');
-        });
-    }
-    
-    if (closePreviewBtn2) {
-        closePreviewBtn2.addEventListener('click', () => {
-            previewModal.classList.add('hidden');
-        });
-    }
-    
-    // Close modal when clicking outside
-    if (previewModal) {
-        previewModal.addEventListener('click', function(e) {
-            if (e.target === previewModal) {
-                previewModal.classList.add('hidden');
-            }
-        });
-    }
-    
-    // Download button action
-    if (downloadBtn) {
-        downloadBtn.addEventListener('click', function() {
-            const docId = this.getAttribute('data-id');
-            if (docId) {
-                window.open(`/api/Document/download/${docId}`, '_blank');
-            }
-        });
-    }
-}
         
         function loadHistoryData() {
             const cardId = document.getElementById('card-id').value;
@@ -2193,7 +2198,7 @@ documentForm.addEventListener('submit', function(e) {
                                         <div class="text-sm text-gray-600 mt-2">${item.newValue}</div>`}
                                         <div class="text-xs text-gray-500 mt-2">by ${item.changedBy}</div>
                                     </div>
-                                    </div>
+                                </div>
                             `;
                             
                             historyItems.appendChild(historyEl);
@@ -2465,6 +2470,322 @@ documentForm.addEventListener('submit', function(e) {
             });
         }
         
+        // Scan settings functionality
+        function initScanSettings() {
+            const saveScanSettingsBtn = document.getElementById('save-scan-settings');
+            const refreshPreviewBtn = document.getElementById('refresh-preview');
+            const fullscreenPreviewBtn = document.getElementById('fullscreen-preview');
+            const closeFullscreenBtn = document.getElementById('close-fullscreen');
+            const previewContainer = document.getElementById('preview-container');
+            const privateModeToggle = document.getElementById('private-mode-toggle');
+            const loadPreviewBtn = document.getElementById('load-preview-btn');
+            const mobileLoadPreviewBtn = document.getElementById('mobile-load-preview-btn');
+            
+            // Load current settings on init
+            loadScanSettings();
+            
+            // Handle load preview button clicks
+            if (loadPreviewBtn) {
+                loadPreviewBtn.addEventListener('click', function() {
+                    loadScanPreview(false);
+                });
+            }
+            
+            if (mobileLoadPreviewBtn) {
+                mobileLoadPreviewBtn.addEventListener('click', function() {
+                    loadScanPreview(true);
+                });
+            }
+            
+            if (saveScanSettingsBtn) {
+                saveScanSettingsBtn.addEventListener('click', function() {
+                    saveScanSettings();
+                });
+            }
+            
+            if (refreshPreviewBtn) {
+                refreshPreviewBtn.addEventListener('click', function() {
+                    const isMobile = window.innerWidth < 640;
+                    loadScanPreview(isMobile);
+                });
+            }
+            
+            // Initialize fullscreen preview functionality
+            if (fullscreenPreviewBtn && previewContainer) {
+                fullscreenPreviewBtn.addEventListener('click', function() {
+                    previewContainer.classList.add('fixed', 'inset-0', 'z-50', 'p-4', 'm-0', 'rounded-none');
+                    document.getElementById('preview-controls').classList.remove('hidden');
+                    document.body.classList.add('overflow-hidden');
+                    
+                    // Determine if mobile view
+                    const isMobile = window.innerWidth < 640;
+                    loadScanPreview(isMobile);
+                });
+            }
+            
+            // Handle closing fullscreen preview
+            if (closeFullscreenBtn && previewContainer) {
+                closeFullscreenBtn.addEventListener('click', function() {
+                    previewContainer.classList.remove('fixed', 'inset-0', 'z-50', 'p-4', 'm-0', 'rounded-none');
+                    document.getElementById('preview-controls').classList.add('hidden');
+                    document.body.classList.remove('overflow-hidden');
+                });
+            }
+            
+            // Toggle Private Mode visual feedback
+            if (privateModeToggle) {
+                privateModeToggle.addEventListener('change', function() {
+                    updatePrivateModeUI(this.checked);
+                });
+            }
+        }
+        
+        function updatePrivateModeUI(isPrivate) {
+            const accessContainer = document.getElementById('access-control-container');
+            const accessIcon = document.getElementById('access-control-icon');
+            const toggleLabel = document.getElementById('toggle-label');
+            const modeLabel = document.getElementById('access-mode-label');
+            const modeDescription = document.getElementById('access-mode-description');
+            const mobileDescription = document.getElementById('mobile-access-description');
+            
+            if (isPrivate) {
+                // Private mode UI
+                accessContainer.classList.add('bg-gradient-to-r', 'from-blue-50', 'to-blue-100', 'border-blue-200');
+                accessContainer.classList.remove('border-green-200', 'bg-gradient-to-r', 'from-green-50', 'to-primary-50');
+                
+                accessIcon.classList.remove('fa-lock-open', 'text-green-500');
+                accessIcon.classList.add('fa-lock', 'text-blue-600');
+                
+                toggleLabel.textContent = 'Private';
+                modeLabel.textContent = 'Private Mode';
+                modeDescription.textContent = 'Login required to view details';
+                mobileDescription.textContent = 'Login required to view details';
+            } else {
+                // Public mode UI
+                accessContainer.classList.remove('bg-gradient-to-r', 'from-blue-50', 'to-blue-100', 'border-blue-200');
+                accessContainer.classList.add('border-green-200', 'bg-gradient-to-r', 'from-green-50', 'to-primary-50');
+                
+                accessIcon.classList.add('fa-lock-open', 'text-green-500');
+                accessIcon.classList.remove('fa-lock', 'text-blue-600');
+                
+                toggleLabel.textContent = 'Public';
+                modeLabel.textContent = 'Public Mode';
+                modeDescription.textContent = 'Anyone can view without login';
+                mobileDescription.textContent = 'Anyone can view without login';
+            }
+        }
+
+        function loadScanSettings() {
+            const cardId = document.getElementById('card-id').value;
+            
+            // Try to load settings from database first
+            fetch(`/api/ScanSettings/card/${cardId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Settings not found in database');
+                    }
+                    return response.json();
+                })
+                .then(dbSettings => {
+                    // Parse JSON arrays from the database
+                    const fields = JSON.parse(dbSettings.fieldsJson || '[]');
+                    const uiElements = JSON.parse(dbSettings.uiElementsJson || '[]');
+                    const privateMode = dbSettings.privateMode || false;
+                    
+                    // Apply the settings to field checkboxes
+                    document.querySelectorAll('input[name="scan_fields"]').forEach(checkbox => {
+                        if (!checkbox.disabled) {
+                            checkbox.checked = fields.includes(checkbox.value);
+                        }
+                    });
+                    
+                    // Apply UI element visibility settings
+                    document.querySelectorAll('input[name="scan_ui_elements"]').forEach(checkbox => {
+                        checkbox.checked = uiElements.includes(checkbox.value);
+                    });
+                    
+                    // Apply private mode setting
+                    const privateModeToggle = document.getElementById('private-mode-toggle');
+                    if (privateModeToggle) {
+                        privateModeToggle.checked = privateMode;
+                        updatePrivateModeUI(privateModeToggle.checked);
+                    }
+                    
+                    // Update localStorage as a cache
+                    localStorage.setItem(`scan_settings_${cardId}`, JSON.stringify({
+                        fields: fields,
+                        uiElements: uiElements,
+                        privateMode: privateMode
+                    }));
+                })
+                .catch(error => {
+                    console.log('Error loading settings from database, falling back to localStorage:', error);
+                    
+                    // Fall back to localStorage
+                    const savedSettings = localStorage.getItem(`scan_settings_${cardId}`);
+                    
+                    if (savedSettings) {
+                        const settings = JSON.parse(savedSettings);
+                        
+                        // Apply settings to checkboxes
+                        document.querySelectorAll('input[name="scan_fields"]').forEach(checkbox => {
+                            if (!checkbox.disabled) {
+                                checkbox.checked = settings.fields.includes(checkbox.value);
+                            }
+                        });
+                        
+                        document.querySelectorAll('input[name="scan_ui_elements"]').forEach(checkbox => {
+                            checkbox.checked = settings.uiElements.includes(checkbox.value);
+                        });
+                        
+                        const privateModeToggle = document.getElementById('private-mode-toggle');
+                        if (privateModeToggle) {
+                            privateModeToggle.checked = settings.privateMode || false;
+                            updatePrivateModeUI(privateModeToggle.checked);
+                        }
+                    } else {
+                        // Default to public mode if no settings exist
+                        updatePrivateModeUI(false);
+                    }
+                });
+        }
+
+        function saveScanSettings() {
+            // Get selected values
+            const selectedFields = [];
+            document.querySelectorAll('input[name="scan_fields"]:checked').forEach(checkbox => {
+                selectedFields.push(checkbox.value);
+            });
+            
+            const selectedUIElements = [];
+            document.querySelectorAll('input[name="scan_ui_elements"]:checked').forEach(checkbox => {
+                selectedUIElements.push(checkbox.value);
+            });
+            
+            const privateMode = document.getElementById('private-mode-toggle').checked;
+            const cardId = parseInt(document.getElementById('card-id').value);
+            
+            // Create payload for the server
+            const payload = {
+                cardId: cardId,
+                fieldsJson: JSON.stringify(selectedFields),
+                uiElementsJson: JSON.stringify(selectedUIElements),
+                privateMode: privateMode
+            };
+            
+            // Get CSRF token
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+            
+            // Send request
+            fetch('/api/ScanSettings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token || ''
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(`HTTP error ${response.status}: ${text}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Save to localStorage as backup
+                localStorage.setItem(`scan_settings_${cardId}`, JSON.stringify({
+                    fields: selectedFields,
+                    uiElements: selectedUIElements,
+                    privateMode: privateMode
+                }));
+                
+                showToast('Settings saved', 'Scan settings saved successfully', 'success');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error', `Failed to save settings: ${error.message}`, 'error');
+            });
+        }
+
+        function loadScanPreview(isMobile = false) {
+            const previewElement = isMobile ? 
+                document.getElementById('mobile-scan-preview') : 
+                document.getElementById('scan-preview');
+            
+            if (!previewElement) {
+                console.error('Preview element not found');
+                return;
+            }
+            
+            // Show loading state
+            previewElement.innerHTML = '<div class="flex justify-center items-center h-full"><i class="fas fa-spinner fa-spin text-2xl text-primary-500"></i></div>';
+            
+            // Get card ID
+            const cardId = document.getElementById('card-id')?.value;
+            
+            if (!cardId) {
+                previewElement.innerHTML = '<div class="flex justify-center items-center h-full text-red-500">Error: Product ID not found</div>';
+                return;
+            }
+            
+            // Get current settings
+            const selectedFields = [];
+            document.querySelectorAll('input[name="scan_fields"]:checked').forEach(checkbox => {
+                selectedFields.push(checkbox.value);
+            });
+            
+            const uiElements = [];
+            document.querySelectorAll('input[name="scan_ui_elements"]:checked').forEach(checkbox => {
+                uiElements.push(checkbox.value);
+            });
+            
+            const privateMode = document.getElementById('private-mode-toggle')?.checked || false;
+            
+            // Build the preview URL with correct parameters
+            let previewUrl = `/Card/ScanShow/${cardId}?preview=true`;
+            
+            // Add field parameters
+            selectedFields.forEach(field => {
+                previewUrl += `&field=${encodeURIComponent(field)}`;
+            });
+            
+            // Add UI element parameters
+            uiElements.forEach(element => {
+                previewUrl += `&ui=${encodeURIComponent(element)}`;
+            });
+            
+            // Add private mode parameter if enabled
+            if (privateMode) {
+                previewUrl += '&private=true';
+            }
+            
+            // Add mobile parameter for mobile view
+            if (isMobile) {
+                previewUrl += '&mobile=true';
+            }
+            
+            // Add timestamp to prevent caching issues
+            previewUrl += `&t=${Date.now()}`;
+            
+            // Create iframe with appropriate classes
+            const iframeClasses = isMobile ? 
+                'w-full h-full border-0 scale-[0.85] origin-top' : 
+                'w-full h-full border-0';
+            
+            // Create and append iframe
+            const iframe = document.createElement('iframe');
+            iframe.src = previewUrl;
+            iframe.className = iframeClasses;
+            iframe.loading = "lazy";
+            iframe.allowFullscreen = true;
+            
+            // Clear and append the iframe
+            previewElement.innerHTML = '';
+            previewElement.appendChild(iframe);
+        }
+        
         // Helper functions
         function formatDate(date) {
             if (!(date instanceof Date) || isNaN(date)) {
@@ -2492,835 +2813,5 @@ documentForm.addEventListener('submit', function(e) {
             
             return parseFloat((bytes / Math.pow(1024, i)).toFixed(2)) + ' ' + sizes[i];
         }
-
-        // Initialize scan settings functionality
-// Initialize scan settings functionality
-function initScanSettings() {
-    const saveScanSettingsBtn = document.getElementById('save-scan-settings');
-    const refreshPreviewBtn = document.getElementById('refresh-preview');
-    const fullscreenPreviewBtn = document.getElementById('fullscreen-preview');
-    const closeFullscreenBtn = document.getElementById('close-fullscreen');
-    const previewContainer = document.getElementById('preview-container');
-    const privateModeToggle = document.getElementById('private-mode-toggle');
-    const loadPreviewBtn = document.getElementById('load-preview-btn');
-    
-    // Load current settings on init
-    loadScanSettings();
-    
-    // Handle load preview button click
-    if (loadPreviewBtn) {
-        loadPreviewBtn.addEventListener('click', function() {
-            loadScanPreview();
-        });
-    }
-    
-    if (saveScanSettingsBtn) {
-        saveScanSettingsBtn.addEventListener('click', function() {
-            saveScanSettings();
-        });
-    }
-    
-    if (refreshPreviewBtn) {
-        refreshPreviewBtn.addEventListener('click', function() {
-            loadScanPreview();
-        });
-    }
-    
-    // Handle fullscreen preview
-    if (fullscreenPreviewBtn && previewContainer) {
-        fullscreenPreviewBtn.addEventListener('click', function() {
-            previewContainer.classList.add('fixed', 'inset-0', 'z-50', 'p-4', 'm-0', 'rounded-none');
-            document.getElementById('preview-controls').classList.remove('hidden');
-            document.body.classList.add('overflow-hidden');
-            loadScanPreview(); // Reload preview in fullscreen
-        });
-    }
-    
-    // Handle closing fullscreen preview
-    if (closeFullscreenBtn && previewContainer) {
-        closeFullscreenBtn.addEventListener('click', function() {
-            previewContainer.classList.remove('fixed', 'inset-0', 'z-50', 'p-4', 'm-0', 'rounded-none');
-            document.getElementById('preview-controls').classList.add('hidden');
-            document.body.classList.remove('overflow-hidden');
-        });
-    }
-    
-    // Toggle Private Mode visual feedback
-    if (privateModeToggle) {
-        privateModeToggle.addEventListener('change', function() {
-            updatePrivateModeUI(this.checked);
-        });
-    }
-}
-
-// New function to update UI based on private mode state
-function updatePrivateModeUI(isPrivate) {
-    const accessContainer = document.getElementById('access-control-container');
-    const accessIcon = document.getElementById('access-control-icon');
-    const toggleLabel = document.getElementById('toggle-label');
-    const modeLabel = document.getElementById('access-mode-label');
-    const modeDescription = document.getElementById('access-mode-description');
-    const mobileDescription = document.getElementById('mobile-access-description');
-    
-    if (isPrivate) {
-        // Private mode UI
-        accessContainer.classList.add('bg-gradient-to-r', 'from-blue-50', 'to-blue-100', 'border-blue-200');
-        accessContainer.classList.remove('border-green-200', 'bg-gradient-to-r', 'from-green-50', 'to-primary-50');
-        
-        accessIcon.classList.remove('fa-lock-open', 'text-green-500');
-        accessIcon.classList.add('fa-lock', 'text-blue-600');
-        
-        toggleLabel.textContent = 'Private';
-        modeLabel.textContent = 'Private Mode';
-        modeDescription.textContent = 'Login required to view details';
-        mobileDescription.textContent = 'Login required to view details';
-    } else {
-        // Public mode UI
-        accessContainer.classList.remove('bg-gradient-to-r', 'from-blue-50', 'to-blue-100', 'border-blue-200');
-        accessContainer.classList.add('border-green-200', 'bg-gradient-to-r', 'from-green-50', 'to-primary-50');
-        
-        accessIcon.classList.add('fa-lock-open', 'text-green-500');
-        accessIcon.classList.remove('fa-lock', 'text-blue-600');
-        
-        toggleLabel.textContent = 'Public';
-        modeLabel.textContent = 'Public Mode';
-        modeDescription.textContent = 'Anyone can view without login';
-        mobileDescription.textContent = 'Anyone can view without login';
-    }
-}
-
-function loadScanSettings() {
-    const cardId = document.getElementById('card-id').value;
-    
-    // Get settings from localStorage or use default
-    const savedSettings = localStorage.getItem(`scan_settings_${cardId}`);
-    
-    if (savedSettings) {
-        const settings = JSON.parse(savedSettings);
-        
-        // Apply the saved settings to field checkboxes
-        document.querySelectorAll('input[name="scan_fields"]').forEach(checkbox => {
-            if (!checkbox.disabled) {
-                checkbox.checked = settings.fields.includes(checkbox.value);
-            }
-        });
-        
-        // Apply UI element visibility settings
-        document.querySelectorAll('input[name="scan_ui_elements"]').forEach(checkbox => {
-            checkbox.checked = settings.uiElements.includes(checkbox.value);
-        });
-        
-        // Apply private mode setting
-        const privateModeToggle = document.getElementById('private-mode-toggle');
-        if (privateModeToggle) {
-            privateModeToggle.checked = settings.privateMode || false;
-            
-            // Update UI based on private mode state
-            updatePrivateModeUI(privateModeToggle.checked);
-        }
-    } else {
-        // Default to public mode UI if no settings exist
-        updatePrivateModeUI(false);
-    }
-}
-
-function saveScanSettings() {
-    // Get selected values
-    const selectedFields = [];
-    document.querySelectorAll('input[name="scan_fields"]:checked').forEach(checkbox => {
-        selectedFields.push(checkbox.value);
-    });
-    
-    const selectedUIElements = [];
-    document.querySelectorAll('input[name="scan_ui_elements"]:checked').forEach(checkbox => {
-        selectedUIElements.push(checkbox.value);
-    });
-    
-    const privateMode = document.getElementById('private-mode-toggle').checked;
-    const cardId = parseInt(document.getElementById('card-id').value);
-    
-    // Create payload explicitly matching what server expects
-    const payload = {
-        cardId: cardId,
-        fieldsJson: JSON.stringify(selectedFields),
-        uiElementsJson: JSON.stringify(selectedUIElements),
-        privateMode: privateMode
-    };
-    
-    console.log('Sending payload:', payload);
-    
-    // Get CSRF token
-    const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
-    
-    // Send request
-    fetch('/api/ScanSettings', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'RequestVerificationToken': token || ''
-        },
-        body: JSON.stringify(payload)
-    })
-    .then(response => {
-        console.log('Response status:', response.status);
-        if (!response.ok) {
-            return response.text().then(text => {
-                console.error('Error response:', text);
-                throw new Error(`HTTP error ${response.status}: ${text}`);
-            });
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Success:', data);
-        showToast('Settings saved', 'Scan settings saved successfully', 'success');
-        
-        // Save to localStorage as backup
-        localStorage.setItem(`scan_settings_${cardId}`, JSON.stringify({
-            fields: selectedFields,
-            uiElements: selectedUIElements,
-            privateMode: privateMode
-        }));
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showToast('Error', `Failed to save settings: ${error.message}`, 'error');
-        
-        // Save to localStorage as fallback
-        localStorage.setItem(`scan_settings_${cardId}`, JSON.stringify({
-            fields: selectedFields,
-            uiElements: selectedUIElements,
-            privateMode: privateMode
-        }));
-    });
-}
-
-function debugLogSettings() {
-    const cardId = document.getElementById('card-id').value;
-    const selectedFields = [];
-    document.querySelectorAll('input[name="scan_fields"]:checked').forEach(checkbox => {
-        selectedFields.push(checkbox.value);
-    });
-    
-    const uiElements = [];
-    document.querySelectorAll('input[name="scan_ui_elements"]:checked').forEach(checkbox => {
-        uiElements.push(checkbox.value);
-    });
-    
-    const privateMode = document.getElementById('private-mode-toggle')?.checked || false;
-    
-    const settings = {
-        cardId: parseInt(cardId),
-        fieldsJson: JSON.stringify(selectedFields),
-        uiElementsJson: JSON.stringify(uiElements),
-        privateMode: privateMode
-    };
-    
-    console.log('Debug - Settings object:', settings);
-    console.log('Debug - JSON string:', JSON.stringify(settings));
-}
-
-// Add debug button
-const saveScanSettingsBtn = document.getElementById('save-scan-settings');
-if (saveScanSettingsBtn) {
-    saveScanSettingsBtn.addEventListener('click', function() {
-        debugLogSettings();
-        saveScanSettings();
-    });
-}
-
-function loadScanSettings() {
-    const cardId = document.getElementById('card-id').value;
-    
-    // Try to load settings from database first
-    fetch(`/api/ScanSettings/card/${cardId}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Settings not found in database');
-            }
-            return response.json();
-        })
-        .then(dbSettings => {
-            // Parse JSON arrays from the database
-            const fields = JSON.parse(dbSettings.fieldsJson || '[]');
-            const uiElements = JSON.parse(dbSettings.uiElementsJson || '[]');
-            const privateMode = dbSettings.privateMode || false;
-            
-            // Apply the settings to field checkboxes
-            document.querySelectorAll('input[name="scan_fields"]').forEach(checkbox => {
-                if (!checkbox.disabled) {
-                    checkbox.checked = fields.includes(checkbox.value);
-                }
-            });
-            
-            // Apply UI element visibility settings
-            document.querySelectorAll('input[name="scan_ui_elements"]').forEach(checkbox => {
-                checkbox.checked = uiElements.includes(checkbox.value);
-            });
-            
-            // Apply private mode setting
-            const privateModeToggle = document.getElementById('private-mode-toggle');
-            if (privateModeToggle) {
-                privateModeToggle.checked = privateMode;
-                updatePrivateModeUI(privateModeToggle.checked);
-            }
-            
-            // Update localStorage as a cache
-            localStorage.setItem(`scan_settings_${cardId}`, JSON.stringify({
-                fields: fields,
-                uiElements: uiElements,
-                privateMode: privateMode
-            }));
-        })
-        .catch(error => {
-            console.log('Error loading settings from database, falling back to localStorage:', error);
-            
-            // Fall back to localStorage
-            const savedSettings = localStorage.getItem(`scan_settings_${cardId}`);
-            
-            if (savedSettings) {
-                const settings = JSON.parse(savedSettings);
-                
-                // Apply settings to checkboxes
-                document.querySelectorAll('input[name="scan_fields"]').forEach(checkbox => {
-                    if (!checkbox.disabled) {
-                        checkbox.checked = settings.fields.includes(checkbox.value);
-                    }
-                });
-                
-                document.querySelectorAll('input[name="scan_ui_elements"]').forEach(checkbox => {
-                    checkbox.checked = settings.uiElements.includes(checkbox.value);
-                });
-                
-                const privateModeToggle = document.getElementById('private-mode-toggle');
-                if (privateModeToggle) {
-                    privateModeToggle.checked = settings.privateMode || false;
-                    updatePrivateModeUI(privateModeToggle.checked);
-                }
-            } else {
-                // Default to public mode if no settings exist
-                updatePrivateModeUI(false);
-            }
-        });
-}
-
-function initFullscreenPreview() {
-    const fullscreenBtn = document.getElementById('fullscreen-preview');
-    const closeBtn = document.getElementById('close-fullscreen');
-    const container = document.getElementById('preview-container');
-    const controls = document.getElementById('preview-controls');
-    
-    fullscreenBtn?.addEventListener('click', () => {
-        container.classList.add('fixed', 'inset-0', 'z-50', 'bg-white');
-        controls.classList.remove('hidden');
-        document.body.classList.add('overflow-hidden');
-        
-        // Reload with fullscreen dimensions
-        const scanPreview = document.getElementById('scan-preview');
-        scanPreview.classList.remove('h-[800px]');
-        scanPreview.classList.add('h-screen');
-        loadScanPreview();
-    });
-    
-    closeBtn?.addEventListener('click', () => {
-        container.classList.remove('fixed', 'inset-0', 'z-50', 'bg-white');
-        controls.classList.add('hidden');
-        document.body.classList.remove('overflow-hidden');
-        
-        // Reset dimensions
-        const scanPreview = document.getElementById('scan-preview');
-        scanPreview.classList.remove('h-screen');
-        scanPreview.classList.add('h-[800px]');
-        loadScanPreview();
-    });
-}
-
-// Path: Views/Card/Details.cshtml
-
-// Fix for the loadScanPreview function
-function loadScanPreview(isMobile = false) {
-    const previewElement = isMobile ? 
-        document.getElementById('mobile-scan-preview') : 
-        document.getElementById('scan-preview');
-    
-    if (!previewElement) {
-        console.error('Preview element not found');
-        return;
-    }
-    
-    // Show loading state
-    previewElement.innerHTML = '<div class="flex justify-center items-center h-full"><i class="fas fa-spinner fa-spin text-2xl text-primary-500"></i></div>';
-    
-    // Get card ID from hidden input or from URL
-    const cardId = document.getElementById('card-id')?.value || 
-                   window.location.pathname.split('/').pop();
-    
-    if (!cardId) {
-        previewElement.innerHTML = '<div class="flex justify-center items-center h-full text-red-500">Error: Product ID not found</div>';
-        return;
-    }
-    
-    // Get current settings
-    const selectedFields = [];
-    document.querySelectorAll('input[name="scan_fields"]:checked').forEach(checkbox => {
-        selectedFields.push(checkbox.value);
-    });
-    
-    const uiElements = [];
-    document.querySelectorAll('input[name="scan_ui_elements"]:checked').forEach(checkbox => {
-        uiElements.push(checkbox.value);
-    });
-    
-    const privateMode = document.getElementById('private-mode-toggle')?.checked || false;
-    
-    // Build the preview URL with correct parameters
-    let previewUrl = `/Card/ScanShow/${cardId}?preview=true`;
-    
-    // Add field parameters
-    selectedFields.forEach(field => {
-        previewUrl += `&field=${encodeURIComponent(field)}`;
-    });
-    
-    // Add UI element parameters
-    uiElements.forEach(element => {
-        previewUrl += `&ui=${encodeURIComponent(element)}`;
-    });
-    
-    // Add private mode parameter if enabled
-    if (privateMode) {
-        previewUrl += '&private=true';
-    }
-    
-    // Add mobile parameter for mobile view
-    if (isMobile) {
-        previewUrl += '&mobile=true';
-    }
-    
-    // Add timestamp to prevent caching issues
-    previewUrl += `&t=${Date.now()}`;
-    
-    console.log(`Loading preview URL: ${previewUrl}`);
-    
-    // Create iframe with appropriate classes
-    const iframeClasses = isMobile ? 
-        'w-full h-full border-0 scale-[0.85] origin-top' : 
-        'w-full h-full border-0';
-    
-    // Create and append iframe
-    const iframe = document.createElement('iframe');
-    iframe.src = previewUrl;
-    iframe.className = iframeClasses;
-    iframe.loading = "lazy";
-    iframe.allowFullscreen = true;
-    
-    // Clear and append the iframe
-    previewElement.innerHTML = '';
-    previewElement.appendChild(iframe);
-    
-    // Add error handling
-    iframe.onerror = function() {
-        previewElement.innerHTML = '<div class="flex justify-center items-center h-full text-red-500">Error loading preview</div>';
-    };
-    
-    // Add load event handler
-    iframe.onload = function() {
-        console.log('Preview iframe loaded successfully');
-    };
-}
-
-// Fix for the orientation toggle function
-function initOrientationToggle() {
-    const toggleBtn = document.getElementById('toggle-orientation');
-    const container = document.getElementById('preview-container');
-    
-    if (!toggleBtn || !container) {
-        console.error('Toggle button or container not found');
-        return;
-    }
-    
-    toggleBtn.addEventListener('click', () => {
-        // Check if we're in mobile view
-        const isMobile = window.innerWidth < 640;
-        
-        if (isMobile) {
-            // For mobile devices, just reload with different orientation
-            const mobilePreview = document.getElementById('mobile-scan-preview');
-            if (mobilePreview) {
-                const isLandscape = mobilePreview.classList.contains('landscape');
-                mobilePreview.classList.toggle('landscape');
-                
-                // Adjust height/width for orientation
-                if (isLandscape) {
-                    mobilePreview.style.height = '480px';
-                    mobilePreview.style.width = '100%';
-                    toggleBtn.innerHTML = '<i class="fas fa-mobile-alt mr-1"></i> Switch to Landscape';
-                } else {
-                    mobilePreview.style.height = '360px';
-                    mobilePreview.style.width = '640px';
-                    toggleBtn.innerHTML = '<i class="fas fa-mobile-alt transform rotate-90 mr-1"></i> Switch to Portrait';
-                }
-                
-                // Reload the preview
-                loadScanPreview(true);
-            }
-        } else {
-            // Get the mobile frame container
-            const mobileFrame = container.querySelector('.max-w-sm');
-            
-            if (mobileFrame) {
-                // Toggle between portrait and landscape modes
-                const isLandscape = mobileFrame.classList.contains('landscape-mode');
-                
-                if (isLandscape) {
-                    // Switch to portrait
-                    mobileFrame.classList.remove('landscape-mode');
-                    mobileFrame.classList.remove('max-w-md');
-                    mobileFrame.classList.add('max-w-sm');
-                    
-                    // Adjust the frame
-                    const frame = mobileFrame.querySelector('.border-8');
-                    if (frame) {
-                        frame.classList.remove('rotate-90', 'w-[640px]', 'h-[360px]');
-                    }
-                    
-                    // Adjust preview
-                    const preview = document.getElementById('scan-preview');
-                    if (preview) {
-                        preview.classList.remove('h-[360px]');
-                        preview.classList.add('h-[640px]');
-                    }
-                    
-                    // Update button icon
-                    toggleBtn.innerHTML = '<i class="fas fa-mobile-alt mr-1"></i> Switch to Landscape';
-                } else {
-                    // Switch to landscape
-                    mobileFrame.classList.add('landscape-mode');
-                    mobileFrame.classList.remove('max-w-sm');
-                    mobileFrame.classList.add('max-w-md');
-                    
-                    // Adjust the frame
-                    const frame = mobileFrame.querySelector('.border-8');
-                    if (frame) {
-                        frame.classList.add('rotate-90', 'w-[640px]', 'h-[360px]');
-                    }
-                    
-                    // Adjust preview
-                    const preview = document.getElementById('scan-preview');
-                    if (preview) {
-                        preview.classList.remove('h-[640px]');
-                        preview.classList.add('h-[360px]');
-                    }
-                    
-                    // Update button icon
-                    toggleBtn.innerHTML = '<i class="fas fa-mobile-alt transform rotate-90 mr-1"></i> Switch to Portrait';
-                }
-                
-                // Reload preview to adjust content
-                loadScanPreview(false);
-            }
-        }
-    });
-}
-
-// Enhanced initScanSettings function
-function initScanSettings() {
-    // Get all relevant elements
-    const saveScanSettingsBtn = document.getElementById('save-scan-settings');
-    const refreshPreviewBtn = document.getElementById('refresh-preview');
-    const fullscreenPreviewBtn = document.getElementById('fullscreen-preview');
-    const closeFullscreenBtn = document.getElementById('close-fullscreen');
-    const previewContainer = document.getElementById('preview-container');
-    const privateModeToggle = document.getElementById('private-mode-toggle');
-    const loadPreviewBtn = document.getElementById('load-preview-btn');
-    const mobileLoadPreviewBtn = document.getElementById('mobile-load-preview-btn');
-    
-    // Log available elements for debugging
-    console.log('Preview elements:', {
-        saveScanSettingsBtn: !!saveScanSettingsBtn,
-        refreshPreviewBtn: !!refreshPreviewBtn,
-        fullscreenPreviewBtn: !!fullscreenPreviewBtn,
-        previewContainer: !!previewContainer,
-        privateModeToggle: !!privateModeToggle,
-        loadPreviewBtn: !!loadPreviewBtn,
-        mobileLoadPreviewBtn: !!mobileLoadPreviewBtn
-    });
-    
-    // Load current settings on init
-    loadScanSettings();
-    
-    // Handle load preview button clicks
-    if (loadPreviewBtn) {
-        loadPreviewBtn.addEventListener('click', function() {
-            console.log('Loading desktop preview');
-            loadScanPreview(false);
-        });
-    }
-    
-    if (mobileLoadPreviewBtn) {
-        mobileLoadPreviewBtn.addEventListener('click', function() {
-            console.log('Loading mobile preview');
-            loadScanPreview(true);
-        });
-    }
-    
-    if (saveScanSettingsBtn) {
-        saveScanSettingsBtn.addEventListener('click', function() {
-            console.log('Saving scan settings');
-            saveScanSettings();
-        });
-    }
-    
-    if (refreshPreviewBtn) {
-        refreshPreviewBtn.addEventListener('click', function() {
-            console.log('Refreshing preview');
-            const isMobile = window.innerWidth < 640;
-            loadScanPreview(isMobile);
-        });
-    }
-    
-    // Initialize fullscreen and orientation toggle
-    initFullscreenPreview();
-    initOrientationToggle();
-    
-    // Toggle Private Mode visual feedback
-    if (privateModeToggle) {
-        privateModeToggle.addEventListener('change', function() {
-            updatePrivateModeUI(this.checked);
-        });
-    }
-    
-    // Initial loading of preview (with delay to ensure DOM is ready)
-    setTimeout(() => {
-        const isMobile = window.innerWidth < 640;
-        // Auto-load preview on smaller screens with mobile button
-        if (isMobile && mobileLoadPreviewBtn) {
-            mobileLoadPreviewBtn.click();
-        }
-    }, 500);
-}
-
-// Improved fullscreen preview handling
-function initFullscreenPreview() {
-    const fullscreenBtn = document.getElementById('fullscreen-preview');
-    const closeBtn = document.getElementById('close-fullscreen');
-    const container = document.getElementById('preview-container');
-    const controls = document.getElementById('preview-controls');
-    
-    if (!fullscreenBtn || !container || !controls) {
-        console.error('Fullscreen elements not found');
-        return;
-    }
-    
-    fullscreenBtn.addEventListener('click', () => {
-        console.log('Entering fullscreen mode');
-        
-        // Save current scroll position
-        const scrollPos = window.scrollY;
-        
-        // Add fullscreen classes
-        container.classList.add('fixed', 'inset-0', 'z-50', 'bg-white');
-        controls.classList.remove('hidden');
-        document.body.classList.add('overflow-hidden');
-        
-        // Store scroll position as data attribute
-        container.setAttribute('data-scroll', scrollPos);
-        
-        // Determine if mobile view
-        const isMobile = window.innerWidth < 640;
-        
-        // Select the appropriate preview container
-        const scanPreview = document.getElementById('scan-preview');
-        const mobilePreview = document.getElementById('mobile-scan-preview');
-        
-        if (isMobile && mobilePreview) {
-            // Mobile view
-            if (scanPreview) scanPreview.parentElement.parentElement.classList.add('hidden');
-            mobilePreview.parentElement.classList.remove('hidden');
-            mobilePreview.classList.remove('h-[480px]');
-            mobilePreview.classList.add('h-screen');
-            loadScanPreview(true);
-        } else if (scanPreview) {
-            // Desktop view
-            if (mobilePreview) mobilePreview.parentElement.classList.add('hidden');
-            scanPreview.parentElement.parentElement.classList.remove('hidden');
-            scanPreview.classList.remove('h-[600px]', 'h-[640px]');
-            scanPreview.classList.add('h-screen');
-            loadScanPreview(false);
-        }
-    });
-    
-    if (closeBtn) {
-        closeBtn.addEventListener('click', () => {
-            console.log('Exiting fullscreen mode');
-            
-            // Remove fullscreen classes
-            container.classList.remove('fixed', 'inset-0', 'z-50', 'bg-white');
-            controls.classList.add('hidden');
-            document.body.classList.remove('overflow-hidden');
-            
-            // Restore scroll position
-            const scrollPos = parseInt(container.getAttribute('data-scroll') || '0');
-            window.scrollTo(0, scrollPos);
-            
-            // Reset dimensions
-            const scanPreview = document.getElementById('scan-preview');
-            const mobilePreview = document.getElementById('mobile-scan-preview');
-            
-            const isMobile = window.innerWidth < 640;
-            
-            if (isMobile && mobilePreview) {
-                // Show mobile view
-                if (scanPreview) scanPreview.parentElement.parentElement.classList.add('hidden');
-                mobilePreview.parentElement.classList.remove('hidden');
-                mobilePreview.classList.remove('h-screen');
-                mobilePreview.classList.add('h-[480px]');
-            } else if (scanPreview) {
-                // Show desktop view
-                if (mobilePreview) mobilePreview.parentElement.classList.add('hidden');
-                scanPreview.parentElement.parentElement.classList.remove('hidden');
-                scanPreview.classList.remove('h-screen');
-                scanPreview.classList.add('h-[640px]');
-            }
-            
-            // Reload the appropriate preview
-            loadScanPreview(isMobile);
-        });
-    }
-}
-
-// Add a new function to handle fullscreen preview specifically for mobile
-function initFullscreenPreview() {
-    const fullscreenBtn = document.getElementById('fullscreen-preview');
-    const closeBtn = document.getElementById('close-fullscreen');
-    const container = document.getElementById('preview-container');
-    const controls = document.getElementById('preview-controls');
-    
-    if (fullscreenBtn && container) {
-        fullscreenBtn.addEventListener('click', () => {
-            container.classList.add('fixed', 'inset-0', 'z-50', 'bg-white');
-            controls.classList.remove('hidden');
-            document.body.classList.add('overflow-hidden');
-            
-            // Use device orientation if mobile
-            const isPortrait = window.innerHeight > window.innerWidth;
-            const isMobile = window.innerWidth < 640;
-            
-            // Update classes based on screen size and orientation
-            const scanPreview = document.getElementById('scan-preview');
-            const mobilePreview = document.getElementById('mobile-scan-preview');
-            
-            // Hide both containers initially
-            if (scanPreview) {
-                scanPreview.parentElement.parentElement.classList.add('hidden');
-                scanPreview.classList.remove('h-[600px]', 'h-[640px]');
-                scanPreview.classList.add('h-screen');
-            }
-            
-            if (mobilePreview) {
-                mobilePreview.parentElement.classList.add('hidden');
-                mobilePreview.classList.remove('h-[480px]');
-                mobilePreview.classList.add('h-screen');
-            }
-            
-            // Show appropriate container
-            if (isMobile) {
-                if (mobilePreview) {
-                    mobilePreview.parentElement.classList.remove('hidden');
-                    loadScanPreview(true);
-                }
-            } else {
-                if (scanPreview) {
-                    scanPreview.parentElement.parentElement.classList.remove('hidden');
-                    loadScanPreview(false);
-                }
-            }
-        });
-    }
-    
-    if (closeBtn && container) {
-        closeBtn.addEventListener('click', () => {
-            container.classList.remove('fixed', 'inset-0', 'z-50', 'bg-white');
-            controls.classList.add('hidden');
-            document.body.classList.remove('overflow-hidden');
-            
-            // Reset dimensions
-            const scanPreview = document.getElementById('scan-preview');
-            const mobilePreview = document.getElementById('mobile-scan-preview');
-            
-            if (scanPreview) {
-                scanPreview.parentElement.parentElement.classList.remove('hidden');
-                scanPreview.classList.remove('h-screen');
-                scanPreview.classList.add('h-[640px]');
-            }
-            
-            if (mobilePreview) {
-                mobilePreview.parentElement.classList.remove('hidden');
-                mobilePreview.classList.remove('h-screen');
-                mobilePreview.classList.add('h-[480px]');
-            }
-            
-            // Reload preview in normal mode
-            const isMobile = window.innerWidth < 640;
-            loadScanPreview(isMobile);
-        });
-    }
-}
-
-// Add orientation toggle functionality
-function initOrientationToggle() {
-    const toggleBtn = document.getElementById('toggle-orientation');
-    const container = document.getElementById('preview-container');
-    
-    if (toggleBtn && container) {
-        toggleBtn.addEventListener('click', () => {
-            // Get the mobile frame container
-            const mobileFrame = container.querySelector('.max-w-sm');
-            
-            if (mobileFrame) {
-                // Toggle between portrait and landscape modes
-                const isLandscape = mobileFrame.classList.contains('landscape-mode');
-                
-                if (isLandscape) {
-                    // Switch to portrait
-                    mobileFrame.classList.remove('landscape-mode');
-                    mobileFrame.classList.remove('max-w-md');
-                    mobileFrame.classList.add('max-w-sm');
-                    
-                    // Adjust the frame
-                    const frame = mobileFrame.querySelector('.border-8');
-                    frame.classList.remove('rotate-90', 'w-[640px]', 'h-[360px]');
-                    
-                    // Adjust preview
-                    const preview = document.getElementById('scan-preview');
-                    preview.classList.remove('h-[360px]');
-                    preview.classList.add('h-[640px]');
-                    
-                    // Update button icon
-                    toggleBtn.innerHTML = '<i class="fas fa-mobile-alt mr-1"></i> Switch to Landscape';
-                } else {
-                    // Switch to landscape
-                    mobileFrame.classList.add('landscape-mode');
-                    mobileFrame.classList.remove('max-w-sm');
-                    mobileFrame.classList.add('max-w-md');
-                    
-                    // Adjust the frame
-                    const frame = mobileFrame.querySelector('.border-8');
-                    frame.classList.add('rotate-90', 'w-[640px]', 'h-[360px]');
-                    
-                    // Adjust preview
-                    const preview = document.getElementById('scan-preview');
-                    preview.classList.remove('h-[640px]');
-                    preview.classList.add('h-[360px]');
-                    
-                    // Update button icon
-                    toggleBtn.innerHTML = '<i class="fas fa-mobile-alt transform rotate-90 mr-1"></i> Switch to Portrait';
-                }
-                
-                // Reload preview to adjust content
-                loadScanPreview(false);
-            }
-        });
-    }
-}
     </script>
 }
