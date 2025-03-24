@@ -167,11 +167,11 @@
             @Html.AntiForgeryToken()
             <input type="hidden" asp-for="Id" />
             <!-- Add hidden fields for QR colors -->
-            <input type="hidden" name="QrFgColor" id="qrFgColorHidden" value="@(Model.QrFgColor ?? "#000000")" />
-            <input type="hidden" name="QrBgColor" id="qrBgColorHidden" value="@(Model.QrBgColor ?? "#FFFFFF")" />
+           <input type="hidden" asp-for="QrFgColor" id="qrFgColorHidden" value="@(Model.QrFgColor ?? "#000000")" />
+           <input type="hidden" asp-for="QrBgColor" id="qrBgColorHidden" value="@(Model.QrBgColor ?? "#FFFFFF")" />
             
             <!-- Add hidden field for custom fields data -->
-            <input type="hidden" name="CustomFieldsData" id="customFieldsDataHidden" value="@Model.CustomFieldsData" />
+            <input type="hidden" asp-for="CustomFieldsData" id="customFieldsDataHidden" value="@Model.CustomFieldsData" />
                 <div class="card-body p-5 bg-white">
                     <!-- Step 1: Basic Information -->
                     <div class="form-section" data-step="1">
@@ -920,28 +920,14 @@ document.getElementById('product-form').addEventListener('submit', function(e) {
         }
     });
     
-    // Update CustomFieldsData hidden input
+    // Update CustomFieldsData hidden input - critical fix here
     document.getElementById('customFieldsDataHidden').value = JSON.stringify(customFields);
     
     // Update QR colors before submission
     updateQrColors();
     
-    // Don't prevent form submission by default - only if validation clearly fails
-    try {
-        const isValid = validateForm();
-        if (!isValid) {
-            console.error('Form validation failed');
-            e.preventDefault();
-            return false;
-        }
-        // Continue with submission if validation passes
-        console.log('Form submission proceeding');
-        return true;
-    } catch (error) {
-        console.error('Validation error:', error);
-        // Continue with submission if validation function throws an error
-        return true;
-    }
+    // Don't prevent default form submission - let it continue naturally
+    console.log('Form submission proceeding with custom fields:', JSON.stringify(customFields));
 });
 
 // Auto-select template based on category on page load
@@ -1234,9 +1220,21 @@ function populateCustomFieldsFromJson() {
 
 // Function to update QR color values to hidden fields
 function updateQrColors() {
-    document.getElementById('qrFgColorHidden').value = document.getElementById('qr-fg-color').value || '#000000';
-    document.getElementById('qrBgColorHidden').value = document.getElementById('qr-bg-color').value || '#FFFFFF';
+    const fgColor = document.getElementById('qr-fg-color').value || '#000000';
+    const bgColor = document.getElementById('qr-bg-color').value || '#FFFFFF';
+    
+    document.getElementById('QrFgColor').value = fgColor;
+    document.getElementById('QrBgColor').value = bgColor;
+    
+    console.log("Updated QR colors:", fgColor, bgColor);
 }
+
+// QR code color change event listeners - updated to match field IDs
+document.getElementById('qr-fg-color').addEventListener('input', function() {
+    document.getElementById('qr-fg-color-text').value = this.value;
+    updateQrColors();
+    generateQRCode();
+});
 
 // Modified updateFieldVisibility function to auto-select template
 async function updateFieldVisibility(category) {
