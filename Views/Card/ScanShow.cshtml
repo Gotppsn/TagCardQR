@@ -596,143 +596,169 @@
 @section Scripts {
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-    // Apply scan settings if they exist in URL parameters
-    applyScanSettings();
-    
-    // Navigation functionality
-    initNavigation();
-    
-    // Show/hide report issue modal
-    initReportIssueModal();
-    
-    // Handle issue form submission
-    initIssueFormSubmission();
-    
-    // Load documents
-    loadDocuments();
-    
-    // Load maintenance reminders and history
-    loadMaintenanceData();
-    
-    // Initialize document preview modal
-    initDocumentPreview();
-    
-    // Initialize copy to clipboard functionality
-    initCopyToClipboard();
-    
-    // Toast notification system
-    initToastNotifications();
-
-    // Load issue data
     try {
-        console.log("Calling loadIssueData");
+        // Apply scan settings if they exist in URL parameters
+        applyScanSettings();
+        
+        // Navigation functionality
+        initNavigation();
+        
+        // Show/hide report issue modal
+        initReportIssueModal();
+        
+        // Handle issue form submission
+        initIssueFormSubmission();
+        
+        // Load documents
+        loadDocuments();
+        
+        // Load maintenance reminders and history
+        loadMaintenanceData();
+        
+        // Initialize document preview modal
+        initDocumentPreview();
+        
+        // Initialize copy to clipboard functionality
+        initCopyToClipboard();
+        
+        // Toast notification system
+        initToastNotifications();
+
+        // Load issue data
         loadIssueData();
     } catch (e) {
-        console.error("Error in loadIssueData:", e);
-        const issuesContainer = document.getElementById('issues-container');
-        if (issuesContainer) {
-            issuesContainer.innerHTML = `<div class="text-center text-red-500">Error loading issues: ${e.message}</div>`;
-        }
+        console.error("Error in initialization:", e);
     }
 });
     
-    // Function to apply scan settings from URL parameters
+// Function to apply scan settings from URL parameters
 function applyScanSettings() {
-    const urlParams = new URLSearchParams(window.location.search);
-    let fields = urlParams.getAll('field');
-    let uiElements = urlParams.getAll('ui');
-    let isPrivate = urlParams.has('private');
-    const isPreview = urlParams.has('preview');
-    
-    // If no settings in URL, try to load from database
-    if (fields.length === 0 && uiElements.length === 0 && !isPrivate) {
-        const cardId = @Model.Id;
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        let fields = urlParams.getAll('field');
+        let uiElements = urlParams.getAll('ui');
+        let isPrivate = urlParams.has('private');
+        const isPreview = urlParams.has('preview');
         
-        // Fetch settings from database via public endpoint
-        fetch(`/api/ScanSettings/public/card/${cardId}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Settings not found in database');
-                }
-                return response.json();
-            })
-            .then(dbSettings => {
-                // Parse JSON arrays from the database
-                fields = JSON.parse(dbSettings.fields || '[]');
-                uiElements = JSON.parse(dbSettings.uiElements || '[]');
-                isPrivate = dbSettings.privateMode || false;
-                
-                console.log("DB settings loaded:", { fields, uiElements, isPrivate });
-                applySettingsToUI(fields, uiElements, isPrivate, isPreview);
-            })
-            .catch(error => {
-                console.log('Error loading settings from database:', error);
-                // If no settings in database, apply defaults
-                applySettingsToUI(fields, uiElements, isPrivate, isPreview);
-            });
-    } else {
-        // Apply settings directly from URL
-        applySettingsToUI(fields, uiElements, isPrivate, isPreview);
+        // If no settings in URL, try to load from database
+        if (fields.length === 0 && uiElements.length === 0 && !isPrivate) {
+            const cardId = @Model.Id;
+            
+            // Fetch settings from database via public endpoint
+            fetch(`/api/ScanSettings/public/card/${cardId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Settings not found in database');
+                    }
+                    return response.json();
+                })
+                .then(dbSettings => {
+                    try {
+                        // Parse JSON arrays from the database
+                        fields = JSON.parse(dbSettings.fields || '[]');
+                        uiElements = JSON.parse(dbSettings.uiElements || '[]');
+                        isPrivate = dbSettings.privateMode || false;
+                        
+                        console.log("DB settings loaded:", { fields, uiElements, isPrivate });
+                        applySettingsToUI(fields, uiElements, isPrivate, isPreview);
+                    } catch (parseError) {
+                        console.error("Error parsing settings:", parseError);
+                    }
+                })
+                .catch(error => {
+                    console.log('Error loading settings from database:', error);
+                    // If no settings in database, apply defaults
+                    applySettingsToUI(fields, uiElements, isPrivate, isPreview);
+                });
+        } else {
+            // Apply settings directly from URL
+            applySettingsToUI(fields, uiElements, isPrivate, isPreview);
+        }
+    } catch (e) {
+        console.error("Error in applyScanSettings:", e);
     }
 }
 
 // Extract the settings application logic to a separate function
 function applySettingsToUI(fields, uiElements, isPrivate, isPreview) {
-    // Add preview indicator if in preview mode
-    if (isPreview) {
-        const previewIndicator = document.createElement('div');
-        previewIndicator.className = 'fixed top-2 right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full z-50';
-        previewIndicator.textContent = 'Preview Mode';
-        document.body.appendChild(previewIndicator);
-    }
-    
-    // Handle private mode (show login prompt if applicable)
-    if (isPrivate && !isLoggedIn() && !isPreview) {
-        redirectToLogin();
-        return;
-    }
-    
-    // Hide elements not in the fields list
-    if (fields.length > 0) {
-        // Always show product name (required)
-        fields.push('product_name');
-        
-        // Hide fields not in the list
-        if (!fields.includes('category')) hideElement('#category-section');
-        if (!fields.includes('location')) hideElement('#location-section');
-        if (!fields.includes('image')) {
-            hideElement('#product-image');
-            hideElement('#product-image-placeholder');
+    try {
+        // Add preview indicator if in preview mode
+        if (isPreview) {
+            const previewIndicator = document.createElement('div');
+            previewIndicator.className = 'fixed top-2 right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full z-50';
+            previewIndicator.textContent = 'Preview Mode';
+            document.body.appendChild(previewIndicator);
         }
-        if (!fields.includes('manufacture_date')) hideElement('#manufacture-date-section');
-        if (!fields.includes('purchase_date')) hideElement('#purchase-date-section');
-        if (!fields.includes('warranty')) {
-            hideElement('#warranty-section');
-            hideElement('#warranty-status');
-        }
-        if (!fields.includes('maintenance')) hideElement('#maintenance');
-        if (!fields.includes('documents')) hideElement('#documentation');
-        if (!fields.includes('issues')) hideElement('#issues');
         
-        // Handle custom fields
-        document.querySelectorAll('[data-custom-field]').forEach(el => {
-            const fieldName = el.getAttribute('data-custom-field');
-            if (!fields.includes(`custom_${fieldName}`)) {
-                el.style.display = 'none';
+        // Handle private mode (show login prompt if applicable)
+        if (isPrivate && !isLoggedIn() && !isPreview) {
+            redirectToLogin();
+            return;
+        }
+        
+        // Hide elements not in the fields list
+        if (fields.length > 0) {
+            // Always show product name (required)
+            fields.push('product_name');
+            
+            // Hide fields not in the list
+            const elementMap = {
+                'category': '#category-section',
+                'location': '#location-section',
+                'image': ['#product-image', '#product-image-placeholder'],
+                'manufacture_date': '#manufacture-date-section',
+                'purchase_date': '#purchase-date-section',
+                'warranty': ['#warranty-section', '#warranty-status'],
+                'maintenance': '#maintenance',
+                'documents': '#documentation',
+                'issues': '#issues'
+            };
+            
+            // Process standard fields
+            Object.entries(elementMap).forEach(([field, selectors]) => {
+                if (!fields.includes(field)) {
+                    if (Array.isArray(selectors)) {
+                        selectors.forEach(selector => hideElement(selector));
+                    } else {
+                        hideElement(selectors);
+                    }
+                }
+            });
+            
+            // Handle custom fields
+            const customFieldElements = document.querySelectorAll('[data-custom-field]');
+            if (customFieldElements) {
+                customFieldElements.forEach(el => {
+                    const fieldName = el.getAttribute('data-custom-field');
+                    if (fieldName && !fields.includes(`custom_${fieldName}`)) {
+                        el.style.display = 'none';
+                    }
+                });
+            }
+        }
+        
+        // Handle UI element visibility
+        const uiElementMap = {
+            'hide_report_issue': '#report-issue-btn',
+            'hide_contact_support': ['#contact', 'a[href="#contact"]'],
+            'hide_product_details': '#product-details',
+            'hide_contact': '#contact-support',
+            'hide_maintenance_history': '#maintenance-history',
+            'hide_maintenance_info': '#maintenance'
+        };
+        
+        Object.entries(uiElementMap).forEach(([element, selectors]) => {
+            if (uiElements.includes(element)) {
+                if (Array.isArray(selectors)) {
+                    selectors.forEach(selector => hideElement(selector));
+                } else {
+                    hideElement(selectors);
+                }
             }
         });
+    } catch (e) {
+        console.error("Error in applySettingsToUI:", e);
     }
-    
-    // Handle UI element visibility
-    if (uiElements.includes('hide_report_issue')) hideElement('#report-issue-btn');
-    if (uiElements.includes('hide_contact_support')) {
-        hideElement('#contact');
-        hideElement('a[href="#contact"]');
-    }
-    if (uiElements.includes('hide_product_details')) hideElement('#product-details');
-    if (uiElements.includes('hide_contact')) hideElement('#contact-support');
-    if (uiElements.includes('hide_maintenance_history')) hideElement('#maintenance-history');
-    if (uiElements.includes('hide_maintenance_info')) hideElement('#maintenance');
 }
 
 // Helper function to hide an element by selector
@@ -742,47 +768,40 @@ function hideElement(selector) {
         if (elements && elements.length > 0) {
             elements.forEach(el => {
                 el.style.display = 'none';
-                console.log(`Hidden element: ${selector}`);
             });
-        } else {
-            console.log(`Element not found: ${selector}`);
-            
-            // Try direct parent element matching
-            if (selector.includes('Product Details')) {
-                const h3Elements = document.querySelectorAll('h3');
-                h3Elements.forEach(h3 => {
-                    if (h3.textContent.includes('Product Details')) {
-                        const parent = h3.closest('div');
+            return true;
+        }
+        
+        // Try content-based matching for specific cases
+        const contentMappings = {
+            "Product Details": ["h3", "Product Details"],
+            "Contact Support": ["div", "Contact Support"],
+            "Maintenance History": ["div", "Maintenance History"]
+        };
+        
+        for (const [key, [tag, content]] of Object.entries(contentMappings)) {
+            if (selector.includes(key)) {
+                const elements = document.querySelectorAll(tag);
+                let found = false;
+                
+                elements.forEach(el => {
+                    if (el.textContent.includes(content)) {
+                        const parent = el.closest('div');
                         if (parent) {
                             parent.style.display = 'none';
-                            console.log('Hidden Product Details via h3 text content');
+                            found = true;
                         }
                     }
                 });
-            }
-            
-            if (selector.includes('Contact Support')) {
-                const contactElements = document.querySelectorAll('div');
-                contactElements.forEach(div => {
-                    if (div.textContent.includes('Contact Support')) {
-                        div.style.display = 'none';
-                        console.log('Hidden Contact Support via text content');
-                    }
-                });
-            }
-            
-            if (selector.includes('Maintenance History')) {
-                const historyElements = document.querySelectorAll('div');
-                historyElements.forEach(div => {
-                    if (div.textContent.includes('Maintenance History')) {
-                        div.style.display = 'none';
-                        console.log('Hidden Maintenance History via text content');
-                    }
-                });
+                
+                return found;
             }
         }
+        
+        return false;
     } catch (error) {
         console.error(`Error hiding element ${selector}:`, error);
+        return false;
     }
 }
 
@@ -793,18 +812,27 @@ function isLoggedIn() {
 
 // Redirect to login page
 function redirectToLogin() {
-    const currentUrl = window.location.href;
-    window.location.href = `/Account/Login?ReturnUrl=${encodeURIComponent(currentUrl)}`;
+    try {
+        const currentUrl = window.location.href;
+        window.location.href = `/Account/Login?ReturnUrl=${encodeURIComponent(currentUrl)}`;
+    } catch (e) {
+        console.error("Error in redirectToLogin:", e);
+    }
 }
     
-    // Navigation functionality
-    function initNavigation() {
+// Navigation functionality
+function initNavigation() {
+    try {
         const menuLinks = document.querySelectorAll('.sticky a');
         const sections = document.querySelectorAll('[id]');
+        
+        if (!menuLinks || !sections) return;
         
         window.addEventListener('scroll', function() {
             let current = '';
             sections.forEach(section => {
+                if (!section) return;
+                
                 const sectionTop = section.offsetTop;
                 const sectionHeight = section.clientHeight;
                 if(pageYOffset >= (sectionTop - 200)) {
@@ -813,6 +841,8 @@ function redirectToLogin() {
             });
             
             menuLinks.forEach(link => {
+                if (!link) return;
+                
                 link.classList.remove('bg-primary-600', 'text-white');
                 link.classList.add('bg-gray-100', 'text-gray-700');
                 if(link.getAttribute('href') === '#' + current) {
@@ -824,9 +854,13 @@ function redirectToLogin() {
         
         // Smooth scrolling for anchor links
         menuLinks.forEach(link => {
+            if (!link) return;
+            
             link.addEventListener('click', function(e) {
                 e.preventDefault();
                 const targetId = this.getAttribute('href');
+                if (!targetId) return;
+                
                 const targetElement = document.querySelector(targetId);
                 if (targetElement) {
                     window.scrollTo({
@@ -836,10 +870,14 @@ function redirectToLogin() {
                 }
             });
         });
+    } catch (e) {
+        console.error("Error in initNavigation:", e);
     }
+}
     
-    // Report Issue Modal functionality
-    function initReportIssueModal() {
+// Report Issue Modal functionality
+function initReportIssueModal() {
+    try {
         const reportIssueBtn = document.getElementById('report-issue-btn');
         const reportIssueModal = document.getElementById('report-issue-modal');
         const modalContent = document.getElementById('modal-content');
@@ -853,7 +891,7 @@ function redirectToLogin() {
             reportDateField.value = today.toISOString().split('T')[0];
         }
         
-        if (reportIssueBtn && reportIssueModal) {
+        if (reportIssueBtn && reportIssueModal && modalContent) {
             reportIssueBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 reportIssueModal.classList.remove('hidden');
@@ -868,6 +906,8 @@ function redirectToLogin() {
         }
         
         function closeModal() {
+            if (!modalContent || !reportIssueModal) return;
+            
             // Animation
             modalContent.classList.remove('scale-100', 'opacity-100');
             modalContent.classList.add('scale-95', 'opacity-0');
@@ -894,13 +934,18 @@ function redirectToLogin() {
                 }
             });
         }
+    } catch (e) {
+        console.error("Error in initReportIssueModal:", e);
     }
+}
     
-    // Issue form submission handling
+// Issue form submission handling
 function initIssueFormSubmission() {
-    const issueForm = document.getElementById('issue-report-form');
-    
-    if (issueForm) {
+    try {
+        const issueForm = document.getElementById('issue-report-form');
+        
+        if (!issueForm) return;
+        
         issueForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -910,19 +955,21 @@ function initIssueFormSubmission() {
             
             requiredFields.forEach(field => {
                 const input = this.elements[field];
-                if (!input.value.trim()) {
+                if (!input || !input.value.trim()) {
                     isValid = false;
-                    input.classList.add('border-red-500');
-                    
-                    // Add error message
-                    let errorSpan = input.parentNode.querySelector('.error-message');
-                    if (!errorSpan) {
-                        errorSpan = document.createElement('span');
-                        errorSpan.className = 'error-message text-xs text-red-500 mt-1';
-                        input.parentNode.appendChild(errorSpan);
+                    if (input) {
+                        input.classList.add('border-red-500');
+                        
+                        // Add error message
+                        let errorSpan = input.parentNode.querySelector('.error-message');
+                        if (!errorSpan) {
+                            errorSpan = document.createElement('span');
+                            errorSpan.className = 'error-message text-xs text-red-500 mt-1';
+                            input.parentNode.appendChild(errorSpan);
+                        }
+                        errorSpan.textContent = `${field.replace(/([A-Z])/g, ' $1').trim()} is required`;
                     }
-                    errorSpan.textContent = `${field.replace(/([A-Z])/g, ' $1').trim()} is required`;
-                } else {
+                } else if (input) {
                     input.classList.remove('border-red-500');
                     const errorSpan = input.parentNode.querySelector('.error-message');
                     if (errorSpan) errorSpan.remove();
@@ -931,7 +978,7 @@ function initIssueFormSubmission() {
             
             // Validate email format
             const emailInput = this.elements['ReporterEmail'];
-            if (emailInput.value && !isValidEmail(emailInput.value)) {
+            if (emailInput && emailInput.value && !isValidEmail(emailInput.value)) {
                 isValid = false;
                 emailInput.classList.add('border-red-500');
                 
@@ -949,8 +996,11 @@ function initIssueFormSubmission() {
             }
             
             // Show loading spinner
-            document.getElementById('issue-spinner').classList.remove('hidden');
-            document.getElementById('submit-issue').setAttribute('disabled', 'disabled');
+            const spinner = document.getElementById('issue-spinner');
+            const submitBtn = document.getElementById('submit-issue');
+            
+            if (spinner) spinner.classList.remove('hidden');
+            if (submitBtn) submitBtn.setAttribute('disabled', 'disabled');
             
             // Get form data
             const formData = new FormData(this);
@@ -970,8 +1020,9 @@ function initIssueFormSubmission() {
             };
             
             // Get CSRF token
-            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || 
-                          document.querySelector('meta[name="RequestVerificationToken"]')?.content || '';
+            const tokenElement = document.querySelector('input[name="__RequestVerificationToken"]');
+            const metaToken = document.querySelector('meta[name="RequestVerificationToken"]');
+            const token = tokenElement?.value || metaToken?.content || '';
             
             // API call
             fetch('/api/IssueReport', {
@@ -992,11 +1043,12 @@ function initIssueFormSubmission() {
             })
             .then(data => {
                 // Hide spinner
-                document.getElementById('issue-spinner').classList.add('hidden');
-                document.getElementById('submit-issue').removeAttribute('disabled');
+                if (spinner) spinner.classList.add('hidden');
+                if (submitBtn) submitBtn.removeAttribute('disabled');
                 
                 // Hide modal
-                document.getElementById('report-issue-modal').classList.add('hidden');
+                const modal = document.getElementById('report-issue-modal');
+                if (modal) modal.classList.add('hidden');
                 document.body.classList.remove('overflow-hidden');
                 
                 // Show success toast
@@ -1019,8 +1071,8 @@ function initIssueFormSubmission() {
                 console.error('Error submitting issue report:', error);
                 
                 // Hide spinner
-                document.getElementById('issue-spinner').classList.add('hidden');
-                document.getElementById('submit-issue').removeAttribute('disabled');
+                if (spinner) spinner.classList.add('hidden');
+                if (submitBtn) submitBtn.removeAttribute('disabled');
                 
                 // Show error toast
                 showToast('Error', error.message || 'Failed to submit issue report', 'error');
@@ -1028,134 +1080,361 @@ function initIssueFormSubmission() {
         });
         
         // Clear validation errors when input changes
-        issueForm.querySelectorAll('input, textarea, select').forEach(input => {
-            input.addEventListener('input', function() {
-                this.classList.remove('border-red-500');
-                const errorSpan = this.parentNode.querySelector('.error-message');
-                if (errorSpan) errorSpan.remove();
+        const formInputs = issueForm.querySelectorAll('input, textarea, select');
+        if (formInputs) {
+            formInputs.forEach(input => {
+                if (!input) return;
+                
+                input.addEventListener('input', function() {
+                    this.classList.remove('border-red-500');
+                    const errorSpan = this.parentNode.querySelector('.error-message');
+                    if (errorSpan) errorSpan.remove();
+                });
             });
-        });
+        }
+    } catch (e) {
+        console.error("Error in initIssueFormSubmission:", e);
     }
 }
 
-// Add this helper function for email validation
+// Helper function for email validation
 function isValidEmail(email) {
-    const re = /^(([^<>()\[\]\\.,;:\s@@"]+(\.[^<>()\[\]\\.,;:\s@@"]+)*)|(".+"))@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(String(email).toLowerCase());
+    try {
+        if (!email) return false;
+        const re = /^(([^<>()\[\]\\.,;:\s@@"]+(\.[^<>()\[\]\\.,;:\s@@"]+)*)|(".+"))@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(String(email).toLowerCase());
+    } catch (e) {
+        console.error("Error in isValidEmail:", e);
+        return false;
+    }
 }
 
-// Replace the existing loadIssueData function with this improved version:
+// Load issue data function
 function loadIssueData() {
-    const issuesContainer = document.getElementById('issues-container');
-    const productId = @Model.Id;
-    
-    if (!issuesContainer) {
-        console.error("Issues container not found");
-        return;
+    try {
+        const issuesContainer = document.getElementById('issues-container');
+        if (!issuesContainer) {
+            console.error("Issues container not found");
+            return;
+        }
+        
+        const productId = @Model.Id;
+        
+        // Show loading state explicitly
+        issuesContainer.innerHTML = `
+            <div class="text-center py-6 bg-gray-50 rounded-lg animate-pulse">
+                <i class="fas fa-spinner fa-spin text-primary-500 mr-2"></i> Loading issues...
+            </div>
+        `;
+        
+        fetch(`/api/IssueReport/card/${productId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(issues => {
+                if (!issuesContainer) return; // Re-check if container exists (might have been removed)
+                
+                if (issues && Array.isArray(issues) && issues.length > 0) {
+                    // Clear loading spinner
+                    issuesContainer.innerHTML = '';
+                    
+                    // Create issues list
+                    const issueList = document.createElement('div');
+                    issueList.className = 'space-y-4';
+                    
+                    issues.forEach(issue => {
+                        if (!issue) return;
+                        
+                        // Determine status color and icon
+                        let statusColor = 'bg-blue-100 text-blue-800';
+                        let statusIcon = 'fa-info-circle';
+                        
+                        if (issue.status === 'Open') {
+                            statusColor = 'bg-yellow-100 text-yellow-800';
+                            statusIcon = 'fa-exclamation-circle';
+                        } else if (issue.status === 'In Progress') {
+                            statusColor = 'bg-blue-100 text-blue-800';
+                            statusIcon = 'fa-spinner';
+                        } else if (issue.status === 'Resolved') {
+                            statusColor = 'bg-green-100 text-green-800';
+                            statusIcon = 'fa-check-circle';
+                        } else if (issue.status === 'Closed') {
+                            statusColor = 'bg-gray-100 text-gray-800';
+                            statusIcon = 'fa-check';
+                        }
+                        
+                        // Determine priority badge
+                        let priorityColor = 'bg-gray-100 text-gray-700';
+                        if (issue.priority === 'Low') {
+                            priorityColor = 'bg-blue-100 text-blue-800';
+                        } else if (issue.priority === 'Medium') {
+                            priorityColor = 'bg-yellow-100 text-yellow-800';
+                        } else if (issue.priority === 'High') {
+                            priorityColor = 'bg-orange-100 text-orange-800';
+                        } else if (issue.priority === 'Critical') {
+                            priorityColor = 'bg-red-100 text-red-800';
+                        }
+                        
+                        const issueDate = new Date(issue.reportDate);
+                        if (isNaN(issueDate.getTime())) return; // Skip if date is invalid
+                        
+                        const issueItem = document.createElement('div');
+                        issueItem.className = 'p-4 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1';
+                        issueItem.innerHTML = `
+                            <div class="flex justify-between items-start">
+                                <div class="flex-grow">
+                                    <div class="flex flex-wrap items-center gap-2 mb-2">
+                                        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium flex items-center gap-1 ${statusColor}">
+                                            <i class="fas ${statusIcon}"></i>
+                                            <span>${issue.status || 'Unknown'}</span>
+                                        </span>
+                                        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium flex items-center gap-1 ${priorityColor}">
+                                            ${issue.priority === 'Critical' ? '<i class="fas fa-exclamation-triangle"></i>' : ''}
+                                            ${issue.priority || 'Unknown'}
+                                        </span>
+                                        <span class="text-xs text-gray-500 ml-auto">
+                                            Reported ${formatTimeAgo(issueDate)}
+                                        </span>
+                                    </div>
+                                    <h4 class="text-lg font-medium text-gray-800">${issue.issueType || 'Unknown Issue'}</h4>
+                                    <p class="text-sm text-gray-600 mt-2 bg-gray-50 p-3 rounded-lg">${issue.description || 'No description provided'}</p>
+                                    <div class="text-xs text-gray-500 mt-3 flex items-center">
+                                        <i class="fas fa-user mr-1"></i> Reported by ${issue.reporterName || 'Unknown'}
+                                        ${issue.reporterEmail ? `<span class="mx-2">•</span><a href="mailto:${issue.reporterEmail}" class="text-blue-600 hover:underline"><i class="fas fa-envelope mr-1"></i>${issue.reporterEmail}</a>` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                            ${issue.resolution ? `
+                            <div class="mt-4 pt-3 border-t border-gray-100">
+                                <p class="text-sm font-medium text-gray-700 flex items-center">
+                                    <i class="fas fa-comment-dots mr-2 text-green-500"></i> Resolution:
+                                </p>
+                                <p class="text-sm text-gray-600 mt-1 bg-green-50 p-3 rounded-lg">${issue.resolution}</p>
+                            </div>` : ''}
+                        `;
+                        
+                        issueList.appendChild(issueItem);
+                    });
+                    
+                    if (issueList.children.length > 0) {
+                        issuesContainer.appendChild(issueList);
+                    } else {
+                        showNoIssuesMessage(issuesContainer);
+                    }
+                } else {
+                    showNoIssuesMessage(issuesContainer);
+                }
+            })
+            .catch(error => {
+                console.error('Error loading issues:', error);
+                if (!issuesContainer) return;
+                
+                issuesContainer.innerHTML = `
+                    <div class="text-center py-8 bg-red-50 rounded-lg">
+                        <div class="w-16 h-16 mx-auto rounded-full bg-red-100 flex items-center justify-center text-red-500 mb-3">
+                            <i class="fas fa-exclamation-triangle text-2xl"></i>
+                        </div>
+                        <p class="text-red-600 font-medium">Failed to load issues</p>
+                        <p class="text-sm text-red-500 mt-2">${error.message || 'Please try again later.'}</p>
+                    </div>
+                `;
+            });
+    } catch (e) {
+        console.error("Error in loadIssueData function:", e);
+        const issuesContainer = document.getElementById('issues-container');
+        if (issuesContainer) {
+            issuesContainer.innerHTML = `
+                <div class="text-center py-8 bg-red-50 rounded-lg">
+                    <div class="w-16 h-16 mx-auto rounded-full bg-red-100 flex items-center justify-center text-red-500 mb-3">
+                        <i class="fas fa-exclamation-triangle text-2xl"></i>
+                    </div>
+                    <p class="text-red-600 font-medium">Error loading issues</p>
+                    <p class="text-sm text-red-500 mt-2">${e.message || 'An unexpected error occurred.'}</p>
+                </div>
+            `;
+        }
     }
+}
+
+// Helper function to show "no issues" message
+function showNoIssuesMessage(container) {
+    if (!container) return;
     
-    // Show loading state
-    issuesContainer.innerHTML = `
-        <div class="text-center py-4">
-            <i class="fas fa-spinner fa-spin text-primary-500 mr-2"></i> Loading issues...
+    container.innerHTML = `
+        <div class="text-center py-8 bg-gray-50 rounded-lg">
+            <div class="w-16 h-16 mx-auto rounded-full bg-green-100 flex items-center justify-center text-green-500 mb-3">
+                <i class="fas fa-check-circle text-2xl"></i>
+            </div>
+            <p class="text-gray-600 font-medium">No issues reported</p>
+            <p class="text-sm text-gray-500 mt-2">This product appears to be working properly.</p>
+            <button id="report-new-issue" class="mt-4 inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all">
+                <i class="fas fa-plus mr-2"></i> Report a New Issue
+            </button>
         </div>
     `;
     
-    fetch(`/api/IssueReport/card/${productId}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(issues => {
-            if (issues && issues.length > 0) {
-                // Clear loading spinner
-                issuesContainer.innerHTML = '';
+    // Add event listener to the "Report a New Issue" button
+    setTimeout(() => {
+        const reportNewIssueBtn = document.getElementById('report-new-issue');
+        if (reportNewIssueBtn) {
+            reportNewIssueBtn.addEventListener('click', function() {
+                const reportIssueBtn = document.getElementById('report-issue-btn');
+                if (reportIssueBtn) {
+                    reportIssueBtn.click();
+                }
+            });
+        }
+    }, 100);
+}
+
+// Function to load documents
+function loadDocuments() {
+    try {
+        const documentsContainer = document.getElementById('documents-container');
+        if (!documentsContainer) return;
+        
+        const productId = @Model.Id;
+        
+        documentsContainer.innerHTML = `
+            <div class="text-center py-6 bg-gray-50 rounded-lg animate-pulse">
+                <i class="fas fa-spinner fa-spin text-primary-500 mr-2"></i> Loading documents...
+            </div>
+        `;
+        
+        fetch(`/api/Document/card/${productId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(documents => {
+                if (!documentsContainer) return;
                 
-                // Create issues list
-                const issueList = document.createElement('div');
-                issueList.className = 'space-y-4';
-                
-                issues.forEach(issue => {
-                    // Determine status color
-                    let statusColor = 'bg-blue-100 text-blue-800';
-                    if (issue.status === 'Open') {
-                        statusColor = 'bg-yellow-100 text-yellow-800';
-                    } else if (issue.status === 'In Progress') {
-                        statusColor = 'bg-blue-100 text-blue-800';
-                    } else if (issue.status === 'Resolved') {
-                        statusColor = 'bg-green-100 text-green-800';
-                    } else if (issue.status === 'Closed') {
-                        statusColor = 'bg-gray-100 text-gray-800';
-                    }
+                if (documents && Array.isArray(documents) && documents.length > 0) {
+                    documentsContainer.innerHTML = '';
+                    const docList = document.createElement('div');
+                    docList.className = 'space-y-3';
                     
-                    // Get priority color
-                    let priorityColor = 'bg-gray-100';
-                    if (issue.priority === 'Low') {
-                        priorityColor = 'bg-blue-100 text-blue-800';
-                    } else if (issue.priority === 'Medium') {
-                        priorityColor = 'bg-yellow-100 text-yellow-800';
-                    } else if (issue.priority === 'High') {
-                        priorityColor = 'bg-orange-100 text-orange-800';
-                    } else if (issue.priority === 'Critical') {
-                        priorityColor = 'bg-red-100 text-red-800';
-                    }
-                    
-                    const issueDate = new Date(issue.reportDate);
-                    
-                    const issueItem = document.createElement('div');
-                    issueItem.className = 'p-4 bg-white border border-gray-200 rounded-lg shadow-sm';
-                    issueItem.innerHTML = `
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <div class="flex items-center gap-2">
-                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColor}">${issue.status}</span>
-                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-medium ${priorityColor}">${issue.priority}</span>
+                    documents.forEach(doc => {
+                        if (!doc) return;
+                        
+                        const fileTypeIcon = getFileIcon(doc.fileType || doc.fileName);
+                        const fileDate = new Date(doc.uploadedAt);
+                        const isValidDate = !isNaN(fileDate.getTime());
+                        
+                        const docItem = document.createElement('div');
+                        docItem.className = 'flex bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1';
+                        docItem.innerHTML = `
+                            <div class="flex-shrink-0 mr-4">
+                                <div class="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center">
+                                    <i class="${fileTypeIcon} text-blue-500 text-xl"></i>
                                 </div>
-                                <h4 class="font-medium mt-2">${issue.issueType}</h4>
-                                <p class="text-sm text-gray-600 mt-1">${issue.description}</p>
-                                <div class="text-xs text-gray-500 mt-2">Reported on ${formatDate(issueDate)} by ${issue.reporterName}</div>
                             </div>
-                        </div>
-                        ${issue.resolution ? `<div class="mt-3 pt-3 border-t border-gray-100">
-                            <p class="text-sm font-medium text-gray-700">Resolution:</p>
-                            <p class="text-sm text-gray-600">${issue.resolution}</p>
-                        </div>` : ''}
-                    `;
+                            <div class="flex-1 min-w-0">
+                                <h4 class="font-medium text-gray-800 truncate">${doc.title || 'Untitled Document'}</h4>
+                                <p class="text-sm text-gray-500 mt-1">${doc.fileName || ''} ${doc.fileSize ? `(${formatFileSize(doc.fileSize)})` : ''}</p>
+                                <div class="flex items-center mt-2 text-xs text-gray-400">
+                                    ${doc.documentType ? `<span class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded mr-2">${doc.documentType}</span>` : ''}
+                                    ${isValidDate ? `<span><i class="far fa-clock mr-1"></i> ${formatDate(fileDate)}</span>` : ''}
+                                </div>
+                            </div>
+                            <div class="flex-shrink-0 ml-4 flex flex-col space-y-2">
+                                <button class="document-preview-btn p-2 bg-blue-50 text-blue-500 rounded hover:bg-blue-100 transition-colors"
+                                        data-id="${doc.id}" data-title="${doc.title || 'Document Preview'}" data-path="${doc.filePath || ''}">
+                                    <i class="far fa-eye"></i>
+                                </button>
+                                <a href="/api/Document/download/${doc.id}" class="p-2 bg-green-50 text-green-500 rounded hover:bg-green-100 transition-colors" download>
+                                    <i class="fas fa-download"></i>
+                                </a>
+                            </div>
+                        `;
+                        
+                        docList.appendChild(docItem);
+                    });
                     
-                    issueList.appendChild(issueItem);
-                });
-                
-                issuesContainer.appendChild(issueList);
-            } else {
-                // No issues found
-                issuesContainer.innerHTML = `
-                    <div class="text-center py-4">
-                        <div class="w-12 h-12 mx-auto rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-2">
-                            <i class="fas fa-clipboard-check"></i>
+                    documentsContainer.appendChild(docList);
+                } else {
+                    documentsContainer.innerHTML = `
+                        <div class="text-center py-8 bg-gray-50 rounded-lg">
+                            <div class="w-16 h-16 mx-auto rounded-full bg-blue-100 flex items-center justify-center text-blue-400 mb-3">
+                                <i class="fas fa-file-alt text-2xl"></i>
+                            </div>
+                            <p class="text-gray-600 font-medium">No documents available</p>
+                            <p class="text-sm text-gray-500 mt-2">No documentation has been added for this product yet.</p>
                         </div>
-                        <p class="text-gray-500 text-sm">No issues reported for this product.</p>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error loading documents:', error);
+                if (!documentsContainer) return;
+                
+                documentsContainer.innerHTML = `
+                    <div class="text-center py-8 bg-red-50 rounded-lg">
+                        <div class="w-16 h-16 mx-auto rounded-full bg-red-100 flex items-center justify-center text-red-500 mb-3">
+                            <i class="fas fa-exclamation-triangle text-2xl"></i>
+                        </div>
+                        <p class="text-red-600 font-medium">Failed to load documents</p>
+                        <p class="text-sm text-red-500 mt-2">${error.message || 'Please try again later.'}</p>
                     </div>
                 `;
-            }
-        })
-        .catch(error => {
-            console.error('Error loading issues:', error);
-            issuesContainer.innerHTML = `
-                <div class="text-center py-4">
-                    <div class="w-12 h-12 mx-auto rounded-full bg-red-100 flex items-center justify-center text-red-500 mb-2">
-                        <i class="fas fa-exclamation-triangle"></i>
-                    </div>
-                    <p class="text-red-500 text-sm">Failed to load issues: ${error.message}</p>
-                </div>
-            `;
-        });
+            });
+    } catch (e) {
+        console.error("Error in loadDocuments:", e);
+        const documentsContainer = document.getElementById('documents-container');
+        if (documentsContainer) {
+            documentsContainer.innerHTML = `<div class="text-center text-red-500">Error loading documents: ${e.message}</div>`;
+        }
+    }
 }
-    // Load maintenance data
-    function loadMaintenanceData() {
+
+// Get file icon based on file type
+function getFileIcon(filePathOrType) {
+    try {
+        if (!filePathOrType) return 'fas fa-file';
+        
+        const lowerPath = filePathOrType.toLowerCase();
+        
+        if (lowerPath.match(/\.(pdf)$/i)) return 'fas fa-file-pdf';
+        if (lowerPath.match(/\.(doc|docx)$/i)) return 'fas fa-file-word';
+        if (lowerPath.match(/\.(xls|xlsx|csv)$/i)) return 'fas fa-file-excel';
+        if (lowerPath.match(/\.(ppt|pptx)$/i)) return 'fas fa-file-powerpoint';
+        if (lowerPath.match(/\.(zip|rar|tar|gz)$/i)) return 'fas fa-file-archive';
+        if (lowerPath.match(/\.(jpg|jpeg|png|gif|bmp|svg)$/i)) return 'fas fa-file-image';
+        if (lowerPath.match(/\.(mp4|mov|avi|wmv)$/i)) return 'fas fa-file-video';
+        if (lowerPath.match(/\.(mp3|wav|ogg)$/i)) return 'fas fa-file-audio';
+        if (lowerPath.match(/\.(txt|rtf)$/i)) return 'fas fa-file-alt';
+        if (lowerPath.match(/\.(html|htm|xml|json)$/i)) return 'fas fa-file-code';
+        
+        // Check for MIME types
+        if (lowerPath.includes('pdf')) return 'fas fa-file-pdf';
+        if (lowerPath.includes('word') || lowerPath.includes('document')) return 'fas fa-file-word';
+        if (lowerPath.includes('excel') || lowerPath.includes('spreadsheet')) return 'fas fa-file-excel';
+        if (lowerPath.includes('powerpoint') || lowerPath.includes('presentation')) return 'fas fa-file-powerpoint';
+        if (lowerPath.includes('image')) return 'fas fa-file-image';
+        if (lowerPath.includes('video')) return 'fas fa-file-video';
+        if (lowerPath.includes('audio')) return 'fas fa-file-audio';
+        if (lowerPath.includes('text')) return 'fas fa-file-alt';
+        
+        // Default
+        return 'fas fa-file';
+    } catch (e) {
+        console.error("Error in getFileIcon:", e);
+        return 'fas fa-file';
+    }
+}
+
+// Load maintenance data
+function loadMaintenanceData() {
+    try {
         const remindersContainer = document.getElementById('maintenance-reminders');
         const historyContainer = document.getElementById('maintenance-history-content');
+        if (!remindersContainer || !historyContainer) return;
+        
         const productId = @Model.Id;
         
         // Fetch reminders
@@ -1167,13 +1446,27 @@ function loadIssueData() {
                 return response.json();
             })
             .then(reminders => {
-                if (reminders && reminders.length > 0) {
+                if (!remindersContainer || !historyContainer) return;
+                
+                if (reminders && Array.isArray(reminders) && reminders.length > 0) {
                     // Sort by due date (closest first)
                     reminders.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
                     
                     // Display next reminder
                     const nextReminder = reminders[0];
+                    if (!nextReminder) {
+                        showNoMaintenanceData(remindersContainer);
+                        showNoMaintenanceHistory(historyContainer);
+                        return;
+                    }
+                    
                     const dueDate = new Date(nextReminder.dueDate);
+                    if (isNaN(dueDate.getTime())) {
+                        showNoMaintenanceData(remindersContainer);
+                        showNoMaintenanceHistory(historyContainer);
+                        return;
+                    }
+                    
                     const isPastDue = dueDate < new Date();
                     
                     remindersContainer.innerHTML = `
@@ -1183,7 +1476,7 @@ function loadIssueData() {
                                     <i class="fas ${isPastDue ? 'fa-exclamation-circle' : 'fa-calendar-check'} text-lg"></i>
                                 </div>
                                 <div class="ml-4">
-                                    <p class="font-medium ${isPastDue ? 'text-red-800' : 'text-blue-800'}">${nextReminder.title}</p>
+                                    <p class="font-medium ${isPastDue ? 'text-red-800' : 'text-blue-800'}">${nextReminder.title || 'Maintenance Task'}</p>
                                     <p class="text-sm ${isPastDue ? 'text-red-700' : 'text-blue-600'} mt-1">
                                         ${isPastDue ? 'Overdue: ' : 'Due: '}
                                         <span class="font-medium">${formatDate(dueDate)}</span>
@@ -1216,7 +1509,11 @@ function loadIssueData() {
                         historyContainer.innerHTML = `
                             <div class="space-y-4">
                                 ${historyItems.map((item, index) => {
+                                    if (!item) return '';
+                                    
                                     const itemDate = new Date(item.dueDate);
+                                    if (isNaN(itemDate.getTime())) return '';
+                                    
                                     const isCompleted = itemDate < new Date();
                                     
                                     return `
@@ -1227,7 +1524,7 @@ function loadIssueData() {
                                                 </div>
                                             </div>
                                             <div>
-                                                <h4 class="font-medium text-gray-800">${item.title}</h4>
+                                                <h4 class="font-medium text-gray-800">${item.title || 'Maintenance Task'}</h4>
                                                 <p class="text-sm text-gray-500 mt-1">
                                                     ${isCompleted ? 'Was scheduled for: ' : 'Scheduled for: '}
                                                     <span class="font-medium ${isCompleted ? 'text-red-600' : 'text-blue-600'}">${formatDate(itemDate)}</span>
@@ -1248,28 +1545,18 @@ function loadIssueData() {
                             </div>
                         `;
                     } else {
-                        historyContainer.innerHTML = noDataTemplate('No maintenance history available');
+                        showNoMaintenanceHistory(historyContainer);
                     }
                 } else {
                     // No reminders found
-                    remindersContainer.innerHTML = `
-                        <div class="p-4 bg-white border-blue-200 rounded-lg border shadow-sm">
-                            <div class="text-center">
-                                <div class="w-12 h-12 mx-auto rounded-full bg-blue-100 flex items-center justify-center text-blue-400 mb-2">
-                                    <i class="fas fa-calendar-check text-xl"></i>
-                                </div>
-                                <p class="text-gray-600">No scheduled maintenance</p>
-                                <p class="text-sm text-gray-500 mt-1">This product doesn't have any upcoming maintenance tasks.</p>
-                            </div>
-                        </div>
-                    `;
-                    
-                    // No history either
-                    historyContainer.innerHTML = noDataTemplate('No maintenance history available');
+                    showNoMaintenanceData(remindersContainer);
+                    showNoMaintenanceHistory(historyContainer);
                 }
             })
             .catch(error => {
                 console.error('Error fetching maintenance data:', error);
+                if (!remindersContainer || !historyContainer) return;
+                
                 remindersContainer.innerHTML = `
                     <div class="p-4 bg-red-50 border-red-200 rounded-lg border shadow-sm">
                         <div class="text-center">
@@ -1282,12 +1569,65 @@ function loadIssueData() {
                     </div>
                 `;
                 
-                historyContainer.innerHTML = noDataTemplate('Failed to load maintenance history');
+                historyContainer.innerHTML = `
+                    <div class="text-center py-6 bg-red-50 rounded-lg">
+                        <div class="w-12 h-12 mx-auto rounded-full bg-red-100 flex items-center justify-center text-red-400 mb-2">
+                            <i class="fas fa-exclamation-triangle text-xl"></i>
+                        </div>
+                        <p class="text-red-600">Failed to load maintenance history</p>
+                        <p class="text-sm text-red-500 mt-1">Please try refreshing the page.</p>
+                    </div>
+                `;
             });
+    } catch (e) {
+        console.error("Error in loadMaintenanceData:", e);
+        const remindersContainer = document.getElementById('maintenance-reminders');
+        const historyContainer = document.getElementById('maintenance-history-content');
+        
+        if (remindersContainer) {
+            remindersContainer.innerHTML = `<div class="text-center text-red-500">Error loading maintenance data: ${e.message}</div>`;
+        }
+        
+        if (historyContainer) {
+            historyContainer.innerHTML = `<div class="text-center text-red-500">Error loading maintenance history: ${e.message}</div>`;
+        }
     }
+}
+
+// Helper functions for maintenance display
+function showNoMaintenanceData(container) {
+    if (!container) return;
     
-    // Initialize document preview modal
-    function initDocumentPreview() {
+    container.innerHTML = `
+        <div class="p-4 bg-white border-blue-200 rounded-lg border shadow-sm">
+            <div class="text-center">
+                <div class="w-12 h-12 mx-auto rounded-full bg-blue-100 flex items-center justify-center text-blue-400 mb-2">
+                    <i class="fas fa-calendar-check text-xl"></i>
+                </div>
+                <p class="text-gray-600">No scheduled maintenance</p>
+                <p class="text-sm text-gray-500 mt-1">This product doesn't have any upcoming maintenance tasks.</p>
+            </div>
+        </div>
+    `;
+}
+
+function showNoMaintenanceHistory(container) {
+    if (!container) return;
+    
+    container.innerHTML = `
+        <div class="text-center py-6 bg-gray-50 rounded-lg">
+            <div class="w-12 h-12 mx-auto rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-2">
+                <i class="fas fa-clipboard-list text-xl"></i>
+            </div>
+            <p class="text-gray-600">No maintenance history available</p>
+            <p class="text-sm text-gray-500 mt-1">Data will appear here once available.</p>
+        </div>
+    `;
+}
+
+// Initialize document preview modal
+function initDocumentPreview() {
+    try {
         const previewModal = document.getElementById('document-preview-modal');
         const modalContent = document.getElementById('document-modal-content');
         const closePreviewBtn = document.getElementById('close-doc-preview-modal');
@@ -1295,6 +1635,8 @@ function loadIssueData() {
         const downloadBtn = document.getElementById('download-document-btn');
         const previewTitle = document.getElementById('document-preview-title');
         const previewContent = document.getElementById('document-preview-content');
+        
+        if (!previewModal || !modalContent || !previewTitle || !previewContent) return;
         
         // Event delegation for document preview buttons
         document.addEventListener('click', function(e) {
@@ -1305,18 +1647,22 @@ function loadIssueData() {
                 const docTitle = previewBtn.getAttribute('data-title');
                 const docPath = previewBtn.getAttribute('data-path');
                 
+                if (!docId) return;
+                
                 // Set modal title
-                previewTitle.textContent = docTitle;
+                if (previewTitle) previewTitle.textContent = docTitle || 'Document Preview';
                 
                 // Show loading state
-                previewContent.innerHTML = `
-                    <div class="flex justify-center items-center h-full">
-                        <i class="fas fa-spinner fa-spin text-3xl text-primary-500"></i>
-                    </div>
-                `;
+                if (previewContent) {
+                    previewContent.innerHTML = `
+                        <div class="flex justify-center items-center h-full">
+                            <i class="fas fa-spinner fa-spin text-3xl text-primary-500"></i>
+                        </div>
+                    `;
+                }
                 
                 // Set download button link
-                downloadBtn.setAttribute('data-id', docId);
+                if (downloadBtn) downloadBtn.setAttribute('data-id', docId);
                 
                 // Show modal with animation
                 previewModal.classList.remove('hidden');
@@ -1325,14 +1671,14 @@ function loadIssueData() {
                     modalContent.classList.add('scale-100', 'opacity-100');
                 }, 10);
                 
-                // Attempt to display the file (this is simplified - would need proper implementation based on file type)
-                if (docPath) {
+                // Attempt to display the file
+                if (previewContent && docPath) {
                     if (docPath.toLowerCase().endsWith('.pdf')) {
                         previewContent.innerHTML = `<iframe src="${docPath}" width="100%" height="100%" frameborder="0"></iframe>`;
                     } else if (docPath.toLowerCase().match(/\.(jpe?g|png|gif|bmp|svg)$/)) {
                         previewContent.innerHTML = `
                             <div class="flex justify-center items-center h-full bg-gray-50 p-4">
-                                <img src="${docPath}" alt="${docTitle}" class="max-w-full max-h-full mx-auto shadow-lg rounded-lg">
+                                <img src="${docPath}" alt="${docTitle || 'Document preview'}" class="max-w-full max-h-full mx-auto shadow-lg rounded-lg">
                             </div>
                         `;
                     } else {
@@ -1349,7 +1695,7 @@ function loadIssueData() {
                             </div>
                         `;
                     }
-                } else {
+                } else if (previewContent) {
                     previewContent.innerHTML = `
                         <div class="flex flex-col items-center justify-center h-full">
                             <div class="text-6xl text-red-400 mb-4">
@@ -1365,6 +1711,8 @@ function loadIssueData() {
         
         // Close modal events
         function closeDocModal() {
+            if (!modalContent || !previewModal) return;
+            
             modalContent.classList.remove('scale-100', 'opacity-100');
             modalContent.classList.add('scale-95', 'opacity-0');
             
@@ -1399,70 +1747,94 @@ function loadIssueData() {
                 }
             });
         }
+    } catch (e) {
+        console.error("Error in initDocumentPreview:", e);
     }
-    
-    // Initialize copy to clipboard functionality
-    function initCopyToClipboard() {
+}
+
+// Initialize copy to clipboard functionality
+function initCopyToClipboard() {
+    try {
         const infoItems = document.querySelectorAll('.font-medium:not(button):not(h3):not(h4)');
+        if (!infoItems || infoItems.length === 0) return;
+        
         infoItems.forEach(item => {
-            if (item.textContent.trim()) {
-                item.classList.add('cursor-pointer', 'hover:text-primary-600', 'transition-colors');
-                item.title = "Click to copy";
+            if (!item || !item.textContent || !item.textContent.trim()) return;
+            
+            item.classList.add('cursor-pointer', 'hover:text-primary-600', 'transition-colors');
+            item.title = "Click to copy";
+            
+            item.addEventListener('click', function() {
+                const text = this.innerText;
+                if (!text) return;
                 
-                item.addEventListener('click', function() {
-                    const text = this.innerText;
-                    copyToClipboard(text);
-                    showToast('Copied to clipboard', text, 'success');
-                });
-            }
+                copyToClipboard(text);
+                showToast('Copied to clipboard', text, 'success');
+            });
         });
+    } catch (e) {
+        console.error("Error in initCopyToClipboard:", e);
     }
-    
-    function copyToClipboard(text) {
+}
+
+function copyToClipboard(text) {
+    try {
+        if (!text) return false;
+        
         const tempElement = document.createElement('textarea');
         tempElement.value = text;
         document.body.appendChild(tempElement);
         tempElement.select();
-        document.execCommand('copy');
+        const success = document.execCommand('copy');
         document.body.removeChild(tempElement);
+        return success;
+    } catch (e) {
+        console.error("Error in copyToClipboard:", e);
+        return false;
     }
-    // Toast notification system
-    function initToastNotifications() {
+}
+
+// Toast notification system
+function initToastNotifications() {
+    try {
         const toast = document.getElementById('toast-notification');
         const closeToast = document.getElementById('close-toast');
         
-        if (closeToast && toast) {
-            closeToast.addEventListener('click', function() {
-                hideToast();
-            });
-        }
+        if (!toast || !closeToast) return;
+        
+        closeToast.addEventListener('click', function() {
+            hideToast();
+        });
+    } catch (e) {
+        console.error("Error in initToastNotifications:", e);
     }
-    
-    function showToast(message, description = '', type = 'success') {
+}
+
+function showToast(message, description = '', type = 'success') {
+    try {
         const toast = document.getElementById('toast-notification');
         const toastMessage = document.getElementById('toast-message');
         const toastDescription = document.getElementById('toast-description');
         const toastIcon = document.getElementById('toast-icon');
         const toastIconSymbol = document.getElementById('toast-icon-symbol');
         
+        if (!toast || !toastMessage || !toastDescription || !toastIcon || !toastIconSymbol) return;
+        
         // Set content
-        toastMessage.textContent = message;
-        toastDescription.textContent = description;
+        toastMessage.textContent = message || 'Notification';
+        toastDescription.textContent = description || '';
         
         // Set icon and colors based on type
-        if (type === 'success') {
-            toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-green-100';
-            toastIconSymbol.className = 'fas fa-check text-green-500';
-        } else if (type === 'error') {
-            toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-red-100';
-            toastIconSymbol.className = 'fas fa-times text-red-500';
-        } else if (type === 'warning') {
-            toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-yellow-100';
-            toastIconSymbol.className = 'fas fa-exclamation text-yellow-500';
-        } else if (type === 'info') {
-            toastIcon.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-blue-100';
-            toastIconSymbol.className = 'fas fa-info text-blue-500';
-        }
+        const iconConfigs = {
+            'success': { bgClass: 'bg-green-100', iconClass: 'fas fa-check text-green-500' },
+            'error': { bgClass: 'bg-red-100', iconClass: 'fas fa-times text-red-500' },
+            'warning': { bgClass: 'bg-yellow-100', iconClass: 'fas fa-exclamation text-yellow-500' },
+            'info': { bgClass: 'bg-blue-100', iconClass: 'fas fa-info text-blue-500' }
+        };
+        
+        const config = iconConfigs[type] || iconConfigs.success;
+        toastIcon.className = `flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center ${config.bgClass}`;
+        toastIconSymbol.className = config.iconClass;
         
         // Show toast with animation
         toast.classList.remove('hidden');
@@ -1474,174 +1846,47 @@ function loadIssueData() {
         setTimeout(() => {
             hideToast();
         }, 5000);
+    } catch (e) {
+        console.error("Error in showToast:", e);
     }
-    
-    function hideToast() {
+}
+
+function hideToast() {
+    try {
         const toast = document.getElementById('toast-notification');
+        if (!toast) return;
+        
         toast.classList.add('translate-y-20', 'opacity-0');
         setTimeout(() => {
             toast.classList.add('hidden');
         }, 300);
+    } catch (e) {
+        console.error("Error in hideToast:", e);
     }
+}
 
-    // Load issue data function
-    function loadIssueData() {
-        const issuesContainer = document.getElementById('issues-container');
-        const productId = @Model.Id;
-        
-        // Show loading state explicitly
-        issuesContainer.innerHTML = `
-            <div class="text-center py-6 bg-gray-50 rounded-lg animate-pulse">
-                <i class="fas fa-spinner fa-spin text-primary-500 mr-2"></i> Loading issues...
-            </div>
-        `;
-        
-        fetch(`/api/IssueReport/card/${productId}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(issues => {
-                if (issues && issues.length > 0) {
-                    // Clear loading spinner
-                    issuesContainer.innerHTML = '';
-                    
-                    // Create issues list
-                    const issueList = document.createElement('div');
-                    issueList.className = 'space-y-4';
-                    
-                    issues.forEach(issue => {
-                        // Determine status color and icon
-                        let statusColor = 'bg-blue-100 text-blue-800';
-                        let statusIcon = 'fa-info-circle';
-                        
-                        if (issue.status === 'Open') {
-                            statusColor = 'bg-yellow-100 text-yellow-800';
-                            statusIcon = 'fa-exclamation-circle';
-                        } else if (issue.status === 'In Progress') {
-                            statusColor = 'bg-blue-100 text-blue-800';
-                            statusIcon = 'fa-spinner';
-                        } else if (issue.status === 'Resolved') {
-                            statusColor = 'bg-green-100 text-green-800';
-                            statusIcon = 'fa-check-circle';
-                        } else if (issue.status === 'Closed') {
-                            statusColor = 'bg-gray-100 text-gray-800';
-                            statusIcon = 'fa-check';
-                        }
-                        
-                        // Determine priority badge
-                        let priorityColor = 'bg-gray-100 text-gray-700';
-                        if (issue.priority === 'Low') {
-                            priorityColor = 'bg-blue-100 text-blue-800';
-                        } else if (issue.priority === 'Medium') {
-                            priorityColor = 'bg-yellow-100 text-yellow-800';
-                        } else if (issue.priority === 'High') {
-                            priorityColor = 'bg-orange-100 text-orange-800';
-                        } else if (issue.priority === 'Critical') {
-                            priorityColor = 'bg-red-100 text-red-800';
-                        }
-                        
-                        const issueDate = new Date(issue.reportDate);
-                        
-                        const issueItem = document.createElement('div');
-                        issueItem.className = 'p-4 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1';
-                        issueItem.innerHTML = `
-                            <div class="flex justify-between items-start">
-                                <div class="flex-grow">
-                                    <div class="flex flex-wrap items-center gap-2 mb-2">
-                                        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium flex items-center gap-1 ${statusColor}">
-                                            <i class="fas ${statusIcon}"></i>
-                                            <span>${issue.status}</span>
-                                        </span>
-                                        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium flex items-center gap-1 ${priorityColor}">
-                                            ${issue.priority === 'Critical' ? '<i class="fas fa-exclamation-triangle"></i>' : ''}
-                                            ${issue.priority}
-                                        </span>
-                                        <span class="text-xs text-gray-500 ml-auto">
-                                            Reported ${formatTimeAgo(issueDate)}
-                                        </span>
-                                    </div>
-                                    <h4 class="text-lg font-medium text-gray-800">${issue.issueType}</h4>
-                                    <p class="text-sm text-gray-600 mt-2 bg-gray-50 p-3 rounded-lg">${issue.description}</p>
-                                    <div class="text-xs text-gray-500 mt-3 flex items-center">
-                                        <i class="fas fa-user mr-1"></i> Reported by ${issue.reporterName}
-                                        ${issue.reporterEmail ? `<span class="mx-2">•</span><a href="mailto:${issue.reporterEmail}" class="text-blue-600 hover:underline"><i class="fas fa-envelope mr-1"></i>${issue.reporterEmail}</a>` : ''}
-                                    </div>
-                                </div>
-                            </div>
-                            ${issue.resolution ? `
-                            <div class="mt-4 pt-3 border-t border-gray-100">
-                                <p class="text-sm font-medium text-gray-700 flex items-center">
-                                    <i class="fas fa-comment-dots mr-2 text-green-500"></i> Resolution:
-                                </p>
-                                <p class="text-sm text-gray-600 mt-1 bg-green-50 p-3 rounded-lg">${issue.resolution}</p>
-                            </div>` : ''}
-                        `;
-                        
-                        issueList.appendChild(issueItem);
-                    });
-                    
-                    issuesContainer.appendChild(issueList);
-                } else {
-                    // No issues found
-                    issuesContainer.innerHTML = `
-                        <div class="text-center py-8 bg-gray-50 rounded-lg">
-                            <div class="w-16 h-16 mx-auto rounded-full bg-green-100 flex items-center justify-center text-green-500 mb-3">
-                                <i class="fas fa-check-circle text-2xl"></i>
-                            </div>
-                            <p class="text-gray-600 font-medium">No issues reported</p>
-                            <p class="text-sm text-gray-500 mt-2">This product appears to be working properly.</p>
-                            <button id="report-new-issue" class="mt-4 inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all">
-                                <i class="fas fa-plus mr-2"></i> Report a New Issue
-                            </button>
-                        </div>
-                    `;
-                    
-                    // Add event listener to the "Report a New Issue" button
-                    setTimeout(() => {
-                        const reportNewIssueBtn = document.getElementById('report-new-issue');
-                        if (reportNewIssueBtn) {
-                            reportNewIssueBtn.addEventListener('click', function() {
-                                const reportIssueBtn = document.getElementById('report-issue-btn');
-                                if (reportIssueBtn) {
-                                    reportIssueBtn.click();
-                                }
-                            });
-                        }
-                    }, 100);
-                }
-            })
-            .catch(error => {
-                console.error('Error loading issues:', error);
-                issuesContainer.innerHTML = `
-                    <div class="text-center py-8 bg-red-50 rounded-lg">
-                        <div class="w-16 h-16 mx-auto rounded-full bg-red-100 flex items-center justify-center text-red-500 mb-3">
-                            <i class="fas fa-exclamation-triangle text-2xl"></i>
-                        </div>
-                        <p class="text-red-600 font-medium">Failed to load issues</p>
-                        <p class="text-sm text-red-500 mt-2">${error.message || 'Please try again later.'}</p>
-                    </div>
-                `;
-            });
-    }
-    
-    // Helper functions
-    function formatDate(date) {
-        if (!(date instanceof Date) || isNaN(date)) {
+// Helper functions
+function formatDate(date) {
+    try {
+        if (!(date instanceof Date) || isNaN(date.getTime())) {
             return 'Invalid date';
         }
         const options = { year: 'numeric', month: 'short', day: 'numeric' };
         return date.toLocaleDateString('en-US', options);
+    } catch (e) {
+        console.error("Error in formatDate:", e);
+        return 'Invalid date';
     }
-    
-    function formatTimeAgo(date) {
-        if (!(date instanceof Date) || isNaN(date)) {
+}
+
+function formatTimeAgo(date) {
+    try {
+        if (!(date instanceof Date) || isNaN(date.getTime())) {
             return 'Invalid date';
         }
         
         const seconds = Math.floor((new Date() - date) / 1000);
+        if (seconds < 0) return 'in the future';
         
         // Time intervals in seconds
         const intervals = {
@@ -1664,56 +1909,75 @@ function loadIssueData() {
                 return interval === 1 ? `1 ${unit} ago` : `${interval} ${unit}s ago`;
             }
         }
+        
+        return 'just now';
+    } catch (e) {
+        console.error("Error in formatTimeAgo:", e);
+        return 'some time ago';
     }
-    
-    function formatFileSize(bytes) {
+}
+
+function formatFileSize(bytes) {
+    try {
         if (!bytes || bytes === 0) return '0 Bytes';
         
         const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
         const i = Math.floor(Math.log(bytes) / Math.log(1024));
         
         return parseFloat((bytes / Math.pow(1024, i)).toFixed(2)) + ' ' + sizes[i];
+    } catch (e) {
+        console.error("Error in formatFileSize:", e);
+        return 'Unknown size';
     }
-    
-    function getDaysDiff(startDate, endDate) {
+}
+
+function getDaysDiff(startDate, endDate) {
+    try {
+        if (!(startDate instanceof Date) || !(endDate instanceof Date) || 
+            isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+            return 0;
+        }
         return Math.ceil(Math.abs((endDate - startDate) / (1000 * 60 * 60 * 24)));
+    } catch (e) {
+        console.error("Error in getDaysDiff:", e);
+        return 0;
     }
-    
-    function noDataTemplate(message) {
-        return `
-            <div class="text-center py-6 bg-gray-50 rounded-lg">
-                <div class="w-16 h-16 mx-auto rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-3">
-                    <i class="fas fa-clipboard-list text-2xl"></i>
-                </div>
-                <p class="text-gray-600">${message}</p>
-                <p class="text-sm text-gray-500 mt-2">Data will appear here once available.</p>
-            </div>
-        `;
-    }
-    
-    // Share functionality for the share button
-    document.getElementById('share-btn')?.addEventListener('click', function() {
-        // Create share data
-        const shareData = {
-            title: '@Model.ProductName',
-            text: 'View product information',
-            url: window.location.href
-        };
-        
-        // Use the Web Share API if available
-        if (navigator.share) {
-            navigator.share(shareData)
-                .then(() => showToast('Shared successfully', '', 'success'))
-                .catch(error => {
-                    console.error('Error sharing:', error);
+}
+
+// Share functionality for the share button
+document.addEventListener('DOMContentLoaded', function() {
+    const shareBtn = document.getElementById('share-btn');
+    if (shareBtn) {
+        shareBtn.addEventListener('click', function() {
+            try {
+                // Create share data
+                const shareData = {
+                    title: '@Model.ProductName',
+                    text: 'View product information',
+                    url: window.location.href
+                };
+                
+                // Use the Web Share API if available
+                if (navigator.share) {
+                    navigator.share(shareData)
+                        .then(() => showToast('Shared successfully', '', 'success'))
+                        .catch(error => {
+                            console.error('Error sharing:', error);
+                            copyToClipboard(window.location.href);
+                            showToast('Link copied to clipboard', 'Share this link with others', 'info');
+                        });
+                } else {
+                    // Fallback to copy to clipboard
                     copyToClipboard(window.location.href);
                     showToast('Link copied to clipboard', 'Share this link with others', 'info');
-                });
-        } else {
-            // Fallback to copy to clipboard
-            copyToClipboard(window.location.href);
-            showToast('Link copied to clipboard', 'Share this link with others', 'info');
-        }
-    });
+                }
+            } catch (e) {
+                console.error("Error in share button handler:", e);
+                copyToClipboard(window.location.href);
+                showToast('Link copied to clipboard', 'Share this link with others', 'info');
+            }
+        });
+    }
+});
 </script>
 }
