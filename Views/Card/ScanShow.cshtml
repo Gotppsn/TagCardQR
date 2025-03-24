@@ -1022,7 +1022,7 @@ function initIssueFormSubmission() {
             // Get CSRF token
             const tokenElement = document.querySelector('input[name="__RequestVerificationToken"]');
             const metaToken = document.querySelector('meta[name="RequestVerificationToken"]');
-            const token = tokenElement?.value || metaToken?.content || '';
+            const token = this.querySelector('input[name="__RequestVerificationToken"]').value;
             
             // API call
             fetch('/api/IssueReport', {
