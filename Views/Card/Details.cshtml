@@ -2488,12 +2488,10 @@ function updatePrivateModeUI(isPrivate) {
     if (isPrivate) {
         // Private mode UI
         accessContainer.classList.add('bg-gradient-to-r', 'from-blue-50', 'to-blue-100', 'border-blue-200');
-        accessContainer.classList.remove('bg-gradient-to-r', 'from-green-50', 'to-primary-50', 'border-primary-100', 'border-green-200');
+        accessContainer.classList.remove('border-green-200', 'bg-gradient-to-r', 'from-green-50', 'to-primary-50');
         
-        accessIcon.classList.remove('fa-lock-open');
-        accessIcon.classList.add('fa-lock');
-        accessIcon.classList.remove('text-green-500');
-        accessIcon.classList.add('text-blue-600');
+        accessIcon.classList.remove('fa-lock-open', 'text-green-500');
+        accessIcon.classList.add('fa-lock', 'text-blue-600');
         
         toggleLabel.textContent = 'Private';
         modeLabel.textContent = 'Private Mode';
@@ -2502,12 +2500,10 @@ function updatePrivateModeUI(isPrivate) {
     } else {
         // Public mode UI
         accessContainer.classList.remove('bg-gradient-to-r', 'from-blue-50', 'to-blue-100', 'border-blue-200');
-        accessContainer.classList.add('bg-gradient-to-r', 'from-green-50', 'to-primary-50', 'border-green-200');
+        accessContainer.classList.add('border-green-200', 'bg-gradient-to-r', 'from-green-50', 'to-primary-50');
         
-        accessIcon.classList.remove('fa-lock');
-        accessIcon.classList.add('fa-lock-open');
-        accessIcon.classList.remove('text-blue-600');
-        accessIcon.classList.add('text-green-500');
+        accessIcon.classList.add('fa-lock-open', 'text-green-500');
+        accessIcon.classList.remove('fa-lock', 'text-blue-600');
         
         toggleLabel.textContent = 'Public';
         modeLabel.textContent = 'Public Mode';
@@ -2579,6 +2575,13 @@ function saveScanSettings() {
     // Save to localStorage
     localStorage.setItem(`scan_settings_${cardId}`, JSON.stringify(settings));
     
+    // Generate QR code URL with settings
+    const baseUrl = `${window.location.origin}/Card/ScanShow/${cardId}`;
+    const params = new URLSearchParams();
+    settings.fields.forEach(field => params.append('field', field));
+    settings.uiElements.forEach(element => params.append('ui', element));
+    if (settings.privateMode) params.append('private', 'true');
+    
     // Show success message
     showToast('Settings saved', 'Your scan view settings have been saved', 'success');
     
@@ -2598,21 +2601,33 @@ function loadScanPreview() {
         </div>
     `;
     
+    // Get current settings
     const savedSettingsStr = localStorage.getItem(`scan_settings_${cardId}`);
     const settings = savedSettingsStr ? JSON.parse(savedSettingsStr) : { fields: [], uiElements: [], privateMode: false };
     
+    // Build URL parameters
     const params = new URLSearchParams();
-    settings.fields?.forEach(field => params.append('field', field));
-    settings.uiElements?.forEach(element => params.append('ui', element));
-    if (settings.privateMode) params.append('private', 'true');
-    params.append('preview', 'true'); // Add this parameter to identify preview mode
-    params.append('t', Date.now()); // Cache buster
     
-    // Get the base URL from Razor, then append parameters
+    // Add selected fields
+    settings.fields?.forEach(field => params.append('field', field));
+    
+    // Add UI elements settings
+    settings.uiElements?.forEach(element => params.append('ui', element));
+    
+    // Add private mode setting
+    if (settings.privateMode) params.append('private', 'true');
+    
+    // Add preview marker
+    params.append('preview', 'true');
+    
+    // Add cache buster
+    params.append('t', Date.now());
+    
+    // Build the preview URL
     const baseUrl = `/Card/ScanShow/${cardId}`;
     const previewUrl = `${baseUrl}?${params.toString()}`;
     
-    // Fixed iframe with proper dimensions and scrolling enabled
+    // Create iframe with proper dimensions
     scanPreview.innerHTML = `
         <div class="w-full h-full bg-gray-50 flex justify-center">
             <iframe 

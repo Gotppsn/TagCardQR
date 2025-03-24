@@ -2217,11 +2217,6 @@ body {
   border-color: rgb(249 115 22 / var(--tw-border-opacity));
 }
 
-.border-primary-100 {
-  --tw-border-opacity: 1;
-  border-color: rgb(224 242 254 / var(--tw-border-opacity));
-}
-
 .border-primary-200 {
   --tw-border-opacity: 1;
   border-color: rgb(186 230 253 / var(--tw-border-opacity));

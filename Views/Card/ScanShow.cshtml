@@ -563,122 +563,122 @@
 @section Scripts {
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Apply scan settings if they exist in URL parameters
-        applyScanSettings();
-        
-        // Navigation functionality
-        initNavigation();
-        
-        // Show/hide report issue modal
-        initReportIssueModal();
-        
-        // Handle issue form submission
-        initIssueFormSubmission();
-        
-        // Load documents
-        loadDocuments();
-        
-        // Load maintenance reminders and history
-        loadMaintenanceData();
-        
-        // Initialize document preview modal
-        initDocumentPreview();
-        
-        // Initialize copy to clipboard functionality
-        initCopyToClipboard();
-        
-        // Toast notification system
-        initToastNotifications();
+    // Apply scan settings if they exist in URL parameters
+    applyScanSettings();
+    
+    // Navigation functionality
+    initNavigation();
+    
+    // Show/hide report issue modal
+    initReportIssueModal();
+    
+    // Handle issue form submission
+    initIssueFormSubmission();
+    
+    // Load documents
+    loadDocuments();
+    
+    // Load maintenance reminders and history
+    loadMaintenanceData();
+    
+    // Initialize document preview modal
+    initDocumentPreview();
+    
+    // Initialize copy to clipboard functionality
+    initCopyToClipboard();
+    
+    // Toast notification system
+    initToastNotifications();
 
-        // Load issue data
-        try {
-            console.log("Calling loadIssueData");
-            loadIssueData();
-        } catch (e) {
-            console.error("Error in loadIssueData:", e);
-            const issuesContainer = document.getElementById('issues-container');
-            if (issuesContainer) {
-                issuesContainer.innerHTML = `<div class="text-center text-red-500">Error loading issues: ${e.message}</div>`;
-            }
+    // Load issue data
+    try {
+        console.log("Calling loadIssueData");
+        loadIssueData();
+    } catch (e) {
+        console.error("Error in loadIssueData:", e);
+        const issuesContainer = document.getElementById('issues-container');
+        if (issuesContainer) {
+            issuesContainer.innerHTML = `<div class="text-center text-red-500">Error loading issues: ${e.message}</div>`;
         }
-    });
+    }
+});
     
     // Function to apply scan settings from URL parameters
-    function applyScanSettings() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const fields = urlParams.getAll('field');
-        const uiElements = urlParams.getAll('ui');
-        const isPrivate = urlParams.has('private');
-        const isPreview = urlParams.has('preview');
+ function applyScanSettings() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const fields = urlParams.getAll('field');
+    const uiElements = urlParams.getAll('ui');
+    const isPrivate = urlParams.has('private');
+    const isPreview = urlParams.has('preview');
+    
+    console.log("Applying scan settings:", { fields, uiElements, isPrivate, isPreview });
+    
+    // Add preview indicator if in preview mode
+    if (isPreview) {
+        const previewIndicator = document.createElement('div');
+        previewIndicator.className = 'fixed top-2 right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full z-50';
+        previewIndicator.textContent = 'Preview Mode';
+        document.body.appendChild(previewIndicator);
+    }
+    
+    // Handle private mode (show login prompt if applicable)
+    if (isPrivate && !isLoggedIn() && !isPreview) {
+        redirectToLogin();
+        return;
+    }
+    
+    // Hide elements not in the fields list
+    if (fields.length > 0) {
+        // Always show product name (required)
+        fields.push('product_name');
         
-        console.log("Applying scan settings:", { fields, uiElements, isPrivate, isPreview });
-        
-        // Add preview indicator if in preview mode
-        if (isPreview) {
-            const previewIndicator = document.createElement('div');
-            previewIndicator.className = 'fixed top-2 right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full z-50';
-            previewIndicator.textContent = 'Preview Mode';
-            document.body.appendChild(previewIndicator);
+        // Hide fields not in the list
+        if (!fields.includes('category')) hideElement('#category-section');
+        if (!fields.includes('location')) hideElement('#location-section');
+        if (!fields.includes('image')) {
+            hideElement('#product-image');
+            hideElement('#product-image-placeholder');
         }
-        
-        // Handle private mode (show login prompt if applicable)
-        if (isPrivate && !isLoggedIn() && !isPreview) {
-            redirectToLogin();
-            return;
+        if (!fields.includes('manufacture_date')) hideElement('#manufacture-date-section');
+        if (!fields.includes('purchase_date')) hideElement('#purchase-date-section');
+        if (!fields.includes('warranty')) {
+            hideElement('#warranty-section');
+            hideElement('#warranty-status');
         }
+        if (!fields.includes('maintenance')) hideElement('#maintenance');
+        if (!fields.includes('documents')) hideElement('#documentation');
+        if (!fields.includes('issues')) hideElement('#issues');
         
-        // Hide elements not in the fields list
-        if (fields.length > 0) {
-            // Always show product name (required)
-            fields.push('product_name');
-            
-            // Hide fields not in the list
-            if (!fields.includes('category')) hideElement('#category-section');
-            if (!fields.includes('location')) hideElement('#location-section');
-            if (!fields.includes('image')) {
-                hideElement('#product-image');
-                hideElement('#product-image-placeholder');
+        // Handle custom fields
+        document.querySelectorAll('[data-custom-field]').forEach(el => {
+            const fieldName = el.getAttribute('data-custom-field');
+            if (!fields.includes(`custom_${fieldName}`)) {
+                el.style.display = 'none';
             }
-            if (!fields.includes('manufacture_date')) hideElement('#manufacture-date-section');
-            if (!fields.includes('purchase_date')) hideElement('#purchase-date-section');
-            if (!fields.includes('warranty')) {
-                hideElement('#warranty-section');
-                hideElement('#warranty-status');
-            }
-            if (!fields.includes('maintenance')) hideElement('#maintenance');
-            if (!fields.includes('documents')) hideElement('#documentation');
-            if (!fields.includes('issues')) hideElement('#issues');
-            
-            // Handle custom fields
-            document.querySelectorAll('[data-custom-field]').forEach(el => {
-                const fieldName = el.getAttribute('data-custom-field');
-                if (!fields.includes(`custom_${fieldName}`)) {
-                    el.style.display = 'none';
-                }
-            });
-        }
-        
-        // Handle UI element visibility
-        if (uiElements.includes('hide_report_issue')) hideElement('#report-issue-btn');
-        if (uiElements.includes('hide_contact')) hideElement('#contact');
+        });
     }
     
-    // Helper function to hide an element by selector
-    function hideElement(selector) {
-        const element = document.querySelector(selector);
-        if (element) element.style.display = 'none';
-    }
-    
-    // Check if user is logged in
-    function isLoggedIn() {
-        return @(User.Identity?.IsAuthenticated.ToString().ToLower() ?? "false");
-    }
-    
-    // Redirect to login page
-    function redirectToLogin() {
-        const currentUrl = window.location.href;
-        window.location.href = `/Account/Login?ReturnUrl=${encodeURIComponent(currentUrl)}`;
-    }
+    // Handle UI element visibility
+    if (uiElements.includes('hide_report_issue')) hideElement('#report-issue-btn');
+    if (uiElements.includes('hide_contact')) hideElement('#contact');
+}
+
+// Helper function to hide an element by selector
+function hideElement(selector) {
+    const element = document.querySelector(selector);
+    if (element) element.style.display = 'none';
+}
+
+// Check if user is logged in
+function isLoggedIn() {
+    return @(User.Identity?.IsAuthenticated.ToString().ToLower() ?? "false");
+}
+
+// Redirect to login page
+function redirectToLogin() {
+    const currentUrl = window.location.href;
+    window.location.href = `/Account/Login?ReturnUrl=${encodeURIComponent(currentUrl)}`;
+}
     
     // Navigation functionality
     function initNavigation() {
