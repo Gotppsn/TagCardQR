@@ -300,6 +300,9 @@
             <button type="button" class="tab-button px-6 py-3 text-gray-500 hover:text-gray-700 font-medium text-sm" data-tab="documents">
                 Documents
             </button>
+            <button type="button" class="tab-button px-6 py-3 text-gray-500 hover:text-gray-700 font-medium text-sm" data-tab="scan-settings">
+                Scan Settings
+            </button>
         </div>
         
         <!-- Product Information Tab -->
@@ -710,6 +713,144 @@
     </div>
 </div>
 
+<!-- Scan Settings Tab -->
+<div id="tab-scan-settings" class="tab-content hidden space-y-6">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-bold text-gray-800">QR Scan View Settings</h3>
+            <button type="button" id="save-scan-settings" class="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700 transition-colors flex items-center">
+                <i class="fas fa-save mr-2"></i> Save Settings
+            </button>
+        </div>
+        
+        <p class="text-sm text-gray-600 mb-6">Select which information will be visible when someone scans the QR code for this product.</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="border border-gray-200 rounded-lg p-4">
+                <h4 class="font-medium text-gray-700 mb-3">Basic Information</h4>
+                <div class="space-y-3">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="scan_fields" value="product_name" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked disabled>
+                        <span class="ml-2 text-gray-800">Product Name <span class="text-xs text-gray-500">(Always visible)</span></span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="scan_fields" value="category" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked>
+                        <span class="ml-2 text-gray-800">Category</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="scan_fields" value="location" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked>
+                        <span class="ml-2 text-gray-800">Location</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="scan_fields" value="image" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked>
+                        <span class="ml-2 text-gray-800">Product Image</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="border border-gray-200 rounded-lg p-4">
+                <h4 class="font-medium text-gray-700 mb-3">Dates & Warranty</h4>
+                <div class="space-y-3">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="scan_fields" value="manufacture_date" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked>
+                        <span class="ml-2 text-gray-800">Manufacture Date</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="scan_fields" value="purchase_date" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked>
+                        <span class="ml-2 text-gray-800">Purchase Date</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="scan_fields" value="warranty" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked>
+                        <span class="ml-2 text-gray-800">Warranty Information</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="border border-gray-200 rounded-lg p-4">
+                <h4 class="font-medium text-gray-700 mb-3">Custom Fields</h4>
+                <div class="space-y-3" id="custom-fields-container">
+                    @if (!string.IsNullOrEmpty(Model.CustomFieldsData) && Model.CustomFieldsData != "{}")
+                    {
+                        try
+                        {
+                            var customFields = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(Model.CustomFieldsData);
+                            if (customFields != null && customFields.Count > 0)
+                            {
+                                foreach (var field in customFields)
+                                {
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="scan_fields" value="custom_@field.Key" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked>
+                                        <span class="ml-2 text-gray-800">@field.Key</span>
+                                    </label>
+                                }
+                            }
+                            else
+                            {
+                                <p class="text-sm text-gray-500">No custom fields available</p>
+                            }
+                        }
+                        catch
+                        {
+                            <p class="text-sm text-gray-500">Invalid custom fields data</p>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-sm text-gray-500">No custom fields available</p>
+                    }
+                </div>
+            </div>
+            
+            <div class="border border-gray-200 rounded-lg p-4">
+                <h4 class="font-medium text-gray-700 mb-3">Additional Sections</h4>
+                <div class="space-y-3">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="scan_fields" value="maintenance" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked>
+                        <span class="ml-2 text-gray-800">Maintenance Information</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="scan_fields" value="documents" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked>
+                        <span class="ml-2 text-gray-800">Documents Section</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="scan_fields" value="issues" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked>
+                        <span class="ml-2 text-gray-800">Issues Section</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="scan_fields" value="contact" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked>
+                        <span class="ml-2 text-gray-800">Contact Information</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-8 pt-6 border-t border-gray-100">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                <h4 class="text-md font-medium text-gray-700 mb-3 md:mb-0">Scan View Preview</h4>
+                <div class="flex space-x-3">
+                    <a href="@Url.Action("ScanShow", new { id = Model.Id })" target="_blank" class="flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors">
+                        <i class="fas fa-external-link-alt mr-2"></i> Open Full Preview
+                    </a>
+                    <button type="button" id="refresh-preview" class="flex items-center px-4 py-2 bg-primary-50 text-primary-600 rounded hover:bg-primary-100 transition-colors">
+                        <i class="fas fa-sync-alt mr-2"></i> Refresh Preview
+                    </button>
+                </div>
+            </div>
+            
+            <div class="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <div class="h-96 overflow-auto bg-white rounded-lg shadow-inner p-4">
+                    <div id="scan-preview" class="min-h-full flex items-center justify-center">
+                        <div class="text-center">
+                            <i class="fas fa-spinner fa-spin text-xl text-primary-500 mb-2"></i>
+                            <p class="text-gray-500">Loading preview...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Add Reminder Modal -->
 <div id="reminder-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
     <div class="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 overflow-hidden transform transition-all">
@@ -891,34 +1032,37 @@
     <script>
         // Wait for DOM to be fully loaded
         document.addEventListener('DOMContentLoaded', function() {
-        // Card flip functionality
-        initCardFlip();
-        
-        // Tab switching functionality
-        initTabSwitching();
-        
-        // Share functionality
-        initShareModal();
-        
-        // Reminder functionality
-        initReminders();
-        
-        // Document functionality
-        initDocuments();
-        
-        // History functionality
-        initHistory();
-        
-        // Copy to clipboard functionality
-        initCopyToClipboard();
-        
-        // Toast notifications
-        initToastNotifications();
-        
-        // Initialize document preview modal
-        initDocumentPreview();
-    });
-        
+            // Card flip functionality
+            initCardFlip();
+            
+            // Tab switching functionality
+            initTabSwitching();
+            
+            // Share functionality
+            initShareModal();
+            
+            // Reminder functionality
+            initReminders();
+            
+            // Document functionality
+            initDocuments();
+            
+            // History functionality
+            initHistory();
+            
+            // Scan settings functionality
+            initScanSettings();
+            
+            // Copy to clipboard functionality
+            initCopyToClipboard();
+            
+            // Toast notifications
+            initToastNotifications();
+            
+            // Initialize document preview modal
+            initDocumentPreview();
+        });
+
         function initCardFlip() {
             const flipCard = document.getElementById('flip-card');
             const flipCardBack = document.getElementById('flip-card-back');
@@ -2142,5 +2286,99 @@
             
             return parseFloat((bytes / Math.pow(1024, i)).toFixed(2)) + ' ' + sizes[i];
         }
+
+        // Initialize scan settings functionality
+function initScanSettings() {
+    const saveScanSettingsBtn = document.getElementById('save-scan-settings');
+    const refreshPreviewBtn = document.getElementById('refresh-preview');
+    const scanPreviewContainer = document.getElementById('scan-preview');
+    
+    // Load current settings on init
+    loadScanSettings();
+    
+    // Load preview on init
+    loadScanPreview();
+    
+    if (saveScanSettingsBtn) {
+        saveScanSettingsBtn.addEventListener('click', function() {
+            saveScanSettings();
+        });
+    }
+    
+    if (refreshPreviewBtn) {
+        refreshPreviewBtn.addEventListener('click', function() {
+            loadScanPreview();
+        });
+    }
+}
+
+function loadScanSettings() {
+    const cardId = document.getElementById('card-id').value;
+    
+    // Get settings from localStorage or use default (all checked)
+    const savedSettings = localStorage.getItem(`scan_settings_${cardId}`);
+    
+    if (savedSettings) {
+        const settings = JSON.parse(savedSettings);
+        
+        // Apply the saved settings to checkboxes
+        document.querySelectorAll('input[name="scan_fields"]').forEach(checkbox => {
+            if (!checkbox.disabled) {
+                checkbox.checked = settings.includes(checkbox.value);
+            }
+        });
+    }
+}
+
+function saveScanSettings() {
+    const cardId = document.getElementById('card-id').value;
+    
+    // Get all selected field values
+    const selectedFields = [];
+    document.querySelectorAll('input[name="scan_fields"]:checked').forEach(checkbox => {
+        selectedFields.push(checkbox.value);
+    });
+    
+    // Save to localStorage
+    localStorage.setItem(`scan_settings_${cardId}`, JSON.stringify(selectedFields));
+    
+    // Call API to save settings to server - this would need a backend endpoint
+    // For now, we'll just use localStorage
+    
+    // Show success message
+    showToast('Settings saved', 'Your scan view settings have been saved', 'success');
+    
+    // Refresh preview
+    loadScanPreview();
+}
+
+function loadScanPreview() {
+    const scanPreviewContainer = document.getElementById('scan-preview');
+    const cardId = document.getElementById('card-id').value;
+    
+    if (!scanPreviewContainer) return;
+    
+    // Show loading
+    scanPreviewContainer.innerHTML = `
+        <div class="text-center">
+            <i class="fas fa-spinner fa-spin text-xl text-primary-500 mb-2"></i>
+            <p class="text-gray-500">Loading preview...</p>
+        </div>
+    `;
+    
+    // Get current settings
+    const savedSettings = localStorage.getItem(`scan_settings_${cardId}`);
+    const selectedFields = savedSettings ? JSON.parse(savedSettings) : [];
+    
+    // Create query string with selected fields
+    const queryParams = selectedFields.map(field => `field=${encodeURIComponent(field)}`).join('&');
+    
+    // Load preview iframe with settings applied
+    scanPreviewContainer.innerHTML = `
+        <iframe src="@Url.Action("ScanShow", new { id = Model.Id })${queryParams ? '?' + queryParams : ''}" 
+                class="w-full h-full border-0" title="Scan Preview">
+        </iframe>
+    `;
+}
     </script>
 }
