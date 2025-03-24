@@ -58,19 +58,19 @@
             <!-- Product Status Indicator -->
             @if (Model.WarrantyExpiration < DateTime.Now)
             {
-                <div class="bg-red-500 text-white text-sm py-1 px-4 text-center font-medium">
+                <div id="warranty-status" class="bg-red-500 text-white text-sm py-1 px-4 text-center font-medium">
                     <i class="fas fa-exclamation-triangle mr-1"></i> Warranty Expired
                 </div>
             }
             else if (Model.WarrantyExpiration < DateTime.Now.AddMonths(3))
             {
-                <div class="bg-yellow-500 text-white text-sm py-1 px-4 text-center font-medium">
+                <div id="warranty-status" class="bg-yellow-500 text-white text-sm py-1 px-4 text-center font-medium">
                     <i class="fas fa-clock mr-1"></i> Warranty Expiring Soon
                 </div>
             }
             else
             {
-                <div class="bg-green-500 text-white text-sm py-1 px-4 text-center font-medium">
+                <div id="warranty-status" class="bg-green-500 text-white text-sm py-1 px-4 text-center font-medium">
                     <i class="fas fa-shield-alt mr-1"></i> In Warranty
                 </div>
             }
@@ -79,7 +79,7 @@
             <div class="p-6" style="background-color: @Model.BackgroundColor; color: @Model.TextColor;">
                 <div class="flex justify-between items-start">
                     <div>
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" 
+                        <span id="category-section" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" 
                               style="background-color: @Model.AccentColor; color: @Model.BackgroundColor">
                             @Model.Category
                         </span>
@@ -98,16 +98,16 @@
                                 }
                             } catch {}
                         }
-                        <p class="text-lg">@(string.IsNullOrEmpty(manufacturer) ? "" : manufacturer)</p>
+                        <p class="text-lg" data-custom-field="Manufacturer">@(string.IsNullOrEmpty(manufacturer) ? "" : manufacturer)</p>
                     </div>
                     <div class="bg-white/10 p-2 rounded-lg">
                         @if (!string.IsNullOrEmpty(Model.ImagePath))
                         {
-                            <img src="@Model.ImagePath" alt="Product image" class="rounded w-20 h-20 object-cover" />
+                            <img id="product-image" src="@Model.ImagePath" alt="Product image" class="rounded w-20 h-20 object-cover" />
                         }
                         else
                         {
-                            <div class="w-20 h-20 rounded flex items-center justify-center" style="background-color: @Model.AccentColor; color: @Model.BackgroundColor">
+                            <div id="product-image-placeholder" class="w-20 h-20 rounded flex items-center justify-center" style="background-color: @Model.AccentColor; color: @Model.BackgroundColor">
                                 <i class="fas fa-box text-2xl"></i>
                             </div>
                         }
@@ -129,7 +129,7 @@
                                 }
                             } catch {}
                         }
-                        <div>
+                        <div data-custom-field="ModelNumber">
                             <p class="text-sm opacity-70">Model Number</p>
                             <p class="font-medium flex items-center">
                                 <i class="fas fa-tag mr-2" style="color: @Model.AccentColor"></i>
@@ -150,7 +150,7 @@
                                 }
                             } catch {}
                         }
-                        <div>
+                        <div data-custom-field="SerialNumber">
                             <p class="text-sm opacity-70">Serial Number</p>
                             <p class="font-medium flex items-center">
                                 <i class="fas fa-fingerprint mr-2" style="color: @Model.AccentColor"></i>
@@ -159,7 +159,7 @@
                         </div>
                     </div>
                     
-                    <div>
+                    <div id="location-section">
                         <p class="text-sm opacity-70">Location</p>
                         <p class="font-medium flex items-center">
                             <i class="fas fa-map-marker-alt mr-2" style="color: @Model.AccentColor"></i>
@@ -170,7 +170,7 @@
             </div>
 
             <!-- Warranty Timeline -->
-            <div class="p-4 border-b border-gray-100">
+            <div id="warranty-section" class="p-4 border-b border-gray-100">
                 <div class="relative">
                     <div class="h-1 bg-gray-200 rounded-full">
                         @{
@@ -207,11 +207,11 @@
                 <h3 class="text-lg font-semibold text-gray-800 mb-4">Product Details</h3>
                 
                 <div class="grid grid-cols-2 gap-x-4 gap-y-6">
-                    <div>
+                    <div id="manufacture-date-section">
                         <p class="text-sm text-gray-500">Manufacture Date</p>
                         <p class="font-medium text-gray-800">@Model.ManufactureDate.ToString("MMM d, yyyy")</p>
                     </div>
-                    <div>
+                    <div id="purchase-date-section">
                         <p class="text-sm text-gray-500">Purchase Date</p>
                         <p class="font-medium text-gray-800">@Model.PurchaseDate.ToString("MMM d, yyyy")</p>
                     </div>
@@ -245,7 +245,7 @@
                                 {
                                     if (field.Key != "Manufacturer" && field.Key != "ModelNumber" && field.Key != "SerialNumber")
                                     {
-                                        <div>
+                                        <div data-custom-field="@field.Key">
                                             <p class="text-sm text-gray-500">@field.Key</p>
                                             <p class="font-medium text-gray-800">@field.Value</p>
                                         </div>
@@ -367,7 +367,7 @@
 
                             @if (!string.IsNullOrEmpty(userFullName))
                             {
-                                <div class="flex items-center">
+                                <div class="flex items-center" data-custom-field="UserFullName">
                                     <div class="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
                                         <i class="fas fa-user text-primary-600"></i>
                                     </div>
@@ -380,7 +380,7 @@
                             
                             @if (!string.IsNullOrEmpty(email))
                             {
-                                <div class="flex items-center">
+                                <div class="flex items-center" data-custom-field="Email">
                                     <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
                                         <i class="fas fa-envelope text-blue-600"></i>
                                     </div>
@@ -395,7 +395,7 @@
                             
                             @if (!string.IsNullOrEmpty(department))
                             {
-                                <div class="flex items-center">
+                                <div class="flex items-center" data-custom-field="Department">
                                     <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
                                         <i class="fas fa-building text-green-600"></i>
                                     </div>
@@ -408,7 +408,7 @@
                             
                             @if (!string.IsNullOrEmpty(plantName))
                             {
-                                <div class="flex items-center">
+                                <div class="flex items-center" data-custom-field="PlantName">
                                     <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
                                         <i class="fas fa-industry text-purple-600"></i>
                                     </div>
@@ -563,7 +563,10 @@
 @section Scripts {
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Menu navigation highlighting
+        // Apply scan settings if they exist in URL parameters
+        applyScanSettings();
+        
+        // Navigation functionality
         initNavigation();
         
         // Show/hide report issue modal
@@ -599,6 +602,83 @@
             }
         }
     });
+    
+    // Function to apply scan settings from URL parameters
+    function applyScanSettings() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const fields = urlParams.getAll('field');
+        const uiElements = urlParams.getAll('ui');
+        const isPrivate = urlParams.has('private');
+        const isPreview = urlParams.has('preview');
+        
+        console.log("Applying scan settings:", { fields, uiElements, isPrivate, isPreview });
+        
+        // Add preview indicator if in preview mode
+        if (isPreview) {
+            const previewIndicator = document.createElement('div');
+            previewIndicator.className = 'fixed top-2 right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full z-50';
+            previewIndicator.textContent = 'Preview Mode';
+            document.body.appendChild(previewIndicator);
+        }
+        
+        // Handle private mode (show login prompt if applicable)
+        if (isPrivate && !isLoggedIn() && !isPreview) {
+            redirectToLogin();
+            return;
+        }
+        
+        // Hide elements not in the fields list
+        if (fields.length > 0) {
+            // Always show product name (required)
+            fields.push('product_name');
+            
+            // Hide fields not in the list
+            if (!fields.includes('category')) hideElement('#category-section');
+            if (!fields.includes('location')) hideElement('#location-section');
+            if (!fields.includes('image')) {
+                hideElement('#product-image');
+                hideElement('#product-image-placeholder');
+            }
+            if (!fields.includes('manufacture_date')) hideElement('#manufacture-date-section');
+            if (!fields.includes('purchase_date')) hideElement('#purchase-date-section');
+            if (!fields.includes('warranty')) {
+                hideElement('#warranty-section');
+                hideElement('#warranty-status');
+            }
+            if (!fields.includes('maintenance')) hideElement('#maintenance');
+            if (!fields.includes('documents')) hideElement('#documentation');
+            if (!fields.includes('issues')) hideElement('#issues');
+            
+            // Handle custom fields
+            document.querySelectorAll('[data-custom-field]').forEach(el => {
+                const fieldName = el.getAttribute('data-custom-field');
+                if (!fields.includes(`custom_${fieldName}`)) {
+                    el.style.display = 'none';
+                }
+            });
+        }
+        
+        // Handle UI element visibility
+        if (uiElements.includes('hide_report_issue')) hideElement('#report-issue-btn');
+        if (uiElements.includes('hide_contact')) hideElement('#contact');
+    }
+    
+    // Helper function to hide an element by selector
+    function hideElement(selector) {
+        const element = document.querySelector(selector);
+        if (element) element.style.display = 'none';
+    }
+    
+    // Check if user is logged in
+    function isLoggedIn() {
+        return @(User.Identity?.IsAuthenticated.ToString().ToLower() ?? "false");
+    }
+    
+    // Redirect to login page
+    function redirectToLogin() {
+        const currentUrl = window.location.href;
+        window.location.href = `/Account/Login?ReturnUrl=${encodeURIComponent(currentUrl)}`;
+    }
     
     // Navigation functionality
     function initNavigation() {

@@ -2605,11 +2605,14 @@ function loadScanPreview() {
     settings.fields?.forEach(field => params.append('field', field));
     settings.uiElements?.forEach(element => params.append('ui', element));
     if (settings.privateMode) params.append('private', 'true');
-    params.append('t', Date.now());
+    params.append('preview', 'true'); // Add this parameter to identify preview mode
+    params.append('t', Date.now()); // Cache buster
     
-    const previewUrl = `@Url.Action("ScanShow", new { id = Model.Id })?${params.toString()}`;
+    // Get the base URL from Razor, then append parameters
+    const baseUrl = `/Card/ScanShow/${cardId}`;
+    const previewUrl = `${baseUrl}?${params.toString()}`;
     
-    // Fixed to enable scrolling
+    // Fixed iframe with proper dimensions and scrolling enabled
     scanPreview.innerHTML = `
         <div class="w-full h-full bg-gray-50 flex justify-center">
             <iframe 
@@ -2617,7 +2620,7 @@ function loadScanPreview() {
                 style="width:390px; height:800px; border:1px solid #e5e7eb;" 
                 frameborder="0"
                 scrolling="yes"
-                class="overflow-auto">
+                class="bg-white shadow-lg rounded-lg overflow-auto">
             </iframe>
         </div>
     `;
@@ -2659,34 +2662,77 @@ function initFullscreenPreview() {
 function initScanSettings() {
     const saveScanSettingsBtn = document.getElementById('save-scan-settings');
     const refreshPreviewBtn = document.getElementById('refresh-preview');
-    const loadPreviewBtn = document.getElementById('load-preview-btn');
     const privateModeToggle = document.getElementById('private-mode-toggle');
+    const loadPreviewBtn = document.getElementById('load-preview-btn');
     
+    // Load current settings on init
     loadScanSettings();
     
+    // Handle load preview button click
     if (loadPreviewBtn) {
-        loadPreviewBtn.addEventListener('click', () => loadScanPreview());
-    }
-    
-    if (refreshPreviewBtn) {
-        refreshPreviewBtn.addEventListener('click', () => loadScanPreview());
-    }
-    
-    if (saveScanSettingsBtn) {
-        saveScanSettingsBtn.addEventListener('click', () => {
-            saveScanSettings();
+        loadPreviewBtn.addEventListener('click', function() {
             loadScanPreview();
         });
     }
     
+    if (saveScanSettingsBtn) {
+        saveScanSettingsBtn.addEventListener('click', function() {
+            saveScanSettings();
+            showToast('Settings saved', 'Scan settings have been saved successfully', 'success');
+        });
+    }
+    
+    if (refreshPreviewBtn) {
+        refreshPreviewBtn.addEventListener('click', function() {
+            loadScanPreview();
+        });
+    }
+    
+    // Handle fullscreen preview
+    initFullscreenPreview();
+    
+    // Toggle Private Mode visual feedback
     if (privateModeToggle) {
         privateModeToggle.addEventListener('change', function() {
             updatePrivateModeUI(this.checked);
         });
     }
+}
+
+// Make sure initFullscreenPreview is correctly defined
+function initFullscreenPreview() {
+    const fullscreenBtn = document.getElementById('fullscreen-preview');
+    const closeBtn = document.getElementById('close-fullscreen');
+    const container = document.getElementById('preview-container');
+    const controls = document.getElementById('preview-controls');
     
-    // Initialize fullscreen functionality
-    initFullscreenPreview();
+    if (fullscreenBtn && container) {
+        fullscreenBtn.addEventListener('click', () => {
+            container.classList.add('fixed', 'inset-0', 'z-50', 'bg-white');
+            controls.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+            
+            // Reload with fullscreen dimensions
+            const scanPreview = document.getElementById('scan-preview');
+            scanPreview.classList.remove('h-[800px]');
+            scanPreview.classList.add('h-screen');
+            loadScanPreview();
+        });
+    }
+    
+    if (closeBtn && container) {
+        closeBtn.addEventListener('click', () => {
+            container.classList.remove('fixed', 'inset-0', 'z-50', 'bg-white');
+            controls.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+            
+            // Reset dimensions
+            const scanPreview = document.getElementById('scan-preview');
+            scanPreview.classList.remove('h-screen');
+            scanPreview.classList.add('h-[800px]');
+            loadScanPreview();
+        });
+    }
 }
     </script>
 }
