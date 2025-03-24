@@ -976,7 +976,7 @@
             
  <!-- Preview Section -->
 <div class="mt-8 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
-    <div class="px-4 py-3 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
+    <div class="px-4 py-3 bg-gray-50 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <h4 class="font-medium text-gray-700 flex items-center">
             <i class="fas fa-mobile-alt text-primary-500 mr-2"></i> QR Scan View Preview
         </h4>
@@ -990,26 +990,57 @@
         </div>
     </div>
     
-    <!-- The key fix is here - proper sizing and scaling -->
+    <!-- Responsive container with mobile-friendly dimensions -->
     <div id="preview-container" class="relative border-t border-gray-100">
-        <div id="scan-preview" class="w-full h-[800px] flex items-center justify-center bg-gray-50">
-            <div class="text-center">
-                <div class="mb-4 text-primary-500"><i class="fas fa-qrcode text-6xl"></i></div>
-                <p class="text-gray-600 mb-4">Click to load the QR scan preview</p>
-                <button id="load-preview-btn" class="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors">
-                    <i class="fas fa-eye mr-2"></i> Load Preview
-                </button>
+        <!-- Mobile device frame for better visualization -->
+        <div class="max-w-sm mx-auto my-6 hidden sm:block">
+            <div class="relative border-8 border-gray-800 rounded-3xl overflow-hidden shadow-xl">
+                <!-- Device top notch -->
+                <div class="absolute top-0 inset-x-0 h-6 bg-gray-800 rounded-b-xl z-10"></div>
+                
+                <!-- Preview container with mobile aspect ratio -->
+                <div id="scan-preview" class="w-full h-[600px] sm:h-[640px] flex items-center justify-center bg-gray-50">
+                    <div class="text-center p-4">
+                        <div class="mb-4 text-primary-500"><i class="fas fa-qrcode text-6xl"></i></div>
+                        <p class="text-gray-600 mb-4">Preview how this card will appear when scanned</p>
+                        <button id="load-preview-btn" class="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors">
+                            <i class="fas fa-eye mr-2"></i> Load Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- Mobile device home button -->
+            <div class="w-12 h-12 mx-auto mt-3 rounded-full border-4 border-gray-800 flex items-center justify-center">
+                <div class="w-6 h-6 rounded-sm border-2 border-gray-800"></div>
             </div>
         </div>
+        
+        <!-- Simple container for small screens -->
+        <div class="block sm:hidden">
+            <div id="mobile-scan-preview" class="w-full h-[480px] flex items-center justify-center bg-gray-50 border border-gray-200">
+                <div class="text-center p-4">
+                    <div class="mb-4 text-primary-500"><i class="fas fa-qrcode text-4xl"></i></div>
+                    <p class="text-gray-600 mb-4 text-sm">Mobile preview</p>
+                    <button id="mobile-load-preview-btn" class="px-3 py-1.5 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors text-sm">
+                        <i class="fas fa-eye mr-1"></i> Load Mobile View
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Fullscreen controls -->
         <div class="absolute top-4 right-4 z-10 hidden" id="preview-controls">
             <button type="button" id="close-fullscreen" class="p-2 bg-white rounded-full shadow-lg text-gray-600 hover:text-gray-800">
                 <i class="fas fa-times"></i>
             </button>
         </div>
     </div>
-</div>
-
-        </div>
+    
+    <!-- Device orientation toggle -->
+    <div class="px-4 py-3 border-t border-gray-100 flex justify-center">
+        <button type="button" id="toggle-orientation" class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors text-sm">
+            <i class="fas fa-mobile-alt mr-1"></i> Toggle Orientation
+        </button>
     </div>
 </div>
 
@@ -2791,11 +2822,15 @@ function initFullscreenPreview() {
     });
 }
 
-function loadScanPreview() {
-    const scanPreview = document.getElementById('scan-preview');
-    if (!scanPreview) return;
+function loadScanPreview(isMobile = false) {
+    const previewElement = isMobile ? 
+        document.getElementById('mobile-scan-preview') : 
+        document.getElementById('scan-preview');
     
-    scanPreview.innerHTML = '<div class="flex justify-center items-center h-full"><i class="fas fa-spinner fa-spin text-2xl text-primary-500"></i></div>';
+    if (!previewElement) return;
+    
+    // Show loading state
+    previewElement.innerHTML = '<div class="flex justify-center items-center h-full"><i class="fas fa-spinner fa-spin text-2xl text-primary-500"></i></div>';
     
     // Get current settings
     const cardId = document.getElementById('card-id').value;
@@ -2811,11 +2846,212 @@ function loadScanPreview() {
     
     const privateMode = document.getElementById('private-mode-toggle')?.checked || false;
     
-    // Create preview URL with settings encoded
-    const previewUrl = `/Card/ScanShow/${cardId}?preview=true`;
+    // Create preview URL with query parameters
+    let previewUrl = `/Card/ScanShow/${cardId}?preview=true`;
     
-    // Create iframe to load preview
-    scanPreview.innerHTML = `<iframe src="${previewUrl}" class="w-full h-full border-0"></iframe>`;
+    // Add mobile parameter for mobile view
+    if (isMobile) {
+        previewUrl += '&mobile=true';
+    }
+    
+    // Create iframe with appropriate classes
+    const iframeClasses = isMobile ? 
+        'w-full h-full border-0 scale-[0.85] origin-top' : 
+        'w-full h-full border-0';
+    
+    previewElement.innerHTML = `<iframe src="${previewUrl}" class="${iframeClasses}" loading="lazy"></iframe>`;
+}
+
+function initFullscreenPreview() {
+    const fullscreenBtn = document.getElementById('fullscreen-preview');
+    const closeBtn = document.getElementById('close-fullscreen');
+    const container = document.getElementById('preview-container');
+    const controls = document.getElementById('preview-controls');
+    
+    if (fullscreenBtn && container) {
+        fullscreenBtn.addEventListener('click', () => {
+            container.classList.add('fixed', 'inset-0', 'z-50', 'bg-white');
+            controls.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+            
+            // Use device orientation if mobile
+            const isPortrait = window.innerHeight > window.innerWidth;
+            const isMobile = window.innerWidth < 640;
+            
+            // Update classes based on screen size and orientation
+            const scanPreview = document.getElementById('scan-preview');
+            const mobilePreview = document.getElementById('mobile-scan-preview');
+            
+            // Hide both containers initially
+            if (scanPreview) {
+                scanPreview.parentElement.parentElement.classList.add('hidden');
+                scanPreview.classList.remove('h-[600px]', 'h-[640px]');
+                scanPreview.classList.add('h-screen');
+            }
+            
+            if (mobilePreview) {
+                mobilePreview.parentElement.classList.add('hidden');
+                mobilePreview.classList.remove('h-[480px]');
+                mobilePreview.classList.add('h-screen');
+            }
+            
+            // Show appropriate container
+            if (isMobile) {
+                if (mobilePreview) {
+                    mobilePreview.parentElement.classList.remove('hidden');
+                    loadScanPreview(true);
+                }
+            } else {
+                if (scanPreview) {
+                    scanPreview.parentElement.parentElement.classList.remove('hidden');
+                    loadScanPreview(false);
+                }
+            }
+        });
+    }
+    
+    if (closeBtn && container) {
+        closeBtn.addEventListener('click', () => {
+            container.classList.remove('fixed', 'inset-0', 'z-50', 'bg-white');
+            controls.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+            
+            // Reset dimensions
+            const scanPreview = document.getElementById('scan-preview');
+            const mobilePreview = document.getElementById('mobile-scan-preview');
+            
+            if (scanPreview) {
+                scanPreview.parentElement.parentElement.classList.remove('hidden');
+                scanPreview.classList.remove('h-screen');
+                scanPreview.classList.add('h-[640px]');
+            }
+            
+            if (mobilePreview) {
+                mobilePreview.parentElement.classList.remove('hidden');
+                mobilePreview.classList.remove('h-screen');
+                mobilePreview.classList.add('h-[480px]');
+            }
+            
+            // Reload preview in normal mode
+            const isMobile = window.innerWidth < 640;
+            loadScanPreview(isMobile);
+        });
+    }
+}
+
+function initOrientationToggle() {
+    const toggleBtn = document.getElementById('toggle-orientation');
+    const container = document.getElementById('preview-container');
+    
+    if (toggleBtn && container) {
+        toggleBtn.addEventListener('click', () => {
+            // Get the mobile frame container
+            const mobileFrame = container.querySelector('.max-w-sm');
+            
+            if (mobileFrame) {
+                // Toggle between portrait and landscape modes
+                const isLandscape = mobileFrame.classList.contains('landscape-mode');
+                
+                if (isLandscape) {
+                    // Switch to portrait
+                    mobileFrame.classList.remove('landscape-mode');
+                    mobileFrame.classList.remove('max-w-md');
+                    mobileFrame.classList.add('max-w-sm');
+                    
+                    // Adjust the frame
+                    const frame = mobileFrame.querySelector('.border-8');
+                    frame.classList.remove('rotate-90', 'w-[640px]', 'h-[360px]');
+                    
+                    // Adjust preview
+                    const preview = document.getElementById('scan-preview');
+                    preview.classList.remove('h-[360px]');
+                    preview.classList.add('h-[640px]');
+                    
+                    // Update button icon
+                    toggleBtn.innerHTML = '<i class="fas fa-mobile-alt mr-1"></i> Switch to Landscape';
+                } else {
+                    // Switch to landscape
+                    mobileFrame.classList.add('landscape-mode');
+                    mobileFrame.classList.remove('max-w-sm');
+                    mobileFrame.classList.add('max-w-md');
+                    
+                    // Adjust the frame
+                    const frame = mobileFrame.querySelector('.border-8');
+                    frame.classList.add('rotate-90', 'w-[640px]', 'h-[360px]');
+                    
+                    // Adjust preview
+                    const preview = document.getElementById('scan-preview');
+                    preview.classList.remove('h-[640px]');
+                    preview.classList.add('h-[360px]');
+                    
+                    // Update button icon
+                    toggleBtn.innerHTML = '<i class="fas fa-mobile-alt transform rotate-90 mr-1"></i> Switch to Portrait';
+                }
+                
+                // Reload preview to adjust content
+                loadScanPreview(false);
+            }
+        });
+    }
+}
+
+// Update initScanSettings to include new initialization
+function initScanSettings() {
+    const saveScanSettingsBtn = document.getElementById('save-scan-settings');
+    const refreshPreviewBtn = document.getElementById('refresh-preview');
+    const loadPreviewBtn = document.getElementById('load-preview-btn');
+    const mobileLoadPreviewBtn = document.getElementById('mobile-load-preview-btn');
+    const privateModeToggle = document.getElementById('private-mode-toggle');
+    
+    // Load current settings on init
+    loadScanSettings();
+    
+    // Handle load preview button clicks
+    if (loadPreviewBtn) {
+        loadPreviewBtn.addEventListener('click', function() {
+            loadScanPreview(false);
+        });
+    }
+    
+    if (mobileLoadPreviewBtn) {
+        mobileLoadPreviewBtn.addEventListener('click', function() {
+            loadScanPreview(true);
+        });
+    }
+    
+    if (saveScanSettingsBtn) {
+        saveScanSettingsBtn.addEventListener('click', function() {
+            saveScanSettings();
+            showToast('Settings saved', 'Scan settings have been saved successfully', 'success');
+        });
+    }
+    
+    if (refreshPreviewBtn) {
+        refreshPreviewBtn.addEventListener('click', function() {
+            const isMobile = window.innerWidth < 640;
+            loadScanPreview(isMobile);
+        });
+    }
+    
+    // Initialize fullscreen and orientation toggle
+    initFullscreenPreview();
+    initOrientationToggle();
+    
+    // Toggle Private Mode visual feedback
+    if (privateModeToggle) {
+        privateModeToggle.addEventListener('change', function() {
+            updatePrivateModeUI(this.checked);
+        });
+    }
+    
+    // Handle resize events for responsive updates
+    window.addEventListener('resize', _.debounce(function() {
+        const isMobile = window.innerWidth < 640;
+        // Only reload if device type changes
+        if (isMobile !== (document.getElementById('mobile-scan-preview')?.style.display !== 'none')) {
+            loadScanPreview(isMobile);
+        }
+    }, 250));
 }
 
 

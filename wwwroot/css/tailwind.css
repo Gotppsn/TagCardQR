@@ -1086,6 +1086,11 @@ body {
   inset: 2rem;
 }
 
+.inset-x-0 {
+  left: 0px;
+  right: 0px;
+}
+
 .inset-y-0 {
   top: 0px;
   bottom: 0px;
@@ -1243,6 +1248,11 @@ body {
 .my-4 {
   margin-top: 1rem;
   margin-bottom: 1rem;
+}
+
+.my-6 {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .my-8 {
@@ -1478,6 +1488,22 @@ body {
   height: 2rem;
 }
 
+.h-\[360px\] {
+  height: 360px;
+}
+
+.h-\[480px\] {
+  height: 480px;
+}
+
+.h-\[600px\] {
+  height: 600px;
+}
+
+.h-\[640px\] {
+  height: 640px;
+}
+
 .h-\[800px\] {
   height: 800px;
 }
@@ -1600,6 +1626,10 @@ body {
 
 .w-8 {
   width: 2rem;
+}
+
+.w-\[640px\] {
+  width: 640px;
 }
 
 .w-full {
@@ -1750,6 +1780,12 @@ body {
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
+.scale-\[0\.85\] {
+  --tw-scale-x: 0.85;
+  --tw-scale-y: 0.85;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
 .transform {
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
@@ -1808,6 +1844,10 @@ body {
   -webkit-user-select: all;
      -moz-user-select: all;
           user-select: all;
+}
+
+.resize {
+  resize: both;
 }
 
 .list-inside {
@@ -2038,6 +2078,10 @@ body {
   border-radius: 1rem;
 }
 
+.rounded-3xl {
+  border-radius: 1.5rem;
+}
+
 .rounded-full {
   border-radius: 9999px;
 }
@@ -2204,6 +2248,11 @@ body {
 .border-gray-500 {
   --tw-border-opacity: 1;
   border-color: rgb(107 114 128 / var(--tw-border-opacity));
+}
+
+.border-gray-800 {
+  --tw-border-opacity: 1;
+  border-color: rgb(31 41 55 / var(--tw-border-opacity));
 }
 
 .border-green-200 {
@@ -3700,8 +3749,20 @@ body {
     margin-top: 0px;
   }
 
+  .sm\:block {
+    display: block;
+  }
+
   .sm\:flex {
     display: flex;
+  }
+
+  .sm\:hidden {
+    display: none;
+  }
+
+  .sm\:h-\[640px\] {
+    height: 640px;
   }
 
   .sm\:flex-1 {
