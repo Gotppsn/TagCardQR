@@ -2598,80 +2598,137 @@ function saveScanSettings() {
     // Get private mode setting
     const privateMode = document.getElementById('private-mode-toggle').checked;
     
-    // Create settings object
+    // Create settings object for API
     const settings = {
-        fields: selectedFields,
-        uiElements: uiElements,
+        cardId: parseInt(cardId),
+        fieldsJson: JSON.stringify(selectedFields),
+        uiElementsJson: JSON.stringify(uiElements),
         privateMode: privateMode
     };
     
-    // Save to localStorage
-    localStorage.setItem(`scan_settings_${cardId}`, JSON.stringify(settings));
+    // Get CSRF token
+    const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
     
-    // Generate QR code URL with settings
-    const baseUrl = `${window.location.origin}/Card/ScanShow/${cardId}`;
-    const params = new URLSearchParams();
-    settings.fields.forEach(field => params.append('field', field));
-    settings.uiElements.forEach(element => params.append('ui', element));
-    if (settings.privateMode) params.append('private', 'true');
-    
-    // Show success message
-    showToast('Settings saved', 'Your scan view settings have been saved', 'success');
-    
-    // Refresh preview
-    loadScanPreview();
+    // Save to database via API
+    fetch('/api/ScanSettings', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'RequestVerificationToken': token || ''
+        },
+        body: JSON.stringify(settings)
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(errorData => {
+                throw new Error(errorData.error || 'Server error');
+            }).catch(() => {
+                throw new Error(`HTTP error ${response.status}`);
+            });
+        }
+        return response.json();
+    })
+    .then(result => {
+        // Also save to localStorage as a backup
+        localStorage.setItem(`scan_settings_${cardId}`, JSON.stringify({
+            fields: selectedFields,
+            uiElements: uiElements,
+            privateMode: privateMode
+        }));
+        
+        showToast('Settings saved', 'Your scan view settings have been saved to the database', 'success');
+        loadScanPreview();
+    })
+    .catch(error => {
+        console.error('Error saving settings to database:', error);
+        
+        // Fall back to localStorage only
+        localStorage.setItem(`scan_settings_${cardId}`, JSON.stringify({
+            fields: selectedFields,
+            uiElements: uiElements,
+            privateMode: privateMode
+        }));
+        
+        showToast('Settings saved locally', 'Could not save to database, but settings were saved locally', 'warning');
+        loadScanPreview();
+    });
 }
 
-function loadScanPreview() {
-    const scanPreview = document.getElementById('scan-preview');
+function loadScanSettings() {
     const cardId = document.getElementById('card-id').value;
     
-    if (!scanPreview) return;
-    
-    scanPreview.innerHTML = `
-        <div class="flex items-center justify-center h-full w-full">
-            <div class="w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"></div>
-        </div>
-    `;
-    
-    // Get current settings
-    const savedSettingsStr = localStorage.getItem(`scan_settings_${cardId}`);
-    const settings = savedSettingsStr ? JSON.parse(savedSettingsStr) : { fields: [], uiElements: [], privateMode: false };
-    
-    // Build URL parameters
-    const params = new URLSearchParams();
-    
-    // Add selected fields
-    settings.fields?.forEach(field => params.append('field', field));
-    
-    // Add UI elements settings
-    settings.uiElements?.forEach(element => params.append('ui', element));
-    
-    // Add private mode setting
-    if (settings.privateMode) params.append('private', 'true');
-    
-    // Add preview marker
-    params.append('preview', 'true');
-    
-    // Add cache buster
-    params.append('t', Date.now());
-    
-    // Build the preview URL
-    const baseUrl = `/Card/ScanShow/${cardId}`;
-    const previewUrl = `${baseUrl}?${params.toString()}`;
-    
-    // Create iframe with proper dimensions
-    scanPreview.innerHTML = `
-        <div class="w-full h-full bg-gray-50 flex justify-center">
-            <iframe 
-                src="${previewUrl}" 
-                style="width:390px; height:800px; border:1px solid #e5e7eb;" 
-                frameborder="0"
-                scrolling="yes"
-                class="bg-white shadow-lg rounded-lg overflow-auto">
-            </iframe>
-        </div>
-    `;
+    // Try to load settings from database first
+    fetch(`/api/ScanSettings/card/${cardId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Settings not found in database');
+            }
+            return response.json();
+        })
+        .then(dbSettings => {
+            // Parse JSON arrays from the database
+            const fields = JSON.parse(dbSettings.fieldsJson || '[]');
+            const uiElements = JSON.parse(dbSettings.uiElementsJson || '[]');
+            const privateMode = dbSettings.privateMode || false;
+            
+            // Apply the settings to field checkboxes
+            document.querySelectorAll('input[name="scan_fields"]').forEach(checkbox => {
+                if (!checkbox.disabled) {
+                    checkbox.checked = fields.includes(checkbox.value);
+                }
+            });
+            
+            // Apply UI element visibility settings
+            document.querySelectorAll('input[name="scan_ui_elements"]').forEach(checkbox => {
+                checkbox.checked = uiElements.includes(checkbox.value);
+            });
+            
+            // Apply private mode setting
+            const privateModeToggle = document.getElementById('private-mode-toggle');
+            if (privateModeToggle) {
+                privateModeToggle.checked = privateMode;
+                updatePrivateModeUI(privateModeToggle.checked);
+            }
+            
+            // Update localStorage as a cache
+            localStorage.setItem(`scan_settings_${cardId}`, JSON.stringify({
+                fields: fields,
+                uiElements: uiElements,
+                privateMode: privateMode
+            }));
+        })
+        .catch(error => {
+            console.log('Error loading settings from database, falling back to localStorage:', error);
+            
+            // Fall back to localStorage
+            const savedSettings = localStorage.getItem(`scan_settings_${cardId}`);
+            
+            if (savedSettings) {
+                const settings = JSON.parse(savedSettings);
+                
+                // Apply the saved settings to field checkboxes
+                document.querySelectorAll('input[name="scan_fields"]').forEach(checkbox => {
+                    if (!checkbox.disabled) {
+                        checkbox.checked = settings.fields.includes(checkbox.value);
+                    }
+                });
+                
+                // Apply UI element visibility settings
+                document.querySelectorAll('input[name="scan_ui_elements"]').forEach(checkbox => {
+                    checkbox.checked = settings.uiElements.includes(checkbox.value);
+                });
+                
+                // Apply private mode setting
+                const privateModeToggle = document.getElementById('private-mode-toggle');
+                if (privateModeToggle) {
+                    privateModeToggle.checked = settings.privateMode || false;
+                    updatePrivateModeUI(privateModeToggle.checked);
+                }
+            } else {
+                // Default to public mode if no settings exist
+                updatePrivateModeUI(false);
+            }
+        });
 }
 
 function initFullscreenPreview() {

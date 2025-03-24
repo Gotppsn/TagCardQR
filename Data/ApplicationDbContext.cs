@@ -17,6 +17,7 @@ namespace CardTagManager.Data
         public DbSet<CardDocument> CardDocuments { get; set; }
         public DbSet<IssueReport> IssueReports { get; set; }
         public DbSet<Template> Templates { get; set; }
+        public DbSet<ScanSettings> ScanSettings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -117,6 +118,16 @@ namespace CardTagManager.Data
             modelBuilder.Entity<Template>()
                 .Property(t => t.UpdatedAt)
                 .HasDefaultValueSql("GETDATE()");
+                
+            //Scan setting entity configuration 
+            modelBuilder.Entity<ScanSettings>()
+                .HasKey(s => s.Id);
+
+            modelBuilder.Entity<ScanSettings>()
+                .HasOne(s => s.Card)
+                .WithMany()
+                .HasForeignKey(s => s.CardId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

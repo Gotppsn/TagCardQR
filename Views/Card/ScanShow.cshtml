@@ -608,13 +608,47 @@
     // Function to apply scan settings from URL parameters
 function applyScanSettings() {
     const urlParams = new URLSearchParams(window.location.search);
-    const fields = urlParams.getAll('field');
-    const uiElements = urlParams.getAll('ui');
-    const isPrivate = urlParams.has('private');
+    let fields = urlParams.getAll('field');
+    let uiElements = urlParams.getAll('ui');
+    let isPrivate = urlParams.has('private');
     const isPreview = urlParams.has('preview');
     
-    console.log("Applying scan settings:", { fields, uiElements, isPrivate, isPreview });
+    console.log("URL params:", { fields, uiElements, isPrivate, isPreview });
     
+    // If no settings in URL, try to load from database
+    if (fields.length === 0 && uiElements.length === 0 && !isPrivate) {
+        const cardId = @Model.Id;
+        
+        // Fetch settings from database
+        fetch(`/api/ScanSettings/public/card/${cardId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Settings not found in database');
+                }
+                return response.json();
+            })
+            .then(dbSettings => {
+                // Parse JSON arrays from the database
+                fields = JSON.parse(dbSettings.fields || '[]');
+                uiElements = JSON.parse(dbSettings.uiElements || '[]');
+                isPrivate = dbSettings.privateMode || false;
+                
+                console.log("DB settings loaded:", { fields, uiElements, isPrivate });
+                applySettingsToUI(fields, uiElements, isPrivate, isPreview);
+            })
+            .catch(error => {
+                console.log('Error loading settings from database:', error);
+                // If no settings in database, apply defaults
+                applySettingsToUI(fields, uiElements, isPrivate, isPreview);
+            });
+    } else {
+        // Apply settings directly from URL
+        applySettingsToUI(fields, uiElements, isPrivate, isPreview);
+    }
+}
+
+// Extract the settings application logic to a separate function
+function applySettingsToUI(fields, uiElements, isPrivate, isPreview) {
     // Add preview indicator if in preview mode
     if (isPreview) {
         const previewIndicator = document.createElement('div');
@@ -660,50 +694,16 @@ function applyScanSettings() {
         });
     }
     
-    // Handle UI element visibility - using very specific selectors
-    
-    // Hide Report Issue button
-    if (uiElements.includes('hide_report_issue')) {
-        hideElement('#report-issue-btn');
-        hideElement('a[href="#"][id="report-issue-btn"]');
-    }
-    
-    // Hide Contact Support section
+    // Handle UI element visibility
+    if (uiElements.includes('hide_report_issue')) hideElement('#report-issue-btn');
     if (uiElements.includes('hide_contact_support')) {
-        hideElement('.contact-support');
-        hideElement('#contact-support');
-        hideElement('div:has(> h3:contains("Contact Support"))');
+        hideElement('#contact');
         hideElement('a[href="#contact"]');
     }
-    
-    // Hide Product Details section
-    if (uiElements.includes('hide_product_details')) {
-        hideElement('#product-details');
-        hideElement('div:has(> h3:contains("Product Details"))');
-        hideElement('div:has(> h3:contains("Basic Information"))');
-        hideElement('div[id="product-details"]');
-    }
-    
-    // Hide Contact Support button
-    if (uiElements.includes('hide_contact')) {
-        hideElement('#contact');
-        hideElement('div[id="contact"]');
-        hideElement('div:has(> h3:contains("Contact Support"))');
-    }
-    
-    // Hide Maintenance History
-    if (uiElements.includes('hide_maintenance_history')) {
-        hideElement('#maintenance-history');
-        hideElement('div[id="maintenance-history"]');
-        hideElement('div:has(> h3:contains("Maintenance History"))');
-    }
-    
-    // Hide Maintenance Information
-    if (uiElements.includes('hide_maintenance_info')) {
-        hideElement('#maintenance');
-        hideElement('div[id="maintenance"]');
-        hideElement('div:has(> h3:contains("Maintenance Information"))');
-    }
+    if (uiElements.includes('hide_product_details')) hideElement('#product-details');
+    if (uiElements.includes('hide_contact')) hideElement('#contact-support');
+    if (uiElements.includes('hide_maintenance_history')) hideElement('#maintenance-history');
+    if (uiElements.includes('hide_maintenance_info')) hideElement('#maintenance');
 }
 
 // Helper function to hide an element by selector
