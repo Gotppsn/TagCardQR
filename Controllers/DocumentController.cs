@@ -182,10 +182,18 @@ namespace CardTagManager.Controllers
         }
 
 [HttpPost("UploadMultiple")]
-public async Task<ActionResult<CardDocument>> UploadMultiple([FromForm] int cardId, [FromForm] string title, [FromForm] string documentType, [FromForm] string description, [FromForm] List<IFormFile> documentFiles)
+public async Task<ActionResult<CardDocument>> UploadMultiple(
+    [FromForm] int cardId, 
+    [FromForm] string title, 
+    [FromForm] string documentType, 
+    [FromForm] string description, 
+    [FromForm] List<IFormFile> documentFiles)
 {
     try
     {
+        // Ensure description is never null
+        description = description ?? string.Empty;
+        
         if (documentFiles == null || !documentFiles.Any())
         {
             return BadRequest(new { error = "No files were uploaded." });
@@ -236,7 +244,7 @@ public async Task<ActionResult<CardDocument>> UploadMultiple([FromForm] int card
                     FileSize = file.Length,
                     FileType = file.ContentType,
                     UploadedAt = DateTime.Now,
-                    UploadedBy = User.Identity.Name
+                    UploadedBy = User.Identity?.Name ?? "unknown"
                 };
                 
                 _context.CardDocuments.Add(newDocument);
