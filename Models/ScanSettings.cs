@@ -1,4 +1,3 @@
-// Path: Models/ScanSettings.cs
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;

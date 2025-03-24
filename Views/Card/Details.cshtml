@@ -2581,24 +2581,90 @@ function loadScanSettings() {
 }
 
 function saveScanSettings() {
-    const cardId = document.getElementById('card-id').value;
-    
-    // Get all selected field values
+    // Get selected values
     const selectedFields = [];
     document.querySelectorAll('input[name="scan_fields"]:checked').forEach(checkbox => {
         selectedFields.push(checkbox.value);
     });
     
-    // Get UI elements visibility settings
+    const selectedUIElements = [];
+    document.querySelectorAll('input[name="scan_ui_elements"]:checked').forEach(checkbox => {
+        selectedUIElements.push(checkbox.value);
+    });
+    
+    const privateMode = document.getElementById('private-mode-toggle').checked;
+    const cardId = parseInt(document.getElementById('card-id').value);
+    
+    // Create payload explicitly matching what server expects
+    const payload = {
+        cardId: cardId,
+        fieldsJson: JSON.stringify(selectedFields),
+        uiElementsJson: JSON.stringify(selectedUIElements),
+        privateMode: privateMode
+    };
+    
+    console.log('Sending payload:', payload);
+    
+    // Get CSRF token
+    const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+    
+    // Send request
+    fetch('/api/ScanSettings', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'RequestVerificationToken': token || ''
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
+        if (!response.ok) {
+            return response.text().then(text => {
+                console.error('Error response:', text);
+                throw new Error(`HTTP error ${response.status}: ${text}`);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Success:', data);
+        showToast('Settings saved', 'Scan settings saved successfully', 'success');
+        
+        // Save to localStorage as backup
+        localStorage.setItem(`scan_settings_${cardId}`, JSON.stringify({
+            fields: selectedFields,
+            uiElements: selectedUIElements,
+            privateMode: privateMode
+        }));
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Error', `Failed to save settings: ${error.message}`, 'error');
+        
+        // Save to localStorage as fallback
+        localStorage.setItem(`scan_settings_${cardId}`, JSON.stringify({
+            fields: selectedFields,
+            uiElements: selectedUIElements,
+            privateMode: privateMode
+        }));
+    });
+}
+
+function debugLogSettings() {
+    const cardId = document.getElementById('card-id').value;
+    const selectedFields = [];
+    document.querySelectorAll('input[name="scan_fields"]:checked').forEach(checkbox => {
+        selectedFields.push(checkbox.value);
+    });
+    
     const uiElements = [];
     document.querySelectorAll('input[name="scan_ui_elements"]:checked').forEach(checkbox => {
         uiElements.push(checkbox.value);
     });
     
-    // Get private mode setting
-    const privateMode = document.getElementById('private-mode-toggle').checked;
+    const privateMode = document.getElementById('private-mode-toggle')?.checked || false;
     
-    // Create settings object for API
     const settings = {
         cardId: parseInt(cardId),
         fieldsJson: JSON.stringify(selectedFields),
@@ -2606,51 +2672,16 @@ function saveScanSettings() {
         privateMode: privateMode
     };
     
-    // Get CSRF token from meta tag
-    const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
-    
-    // Save to database via API
-    fetch('/api/ScanSettings', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'RequestVerificationToken': token || ''
-        },
-        body: JSON.stringify(settings)
-    })
-    .then(response => {
-        if (!response.ok) {
-            return response.json().then(errorData => {
-                throw new Error(errorData.error || 'Server error');
-            }).catch(() => {
-                throw new Error(`HTTP error ${response.status}`);
-            });
-        }
-        return response.json();
-    })
-    .then(result => {
-        // Also save to localStorage as a backup
-        localStorage.setItem(`scan_settings_${cardId}`, JSON.stringify({
-            fields: selectedFields,
-            uiElements: uiElements,
-            privateMode: privateMode
-        }));
-        
-        showToast('Settings saved', 'Scan view settings have been saved successfully', 'success');
-        loadScanPreview();
-    })
-    .catch(error => {
-        console.error('Error saving settings to database:', error);
-        
-        // Save to localStorage anyway as fallback
-        localStorage.setItem(`scan_settings_${cardId}`, JSON.stringify({
-            fields: selectedFields,
-            uiElements: uiElements,
-            privateMode: privateMode
-        }));
-        
-        showToast('Settings saved locally', 'Database save failed, but settings were saved locally', 'warning');
-        loadScanPreview();
+    console.log('Debug - Settings object:', settings);
+    console.log('Debug - JSON string:', JSON.stringify(settings));
+}
+
+// Add debug button
+const saveScanSettingsBtn = document.getElementById('save-scan-settings');
+if (saveScanSettingsBtn) {
+    saveScanSettingsBtn.addEventListener('click', function() {
+        debugLogSettings();
+        saveScanSettings();
     });
 }
 
@@ -2758,6 +2789,33 @@ function initFullscreenPreview() {
         scanPreview.classList.add('h-[800px]');
         loadScanPreview();
     });
+}
+
+function loadScanPreview() {
+    const scanPreview = document.getElementById('scan-preview');
+    if (!scanPreview) return;
+    
+    scanPreview.innerHTML = '<div class="flex justify-center items-center h-full"><i class="fas fa-spinner fa-spin text-2xl text-primary-500"></i></div>';
+    
+    // Get current settings
+    const cardId = document.getElementById('card-id').value;
+    const selectedFields = [];
+    document.querySelectorAll('input[name="scan_fields"]:checked').forEach(checkbox => {
+        selectedFields.push(checkbox.value);
+    });
+    
+    const uiElements = [];
+    document.querySelectorAll('input[name="scan_ui_elements"]:checked').forEach(checkbox => {
+        uiElements.push(checkbox.value);
+    });
+    
+    const privateMode = document.getElementById('private-mode-toggle')?.checked || false;
+    
+    // Create preview URL with settings encoded
+    const previewUrl = `/Card/ScanShow/${cardId}?preview=true`;
+    
+    // Create iframe to load preview
+    scanPreview.innerHTML = `<iframe src="${previewUrl}" class="w-full h-full border-0"></iframe>`;
 }
 
 
