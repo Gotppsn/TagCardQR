@@ -2606,7 +2606,7 @@ function saveScanSettings() {
         privateMode: privateMode
     };
     
-    // Get CSRF token
+    // Get CSRF token from meta tag
     const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
     
     // Save to database via API
@@ -2636,20 +2636,20 @@ function saveScanSettings() {
             privateMode: privateMode
         }));
         
-        showToast('Settings saved', 'Your scan view settings have been saved to the database', 'success');
+        showToast('Settings saved', 'Scan view settings have been saved successfully', 'success');
         loadScanPreview();
     })
     .catch(error => {
         console.error('Error saving settings to database:', error);
         
-        // Fall back to localStorage only
+        // Save to localStorage anyway as fallback
         localStorage.setItem(`scan_settings_${cardId}`, JSON.stringify({
             fields: selectedFields,
             uiElements: uiElements,
             privateMode: privateMode
         }));
         
-        showToast('Settings saved locally', 'Could not save to database, but settings were saved locally', 'warning');
+        showToast('Settings saved locally', 'Database save failed, but settings were saved locally', 'warning');
         loadScanPreview();
     });
 }
@@ -2706,19 +2706,17 @@ function loadScanSettings() {
             if (savedSettings) {
                 const settings = JSON.parse(savedSettings);
                 
-                // Apply the saved settings to field checkboxes
+                // Apply settings to checkboxes
                 document.querySelectorAll('input[name="scan_fields"]').forEach(checkbox => {
                     if (!checkbox.disabled) {
                         checkbox.checked = settings.fields.includes(checkbox.value);
                     }
                 });
                 
-                // Apply UI element visibility settings
                 document.querySelectorAll('input[name="scan_ui_elements"]').forEach(checkbox => {
                     checkbox.checked = settings.uiElements.includes(checkbox.value);
                 });
                 
-                // Apply private mode setting
                 const privateModeToggle = document.getElementById('private-mode-toggle');
                 if (privateModeToggle) {
                     privateModeToggle.checked = settings.privateMode || false;

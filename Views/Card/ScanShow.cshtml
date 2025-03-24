@@ -613,13 +613,11 @@ function applyScanSettings() {
     let isPrivate = urlParams.has('private');
     const isPreview = urlParams.has('preview');
     
-    console.log("URL params:", { fields, uiElements, isPrivate, isPreview });
-    
     // If no settings in URL, try to load from database
     if (fields.length === 0 && uiElements.length === 0 && !isPrivate) {
         const cardId = @Model.Id;
         
-        // Fetch settings from database
+        // Fetch settings from database via public endpoint
         fetch(`/api/ScanSettings/public/card/${cardId}`)
             .then(response => {
                 if (!response.ok) {

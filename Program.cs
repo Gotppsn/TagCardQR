@@ -34,6 +34,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => {
 builder.Services.AddScoped<QrCodeService>();
 builder.Services.AddSingleton<LdapAuthenticationService>(provider => 
     new LdapAuthenticationService(builder.Configuration["LdapSettings:Domain"] ?? "thaiparkerizing"));
+builder.Services.AddAntiforgery(options => 
+{
+    options.HeaderName = "RequestVerificationToken";
+});    
 
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<FileUploadService>();

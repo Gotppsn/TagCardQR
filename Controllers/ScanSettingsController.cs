@@ -43,45 +43,45 @@ namespace CardTagManager.Controllers
             }
         }
 
-        [HttpPost]
-        public async Task<IActionResult> SaveScanSettings(ScanSettings settings)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+[HttpPost]
+public async Task<IActionResult> SaveScanSettings(ScanSettings settings)
+{
+    if (!ModelState.IsValid)
+        return BadRequest(ModelState);
 
-            try
-            {
-                var existingSettings = await _context.ScanSettings
-                    .FirstOrDefaultAsync(s => s.CardId == settings.CardId);
-                
-                if (existingSettings != null)
-                {
-                    existingSettings.FieldsJson = settings.FieldsJson;
-                    existingSettings.UiElementsJson = settings.UiElementsJson;
-                    existingSettings.PrivateMode = settings.PrivateMode;
-                    existingSettings.UpdatedAt = DateTime.Now;
-                    
-                    _context.ScanSettings.Update(existingSettings);
-                }
-                else
-                {
-                    settings.CreatedAt = DateTime.Now;
-                    settings.UpdatedAt = DateTime.Now;
-                    settings.CreatedBy = User.Identity?.Name ?? string.Empty;
-                    
-                    _context.ScanSettings.Add(settings);
-                }
-                
-                await _context.SaveChangesAsync();
-                
-                return Ok(new { success = true });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error saving scan settings");
-                return StatusCode(500, new { error = "An error occurred while saving scan settings." });
-            }
+    try
+    {
+        var existingSettings = await _context.ScanSettings
+            .FirstOrDefaultAsync(s => s.CardId == settings.CardId);
+        
+        if (existingSettings != null)
+        {
+            existingSettings.FieldsJson = settings.FieldsJson;
+            existingSettings.UiElementsJson = settings.UiElementsJson;
+            existingSettings.PrivateMode = settings.PrivateMode;
+            existingSettings.UpdatedAt = DateTime.Now;
+            
+            _context.ScanSettings.Update(existingSettings);
         }
+        else
+        {
+            settings.CreatedAt = DateTime.Now;
+            settings.UpdatedAt = DateTime.Now;
+            settings.CreatedBy = User.Identity?.Name ?? string.Empty;
+            
+            _context.ScanSettings.Add(settings);
+        }
+        
+        await _context.SaveChangesAsync();
+        
+        return Ok(new { success = true });
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error saving scan settings");
+        return StatusCode(500, new { error = "An error occurred while saving scan settings." });
+    }
+}
 
         [AllowAnonymous]
         [HttpGet("public/card/{cardId}")]
