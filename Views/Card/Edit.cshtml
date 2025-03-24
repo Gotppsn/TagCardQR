@@ -991,6 +991,7 @@ initializeTemplateLibraryVisibility();
     try {
         console.log('Initializing components...');
         initializeCategories(); // Load categories first
+        initializeTemplates();
         initializeSteps();
         initializeColorPickers();
         initializeImageUpload();
@@ -3025,41 +3026,43 @@ function createTemplateCard(template) {
 
 // Initialize template tabs
 function initializeTemplateTabs() {
-    const templateTabs = document.querySelectorAll('.template-tab');
-    const templateCards = document.querySelectorAll('.template-card');
+    const templateTabsContainer = document.querySelector('.template-tabs');
     
-    templateTabs.forEach(tab => {
-        tab.addEventListener('click', function() {
-            // Remove active class from all tabs
-            templateTabs.forEach(t => {
-                t.classList.remove('active', 'border-primary-500', 'text-primary-600');
-                t.classList.add('border-transparent', 'text-gray-500');
-            });
-            
-            // Add active class to current tab
-            this.classList.add('active', 'border-primary-500', 'text-primary-600');
-            this.classList.remove('border-transparent', 'text-gray-500');
-            
-            // Show/hide cards based on category
-            const category = this.getAttribute('data-category');
-            
-            templateCards.forEach(card => {
-                if (category === 'all' || card.getAttribute('data-category') === category) {
-                    card.style.display = '';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
+    // Use event delegation for template tabs
+    templateTabsContainer.addEventListener('click', function(e) {
+        const clickedTab = e.target.closest('.template-tab');
+        if (!clickedTab) return; // Not a tab click
+        
+        // Remove active class from all tabs
+        const allTabs = this.querySelectorAll('.template-tab');
+        allTabs.forEach(t => {
+            t.classList.remove('active', 'border-primary-500', 'text-primary-600');
+            t.classList.add('border-transparent', 'text-gray-500');
+        });
+        
+        // Add active class to clicked tab
+        clickedTab.classList.add('active', 'border-primary-500', 'text-primary-600');
+        clickedTab.classList.remove('border-transparent', 'text-gray-500');
+        
+        // Show/hide cards based on category
+        const category = clickedTab.getAttribute('data-category');
+        
+        document.querySelectorAll('.template-card').forEach(card => {
+            if (category === 'all' || card.getAttribute('data-category') === category) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
         });
     });
     
-    // Template search functionality
+    // Template search functionality with direct DOM querying
     const templateSearch = document.getElementById('template-search');
     if (templateSearch) {
         templateSearch.addEventListener('input', function() {
             const searchTerm = this.value.toLowerCase();
             
-            templateCards.forEach(card => {
+            document.querySelectorAll('.template-card').forEach(card => {
                 const cardText = card.textContent.toLowerCase();
                 
                 if (cardText.includes(searchTerm)) {
