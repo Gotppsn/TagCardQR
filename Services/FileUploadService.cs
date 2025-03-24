@@ -2,10 +2,11 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using System.Web;
+using System.Collections.Generic;
 using CardTagManager.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using RestSharp;
 
@@ -14,10 +15,12 @@ namespace CardTagManager.Services
     public class FileUploadService
     {
         private readonly IConfiguration _configuration;
+        private readonly ILogger<FileUploadService> _logger;
 
-        public FileUploadService(IConfiguration configuration)
+        public FileUploadService(IConfiguration configuration, ILogger<FileUploadService> logger)
         {
             _configuration = configuration;
+            _logger = logger;
         }
 
         private string GetApiUrl()
@@ -57,24 +60,27 @@ namespace CardTagManager.Services
                 // Create RestClient with options
                 var options = new RestClientOptions(GetApiUrl())
                 {
-                    MaxTimeout = -1,
+                    MaxTimeout = 300000, // 5 minutes timeout
                 };
                 
                 var client = new RestClient(options);
                 var request = new RestRequest("api/Service_File/Upload", Method.Post);
                 
+                // Set headers
                 request.AddHeader("Token", tokenKey);
                 request.AlwaysMultipartFormData = true;
-                request.AddFile("fileUpload", fileBytes, HttpUtility.UrlEncode(file.FileName), file.ContentType);
+                
+                // Add file without URL encoding the filename
+                request.AddFile("fileUpload", fileBytes, file.FileName, file.ContentType);
                 request.AddParameter("FolderPath", folderPath);
                 
-                // Log request information
-                Console.WriteLine($"Uploading file to: {GetApiUrl()}api/Service_File/Upload");
-                Console.WriteLine($"File: {file.FileName}, Size: {file.Length}, Type: {file.ContentType}");
+                _logger.LogInformation($"Uploading file to: {GetApiUrl()}api/Service_File/Upload");
+                _logger.LogInformation($"File: {file.FileName}, Size: {file.Length}, Type: {file.ContentType}");
                 
                 var response = await client.ExecuteAsync(request);
-                response.ThrowIfError();
-                // Ensure the response was successful
+                
+                _logger.LogInformation($"Response status: {response.StatusCode}, Content: {response.Content}");
+                
                 if (response.IsSuccessful)
                 {
                     fileResponse = JsonConvert.DeserializeObject<FileResponse>(response.Content);
@@ -82,22 +88,22 @@ namespace CardTagManager.Services
                     
                     if (!fileResponse.IsSuccess)
                     {
-                        Console.WriteLine($"API returned success=false: {fileResponse.ErrorMessage}");
+                        _logger.LogWarning($"API returned success=false: {fileResponse.ErrorMessage}");
                         throw new Exception(fileResponse.ErrorMessage);
                     }
                     
-                    Console.WriteLine($"File uploaded successfully: {fileResponse.FileUrl}");
+                    _logger.LogInformation($"File uploaded successfully: {fileResponse.FileUrl}");
                 }
                 else
                 {
-                    Console.WriteLine($"API error: {response.ErrorMessage}, StatusCode: {response.StatusCode}");
+                    _logger.LogError($"API error: {response.ErrorMessage}, StatusCode: {response.StatusCode}, Response: {response.Content}");
                     fileResponse.IsSuccess = false;
                     fileResponse.ErrorMessage = $"API Error: {response.ErrorMessage}";
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Exception during upload: {ex.Message}");
+                _logger.LogError(ex, $"Exception during upload: {ex.Message}");
                 fileResponse.IsSuccess = false;
                 fileResponse.ErrorMessage = $"Upload error: {ex.Message}";
             }
@@ -107,40 +113,54 @@ namespace CardTagManager.Services
 
         public async Task<FileResponse> DeleteFile(string fileUrl)
         {
-            var res = new FileResponse();
+            var fileResponse = new FileResponse();
             var tokenKey = GetToken();
-            fileUrl = HttpUtility.UrlEncode(fileUrl);
 
-            // Create RestClient with the API URL
-            var client = new RestClient(GetApiUrl());
-
-            // Create a POST request
-            var request = new RestRequest("api/Service_File/Delete_File", Method.Post);
-
-            // Add headers
-            request.AddHeader("Token", tokenKey);
-            request.AddHeader("FilePath", fileUrl);
-
-            // Execute the request asynchronously
-            var response = await client.ExecuteAsync(request);
-            
-            // Ensure the response was successful
-            if (response.IsSuccessful)
+            try
             {
-                // Deserialize the response content
-                res = JsonConvert.DeserializeObject<FileResponse>(response.Content);
-                if (!res.IsSuccess)
+                // Create RestClient with the API URL
+                var client = new RestClient(GetApiUrl());
+
+                // Create a POST request
+                var request = new RestRequest("api/Service_File/Delete_File", Method.Post);
+
+                // Add headers
+                request.AddHeader("Token", tokenKey);
+                request.AddHeader("FilePath", fileUrl);
+
+                _logger.LogInformation($"Deleting file: {fileUrl}");
+
+                // Execute the request asynchronously
+                var response = await client.ExecuteAsync(request);
+                
+                _logger.LogInformation($"Delete response status: {response.StatusCode}, Content: {response.Content}");
+                
+                // Ensure the response was successful
+                if (response.IsSuccessful)
                 {
-                    throw new Exception($"Error deleting file: {res.ErrorMessage}");
+                    // Deserialize the response content
+                    fileResponse = JsonConvert.DeserializeObject<FileResponse>(response.Content);
+                    if (!fileResponse.IsSuccess)
+                    {
+                        _logger.LogWarning($"API returned success=false for delete: {fileResponse.ErrorMessage}");
+                        throw new Exception($"Error deleting file: {fileResponse.ErrorMessage}");
+                    }
+                }
+                else
+                {
+                    _logger.LogError($"API error during delete: {response.ErrorMessage}, StatusCode: {response.StatusCode}");
+                    fileResponse.IsSuccess = false;
+                    fileResponse.ErrorMessage = $"API Error: {response.ErrorMessage}";
                 }
             }
-            else
+            catch (Exception ex)
             {
-                res.IsSuccess = false;
-                res.ErrorMessage = $"API Error: {response.ErrorMessage}";
+                _logger.LogError(ex, $"Exception during file deletion: {ex.Message}");
+                fileResponse.IsSuccess = false;
+                fileResponse.ErrorMessage = $"Delete error: {ex.Message}";
             }
 
-            return res;
+            return fileResponse;
         }
 
         public async Task<List<FileResponse>> UploadFiles(IEnumerable<IFormFile> files, string folderPath = "CardDocuments")

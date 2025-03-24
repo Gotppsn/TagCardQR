@@ -1410,55 +1410,64 @@
             });
         }
         
-        function handleFilesSelection(files) {
-            const filesPreview = document.getElementById('files-preview');
-            const documentFileInput = document.getElementById('document-file');
-            
-            if (!files || files.length === 0) return;
-            
-            // Clear existing previews
-            filesPreview.innerHTML = '';
-            
-            // Create a preview for each file
-            Array.from(files).forEach((file, index) => {
-                const previewEl = document.createElement('div');
-                previewEl.className = 'flex items-center justify-between bg-gray-50 p-2 rounded-md';
-                previewEl.setAttribute('data-index', index);
-                
-                // Set appropriate icon based on file type
-                let iconClass = 'fa-file text-gray-500';
-                
-                if (file.type.startsWith('image/')) {
-                    iconClass = 'fa-file-image text-blue-500';
-                } else if (file.type.includes('pdf')) {
-                    iconClass = 'fa-file-pdf text-red-500';
-                } else if (file.type.includes('excel') || file.type.includes('spreadsheet') || file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
-                    iconClass = 'fa-file-excel text-green-500';
-                } else if (file.type.includes('word') || file.type.includes('document') || file.name.endsWith('.docx') || file.name.endsWith('.doc')) {
-                    iconClass = 'fa-file-word text-blue-500';
-                }
-                
-                previewEl.innerHTML = `
-                    <div class="flex items-center">
-                        <i class="fas ${iconClass} mr-2"></i>
-                        <span class="text-sm truncate">${file.name}</span>
-                        <span class="text-xs text-gray-500 ml-2">${formatFileSize(file.size)}</span>
-                    </div>
-                    <button type="button" class="text-red-500 hover:text-red-700 remove-file" data-index="${index}">
-                        <i class="fas fa-times"></i>
-                    </button>
-                `;
-                
-                filesPreview.appendChild(previewEl);
-            });
-            
-            // Update UI to show the number of selected files
-            const fileCount = files.length;
-            const browseBtn = document.getElementById('browse-document');
-            if (browseBtn) {
-                browseBtn.textContent = fileCount === 1 ? '1 File Selected' : `${fileCount} Files Selected`;
-            }
+ function handleFilesSelection(files) {
+    const filesPreview = document.getElementById('files-preview');
+    const documentFileInput = document.getElementById('document-file');
+    const documentTitleInput = document.getElementById('document-title');
+    
+    if (!files || files.length === 0) return;
+    
+    // Clear existing previews
+    filesPreview.innerHTML = '';
+    
+    // Auto-fill the title field with the first file name if field is empty
+    if (documentTitleInput && documentTitleInput.value.trim() === '' && files.length > 0) {
+        // Extract filename without extension for the title
+        const fileName = files[0].name;
+        const fileNameWithoutExt = fileName.split('.').slice(0, -1).join('.');
+        documentTitleInput.value = fileNameWithoutExt || fileName;
+    }
+    
+    // Create a preview for each file
+    Array.from(files).forEach((file, index) => {
+        const previewEl = document.createElement('div');
+        previewEl.className = 'flex items-center justify-between bg-gray-50 p-2 rounded-md';
+        previewEl.setAttribute('data-index', index);
+        
+        // Set appropriate icon based on file type
+        let iconClass = 'fa-file text-gray-500';
+        
+        if (file.type.startsWith('image/')) {
+            iconClass = 'fa-file-image text-blue-500';
+        } else if (file.type.includes('pdf')) {
+            iconClass = 'fa-file-pdf text-red-500';
+        } else if (file.type.includes('excel') || file.type.includes('spreadsheet') || file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+            iconClass = 'fa-file-excel text-green-500';
+        } else if (file.type.includes('word') || file.type.includes('document') || file.name.endsWith('.docx') || file.name.endsWith('.doc')) {
+            iconClass = 'fa-file-word text-blue-500';
         }
+        
+        previewEl.innerHTML = `
+            <div class="flex items-center">
+                <i class="fas ${iconClass} mr-2"></i>
+                <span class="text-sm truncate">${file.name}</span>
+                <span class="text-xs text-gray-500 ml-2">${formatFileSize(file.size)}</span>
+            </div>
+            <button type="button" class="text-red-500 hover:text-red-700 remove-file" data-index="${index}">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        
+        filesPreview.appendChild(previewEl);
+    });
+    
+    // Update UI to show the number of selected files
+    const fileCount = files.length;
+    const browseBtn = document.getElementById('browse-document');
+    if (browseBtn) {
+        browseBtn.textContent = fileCount === 1 ? '1 File Selected' : `${fileCount} Files Selected`;
+    }
+}
         
         function removeFileFromSelection(index) {
             const documentFileInput = document.getElementById('document-file');

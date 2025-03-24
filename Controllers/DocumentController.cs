@@ -181,7 +181,7 @@ namespace CardTagManager.Controllers
             }
         }
 
-        [HttpPost("UploadMultiple")]
+[HttpPost("UploadMultiple")]
 public async Task<ActionResult<CardDocument>> UploadMultiple([FromForm] int cardId, [FromForm] string title, [FromForm] string documentType, [FromForm] string description, [FromForm] List<IFormFile> documentFiles)
 {
     try
