@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using CardTagManager.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -33,143 +34,152 @@ namespace CardTagManager.Services
             return _configuration["FileUpload:Token"] ?? "3e17dfc9-6225-4183-a610-cef1129c17bb";
         }
 
-public async Task<FileResponse> UploadFile(IFormFile file, string folderPath = "CardImages")
-{
-    if (file == null || file.Length == 0)
-    {
-        return new FileResponse
+        public async Task<FileResponse> UploadFile(IFormFile file, string folderPath = "CardImages")
         {
-            IsSuccess = false,
-            ErrorMessage = "No file was uploaded."
-        };
-    }
+            if (file == null || file.Length == 0)
+            {
+                return new FileResponse
+                {
+                    IsSuccess = false,
+                    ErrorMessage = "No file was uploaded."
+                };
+            }
 
-    var fileResponse = new FileResponse();
-    var tokenKey = GetToken();
+            var fileResponse = new FileResponse();
+            var tokenKey = GetToken();
 
-    try
-    {
-        // Read file bytes
-        byte[] fileBytes;
-        using (var ms = new MemoryStream())
-        {
-            await file.CopyToAsync(ms);
-            fileBytes = ms.ToArray();
+            try
+            {
+                // Read file bytes
+                byte[] fileBytes;
+                using (var ms = new MemoryStream())
+                {
+                    await file.CopyToAsync(ms);
+                    fileBytes = ms.ToArray();
+                }
+
+                // Sanitize filename to remove illegal characters
+                string originalFilename = file.FileName;
+                string safeFilename = SanitizeFileName(originalFilename);
+                
+                _logger.LogInformation($"Original filename: {originalFilename}, Sanitized filename: {safeFilename}");
+
+                // Create RestClient with options
+                var options = new RestClientOptions(GetApiUrl())
+                {
+                    MaxTimeout = 300000, // 5 minutes timeout
+                };
+                
+                var client = new RestClient(options);
+                var request = new RestRequest("api/Service_File/Upload", Method.Post);
+                
+                // Set headers
+                request.AddHeader("Token", tokenKey);
+                request.AlwaysMultipartFormData = true;
+                
+                // Add file with sanitized filename
+                request.AddFile("fileUpload", fileBytes, safeFilename, file.ContentType);
+                request.AddParameter("FolderPath", folderPath);
+                
+                _logger.LogInformation($"Uploading file to: {GetApiUrl()}api/Service_File/Upload");
+                _logger.LogInformation($"File: {safeFilename}, Size: {file.Length}, Type: {file.ContentType}");
+                
+                var response = await client.ExecuteAsync(request);
+                
+                _logger.LogInformation($"Response status: {response.StatusCode}, Content: {response.Content}");
+                
+                if (response.IsSuccessful)
+                {
+                    fileResponse = JsonConvert.DeserializeObject<FileResponse>(response.Content);
+                    fileResponse.FileBytes = fileBytes;
+                    
+                    if (!fileResponse.IsSuccess)
+                    {
+                        _logger.LogWarning($"API returned success=false: {fileResponse.ErrorMessage}");
+                        throw new Exception(fileResponse.ErrorMessage);
+                    }
+                    
+                    _logger.LogInformation($"File uploaded successfully: {fileResponse.FileUrl}");
+                }
+                else
+                {
+                    _logger.LogError($"API error: {response.ErrorMessage}, StatusCode: {response.StatusCode}, Response: {response.Content}");
+                    fileResponse.IsSuccess = false;
+                    fileResponse.ErrorMessage = $"API Error: {response.ErrorMessage ?? response.Content}";
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Exception during upload: {ex.Message}");
+                fileResponse.IsSuccess = false;
+                fileResponse.ErrorMessage = $"Upload error: {ex.Message}";
+            }
+
+            return fileResponse;
         }
 
-        // Sanitize filename to remove illegal characters
-        string originalFilename = file.FileName;
-        string safeFilename = SanitizeFileName(originalFilename);
-        
-        _logger.LogInformation($"Original filename: {originalFilename}, Sanitized filename: {safeFilename}");
+        // Improved method to sanitize filenames - handles international characters better
+        private string SanitizeFileName(string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName))
+                return "file";
 
-        // Create RestClient with options
-        var options = new RestClientOptions(GetApiUrl())
-        {
-            MaxTimeout = 300000, // 5 minutes timeout
-        };
-        
-        var client = new RestClient(options);
-        var request = new RestRequest("api/Service_File/Upload", Method.Post);
-        
-        // Set headers
-        request.AddHeader("Token", tokenKey);
-        request.AlwaysMultipartFormData = true;
-        
-        // Add file with sanitized filename
-        request.AddFile("fileUpload", fileBytes, safeFilename, file.ContentType);
-        request.AddParameter("FolderPath", folderPath);
-        
-        _logger.LogInformation($"Uploading file to: {GetApiUrl()}api/Service_File/Upload");
-        _logger.LogInformation($"File: {safeFilename}, Size: {file.Length}, Type: {file.ContentType}");
-        
-        var response = await client.ExecuteAsync(request);
-        
-        _logger.LogInformation($"Response status: {response.StatusCode}, Content: {response.Content}");
-        
-        if (response.IsSuccessful)
-        {
-            fileResponse = JsonConvert.DeserializeObject<FileResponse>(response.Content);
-            fileResponse.FileBytes = fileBytes;
+            // Get file extension
+            string extension = Path.GetExtension(fileName);
             
-            if (!fileResponse.IsSuccess)
+            // Get filename without extension for sanitizing
+            string fileNameWithoutExt = Path.GetFileNameWithoutExtension(fileName);
+            
+            // Replace non-ASCII characters with empty string
+            fileNameWithoutExt = Regex.Replace(fileNameWithoutExt, @"[^\x00-\x7F]", "");
+            
+            // Replace invalid characters with underscores
+            char[] invalidChars = Path.GetInvalidFileNameChars();
+            foreach (char c in invalidChars)
             {
-                _logger.LogWarning($"API returned success=false: {fileResponse.ErrorMessage}");
-                throw new Exception(fileResponse.ErrorMessage);
+                fileNameWithoutExt = fileNameWithoutExt.Replace(c, '_');
             }
             
-            _logger.LogInformation($"File uploaded successfully: {fileResponse.FileUrl}");
+            // Replace other potentially problematic characters
+            fileNameWithoutExt = fileNameWithoutExt
+                .Replace(" ", "_")
+                .Replace(",", "_")
+                .Replace(";", "_")
+                .Replace(":", "_")
+                .Replace("(", "_")
+                .Replace(")", "_")
+                .Replace("[", "_")
+                .Replace("]", "_")
+                .Replace("{", "_")
+                .Replace("}", "_")
+                .Replace("+", "_")
+                .Replace("=", "_")
+                .Replace("*", "_")
+                .Replace("&", "_")
+                .Replace("%", "_")
+                .Replace("$", "_")
+                .Replace("#", "_")
+                .Replace("@", "_")
+                .Replace("!", "_")
+                .Replace("?", "_");
+
+            // Ensure the filename isn't empty after sanitization
+            if (string.IsNullOrEmpty(fileNameWithoutExt) || fileNameWithoutExt.Trim() == string.Empty)
+            {
+                fileNameWithoutExt = "file_" + DateTime.Now.Ticks;
+            }
+            
+            // Create safe filename by combining sanitized name and original extension
+            string safeName = fileNameWithoutExt + extension;
+            
+            // If the filename is really long, truncate it
+            if (safeName.Length > 100)
+            {
+                safeName = fileNameWithoutExt.Substring(0, 90) + extension;
+            }
+            
+            return safeName;
         }
-        else
-        {
-            _logger.LogError($"API error: {response.ErrorMessage}, StatusCode: {response.StatusCode}, Response: {response.Content}");
-            fileResponse.IsSuccess = false;
-            fileResponse.ErrorMessage = $"API Error: {response.ErrorMessage ?? response.Content}";
-        }
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, $"Exception during upload: {ex.Message}");
-        fileResponse.IsSuccess = false;
-        fileResponse.ErrorMessage = $"Upload error: {ex.Message}";
-    }
-
-    return fileResponse;
-}
-
-// Add this new method to sanitize filenames
-private string SanitizeFileName(string fileName)
-{
-    if (string.IsNullOrEmpty(fileName))
-        return "file";
-
-    // Replace problematic characters with underscores
-    char[] invalidChars = Path.GetInvalidFileNameChars();
-    string safeName = string.Join("_", fileName.Split(invalidChars, StringSplitOptions.RemoveEmptyEntries));
-    
-    // Also replace other potentially problematic characters
-    safeName = safeName
-        .Replace(" ", "_")
-        .Replace(".", "_")
-        .Replace(",", "_")
-        .Replace(";", "_")
-        .Replace(":", "_")
-        .Replace("(", "_")
-        .Replace(")", "_")
-        .Replace("[", "_")
-        .Replace("]", "_")
-        .Replace("{", "_")
-        .Replace("}", "_")
-        .Replace("+", "_")
-        .Replace("=", "_")
-        .Replace("*", "_")
-        .Replace("&", "_")
-        .Replace("%", "_")
-        .Replace("$", "_")
-        .Replace("#", "_")
-        .Replace("@", "_")
-        .Replace("!", "_")
-        .Replace("?", "_");
-
-    // Ensure the filename includes the original extension
-    string originalExtension = Path.GetExtension(fileName);
-    if (!string.IsNullOrEmpty(originalExtension))
-    {
-        safeName = safeName + originalExtension;
-    }
-    
-    // If the filename is now empty, provide a default
-    if (string.IsNullOrEmpty(safeName))
-    {
-        safeName = "file_" + DateTime.Now.Ticks;
-        if (!string.IsNullOrEmpty(originalExtension))
-        {
-            safeName += originalExtension;
-        }
-    }
-    
-    return safeName;
-}
 
         public async Task<FileResponse> DeleteFile(string fileUrl)
         {
