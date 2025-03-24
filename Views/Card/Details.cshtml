@@ -647,73 +647,64 @@
                     </div>
                 </div>
                 
-                <div class="mt-8 border-t border-gray-100 pt-6 hidden" id="document-upload-section">
-                    <h4 class="text-sm font-medium text-gray-700 mb-4">Upload New Document</h4>
-                    
-                    <form id="document-upload-form" method="post" enctype="multipart/form-data" class="space-y-4">
-                        <input type="hidden" name="CardId" value="@Model.Id" />
-                        
-                        <div>
-                            <label for="document-title" class="block text-sm font-medium text-gray-700 mb-1">Document Title</label>
-                            <input type="text" id="document-title" name="Title" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500" placeholder="e.g. Product Manual" required />
-                        </div>
-                        
-                        <div>
-                            <label for="document-type" class="block text-sm font-medium text-gray-700 mb-1">Document Type</label>
-                            <select id="document-type" name="DocumentType" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500">
-                                <option value="Manual">Manual</option>
-                                <option value="Datasheet">Datasheet</option>
-                                <option value="Certificate">Certificate</option>
-                                <option value="Invoice">Invoice</option>
-                                <option value="Maintenance">Maintenance Record</option>
-                                <option value="Other">Other</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label for="document-description" class="block text-sm font-medium text-gray-700 mb-1">Description (Optional)</label>
-                            <textarea id="document-description" name="Description" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500" placeholder="Brief description of this document"></textarea>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Document File</label>
-                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center" id="document-drop-area">
-                                <div class="flex flex-col items-center justify-center">
-                                    <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-3"></i>
-                                    <p class="text-sm text-gray-500 mb-2">Drag and drop a file here or click to browse</p>
-                                    <p class="text-xs text-gray-400 mb-4">PDF, Excel, Word, or Image files up to 10MB</p>
-                                    <input type="file" id="document-file" name="DocumentFile" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg" required />
-                                    <button type="button" id="browse-document" class="px-4 py-2 bg-primary-50 text-primary-600 rounded-md text-sm font-medium hover:bg-primary-100 transition-colors">
-                                        Browse Files
-                                    </button>
-                                </div>
-                            </div>
-                            <div id="file-preview" class="mt-2 hidden">
-                                <div class="flex items-center justify-between bg-gray-50 p-2 rounded-md">
-                                    <div class="flex items-center">
-                                        <i id="file-icon" class="fas fa-file text-primary-500 mr-2"></i>
-                                        <span id="file-name" class="text-sm truncate"></span>
-                                    </div>
-                                    <button type="button" id="remove-file" class="text-red-500 hover:text-red-700">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="flex justify-end space-x-3 mt-6">
-                            <button type="button" id="cancel-upload" class="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors">
-                                Cancel
-                            </button>
-                            <button type="submit" id="upload-document" class="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700 transition-colors flex items-center">
-                                <span id="upload-text">Upload Document</span>
-                                <span id="upload-spinner" class="ml-2 hidden">
-                                    <i class="fas fa-spinner fa-spin"></i>
-                                </span>
-                            </button>
-                        </div>
-                    </form>
+                <!-- Document Upload Section -->
+<div class="mt-8 border-t border-gray-100 pt-6 hidden" id="document-upload-section">
+    <h4 class="text-sm font-medium text-gray-700 mb-4">Upload New Documents</h4>
+    
+    <form id="document-upload-form" method="post" enctype="multipart/form-data" class="space-y-4">
+        <input type="hidden" name="CardId" value="@Model.Id" />
+        
+        <div>
+            <label for="document-title" class="block text-sm font-medium text-gray-700 mb-1">Document Title</label>
+            <input type="text" id="document-title" name="Title" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500" placeholder="e.g. Product Manual" required />
+        </div>
+        
+        <div>
+            <label for="document-type" class="block text-sm font-medium text-gray-700 mb-1">Document Type</label>
+            <select id="document-type" name="DocumentType" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500">
+                <option value="Manual">Manual</option>
+                <option value="Datasheet">Datasheet</option>
+                <option value="Certificate">Certificate</option>
+                <option value="Invoice">Invoice</option>
+                <option value="Maintenance">Maintenance Record</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+        
+        <div>
+            <label for="document-description" class="block text-sm font-medium text-gray-700 mb-1">Description (Optional)</label>
+            <textarea id="document-description" name="Description" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500" placeholder="Brief description of these documents"></textarea>
+        </div>
+        
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Document Files</label>
+            <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center" id="document-drop-area">
+                <div class="flex flex-col items-center justify-center">
+                    <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-3"></i>
+                    <p class="text-sm text-gray-500 mb-2">Drag and drop files here or click to browse</p>
+                    <p class="text-xs text-gray-400 mb-4">PDF, Excel, Word, or Image files up to 10MB</p>
+                    <input type="file" id="document-file" name="DocumentFiles" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg" multiple required />
+                    <button type="button" id="browse-document" class="px-4 py-2 bg-primary-50 text-primary-600 rounded-md text-sm font-medium hover:bg-primary-100 transition-colors">
+                        Browse Files
+                    </button>
                 </div>
+            </div>
+            <div id="files-preview" class="mt-2 space-y-2"></div>
+        </div>
+        
+        <div class="flex justify-end space-x-3 mt-6">
+            <button type="button" id="cancel-upload" class="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors">
+                Cancel
+            </button>
+            <button type="submit" id="upload-document" class="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700 transition-colors flex items-center">
+                <span id="upload-text">Upload Documents</span>
+                <span id="upload-spinner" class="ml-2 hidden">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </span>
+            </button>
+        </div>
+    </form>
+</div>
             </div>
         </div>
     </div>
@@ -1264,8 +1255,7 @@
             const browseDocumentBtn = document.getElementById('browse-document');
             const documentFileInput = document.getElementById('document-file');
             const documentDropArea = document.getElementById('document-drop-area');
-            const filePreview = document.getElementById('file-preview');
-            const removeFileBtn = document.getElementById('remove-file');
+            const filesPreview = document.getElementById('files-preview');
             
             // Show upload section on click
             if (addDocumentBtn && documentUploadSection) {
@@ -1285,7 +1275,7 @@
                 cancelUploadBtn.addEventListener('click', function() {
                     documentUploadSection.classList.add('hidden');
                     documentForm.reset();
-                    filePreview.classList.add('hidden');
+                    filesPreview.innerHTML = '';
                 });
             }
             
@@ -1296,12 +1286,10 @@
                 });
             }
             
-            // Handle file selection
-            if (documentFileInput && filePreview) {
+            // Handle multiple file selection
+            if (documentFileInput && filesPreview) {
                 documentFileInput.addEventListener('change', function() {
-                    if (this.files && this.files[0]) {
-                        handleFileSelection(this.files[0]);
-                    }
+                    handleFilesSelection(this.files);
                 });
             }
             
@@ -1323,16 +1311,8 @@
                     
                     if (e.dataTransfer.files.length > 0) {
                         documentFileInput.files = e.dataTransfer.files;
-                        handleFileSelection(e.dataTransfer.files[0]);
+                        handleFilesSelection(e.dataTransfer.files);
                     }
-                });
-            }
-            
-            // Remove selected file
-            if (removeFileBtn) {
-                removeFileBtn.addEventListener('click', function() {
-                    documentFileInput.value = '';
-                    filePreview.classList.add('hidden');
                 });
             }
             
@@ -1347,9 +1327,9 @@
                         return;
                     }
                     
-                    // Check if file is selected
+                    // Check if files are selected
                     if (!documentFileInput.files || documentFileInput.files.length === 0) {
-                        showToast('Error', 'Please select a file to upload', 'error');
+                        showToast('Error', 'Please select at least one file to upload', 'error');
                         return;
                     }
                     
@@ -1359,7 +1339,7 @@
                     
                     const formData = new FormData(this);
                     
-                    fetch('/api/Document', {
+                    fetch('/api/Document/UploadMultiple', {
                         method: 'POST',
                         body: formData
                     })
@@ -1375,13 +1355,13 @@
                     })
                     .then(data => {
                         // Hide loading spinner
-                        document.getElementById('upload-text').textContent = 'Upload Document';
+                        document.getElementById('upload-text').textContent = 'Upload Documents';
                         document.getElementById('upload-spinner').classList.add('hidden');
                         
-                        if (data.id) {
+                        if (data.success) {
                             // Reset form
                             documentForm.reset();
-                            filePreview.classList.add('hidden');
+                            filesPreview.innerHTML = '';
                             
                             // Hide upload section
                             documentUploadSection.classList.add('hidden');
@@ -1390,19 +1370,19 @@
                             loadDocumentsData();
                             
                             // Show success toast
-                            showToast('Document uploaded', 'Your document has been uploaded successfully', 'success');
+                            showToast('Documents uploaded', `Successfully uploaded ${data.count} documents`, 'success');
                         } else {
-                            showToast('Error', data.error || 'Failed to upload document', 'error');
+                            showToast('Error', data.error || 'Failed to upload documents', 'error');
                         }
                     })
                     .catch(error => {
-                        console.error('Error uploading document:', error);
+                        console.error('Error uploading documents:', error);
                         
                         // Hide loading spinner
-                        document.getElementById('upload-text').textContent = 'Upload Document';
+                        document.getElementById('upload-text').textContent = 'Upload Documents';
                         document.getElementById('upload-spinner').classList.add('hidden');
                         
-                        showToast('Error', 'Failed to upload document. Please try again.', 'error');
+                        showToast('Error', 'Failed to upload documents. Please try again.', 'error');
                     });
                 });
             }
@@ -1420,30 +1400,93 @@
                     // Show delete confirmation
                     showDeleteConfirmation('document', documentId, 'Are you sure you want to delete this document?');
                 }
+                
+                // Remove file from preview
+                if (e.target.closest('.remove-file')) {
+                    const button = e.target.closest('.remove-file');
+                    const fileIndex = button.getAttribute('data-index');
+                    removeFileFromSelection(fileIndex);
+                }
             });
         }
         
-        function handleFileSelection(file) {
-            const fileName = document.getElementById('file-name');
-            const fileIcon = document.getElementById('file-icon');
-            const filePreview = document.getElementById('file-preview');
+        function handleFilesSelection(files) {
+            const filesPreview = document.getElementById('files-preview');
+            const documentFileInput = document.getElementById('document-file');
             
-            if (file) {
-                // Show file preview
-                fileName.textContent = file.name;
-                filePreview.classList.remove('hidden');
+            if (!files || files.length === 0) return;
+            
+            // Clear existing previews
+            filesPreview.innerHTML = '';
+            
+            // Create a preview for each file
+            Array.from(files).forEach((file, index) => {
+                const previewEl = document.createElement('div');
+                previewEl.className = 'flex items-center justify-between bg-gray-50 p-2 rounded-md';
+                previewEl.setAttribute('data-index', index);
                 
                 // Set appropriate icon based on file type
+                let iconClass = 'fa-file text-gray-500';
+                
                 if (file.type.startsWith('image/')) {
-                    fileIcon.className = 'fas fa-file-image text-blue-500 mr-2';
+                    iconClass = 'fa-file-image text-blue-500';
                 } else if (file.type.includes('pdf')) {
-                    fileIcon.className = 'fas fa-file-pdf text-red-500 mr-2';
+                    iconClass = 'fa-file-pdf text-red-500';
                 } else if (file.type.includes('excel') || file.type.includes('spreadsheet') || file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
-                    fileIcon.className = 'fas fa-file-excel text-green-500 mr-2';
+                    iconClass = 'fa-file-excel text-green-500';
                 } else if (file.type.includes('word') || file.type.includes('document') || file.name.endsWith('.docx') || file.name.endsWith('.doc')) {
-                    fileIcon.className = 'fas fa-file-word text-blue-500 mr-2';
-                } else {
-                    fileIcon.className = 'fas fa-file text-gray-500 mr-2';
+                    iconClass = 'fa-file-word text-blue-500';
+                }
+                
+                previewEl.innerHTML = `
+                    <div class="flex items-center">
+                        <i class="fas ${iconClass} mr-2"></i>
+                        <span class="text-sm truncate">${file.name}</span>
+                        <span class="text-xs text-gray-500 ml-2">${formatFileSize(file.size)}</span>
+                    </div>
+                    <button type="button" class="text-red-500 hover:text-red-700 remove-file" data-index="${index}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                
+                filesPreview.appendChild(previewEl);
+            });
+            
+            // Update UI to show the number of selected files
+            const fileCount = files.length;
+            const browseBtn = document.getElementById('browse-document');
+            if (browseBtn) {
+                browseBtn.textContent = fileCount === 1 ? '1 File Selected' : `${fileCount} Files Selected`;
+            }
+        }
+        
+        function removeFileFromSelection(index) {
+            const documentFileInput = document.getElementById('document-file');
+            const filesPreview = document.getElementById('files-preview');
+            
+            if (!documentFileInput.files || documentFileInput.files.length === 0) return;
+            
+            // Convert FileList to array and remove the file at the specified index
+            const filesArray = Array.from(documentFileInput.files);
+            filesArray.splice(index, 1);
+            
+            // Create a new FileList-like object
+            const dataTransfer = new DataTransfer();
+            filesArray.forEach(file => {
+                dataTransfer.items.add(file);
+            });
+            
+            // Update the file input with the new FileList
+            documentFileInput.files = dataTransfer.files;
+            
+            // Update preview
+            handleFilesSelection(documentFileInput.files);
+            
+            // If no files remaining, reset the browse button text
+            if (documentFileInput.files.length === 0) {
+                const browseBtn = document.getElementById('browse-document');
+                if (browseBtn) {
+                    browseBtn.textContent = 'Browse Files';
                 }
             }
         }

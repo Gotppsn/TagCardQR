@@ -142,5 +142,18 @@ namespace CardTagManager.Services
 
             return res;
         }
+
+        public async Task<List<FileResponse>> UploadFiles(IEnumerable<IFormFile> files, string folderPath = "CardDocuments")
+        {
+            var responses = new List<FileResponse>();
+            
+            foreach (var file in files)
+            {
+                var response = await UploadFile(file, folderPath);
+                responses.Add(response);
+            }
+            
+            return responses;
+        }
     }
 }

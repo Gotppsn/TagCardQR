@@ -180,5 +180,99 @@ namespace CardTagManager.Controllers
                 return StatusCode(500, new { error = "An error occurred while deleting the document." });
             }
         }
+
+        [HttpPost("UploadMultiple")]
+public async Task<ActionResult<CardDocument>> UploadMultiple([FromForm] int cardId, [FromForm] string title, [FromForm] string documentType, [FromForm] string description, [FromForm] List<IFormFile> documentFiles)
+{
+    try
+    {
+        if (documentFiles == null || !documentFiles.Any())
+        {
+            return BadRequest(new { error = "No files were uploaded." });
+        }
+
+        var card = await _context.Cards.FindAsync(cardId);
+        if (card == null)
+        {
+            return NotFound(new { error = "Card not found." });
+        }
+
+        int successCount = 0;
+        List<string> errors = new List<string>();
+
+        foreach (var file in documentFiles)
+        {
+            if (file.Length == 0)
+            {
+                errors.Add($"Empty file: {file.FileName}");
+                continue;
+            }
+
+            try
+            {
+                // Upload file using FileUploadService
+                var fileResponse = await _fileUploadService.UploadFile(file, "CardDocuments");
+                
+                if (!fileResponse.IsSuccess)
+                {
+                    errors.Add($"Failed to upload {file.FileName}: {fileResponse.ErrorMessage}");
+                    continue;
+                }
+                
+                // Generate unique title for each file if multiple files
+                string fileTitle = documentFiles.Count > 1 
+                    ? $"{title} - {file.FileName}"
+                    : title;
+                
+                // Create new document record
+                var newDocument = new CardDocument
+                {
+                    CardId = cardId,
+                    Title = fileTitle,
+                    DocumentType = documentType,
+                    Description = description,
+                    FilePath = fileResponse.FileUrl,
+                    FileName = file.FileName,
+                    FileSize = file.Length,
+                    FileType = file.ContentType,
+                    UploadedAt = DateTime.Now,
+                    UploadedBy = User.Identity.Name
+                };
+                
+                _context.CardDocuments.Add(newDocument);
+                successCount++;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error uploading file: {file.FileName}");
+                errors.Add($"Error: {file.FileName} - {ex.Message}");
+            }
+        }
+
+        await _context.SaveChangesAsync();
+        
+        if (successCount > 0)
+        {
+            return Ok(new { 
+                success = true, 
+                count = successCount,
+                errors = errors.Any() ? errors : null
+            });
+        }
+        else
+        {
+            return BadRequest(new { 
+                success = false, 
+                error = "All uploads failed", 
+                errors = errors 
+            });
+        }
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error uploading multiple documents");
+        return StatusCode(500, new { error = "An error occurred while uploading the documents." });
+    }
+}
     }
 }
