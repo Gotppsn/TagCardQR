@@ -128,6 +128,36 @@ namespace CardTagManager.Data
                 .WithMany()
                 .HasForeignKey(s => s.CardId)
                 .OnDelete(DeleteBehavior.Cascade);
+            
+            // IssueReport configuration
+            modelBuilder.Entity<IssueReport>()
+                .HasKey(r => r.Id);
+
+            modelBuilder.Entity<IssueReport>()
+                .HasOne(r => r.Card)
+                .WithMany()
+                .HasForeignKey(r => r.CardId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<IssueReport>()
+                .Property(r => r.IssueType)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            modelBuilder.Entity<IssueReport>()
+                .Property(r => r.Priority)
+                .IsRequired()
+                .HasMaxLength(20)
+                .HasDefaultValue("Medium");
+
+            modelBuilder.Entity<IssueReport>()
+                .Property(r => r.Status)
+                .HasMaxLength(20)
+                .HasDefaultValue("Open");
+
+            modelBuilder.Entity<IssueReport>()
+                .Property(r => r.CreatedAt)
+                .HasDefaultValueSql("GETDATE()");
         }
     }
 }

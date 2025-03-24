@@ -70,8 +70,7 @@ namespace CardTagManager.Controllers
                 return BadRequest(ModelState);
             }
 
-            try
-            {
+            try {
                 // Validate the card exists
                 var card = await _context.Cards.FindAsync(issue.CardId);
                 if (card == null)

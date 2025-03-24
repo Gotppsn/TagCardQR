@@ -1022,7 +1022,7 @@ function initIssueFormSubmission() {
             // Get CSRF token
             const tokenElement = document.querySelector('input[name="__RequestVerificationToken"]');
             const metaToken = document.querySelector('meta[name="RequestVerificationToken"]');
-            const token = this.querySelector('input[name="__RequestVerificationToken"]').value;
+            const token = tokenElement?.value || metaToken?.content || '';
             
             // API call
             fetch('/api/IssueReport', {
@@ -1046,38 +1046,15 @@ function initIssueFormSubmission() {
                 if (spinner) spinner.classList.add('hidden');
                 if (submitBtn) submitBtn.removeAttribute('disabled');
                 
-                // Close modal with animation instead of hiding directly
-                const modalContent = document.getElementById('modal-content');
-                const reportIssueModal = document.getElementById('report-issue-modal');
-                
-                if (modalContent && reportIssueModal) {
-                    // Animation
-                    modalContent.classList.remove('scale-100', 'opacity-100');
-                    modalContent.classList.add('scale-95', 'opacity-0');
-                    
-                    setTimeout(() => {
-                        reportIssueModal.classList.add('hidden');
-                        document.body.classList.remove('overflow-hidden');
-                    }, 300);
-                }
-                
-                // Reset form
-                issueForm.reset();
+                // Close modal and reset form
+                resetIssueModal();
                 
                 // Show success toast
                 showToast('Issue reported', 'Your issue has been submitted successfully', 'success');
                 
                 // Reload issues
                 loadIssueData();
-                
-                // Set default date again
-                const reportDateField = document.querySelector('input[name="ReportDate"]');
-                if (reportDateField) {
-                    const today = new Date();
-                    reportDateField.value = today.toISOString().split('T')[0];
-                }
             })
-
             .catch(error => {
                 console.error('Error submitting issue report:', error);
                 
@@ -1089,22 +1066,28 @@ function initIssueFormSubmission() {
                 showToast('Error', error.message || 'Failed to submit issue report', 'error');
             });
         });
-        
-        // Clear validation errors when input changes
-        const formInputs = issueForm.querySelectorAll('input, textarea, select');
-        if (formInputs) {
-            formInputs.forEach(input => {
-                if (!input) return;
-                
-                input.addEventListener('input', function() {
-                    this.classList.remove('border-red-500');
-                    const errorSpan = this.parentNode.querySelector('.error-message');
-                    if (errorSpan) errorSpan.remove();
-                });
-            });
-        }
     } catch (e) {
         console.error("Error in initIssueFormSubmission:", e);
+    }
+}
+
+// Add this helper function to reset the modal
+function resetIssueModal() {
+    const issueForm = document.getElementById('issue-report-form');
+    const reportIssueModal = document.getElementById('report-issue-modal');
+    const modalContent = document.getElementById('modal-content');
+    
+    if (issueForm) issueForm.reset();
+    
+    if (modalContent && reportIssueModal) {
+        // Animation
+        modalContent.classList.remove('scale-100', 'opacity-100');
+        modalContent.classList.add('scale-95', 'opacity-0');
+        
+        setTimeout(() => {
+            reportIssueModal.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        }, 300);
     }
 }
 
