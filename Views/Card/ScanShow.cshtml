@@ -7,20 +7,23 @@
 
 <div class="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 flex flex-col">
     <!-- Header Banner -->
-    <div class="bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-lg">
+    <div class="bg-gradient-to-r from-primary-600 to-blue-500 text-white shadow-lg">
         <div class="container mx-auto px-4 py-4">
             <div class="flex justify-between items-center">
-                <div class="flex items-center space-x-2">
-                    <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                        <i class="fas fa-tag text-white"></i>
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-xl">
+                        <i class="fas fa-tag"></i>
                     </div>
-                    <h1 class="text-xl font-bold">Product Information</h1>
+                    <div>
+                        <h1 class="text-2xl font-bold">Product Information</h1>
+                        <p class="text-blue-100">ID: #@Model.Id</p>
+                    </div>
                 </div>
                 <div class="flex items-center space-x-3">
-                    <button id="share-btn" class="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors">
+                    <button id="share-btn" class="p-3 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 hover:scale-105">
                         <i class="fas fa-share-alt"></i>
                     </button>
-                    <a href="@Url.Action("Print", new { id = Model.Id })" target="_blank" class="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors">
+                    <a href="@Url.Action("Print", new { id = Model.Id })" target="_blank" class="p-3 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 hover:scale-105">
                         <i class="fas fa-print"></i>
                     </a>
                 </div>
@@ -29,23 +32,23 @@
     </div>
 
     <!-- Navigation Menu -->
-    <div class="sticky top-0 bg-white z-20 shadow-sm">
+    <div class="sticky top-0 bg-white z-20 shadow-md">
         <div class="container mx-auto px-4">
-            <div class="flex overflow-x-auto scrollbar-none py-2">
-                <a href="#product-card" class="flex-shrink-0 px-4 py-2 mx-1 rounded-full bg-primary-600 text-white text-sm font-medium">
-                    Overview
+            <div class="flex overflow-x-auto scrollbar-none py-3">
+                <a href="#product-card" class="flex-shrink-0 px-4 py-2 mx-1 rounded-full bg-primary-600 text-white text-sm font-medium transition-all duration-300 hover:shadow-md">
+                    <i class="fas fa-info-circle mr-2"></i> Overview
                 </a>
-                <a href="#product-details" class="flex-shrink-0 px-4 py-2 mx-1 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 text-sm font-medium transition-colors">
-                    Details
+                <a href="#product-details" class="flex-shrink-0 px-4 py-2 mx-1 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 text-sm font-medium transition-all duration-300 hover:shadow-md">
+                    <i class="fas fa-clipboard-list mr-2"></i> Details
                 </a>
-                <a href="#maintenance" class="flex-shrink-0 px-4 py-2 mx-1 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 text-sm font-medium transition-colors">
-                    Maintenance
+                <a href="#maintenance" class="flex-shrink-0 px-4 py-2 mx-1 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 text-sm font-medium transition-all duration-300 hover:shadow-md">
+                    <i class="fas fa-wrench mr-2"></i> Maintenance
                 </a>
-                <a href="#documentation" class="flex-shrink-0 px-4 py-2 mx-1 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 text-sm font-medium transition-colors">
-                    Documents
+                <a href="#documentation" class="flex-shrink-0 px-4 py-2 mx-1 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 text-sm font-medium transition-all duration-300 hover:shadow-md">
+                    <i class="fas fa-file-alt mr-2"></i> Documents
                 </a>
-                <a href="#contact" class="flex-shrink-0 px-4 py-2 mx-1 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 text-sm font-medium transition-colors">
-                    Contact
+                <a href="#contact" class="flex-shrink-0 px-4 py-2 mx-1 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 text-sm font-medium transition-all duration-300 hover:shadow-md">
+                    <i class="fas fa-headset mr-2"></i> Contact
                 </a>
             </div>
         </div>
@@ -54,24 +57,27 @@
     <!-- Main Content -->
     <div class="container mx-auto px-4 py-6 flex-grow">
         <!-- Product Card -->
-        <div id="product-card" class="bg-white rounded-xl shadow-lg overflow-hidden mb-6 transform transition-transform hover:scale-[1.01]">
+        <div id="product-card" class="bg-white rounded-xl shadow-lg overflow-hidden mb-6 transform transition-all duration-300 hover:shadow-xl">
             <!-- Product Status Indicator -->
             @if (Model.WarrantyExpiration < DateTime.Now)
             {
-                <div id="warranty-status" class="bg-red-500 text-white text-sm py-1 px-4 text-center font-medium">
-                    <i class="fas fa-exclamation-triangle mr-1"></i> Warranty Expired
+                <div id="warranty-status" class="bg-red-500 text-white text-sm py-2 px-4 text-center font-medium flex justify-center items-center space-x-2">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Warranty Expired on @Model.WarrantyExpiration.ToString("MMM d, yyyy")</span>
                 </div>
             }
             else if (Model.WarrantyExpiration < DateTime.Now.AddMonths(3))
             {
-                <div id="warranty-status" class="bg-yellow-500 text-white text-sm py-1 px-4 text-center font-medium">
-                    <i class="fas fa-clock mr-1"></i> Warranty Expiring Soon
+                <div id="warranty-status" class="bg-yellow-500 text-white text-sm py-2 px-4 text-center font-medium flex justify-center items-center space-x-2">
+                    <i class="fas fa-clock"></i>
+                    <span>Warranty Expiring Soon: @((Model.WarrantyExpiration - DateTime.Now).Days) days remaining</span>
                 </div>
             }
             else
             {
-                <div id="warranty-status" class="bg-green-500 text-white text-sm py-1 px-4 text-center font-medium">
-                    <i class="fas fa-shield-alt mr-1"></i> In Warranty
+                <div id="warranty-status" class="bg-green-500 text-white text-sm py-2 px-4 text-center font-medium flex justify-center items-center space-x-2">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>In Warranty until @Model.WarrantyExpiration.ToString("MMM d, yyyy")</span>
                 </div>
             }
 
@@ -79,11 +85,11 @@
             <div class="p-6" style="background-color: @Model.BackgroundColor; color: @Model.TextColor;">
                 <div class="flex justify-between items-start">
                     <div>
-                        <span id="category-section" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" 
+                        <span id="category-section" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium transform transition-all duration-300 hover:scale-105" 
                               style="background-color: @Model.AccentColor; color: @Model.BackgroundColor">
-                            @Model.Category
+                            <i class="fas fa-tag mr-1"></i> @Model.Category
                         </span>
-                        <h2 class="text-2xl font-bold mt-2 mb-1" style="color: @Model.AccentColor">@Model.ProductName</h2>
+                        <h2 class="text-2xl font-bold mt-3 mb-2" style="color: @Model.AccentColor">@Model.ProductName</h2>
                         
                         @{
                             // Parse CustomFieldsData to get Manufacturer if available
@@ -100,21 +106,21 @@
                         }
                         <p class="text-lg" data-custom-field="Manufacturer">@(string.IsNullOrEmpty(manufacturer) ? "" : manufacturer)</p>
                     </div>
-                    <div class="bg-white/10 p-2 rounded-lg">
+                    <div class="bg-white/20 p-3 rounded-lg shadow-md transform transition-all duration-300 hover:scale-105">
                         @if (!string.IsNullOrEmpty(Model.ImagePath))
                         {
-                            <img id="product-image" src="@Model.ImagePath" alt="Product image" class="rounded w-20 h-20 object-cover" />
+                            <img id="product-image" src="@Model.ImagePath" alt="Product image" class="rounded w-24 h-24 object-cover" />
                         }
                         else
                         {
-                            <div id="product-image-placeholder" class="w-20 h-20 rounded flex items-center justify-center" style="background-color: @Model.AccentColor; color: @Model.BackgroundColor">
-                                <i class="fas fa-box text-2xl"></i>
+                            <div id="product-image-placeholder" class="w-24 h-24 rounded flex items-center justify-center" style="background-color: @Model.AccentColor; color: @Model.BackgroundColor">
+                                <i class="fas fa-box text-3xl"></i>
                             </div>
                         }
                     </div>
                 </div>
                 
-                <div class="mt-4 space-y-2">
+                <div class="mt-5 space-y-3">
                     <div class="grid grid-cols-2 gap-4">
                         @{
                             // Parse CustomFieldsData to get ModelNumber if available
@@ -129,9 +135,9 @@
                                 }
                             } catch {}
                         }
-                        <div data-custom-field="ModelNumber">
-                            <p class="text-sm opacity-70">Model Number</p>
-                            <p class="font-medium flex items-center">
+                        <div data-custom-field="ModelNumber" class="bg-white/10 p-3 rounded-lg">
+                            <p class="text-sm opacity-80">Model Number</p>
+                            <p class="font-medium flex items-center mt-1">
                                 <i class="fas fa-tag mr-2" style="color: @Model.AccentColor"></i>
                                 @(string.IsNullOrEmpty(modelNumber) ? "N/A" : modelNumber)
                             </p>
@@ -150,18 +156,18 @@
                                 }
                             } catch {}
                         }
-                        <div data-custom-field="SerialNumber">
-                            <p class="text-sm opacity-70">Serial Number</p>
-                            <p class="font-medium flex items-center">
+                        <div data-custom-field="SerialNumber" class="bg-white/10 p-3 rounded-lg">
+                            <p class="text-sm opacity-80">Serial Number</p>
+                            <p class="font-medium flex items-center mt-1">
                                 <i class="fas fa-fingerprint mr-2" style="color: @Model.AccentColor"></i>
                                 @(string.IsNullOrEmpty(serialNumber) ? "N/A" : serialNumber)
                             </p>
                         </div>
                     </div>
                     
-                    <div id="location-section">
-                        <p class="text-sm opacity-70">Location</p>
-                        <p class="font-medium flex items-center">
+                    <div id="location-section" class="bg-white/10 p-3 rounded-lg">
+                        <p class="text-sm opacity-80">Location</p>
+                        <p class="font-medium flex items-center mt-1">
                             <i class="fas fa-map-marker-alt mr-2" style="color: @Model.AccentColor"></i>
                             @(string.IsNullOrEmpty(Model.Location) ? "Not specified" : Model.Location)
                         </p>
@@ -170,31 +176,31 @@
             </div>
 
             <!-- Warranty Timeline -->
-            <div id="warranty-section" class="p-4 border-b border-gray-100">
+            <div id="warranty-section" class="p-5 border-b border-gray-100 bg-gray-50">
                 <div class="relative">
-                    <div class="h-1 bg-gray-200 rounded-full">
+                    <div class="h-2 bg-gray-200 rounded-full">
                         @{
                             var totalDays = (Model.WarrantyExpiration - Model.PurchaseDate).TotalDays;
                             var elapsedDays = (DateTime.Now - Model.PurchaseDate).TotalDays;
                             var elapsedPercent = Math.Min(100, Math.Max(0, (elapsedDays / totalDays) * 100));
                             
                             string progressClass = elapsedPercent < 70 ? "bg-green-500" : 
-                                                 elapsedPercent < 90 ? "bg-yellow-500" : "bg-red-500";
+                                                elapsedPercent < 90 ? "bg-yellow-500" : "bg-red-500";
                         }
-                        <div class="absolute left-0 top-0 h-1 @progressClass rounded-full" style="width: @elapsedPercent%"></div>
+                        <div class="absolute left-0 top-0 h-2 @progressClass rounded-full transition-all duration-1000" style="width: @elapsedPercent%"></div>
                     </div>
-                    <div class="flex justify-between mt-2 text-xs text-gray-500">
+                    <div class="flex justify-between mt-3 text-xs text-gray-500">
                         <div>
-                            <div class="mb-1">Purchase</div>
-                            <div class="font-medium text-gray-700">@Model.PurchaseDate.ToString("MMM d, yyyy")</div>
+                            <div class="font-medium text-gray-600 mb-1">Purchase</div>
+                            <div class="font-medium text-gray-700 bg-white px-2 py-1 rounded-md shadow-sm">@Model.PurchaseDate.ToString("MMM d, yyyy")</div>
                         </div>
                         <div class="text-center">
-                            <div class="mb-1">Today</div>
-                            <div class="font-medium text-gray-700">@DateTime.Now.ToString("MMM d, yyyy")</div>
+                            <div class="font-medium text-gray-600 mb-1">Today</div>
+                            <div class="font-medium text-primary-600 bg-primary-50 px-2 py-1 rounded-md shadow-sm">@DateTime.Now.ToString("MMM d, yyyy")</div>
                         </div>
                         <div class="text-right">
-                            <div class="mb-1">Warranty End</div>
-                            <div class="font-medium @(Model.WarrantyExpiration < DateTime.Now ? "text-red-600" : "text-gray-700")">
+                            <div class="font-medium text-gray-600 mb-1">Warranty End</div>
+                            <div class="font-medium @(Model.WarrantyExpiration < DateTime.Now ? "text-red-600 bg-red-50" : "text-green-600 bg-green-50") px-2 py-1 rounded-md shadow-sm">
                                 @Model.WarrantyExpiration.ToString("MMM d, yyyy")
                             </div>
                         </div>
@@ -203,37 +209,37 @@
             </div>
 
             <!-- Product Details Section -->
-            <div id="product-details" class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-    <h3 class="font-bold text-gray-700 flex items-center">
-        <i class="fas fa-info-circle text-primary-500 mr-2"></i> Product Details
-    </h3>
+            <div id="product-details" class="px-6 py-5 border-b border-gray-100 bg-white">
+                <h3 class="font-bold text-gray-700 flex items-center mb-4">
+                    <i class="fas fa-info-circle text-primary-500 mr-2"></i> Product Details
+                </h3>
                 
                 <div class="grid grid-cols-2 gap-x-4 gap-y-6">
-                    <div id="manufacture-date-section">
+                    <div id="manufacture-date-section" class="bg-gray-50 p-3 rounded-lg transition-all duration-300 hover:bg-gray-100">
                         <p class="text-sm text-gray-500">Manufacture Date</p>
-                        <p class="font-medium text-gray-800">@Model.ManufactureDate.ToString("MMM d, yyyy")</p>
+                        <p class="font-medium text-gray-800 mt-1">@Model.ManufactureDate.ToString("MMM d, yyyy")</p>
                     </div>
-                    <div id="purchase-date-section">
+                    <div id="purchase-date-section" class="bg-gray-50 p-3 rounded-lg transition-all duration-300 hover:bg-gray-100">
                         <p class="text-sm text-gray-500">Purchase Date</p>
-                        <p class="font-medium text-gray-800">@Model.PurchaseDate.ToString("MMM d, yyyy")</p>
+                        <p class="font-medium text-gray-800 mt-1">@Model.PurchaseDate.ToString("MMM d, yyyy")</p>
                     </div>
-                    <div>
+                    <div class="bg-gray-50 p-3 rounded-lg transition-all duration-300 hover:bg-gray-100">
                         <p class="text-sm text-gray-500">Warranty Until</p>
-                        <p class="font-medium text-gray-800 @(Model.WarrantyExpiration < DateTime.Now ? "text-red-600" : "")">
+                        <p class="font-medium text-gray-800 mt-1 @(Model.WarrantyExpiration < DateTime.Now ? "text-red-600" : "")">
                             @Model.WarrantyExpiration.ToString("MMM d, yyyy")
                             @if (Model.WarrantyExpiration > DateTime.Now)
                             {
-                                <span class="text-xs text-gray-500">(@((Model.WarrantyExpiration - DateTime.Now).Days) days left)</span>
+                                <span class="text-xs text-green-500 ml-1">(@((Model.WarrantyExpiration - DateTime.Now).Days) days left)</span>
                             }
                             else
                             {
-                                <span class="text-xs text-red-500">(@Math.Abs((Model.WarrantyExpiration - DateTime.Now).Days) days ago)</span>
+                                <span class="text-xs text-red-500 ml-1">(Expired @Math.Abs((Model.WarrantyExpiration - DateTime.Now).Days) days ago)</span>
                             }
                         </p>
                     </div>
-                    <div>
+                    <div class="bg-gray-50 p-3 rounded-lg transition-all duration-300 hover:bg-gray-100">
                         <p class="text-sm text-gray-500">Last Updated</p>
-                        <p class="font-medium text-gray-800">@Model.UpdatedAt.ToString("MMM d, yyyy")</p>
+                        <p class="font-medium text-gray-800 mt-1">@Model.UpdatedAt.ToString("MMM d, yyyy")</p>
                     </div>
                     
                     @if (!string.IsNullOrEmpty(Model.CustomFieldsData) && Model.CustomFieldsData != "{}")
@@ -247,9 +253,9 @@
                                 {
                                     if (field.Key != "Manufacturer" && field.Key != "ModelNumber" && field.Key != "SerialNumber")
                                     {
-                                        <div data-custom-field="@field.Key">
+                                        <div data-custom-field="@field.Key" class="bg-gray-50 p-3 rounded-lg transition-all duration-300 hover:bg-gray-100">
                                             <p class="text-sm text-gray-500">@field.Key</p>
-                                            <p class="font-medium text-gray-800">@field.Value</p>
+                                            <p class="font-medium text-gray-800 mt-1">@field.Value</p>
                                         </div>
                                     }
                                 }
@@ -261,22 +267,24 @@
             </div>
 
             <!-- Maintenance Information -->
-            <div id="maintenance" class="px-6 py-4 bg-blue-50 border-t border-blue-100">
+            <div id="maintenance" class="px-6 py-5 bg-blue-50 border-t border-blue-100">
                 <div class="flex">
                     <div class="flex-shrink-0 mr-4">
-                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                            <i class="fas fa-wrench text-blue-500"></i>
+                        <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+                            <i class="fas fa-wrench text-blue-600 text-xl"></i>
                         </div>
                     </div>
                     <div>
-                        <h4 class="text-md font-medium text-blue-800">Maintenance Information</h4>
-                        <p class="mt-1 text-sm text-blue-700">@(string.IsNullOrEmpty(Model.MaintenanceInfo) ? "No maintenance information available" : Model.MaintenanceInfo)</p>
+                        <h4 class="text-lg font-medium text-blue-800">Maintenance Information</h4>
+                        <p class="mt-2 text-blue-700">@(string.IsNullOrEmpty(Model.MaintenanceInfo) ? "No maintenance information available" : Model.MaintenanceInfo)</p>
                         
-                        <div class="mt-3">
-                            <h5 class="text-sm font-medium text-blue-800">Next Maintenance:</h5>
-                            <div id="maintenance-reminders" class="mt-2">
-                                <div class="p-2 bg-white/50 rounded-lg shadow-sm border border-blue-200">
-                                    <div class="loader-spinner">
+                        <div class="mt-4">
+                            <h5 class="text-sm font-medium text-blue-800 flex items-center">
+                                <i class="fas fa-calendar-check mr-2"></i> Next Maintenance:
+                            </h5>
+                            <div id="maintenance-reminders" class="mt-3">
+                                <div class="p-3 bg-white/80 rounded-lg shadow-sm border border-blue-200 animate-pulse">
+                                    <div class="loader-spinner flex items-center justify-center">
                                         <i class="fas fa-spinner fa-spin text-blue-500 mr-2"></i> Loading maintenance schedule...
                                     </div>
                                 </div>
@@ -289,65 +297,77 @@
 
         <!-- Quick Actions -->
         <div class="grid grid-cols-2 gap-4 mb-6">
-            <a href="#" id="report-issue-btn" class="flex items-center justify-center bg-white rounded-lg p-4 shadow-md hover:shadow-lg transition-shadow">
-                <i class="fas fa-exclamation-circle text-orange-500 mr-3"></i>
-                <span class="font-medium">Report Issue</span>
+            <button id="report-issue-btn" class="flex items-center justify-center bg-white rounded-lg p-4 shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group">
+                <div class="flex items-center justify-center w-10 h-10 rounded-full bg-orange-50 mr-3 group-hover:bg-orange-100 transition-all duration-300">
+                    <i class="fas fa-exclamation-circle text-orange-500"></i>
+                </div>
+                <span class="font-medium text-gray-700 group-hover:text-gray-900 transition-all duration-300">Report Issue</span>
+            </button>
+            <a href="#contact" id="contact-support" class="flex items-center justify-center bg-white rounded-lg p-4 shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group">
+                <div class="flex items-center justify-center w-10 h-10 rounded-full bg-primary-50 mr-3 group-hover:bg-primary-100 transition-all duration-300">
+                    <i class="fas fa-headset text-primary-500"></i>
+                </div>
+                <span class="font-medium text-gray-700 group-hover:text-gray-900 transition-all duration-300">Contact Support</span>
             </a>
-            <a href="#contact" id="contact-support" class="flex items-center justify-center bg-white rounded-lg p-4 shadow-md hover:shadow-lg transition-shadow">
-    <i class="fas fa-headset text-primary-500 mr-3"></i>
-    <span class="font-medium">Contact Support</span>
-</a>
         </div>
 
         <!-- Maintenance History -->
-<div id="maintenance-history" class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
-    <div class="px-6 py-4 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
-        <h3 class="font-semibold text-gray-800">Maintenance History</h3>
-    </div>
+        <div id="maintenance-history" class="bg-white rounded-xl shadow-md overflow-hidden mb-6 transform transition-all duration-300 hover:shadow-lg">
+            <div class="px-6 py-4 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
+                <h3 class="font-semibold text-gray-800 flex items-center">
+                    <i class="fas fa-history text-primary-500 mr-2"></i> Maintenance History
+                </h3>
+            </div>
             <!-- Sample history items -->
-            <div class="p-4" id="maintenance-history-content">
-                <div class="loader-spinner text-center py-4">
+            <div class="p-5" id="maintenance-history-content">
+                <div class="loader-spinner text-center py-6 bg-gray-50 rounded-lg">
                     <i class="fas fa-spinner fa-spin text-primary-500 mr-2"></i> Loading maintenance history...
                 </div>
             </div>
         </div>
 
         <!-- Issue Reports -->
-        <div id="issues" class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+        <div id="issues" class="bg-white rounded-xl shadow-md overflow-hidden mb-6 transform transition-all duration-300 hover:shadow-lg">
             <div class="px-6 py-4 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
-                <h3 class="font-semibold text-gray-800">Issue Reports</h3>
+                <h3 class="font-semibold text-gray-800 flex items-center">
+                    <i class="fas fa-exclamation-triangle text-orange-500 mr-2"></i> Issue Reports
+                </h3>
             </div>
-            <div class="p-4" id="issues-container">
-                <div class="loader-spinner text-center py-4">
+            <div class="p-5" id="issues-container">
+                <div class="loader-spinner text-center py-6 bg-gray-50 rounded-lg">
                     <i class="fas fa-spinner fa-spin text-primary-500 mr-2"></i> Loading issues...
                 </div>
             </div>
         </div>
 
         <!-- Documentation & Resources -->
-        <div id="documentation" class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+        <div id="documentation" class="bg-white rounded-xl shadow-md overflow-hidden mb-6 transform transition-all duration-300 hover:shadow-lg">
             <div class="px-6 py-4 bg-gray-50 border-b border-gray-100">
-                <h3 class="font-semibold text-gray-800">Documentation & Resources</h3>
+                <h3 class="font-semibold text-gray-800 flex items-center">
+                    <i class="fas fa-file-alt text-blue-500 mr-2"></i> Documentation & Resources
+                </h3>
             </div>
-            <div class="p-6" id="documents-container">
-                <div class="loader-spinner text-center py-4">
+            <div class="p-5" id="documents-container">
+                <div class="loader-spinner text-center py-6 bg-gray-50 rounded-lg">
                     <i class="fas fa-spinner fa-spin text-primary-500 mr-2"></i> Loading documents...
                 </div>
             </div>
         </div>
         
         <!-- Contact Support Section -->
-        <div id="contact" class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
-            <div class="px-6 py-4 bg-gray-50 border-b border-gray-100">
-                <h3 class="font-semibold text-gray-800">Contact Support</h3>
+        <div id="contact" class="bg-white rounded-xl shadow-md overflow-hidden mb-6 transform transition-all duration-300 hover:shadow-lg">
+            <div class="px-6 py-4 bg-gradient-to-r from-blue-500 to-primary-500 text-white">
+                <h3 class="font-semibold flex items-center text-lg">
+                    <i class="fas fa-headset mr-2"></i> Contact Support
+                </h3>
             </div>
-            <div class="p-6">
+            <div class="p-5">
                 <h4 class="text-md font-medium text-gray-800 mb-4">Contact Information</h4>
                 
-                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <div class="bg-gray-50 rounded-lg p-5 border border-gray-200 shadow-sm">
                     @if (!string.IsNullOrEmpty(Model.CreatedBy) || !string.IsNullOrEmpty(Model.CustomFieldsData))
                     {
-                        <div class="space-y-3">
+                        <div class="space-y-4">
                             @{
                                 string userFullName = string.Empty;
                                 string email = string.Empty;
@@ -369,21 +389,21 @@
 
                             @if (!string.IsNullOrEmpty(userFullName))
                             {
-                                <div class="flex items-center" data-custom-field="UserFullName">
-                                    <div class="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
+                                <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-custom-field="UserFullName">
+                                    <div class="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
                                         <i class="fas fa-user text-primary-600"></i>
                                     </div>
                                     <div class="ml-3">
                                         <div class="text-sm text-gray-500">Contact Person</div>
-                                        <div class="font-medium">@userFullName</div>
+                                        <div class="font-medium text-gray-800">@userFullName</div>
                                     </div>
                                 </div>
                             }
                             
                             @if (!string.IsNullOrEmpty(email))
                             {
-                                <div class="flex items-center" data-custom-field="Email">
-                                    <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                                <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-custom-field="Email">
+                                    <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
                                         <i class="fas fa-envelope text-blue-600"></i>
                                     </div>
                                     <div class="ml-3">
@@ -397,26 +417,26 @@
                             
                             @if (!string.IsNullOrEmpty(department))
                             {
-                                <div class="flex items-center" data-custom-field="Department">
-                                    <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                                <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-custom-field="Department">
+                                    <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
                                         <i class="fas fa-building text-green-600"></i>
                                     </div>
                                     <div class="ml-3">
                                         <div class="text-sm text-gray-500">Department</div>
-                                        <div class="font-medium">@department</div>
+                                        <div class="font-medium text-gray-800">@department</div>
                                     </div>
                                 </div>
                             }
                             
                             @if (!string.IsNullOrEmpty(plantName))
                             {
-                                <div class="flex items-center" data-custom-field="PlantName">
-                                    <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+                                <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-custom-field="PlantName">
+                                    <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
                                         <i class="fas fa-industry text-purple-600"></i>
                                     </div>
                                     <div class="ml-3">
                                         <div class="text-sm text-gray-500">Plant/Location</div>
-                                        <div class="font-medium">@plantName</div>
+                                        <div class="font-medium text-gray-800">@plantName</div>
                                     </div>
                                 </div>
                             }
@@ -424,8 +444,8 @@
                     }
                     else
                     {
-                        <div class="text-center py-4 text-gray-500">
-                            <i class="fas fa-user-slash text-3xl mb-2"></i>
+                        <div class="text-center py-6 text-gray-500">
+                            <i class="fas fa-user-slash text-4xl mb-3 text-gray-400"></i>
                             <p>No contact information available for this product.</p>
                         </div>
                     }
@@ -436,10 +456,12 @@
 
     <!-- Report Issue Modal -->
     <div id="report-issue-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
-        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 transform transition-all">
-            <div class="flex justify-between items-center p-5 border-b">
-                <h3 class="text-lg font-semibold">Report an Issue</h3>
-                <button id="close-report-modal" class="text-gray-400 hover:text-gray-600">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="modal-content">
+            <div class="flex justify-between items-center p-5 border-b bg-gradient-to-r from-blue-500 to-primary-500 rounded-t-lg">
+                <h3 class="text-lg font-semibold text-white flex items-center">
+                    <i class="fas fa-exclamation-circle mr-2"></i> Report an Issue
+                </h3>
+                <button id="close-report-modal" class="text-white hover:text-blue-100 transition-colors">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -449,7 +471,7 @@
                     
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Issue Type</label>
-                        <select name="IssueType" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" required>
+                        <select name="IssueType" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all" required>
                             <option value="">Select Issue Type</option>
                             <option value="Malfunction">Device Malfunction</option>
                             <option value="Maintenance">Maintenance Required</option>
@@ -463,20 +485,20 @@
                     
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Priority</label>
-                        <div class="flex space-x-4">
-                            <label class="flex items-center">
+                        <div class="flex flex-wrap gap-4">
+                            <label class="flex items-center bg-gray-50 p-2 rounded-lg cursor-pointer border border-gray-200 hover:bg-gray-100 transition-all">
                                 <input type="radio" name="Priority" value="Low" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300">
                                 <span class="ml-2 text-sm text-gray-700">Low</span>
                             </label>
-                            <label class="flex items-center">
+                            <label class="flex items-center bg-gray-50 p-2 rounded-lg cursor-pointer border border-gray-200 hover:bg-gray-100 transition-all">
                                 <input type="radio" name="Priority" value="Medium" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300" checked>
                                 <span class="ml-2 text-sm text-gray-700">Medium</span>
                             </label>
-                            <label class="flex items-center">
+                            <label class="flex items-center bg-gray-50 p-2 rounded-lg cursor-pointer border border-gray-200 hover:bg-gray-100 transition-all">
                                 <input type="radio" name="Priority" value="High" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300">
                                 <span class="ml-2 text-sm text-gray-700">High</span>
                             </label>
-                            <label class="flex items-center">
+                            <label class="flex items-center bg-red-50 p-2 rounded-lg cursor-pointer border border-red-200 hover:bg-red-100 transition-all">
                                 <input type="radio" name="Priority" value="Critical" class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300">
                                 <span class="ml-2 text-sm text-red-700">Critical</span>
                             </label>
@@ -485,33 +507,42 @@
                     
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Issue Description</label>
-                        <textarea name="Description" rows="4" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
+                        <textarea name="Description" rows="4" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all" 
                                   placeholder="Please describe the issue in detail..." required></textarea>
                     </div>
                     
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-1">When did you notice this issue?</label>
-                        <input type="date" name="ReportDate" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" required>
+                        <input type="date" name="ReportDate" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all" required>
                     </div>
                     
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Your Contact Information</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Your Contact Information</label>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <input type="text" name="ReporterName" class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
-                                   value="@(User.Identity?.IsAuthenticated == true ? User.FindFirst("FullName")?.Value ?? User.Identity.Name : "")" required placeholder="Your Name">
-                            <input type="email" name="ReporterEmail" class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
-                                   value="@(User.Identity?.IsAuthenticated == true ? User.FindFirst("Email")?.Value ?? "" : "")" required placeholder="Your Email">
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <label class="text-xs text-gray-500">Your Name</label>
+                                <input type="text" name="ReporterName" class="w-full border-0 bg-transparent focus:outline-none focus:ring-0 font-medium" 
+                                       value="@(User.Identity?.IsAuthenticated == true ? User.FindFirst("FullName")?.Value ?? User.Identity.Name : "")" required placeholder="Your Name">
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <label class="text-xs text-gray-500">Your Email</label>
+                                <input type="email" name="ReporterEmail" class="w-full border-0 bg-transparent focus:outline-none focus:ring-0 font-medium" 
+                                       value="@(User.Identity?.IsAuthenticated == true ? User.FindFirst("Email")?.Value ?? "" : "")" required placeholder="Your Email">
+                            </div>
                         </div>
-                        <input type="tel" name="ReporterPhone" class="w-full mt-4 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
-                               placeholder="Your Phone Number (optional)">
+                        <div class="bg-gray-50 p-3 rounded-lg mt-3">
+                            <label class="text-xs text-gray-500">Your Phone (optional)</label>
+                            <input type="tel" name="ReporterPhone" class="w-full border-0 bg-transparent focus:outline-none focus:ring-0 font-medium" 
+                                   placeholder="Your Phone Number">
+                        </div>
                     </div>
                     
-                    <div class="mt-6 flex justify-end">
-                        <button type="button" id="cancel-report" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-md mr-2 hover:bg-gray-200">
-                            Cancel
+                    <div class="mt-6 flex justify-end gap-3">
+                        <button type="button" id="cancel-report" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-all">
+                            <i class="fas fa-times mr-2"></i> Cancel
                         </button>
-                        <button type="submit" id="submit-issue" class="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 flex items-center">
-                            <span>Submit Report</span>
+                        <button type="submit" id="submit-issue" class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-all flex items-center">
+                            <i class="fas fa-paper-plane mr-2"></i> Submit Report
                             <i class="fas fa-spinner fa-spin ml-2 hidden" id="issue-spinner"></i>
                         </button>
                     </div>
@@ -522,24 +553,24 @@
 
     <!-- Document Preview Modal -->
     <div id="document-preview-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
-        <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 transform transition-all flex flex-col h-3/4">
-            <div class="flex justify-between items-center p-5 border-b">
-                <h3 class="text-lg font-semibold" id="document-preview-title">Document Preview</h3>
-                <button id="close-doc-preview-modal" class="text-gray-400 hover:text-gray-600">
+        <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 transform transition-all duration-300 flex flex-col h-3/4 scale-95 opacity-0" id="document-modal-content">
+            <div class="flex justify-between items-center p-5 border-b bg-gradient-to-r from-blue-500 to-primary-500 rounded-t-lg">
+                <h3 class="text-lg font-semibold text-white" id="document-preview-title">Document Preview</h3>
+                <button id="close-doc-preview-modal" class="text-white hover:text-blue-100 transition-colors">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             <div class="p-5 flex-grow overflow-auto" id="document-preview-content">
                 <div class="flex justify-center items-center h-full">
-                    <i class="fas fa-spinner fa-spin text-2xl text-primary-500"></i>
+                    <i class="fas fa-spinner fa-spin text-3xl text-primary-500"></i>
                 </div>
             </div>
             <div class="p-5 border-t flex justify-between">
-                <button id="download-document-btn" class="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700">
+                <button id="download-document-btn" class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-all">
                     <i class="fas fa-download mr-2"></i> Download
                 </button>
-                <button id="close-preview-btn" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200">
-                    Close
+                <button id="close-preview-btn" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-all">
+                    <i class="fas fa-times mr-2"></i> Close
                 </button>
             </div>
         </div>
@@ -811,6 +842,7 @@ function redirectToLogin() {
     function initReportIssueModal() {
         const reportIssueBtn = document.getElementById('report-issue-btn');
         const reportIssueModal = document.getElementById('report-issue-modal');
+        const modalContent = document.getElementById('modal-content');
         const closeReportModal = document.getElementById('close-report-modal');
         const cancelReport = document.getElementById('cancel-report');
         
@@ -826,7 +858,24 @@ function redirectToLogin() {
                 e.preventDefault();
                 reportIssueModal.classList.remove('hidden');
                 document.body.classList.add('overflow-hidden');
+                
+                // Animation
+                setTimeout(() => {
+                    modalContent.classList.remove('scale-95', 'opacity-0');
+                    modalContent.classList.add('scale-100', 'opacity-100');
+                }, 10);
             });
+        }
+        
+        function closeModal() {
+            // Animation
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            
+            setTimeout(() => {
+                reportIssueModal.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            }, 300);
         }
         
         if (closeReportModal) {
@@ -835,11 +884,6 @@ function redirectToLogin() {
         
         if (cancelReport) {
             cancelReport.addEventListener('click', closeModal);
-        }
-        
-        function closeModal() {
-            reportIssueModal.classList.add('hidden');
-            document.body.classList.remove('overflow-hidden');
         }
         
         // Close modal when clicking outside
@@ -853,186 +897,261 @@ function redirectToLogin() {
     }
     
     // Issue form submission handling
-    function initIssueFormSubmission() {
-        const issueForm = document.getElementById('issue-report-form');
-        
-        if (issueForm) {
-            issueForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                // Show loading spinner
-                document.getElementById('issue-spinner').classList.remove('hidden');
-                
-                // Get form data
-                const formData = new FormData(this);
-                
-                // Convert to match server model properties
-                const issueData = {
-                    CardId: parseInt(formData.get('CardId')),
-                    IssueType: formData.get('IssueType'),
-                    Priority: formData.get('Priority'),
-                    Description: formData.get('Description'),
-                    ReportDate: new Date(formData.get('ReportDate')).toISOString(),
-                    ReporterName: formData.get('ReporterName'),
-                    ReporterEmail: formData.get('ReporterEmail'),
-                    ReporterPhone: formData.get('ReporterPhone') || '',
-                    Status: "Open",
-                    Resolution: "" // Add empty Resolution field
-                };
-                
-                // Get CSRF token
-                const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
-                
-                // API call
-                fetch('/api/IssueReport', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'RequestVerificationToken': token
-                    },
-                    body: JSON.stringify(issueData)
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(errorData => {
-                            throw new Error(errorData.error || 'Server error');
-                        });
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    // Hide spinner
-                    document.getElementById('issue-spinner').classList.add('hidden');
-                    
-                    // Hide modal
-                    document.getElementById('report-issue-modal').classList.add('hidden');
-                    document.body.classList.remove('overflow-hidden');
-                    
-                    // Show success toast
-                    showToast('Issue reported', 'Your issue has been submitted successfully', 'success');
-                    
-                    // Reset form
-                    issueForm.reset();
-                    
-                    // Reload issues
-                    loadIssueData();
-                    
-                    // Set default date again
-                    const reportDateField = document.querySelector('input[name="ReportDate"]');
-                    if (reportDateField) {
-                        const today = new Date();
-                        reportDateField.value = today.toISOString().split('T')[0];
-                    }
-                })
-                .catch(error => {
-                    console.error('Error submitting issue report:', error);
-                    
-                    // Hide spinner
-                    document.getElementById('issue-spinner').classList.add('hidden');
-                    
-                    // Show error toast
-                    showToast('Error', error.message || 'Failed to submit issue report', 'error');
-                });
-            });
-        }
-    }
+function initIssueFormSubmission() {
+    const issueForm = document.getElementById('issue-report-form');
     
-    // Load documents
-    function loadDocuments() {
-        const documentsContainer = document.getElementById('documents-container');
-        const productId = @Model.Id;
-        
-        // Fetch documents
-        fetch(`/api/Document/card/${productId}`)
+    if (issueForm) {
+        issueForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Basic validation
+            let isValid = true;
+            const requiredFields = ['IssueType', 'Description', 'ReporterName', 'ReporterEmail'];
+            
+            requiredFields.forEach(field => {
+                const input = this.elements[field];
+                if (!input.value.trim()) {
+                    isValid = false;
+                    input.classList.add('border-red-500');
+                    
+                    // Add error message
+                    let errorSpan = input.parentNode.querySelector('.error-message');
+                    if (!errorSpan) {
+                        errorSpan = document.createElement('span');
+                        errorSpan.className = 'error-message text-xs text-red-500 mt-1';
+                        input.parentNode.appendChild(errorSpan);
+                    }
+                    errorSpan.textContent = `${field.replace(/([A-Z])/g, ' $1').trim()} is required`;
+                } else {
+                    input.classList.remove('border-red-500');
+                    const errorSpan = input.parentNode.querySelector('.error-message');
+                    if (errorSpan) errorSpan.remove();
+                }
+            });
+            
+            // Validate email format
+            const emailInput = this.elements['ReporterEmail'];
+            if (emailInput.value && !isValidEmail(emailInput.value)) {
+                isValid = false;
+                emailInput.classList.add('border-red-500');
+                
+                let errorSpan = emailInput.parentNode.querySelector('.error-message');
+                if (!errorSpan) {
+                    errorSpan = document.createElement('span');
+                    errorSpan.className = 'error-message text-xs text-red-500 mt-1';
+                    emailInput.parentNode.appendChild(errorSpan);
+                }
+                errorSpan.textContent = 'Please enter a valid email address';
+            }
+            
+            if (!isValid) {
+                return false;
+            }
+            
+            // Show loading spinner
+            document.getElementById('issue-spinner').classList.remove('hidden');
+            document.getElementById('submit-issue').setAttribute('disabled', 'disabled');
+            
+            // Get form data
+            const formData = new FormData(this);
+            
+            // Convert to match server model properties
+            const issueData = {
+                CardId: parseInt(formData.get('CardId')),
+                IssueType: formData.get('IssueType'),
+                Priority: formData.get('Priority'),
+                Description: formData.get('Description'),
+                ReportDate: new Date(formData.get('ReportDate')).toISOString(),
+                ReporterName: formData.get('ReporterName'),
+                ReporterEmail: formData.get('ReporterEmail'),
+                ReporterPhone: formData.get('ReporterPhone') || '',
+                Status: "Open",
+                Resolution: "" // Add empty Resolution field
+            };
+            
+            // Get CSRF token
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || 
+                          document.querySelector('meta[name="RequestVerificationToken"]')?.content || '';
+            
+            // API call
+            fetch('/api/IssueReport', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token
+                },
+                body: JSON.stringify(issueData)
+            })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error(`HTTP error: ${response.status}`);
+                    return response.json().then(errorData => {
+                        throw new Error(errorData.error || `Server error: ${response.status}`);
+                    });
                 }
                 return response.json();
             })
-            .then(documents => {
-                if (documents && documents.length > 0) {
-                    // Clear loading spinner
-                    documentsContainer.innerHTML = '';
-                    
-                    // Create document list
-                    const documentList = document.createElement('div');
-                    documentList.className = 'space-y-4';
-                    
-                    documents.forEach(doc => {
-                        // Determine icon based on file type
-                        let fileIcon = 'fa-file';
-                        let iconColor = 'text-gray-600';
-                        
-                        if (doc.fileType) {
-                            if (doc.fileType.includes('pdf')) {
-                                fileIcon = 'fa-file-pdf';
-                                iconColor = 'text-red-600';
-                            } else if (doc.fileType.includes('image')) {
-                                fileIcon = 'fa-file-image';
-                                iconColor = 'text-blue-600';
-                            } else if (doc.fileType.includes('excel') || doc.fileType.includes('spreadsheet')) {
-                                fileIcon = 'fa-file-excel';
-                                iconColor = 'text-green-600';
-                            } else if (doc.fileType.includes('word') || doc.fileType.includes('document')) {
-                                fileIcon = 'fa-file-word';
-                                iconColor = 'text-blue-600';
-                            }
-                        }
-                        
-                        const documentItem = document.createElement('div');
-                        documentItem.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors';
-                        documentItem.innerHTML = `
-                            <div class="flex items-center flex-1">
-                                <div class="w-10 h-10 flex items-center justify-center bg-white rounded-lg ${iconColor}">
-                                    <i class="fas ${fileIcon}"></i>
-                                </div>
-                                <div class="ml-3 overflow-hidden">
-                                    <p class="font-medium truncate">${doc.title}</p>
-                                    <p class="text-xs text-gray-500">${doc.documentType || 'Document'} • ${formatFileSize(doc.fileSize || 0)}</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center">
-                                <button type="button" class="p-2 text-gray-400 hover:text-primary-600 document-preview-btn" 
-                                        data-id="${doc.id}" data-title="${doc.title}" data-path="${doc.filePath}">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <a href="/api/Document/download/${doc.id}" class="p-2 text-gray-400 hover:text-primary-600" 
-                                   download="${doc.fileName}" target="_blank">
-                                    <i class="fas fa-download"></i>
-                                </a>
-                            </div>
-                        `;
-                        
-                        documentList.appendChild(documentItem);
-                    });
-                    
-                    documentsContainer.appendChild(documentList);
-                } else {
-                    // No documents found
-                    documentsContainer.innerHTML = `
-                        <div class="text-center py-4">
-                            <div class="w-12 h-12 mx-auto rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-2">
-                                <i class="fas fa-file-alt"></i>
-                            </div>
-                            <p class="text-gray-500 text-sm">No documentation available for this product.</p>
-                        </div>
-                    `;
+            .then(data => {
+                // Hide spinner
+                document.getElementById('issue-spinner').classList.add('hidden');
+                document.getElementById('submit-issue').removeAttribute('disabled');
+                
+                // Hide modal
+                document.getElementById('report-issue-modal').classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+                
+                // Show success toast
+                showToast('Issue reported', 'Your issue has been submitted successfully', 'success');
+                
+                // Reset form
+                issueForm.reset();
+                
+                // Reload issues
+                loadIssueData();
+                
+                // Set default date again
+                const reportDateField = document.querySelector('input[name="ReportDate"]');
+                if (reportDateField) {
+                    const today = new Date();
+                    reportDateField.value = today.toISOString().split('T')[0];
                 }
             })
             .catch(error => {
-                console.error('Error fetching documents:', error);
-                documentsContainer.innerHTML = `
-                    <div class="text-center py-4">
-                        <div class="w-12 h-12 mx-auto rounded-full bg-red-100 flex items-center justify-center text-red-500 mb-2">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </div>
-                        <p class="text-red-500 text-sm">Failed to load documents. Please try again later.</p>
-                    </div>
-                `;
+                console.error('Error submitting issue report:', error);
+                
+                // Hide spinner
+                document.getElementById('issue-spinner').classList.add('hidden');
+                document.getElementById('submit-issue').removeAttribute('disabled');
+                
+                // Show error toast
+                showToast('Error', error.message || 'Failed to submit issue report', 'error');
             });
+        });
+        
+        // Clear validation errors when input changes
+        issueForm.querySelectorAll('input, textarea, select').forEach(input => {
+            input.addEventListener('input', function() {
+                this.classList.remove('border-red-500');
+                const errorSpan = this.parentNode.querySelector('.error-message');
+                if (errorSpan) errorSpan.remove();
+            });
+        });
+    }
+}
+
+// Add this helper function for email validation
+function isValidEmail(email) {
+    const re = /^(([^<>()\[\]\\.,;:\s@@"]+(\.[^<>()\[\]\\.,;:\s@@"]+)*)|(".+"))@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(String(email).toLowerCase());
+}
+
+// Replace the existing loadIssueData function with this improved version:
+function loadIssueData() {
+    const issuesContainer = document.getElementById('issues-container');
+    const productId = @Model.Id;
+    
+    if (!issuesContainer) {
+        console.error("Issues container not found");
+        return;
     }
     
+    // Show loading state
+    issuesContainer.innerHTML = `
+        <div class="text-center py-4">
+            <i class="fas fa-spinner fa-spin text-primary-500 mr-2"></i> Loading issues...
+        </div>
+    `;
+    
+    fetch(`/api/IssueReport/card/${productId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(issues => {
+            if (issues && issues.length > 0) {
+                // Clear loading spinner
+                issuesContainer.innerHTML = '';
+                
+                // Create issues list
+                const issueList = document.createElement('div');
+                issueList.className = 'space-y-4';
+                
+                issues.forEach(issue => {
+                    // Determine status color
+                    let statusColor = 'bg-blue-100 text-blue-800';
+                    if (issue.status === 'Open') {
+                        statusColor = 'bg-yellow-100 text-yellow-800';
+                    } else if (issue.status === 'In Progress') {
+                        statusColor = 'bg-blue-100 text-blue-800';
+                    } else if (issue.status === 'Resolved') {
+                        statusColor = 'bg-green-100 text-green-800';
+                    } else if (issue.status === 'Closed') {
+                        statusColor = 'bg-gray-100 text-gray-800';
+                    }
+                    
+                    // Get priority color
+                    let priorityColor = 'bg-gray-100';
+                    if (issue.priority === 'Low') {
+                        priorityColor = 'bg-blue-100 text-blue-800';
+                    } else if (issue.priority === 'Medium') {
+                        priorityColor = 'bg-yellow-100 text-yellow-800';
+                    } else if (issue.priority === 'High') {
+                        priorityColor = 'bg-orange-100 text-orange-800';
+                    } else if (issue.priority === 'Critical') {
+                        priorityColor = 'bg-red-100 text-red-800';
+                    }
+                    
+                    const issueDate = new Date(issue.reportDate);
+                    
+                    const issueItem = document.createElement('div');
+                    issueItem.className = 'p-4 bg-white border border-gray-200 rounded-lg shadow-sm';
+                    issueItem.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColor}">${issue.status}</span>
+                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-medium ${priorityColor}">${issue.priority}</span>
+                                </div>
+                                <h4 class="font-medium mt-2">${issue.issueType}</h4>
+                                <p class="text-sm text-gray-600 mt-1">${issue.description}</p>
+                                <div class="text-xs text-gray-500 mt-2">Reported on ${formatDate(issueDate)} by ${issue.reporterName}</div>
+                            </div>
+                        </div>
+                        ${issue.resolution ? `<div class="mt-3 pt-3 border-t border-gray-100">
+                            <p class="text-sm font-medium text-gray-700">Resolution:</p>
+                            <p class="text-sm text-gray-600">${issue.resolution}</p>
+                        </div>` : ''}
+                    `;
+                    
+                    issueList.appendChild(issueItem);
+                });
+                
+                issuesContainer.appendChild(issueList);
+            } else {
+                // No issues found
+                issuesContainer.innerHTML = `
+                    <div class="text-center py-4">
+                        <div class="w-12 h-12 mx-auto rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-2">
+                            <i class="fas fa-clipboard-check"></i>
+                        </div>
+                        <p class="text-gray-500 text-sm">No issues reported for this product.</p>
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error loading issues:', error);
+            issuesContainer.innerHTML = `
+                <div class="text-center py-4">
+                    <div class="w-12 h-12 mx-auto rounded-full bg-red-100 flex items-center justify-center text-red-500 mb-2">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <p class="text-red-500 text-sm">Failed to load issues: ${error.message}</p>
+                </div>
+            `;
+        });
+}
     // Load maintenance data
     function loadMaintenanceData() {
         const remindersContainer = document.getElementById('maintenance-reminders');
@@ -1058,30 +1177,33 @@ function redirectToLogin() {
                     const isPastDue = dueDate < new Date();
                     
                     remindersContainer.innerHTML = `
-                        <div class="p-2 ${isPastDue ? 'bg-red-50 border-red-200' : 'bg-white border-blue-200'} rounded-lg border shadow-sm">
+                        <div class="p-4 ${isPastDue ? 'bg-red-50 border-red-200' : 'bg-white border-blue-200'} rounded-lg border shadow-sm transform transition-all duration-300 hover:shadow-md hover:-translate-y-1">
                             <div class="flex items-center">
-                                <div class="flex-shrink-0 ${isPastDue ? 'text-red-500' : 'text-blue-500'}">
-                                    <i class="fas ${isPastDue ? 'fa-exclamation-circle' : 'fa-calendar-check'}"></i>
+                                <div class="flex-shrink-0 w-10 h-10 rounded-full ${isPastDue ? 'bg-red-100 text-red-500' : 'bg-blue-100 text-blue-500'} flex items-center justify-center">
+                                    <i class="fas ${isPastDue ? 'fa-exclamation-circle' : 'fa-calendar-check'} text-lg"></i>
                                 </div>
-                                <div class="ml-3">
+                                <div class="ml-4">
                                     <p class="font-medium ${isPastDue ? 'text-red-800' : 'text-blue-800'}">${nextReminder.title}</p>
-                                    <p class="text-xs ${isPastDue ? 'text-red-700' : 'text-blue-600'}">
+                                    <p class="text-sm ${isPastDue ? 'text-red-700' : 'text-blue-600'} mt-1">
                                         ${isPastDue ? 'Overdue: ' : 'Due: '}
-                                        ${formatDate(dueDate)}
-                                        (${isPastDue ? `${getDaysDiff(dueDate, new Date())} days overdue` : `${getDaysDiff(new Date(), dueDate)} days remaining`})
+                                        <span class="font-medium">${formatDate(dueDate)}</span>
+                                        <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${isPastDue ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}">
+                                            ${isPastDue ? `${getDaysDiff(dueDate, new Date())} days overdue` : `${getDaysDiff(new Date(), dueDate)} days remaining`}
+                                        </span>
                                     </p>
                                 </div>
                             </div>
-                            ${nextReminder.notes ? `<p class="mt-2 text-xs text-gray-600 border-t pt-2">${nextReminder.notes}</p>` : ''}
+                            ${nextReminder.notes ? `<div class="mt-3 pt-3 border-t ${isPastDue ? 'border-red-100' : 'border-blue-100'} text-sm ${isPastDue ? 'text-red-600' : 'text-blue-600'}">${nextReminder.notes}</div>` : ''}
                         </div>
                     `;
                     
                     // Add link to view all
                     if (reminders.length > 1) {
                         remindersContainer.innerHTML += `
-                            <div class="mt-2 text-right">
-                                <a href="#" id="view-all-reminders" class="text-xs text-blue-600 hover:text-blue-800">
+                            <div class="mt-3 text-right">
+                                <a href="#" id="view-all-reminders" class="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 font-medium">
                                     View all ${reminders.length} reminders
+                                    <i class="fas fa-chevron-right ml-1 text-xs"></i>
                                 </a>
                             </div>
                         `;
@@ -1093,24 +1215,32 @@ function redirectToLogin() {
                     if (historyItems.length > 0) {
                         historyContainer.innerHTML = `
                             <div class="space-y-4">
-                                ${historyItems.map(item => {
+                                ${historyItems.map((item, index) => {
                                     const itemDate = new Date(item.dueDate);
                                     const isCompleted = itemDate < new Date();
                                     
                                     return `
-                                        <div class="flex">
-                                            <div class="flex-shrink-0 mr-3">
-                                                <div class="w-8 h-8 rounded-full ${isCompleted ? 'bg-green-100' : 'bg-blue-100'} flex items-center justify-center">
+                                        <div class="flex bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
+                                            <div class="flex-shrink-0 mr-4">
+                                                <div class="w-10 h-10 rounded-full ${isCompleted ? 'bg-green-100' : 'bg-blue-100'} flex items-center justify-center">
                                                     <i class="fas ${isCompleted ? 'fa-check' : 'fa-clock'} ${isCompleted ? 'text-green-600' : 'text-blue-600'}"></i>
                                                 </div>
                                             </div>
                                             <div>
-                                                <h4 class="text-sm font-medium">${item.title}</h4>
-                                                <p class="text-xs text-gray-500">
-                                                    ${isCompleted ? 'Completed on: ' : 'Scheduled for: '}
-                                                    ${formatDate(itemDate)}
+                                                <h4 class="font-medium text-gray-800">${item.title}</h4>
+                                                <p class="text-sm text-gray-500 mt-1">
+                                                    ${isCompleted ? 'Was scheduled for: ' : 'Scheduled for: '}
+                                                    <span class="font-medium ${isCompleted ? 'text-red-600' : 'text-blue-600'}">${formatDate(itemDate)}</span>
+                                                    ${isCompleted ? 
+                                                        `<span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                            ${getDaysDiff(itemDate, new Date())} days overdue
+                                                        </span>` : 
+                                                        `<span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                            ${getDaysDiff(new Date(), itemDate)} days remaining
+                                                        </span>`
+                                                    }
                                                 </p>
-                                                ${item.notes ? `<p class="text-xs text-gray-600 mt-1">${item.notes}</p>` : ''}
+                                                ${item.notes ? `<p class="text-sm text-gray-600 mt-2 bg-gray-50 p-2 rounded">${item.notes}</p>` : ''}
                                             </div>
                                         </div>
                                     `;
@@ -1123,8 +1253,14 @@ function redirectToLogin() {
                 } else {
                     // No reminders found
                     remindersContainer.innerHTML = `
-                        <div class="p-2 bg-white border-blue-200 rounded-lg border shadow-sm">
-                            <p class="text-center text-gray-500 text-sm py-2">No scheduled maintenance</p>
+                        <div class="p-4 bg-white border-blue-200 rounded-lg border shadow-sm">
+                            <div class="text-center">
+                                <div class="w-12 h-12 mx-auto rounded-full bg-blue-100 flex items-center justify-center text-blue-400 mb-2">
+                                    <i class="fas fa-calendar-check text-xl"></i>
+                                </div>
+                                <p class="text-gray-600">No scheduled maintenance</p>
+                                <p class="text-sm text-gray-500 mt-1">This product doesn't have any upcoming maintenance tasks.</p>
+                            </div>
                         </div>
                     `;
                     
@@ -1135,8 +1271,14 @@ function redirectToLogin() {
             .catch(error => {
                 console.error('Error fetching maintenance data:', error);
                 remindersContainer.innerHTML = `
-                    <div class="p-2 bg-red-50 border-red-200 rounded-lg border shadow-sm">
-                        <p class="text-center text-red-500 text-sm py-2">Failed to load maintenance data</p>
+                    <div class="p-4 bg-red-50 border-red-200 rounded-lg border shadow-sm">
+                        <div class="text-center">
+                            <div class="w-12 h-12 mx-auto rounded-full bg-red-100 flex items-center justify-center text-red-400 mb-2">
+                                <i class="fas fa-exclamation-triangle text-xl"></i>
+                            </div>
+                            <p class="text-red-600">Failed to load maintenance data</p>
+                            <p class="text-sm text-red-500 mt-1">Please try refreshing the page.</p>
+                        </div>
                     </div>
                 `;
                 
@@ -1147,6 +1289,7 @@ function redirectToLogin() {
     // Initialize document preview modal
     function initDocumentPreview() {
         const previewModal = document.getElementById('document-preview-modal');
+        const modalContent = document.getElementById('document-modal-content');
         const closePreviewBtn = document.getElementById('close-doc-preview-modal');
         const closePreviewBtn2 = document.getElementById('close-preview-btn');
         const downloadBtn = document.getElementById('download-document-btn');
@@ -1168,22 +1311,30 @@ function redirectToLogin() {
                 // Show loading state
                 previewContent.innerHTML = `
                     <div class="flex justify-center items-center h-full">
-                        <i class="fas fa-spinner fa-spin text-2xl text-primary-500"></i>
+                        <i class="fas fa-spinner fa-spin text-3xl text-primary-500"></i>
                     </div>
                 `;
                 
                 // Set download button link
                 downloadBtn.setAttribute('data-id', docId);
                 
-                // Show modal
+                // Show modal with animation
                 previewModal.classList.remove('hidden');
+                setTimeout(() => {
+                    modalContent.classList.remove('scale-95', 'opacity-0');
+                    modalContent.classList.add('scale-100', 'opacity-100');
+                }, 10);
                 
                 // Attempt to display the file (this is simplified - would need proper implementation based on file type)
                 if (docPath) {
                     if (docPath.toLowerCase().endsWith('.pdf')) {
                         previewContent.innerHTML = `<iframe src="${docPath}" width="100%" height="100%" frameborder="0"></iframe>`;
                     } else if (docPath.toLowerCase().match(/\.(jpe?g|png|gif|bmp|svg)$/)) {
-                        previewContent.innerHTML = `<img src="${docPath}" alt="${docTitle}" class="max-w-full max-h-full mx-auto">`;
+                        previewContent.innerHTML = `
+                            <div class="flex justify-center items-center h-full bg-gray-50 p-4">
+                                <img src="${docPath}" alt="${docTitle}" class="max-w-full max-h-full mx-auto shadow-lg rounded-lg">
+                            </div>
+                        `;
                     } else {
                         previewContent.innerHTML = `
                             <div class="flex flex-col items-center justify-center h-full">
@@ -1192,7 +1343,7 @@ function redirectToLogin() {
                                 </div>
                                 <p class="text-lg font-medium text-gray-700">Preview not available</p>
                                 <p class="text-gray-500 mb-6">This document type cannot be previewed directly.</p>
-                                <a href="/api/Document/download/${docId}" class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700" download>
+                                <a href="/api/Document/download/${docId}" class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-all" download>
                                     <i class="fas fa-download mr-2"></i> Download to view
                                 </a>
                             </div>
@@ -1213,23 +1364,28 @@ function redirectToLogin() {
         });
         
         // Close modal events
-        if (closePreviewBtn) {
-            closePreviewBtn.addEventListener('click', () => {
+        function closeDocModal() {
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            
+            setTimeout(() => {
                 previewModal.classList.add('hidden');
-            });
+            }, 300);
+        }
+        
+        if (closePreviewBtn) {
+            closePreviewBtn.addEventListener('click', closeDocModal);
         }
         
         if (closePreviewBtn2) {
-            closePreviewBtn2.addEventListener('click', () => {
-                previewModal.classList.add('hidden');
-            });
+            closePreviewBtn2.addEventListener('click', closeDocModal);
         }
         
         // Close modal when clicking outside
         if (previewModal) {
             previewModal.addEventListener('click', function(e) {
                 if (e.target === previewModal) {
-                    previewModal.classList.add('hidden');
+                    closeDocModal();
                 }
             });
         }
@@ -1270,7 +1426,6 @@ function redirectToLogin() {
         document.execCommand('copy');
         document.body.removeChild(tempElement);
     }
-    
     // Toast notification system
     function initToastNotifications() {
         const toast = document.getElementById('toast-notification');
@@ -1278,10 +1433,7 @@ function redirectToLogin() {
         
         if (closeToast && toast) {
             closeToast.addEventListener('click', function() {
-                toast.classList.add('translate-y-20', 'opacity-0');
-                setTimeout(() => {
-                    toast.classList.add('hidden');
-                }, 300);
+                hideToast();
             });
         }
     }
@@ -1293,6 +1445,7 @@ function redirectToLogin() {
         const toastIcon = document.getElementById('toast-icon');
         const toastIconSymbol = document.getElementById('toast-icon-symbol');
         
+        // Set content
         toastMessage.textContent = message;
         toastDescription.textContent = description;
         
@@ -1311,44 +1464,46 @@ function redirectToLogin() {
             toastIconSymbol.className = 'fas fa-info text-blue-500';
         }
         
-        // Show toast
+        // Show toast with animation
         toast.classList.remove('hidden');
-        toast.classList.remove('translate-y-20', 'opacity-0');
+        setTimeout(() => {
+            toast.classList.remove('translate-y-20', 'opacity-0');
+        }, 10);
         
         // Auto hide after 5 seconds
         setTimeout(() => {
-            toast.classList.add('translate-y-20', 'opacity-0');
-            setTimeout(() => {
-                toast.classList.add('hidden');
-            }, 300);
+            hideToast();
         }, 5000);
+    }
+    
+    function hideToast() {
+        const toast = document.getElementById('toast-notification');
+        toast.classList.add('translate-y-20', 'opacity-0');
+        setTimeout(() => {
+            toast.classList.add('hidden');
+        }, 300);
     }
 
     // Load issue data function
     function loadIssueData() {
-        console.log("loadIssueData called");
         const issuesContainer = document.getElementById('issues-container');
         const productId = @Model.Id;
         
-        console.log(`Fetching issues for product ID: ${productId}`);
-        
         // Show loading state explicitly
         issuesContainer.innerHTML = `
-            <div class="text-center py-4">
+            <div class="text-center py-6 bg-gray-50 rounded-lg animate-pulse">
                 <i class="fas fa-spinner fa-spin text-primary-500 mr-2"></i> Loading issues...
             </div>
         `;
         
         fetch(`/api/IssueReport/card/${productId}`)
             .then(response => {
-                console.log("Response received:", response);
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
                 return response.json();
             })
             .then(issues => {
-                console.log("Issues data:", issues);
                 if (issues && issues.length > 0) {
                     // Clear loading spinner
                     issuesContainer.innerHTML = '';
@@ -1358,37 +1513,70 @@ function redirectToLogin() {
                     issueList.className = 'space-y-4';
                     
                     issues.forEach(issue => {
-                        // Determine status color
+                        // Determine status color and icon
                         let statusColor = 'bg-blue-100 text-blue-800';
+                        let statusIcon = 'fa-info-circle';
+                        
                         if (issue.status === 'Open') {
                             statusColor = 'bg-yellow-100 text-yellow-800';
+                            statusIcon = 'fa-exclamation-circle';
                         } else if (issue.status === 'In Progress') {
                             statusColor = 'bg-blue-100 text-blue-800';
+                            statusIcon = 'fa-spinner';
                         } else if (issue.status === 'Resolved') {
                             statusColor = 'bg-green-100 text-green-800';
+                            statusIcon = 'fa-check-circle';
                         } else if (issue.status === 'Closed') {
                             statusColor = 'bg-gray-100 text-gray-800';
+                            statusIcon = 'fa-check';
+                        }
+                        
+                        // Determine priority badge
+                        let priorityColor = 'bg-gray-100 text-gray-700';
+                        if (issue.priority === 'Low') {
+                            priorityColor = 'bg-blue-100 text-blue-800';
+                        } else if (issue.priority === 'Medium') {
+                            priorityColor = 'bg-yellow-100 text-yellow-800';
+                        } else if (issue.priority === 'High') {
+                            priorityColor = 'bg-orange-100 text-orange-800';
+                        } else if (issue.priority === 'Critical') {
+                            priorityColor = 'bg-red-100 text-red-800';
                         }
                         
                         const issueDate = new Date(issue.reportDate);
                         
                         const issueItem = document.createElement('div');
-                        issueItem.className = 'p-4 bg-white border border-gray-200 rounded-lg shadow-sm';
+                        issueItem.className = 'p-4 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1';
                         issueItem.innerHTML = `
                             <div class="flex justify-between items-start">
-                                <div>
-                                    <div class="flex items-center gap-2">
-                                        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColor}">${issue.status}</span>
-                                        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100">${issue.priority}</span>
+                                <div class="flex-grow">
+                                    <div class="flex flex-wrap items-center gap-2 mb-2">
+                                        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium flex items-center gap-1 ${statusColor}">
+                                            <i class="fas ${statusIcon}"></i>
+                                            <span>${issue.status}</span>
+                                        </span>
+                                        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium flex items-center gap-1 ${priorityColor}">
+                                            ${issue.priority === 'Critical' ? '<i class="fas fa-exclamation-triangle"></i>' : ''}
+                                            ${issue.priority}
+                                        </span>
+                                        <span class="text-xs text-gray-500 ml-auto">
+                                            Reported ${formatTimeAgo(issueDate)}
+                                        </span>
                                     </div>
-                                    <h4 class="font-medium mt-2">${issue.issueType}</h4>
-                                    <p class="text-sm text-gray-600 mt-1">${issue.description}</p>
-                                    <div class="text-xs text-gray-500 mt-2">Reported on ${formatDate(issueDate)} by ${issue.reporterName}</div>
+                                    <h4 class="text-lg font-medium text-gray-800">${issue.issueType}</h4>
+                                    <p class="text-sm text-gray-600 mt-2 bg-gray-50 p-3 rounded-lg">${issue.description}</p>
+                                    <div class="text-xs text-gray-500 mt-3 flex items-center">
+                                        <i class="fas fa-user mr-1"></i> Reported by ${issue.reporterName}
+                                        ${issue.reporterEmail ? `<span class="mx-2">•</span><a href="mailto:${issue.reporterEmail}" class="text-blue-600 hover:underline"><i class="fas fa-envelope mr-1"></i>${issue.reporterEmail}</a>` : ''}
+                                    </div>
                                 </div>
                             </div>
-                            ${issue.resolution ? `<div class="mt-3 pt-3 border-t border-gray-100">
-                                <p class="text-sm font-medium text-gray-700">Resolution:</p>
-                                <p class="text-sm text-gray-600">${issue.resolution}</p>
+                            ${issue.resolution ? `
+                            <div class="mt-4 pt-3 border-t border-gray-100">
+                                <p class="text-sm font-medium text-gray-700 flex items-center">
+                                    <i class="fas fa-comment-dots mr-2 text-green-500"></i> Resolution:
+                                </p>
+                                <p class="text-sm text-gray-600 mt-1 bg-green-50 p-3 rounded-lg">${issue.resolution}</p>
                             </div>` : ''}
                         `;
                         
@@ -1399,23 +1587,41 @@ function redirectToLogin() {
                 } else {
                     // No issues found
                     issuesContainer.innerHTML = `
-                        <div class="text-center py-4">
-                            <div class="w-12 h-12 mx-auto rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-2">
-                                <i class="fas fa-clipboard-check"></i>
+                        <div class="text-center py-8 bg-gray-50 rounded-lg">
+                            <div class="w-16 h-16 mx-auto rounded-full bg-green-100 flex items-center justify-center text-green-500 mb-3">
+                                <i class="fas fa-check-circle text-2xl"></i>
                             </div>
-                            <p class="text-gray-500 text-sm">No issues reported for this product.</p>
+                            <p class="text-gray-600 font-medium">No issues reported</p>
+                            <p class="text-sm text-gray-500 mt-2">This product appears to be working properly.</p>
+                            <button id="report-new-issue" class="mt-4 inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all">
+                                <i class="fas fa-plus mr-2"></i> Report a New Issue
+                            </button>
                         </div>
                     `;
+                    
+                    // Add event listener to the "Report a New Issue" button
+                    setTimeout(() => {
+                        const reportNewIssueBtn = document.getElementById('report-new-issue');
+                        if (reportNewIssueBtn) {
+                            reportNewIssueBtn.addEventListener('click', function() {
+                                const reportIssueBtn = document.getElementById('report-issue-btn');
+                                if (reportIssueBtn) {
+                                    reportIssueBtn.click();
+                                }
+                            });
+                        }
+                    }, 100);
                 }
             })
             .catch(error => {
                 console.error('Error loading issues:', error);
                 issuesContainer.innerHTML = `
-                    <div class="text-center py-4">
-                        <div class="w-12 h-12 mx-auto rounded-full bg-red-100 flex items-center justify-center text-red-500 mb-2">
-                            <i class="fas fa-exclamation-triangle"></i>
+                    <div class="text-center py-8 bg-red-50 rounded-lg">
+                        <div class="w-16 h-16 mx-auto rounded-full bg-red-100 flex items-center justify-center text-red-500 mb-3">
+                            <i class="fas fa-exclamation-triangle text-2xl"></i>
                         </div>
-                        <p class="text-red-500 text-sm">Failed to load issues: ${error.message}</p>
+                        <p class="text-red-600 font-medium">Failed to load issues</p>
+                        <p class="text-sm text-red-500 mt-2">${error.message || 'Please try again later.'}</p>
                     </div>
                 `;
             });
@@ -1428,6 +1634,36 @@ function redirectToLogin() {
         }
         const options = { year: 'numeric', month: 'short', day: 'numeric' };
         return date.toLocaleDateString('en-US', options);
+    }
+    
+    function formatTimeAgo(date) {
+        if (!(date instanceof Date) || isNaN(date)) {
+            return 'Invalid date';
+        }
+        
+        const seconds = Math.floor((new Date() - date) / 1000);
+        
+        // Time intervals in seconds
+        const intervals = {
+            year: 31536000,
+            month: 2592000,
+            week: 604800,
+            day: 86400,
+            hour: 3600,
+            minute: 60
+        };
+        
+        if (seconds < 60) {
+            return 'just now';
+        }
+        
+        for (const [unit, secondsInUnit] of Object.entries(intervals)) {
+            const interval = Math.floor(seconds / secondsInUnit);
+            
+            if (interval >= 1) {
+                return interval === 1 ? `1 ${unit} ago` : `${interval} ${unit}s ago`;
+            }
+        }
     }
     
     function formatFileSize(bytes) {
@@ -1445,13 +1681,39 @@ function redirectToLogin() {
     
     function noDataTemplate(message) {
         return `
-            <div class="text-center py-4">
-                <div class="w-12 h-12 mx-auto rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-2">
-                    <i class="fas fa-clipboard-list"></i>
+            <div class="text-center py-6 bg-gray-50 rounded-lg">
+                <div class="w-16 h-16 mx-auto rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-3">
+                    <i class="fas fa-clipboard-list text-2xl"></i>
                 </div>
-                <p class="text-gray-500 text-sm">${message}</p>
+                <p class="text-gray-600">${message}</p>
+                <p class="text-sm text-gray-500 mt-2">Data will appear here once available.</p>
             </div>
         `;
     }
+    
+    // Share functionality for the share button
+    document.getElementById('share-btn')?.addEventListener('click', function() {
+        // Create share data
+        const shareData = {
+            title: '@Model.ProductName',
+            text: 'View product information',
+            url: window.location.href
+        };
+        
+        // Use the Web Share API if available
+        if (navigator.share) {
+            navigator.share(shareData)
+                .then(() => showToast('Shared successfully', '', 'success'))
+                .catch(error => {
+                    console.error('Error sharing:', error);
+                    copyToClipboard(window.location.href);
+                    showToast('Link copied to clipboard', 'Share this link with others', 'info');
+                });
+        } else {
+            // Fallback to copy to clipboard
+            copyToClipboard(window.location.href);
+            showToast('Link copied to clipboard', 'Share this link with others', 'info');
+        }
+    });
 </script>
 }

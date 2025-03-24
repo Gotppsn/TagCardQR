@@ -37,7 +37,12 @@ builder.Services.AddSingleton<LdapAuthenticationService>(provider =>
 builder.Services.AddAntiforgery(options => 
 {
     options.HeaderName = "RequestVerificationToken";
-});    
+    options.SuppressXFrameOptionsHeader = false;
+    options.Cookie.Name = "X-CSRF-TOKEN";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    options.Cookie.SameSite = SameSiteMode.Strict;
+});  
 
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<FileUploadService>();
