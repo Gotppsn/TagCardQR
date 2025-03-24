@@ -915,31 +915,64 @@
             </div>
             
             <!-- UI Elements Visibility Section -->
-            <div class="mt-6 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
-                    <h4 class="font-medium text-gray-700 flex items-center">
-                        <i class="fas fa-eye text-primary-500 mr-2"></i> UI Elements Visibility
-                    </h4>
-                </div>
-                <div class="p-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
-                            <span class="flex items-center">
-                                <i class="fas fa-exclamation-triangle text-gray-400 mr-2 w-5"></i>
-                                <span class="text-gray-800">Hide "Report Issue" Button</span>
-                            </span>
-                            <input type="checkbox" name="scan_ui_elements" value="hide_report_issue" class="toggle-checkbox">
-                        </label>
-                        <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
-                            <span class="flex items-center">
-                                <i class="fas fa-headset text-gray-400 mr-2 w-5"></i>
-                                <span class="text-gray-800">Hide "Contact Support" Section</span>
-                            </span>
-                            <input type="checkbox" name="scan_ui_elements" value="hide_contact" class="toggle-checkbox">
-                        </label>
-                    </div>
-                </div>
-            </div>
+<div class="mt-6 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
+        <h4 class="font-medium text-gray-700 flex items-center">
+            <i class="fas fa-eye text-primary-500 mr-2"></i> UI Elements Visibility
+        </h4>
+    </div>
+    <div class="p-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
+                <span class="flex items-center">
+                    <i class="fas fa-exclamation-triangle text-gray-400 mr-2 w-5"></i>
+                    <span class="text-gray-800">Hide "Report Issue" Button</span>
+                </span>
+                <input type="checkbox" name="scan_ui_elements" value="hide_report_issue" class="toggle-checkbox">
+            </label>
+            
+            <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
+                <span class="flex items-center">
+                    <i class="fas fa-headset text-gray-400 mr-2 w-5"></i>
+                    <span class="text-gray-800">Hide "Contact Support" Section</span>
+                </span>
+                <input type="checkbox" name="scan_ui_elements" value="hide_contact_support" class="toggle-checkbox">
+            </label>
+            
+            <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
+                <span class="flex items-center">
+                    <i class="fas fa-info-circle text-gray-400 mr-2 w-5"></i>
+                    <span class="text-gray-800">Hide Product Details Section</span>
+                </span>
+                <input type="checkbox" name="scan_ui_elements" value="hide_product_details" class="toggle-checkbox">
+            </label>
+            
+            <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
+                <span class="flex items-center">
+                    <i class="fas fa-phone-alt text-gray-400 mr-2 w-5"></i>
+                    <span class="text-gray-800">Hide Contact Support Button</span>
+                </span>
+                <input type="checkbox" name="scan_ui_elements" value="hide_contact" class="toggle-checkbox">
+            </label>
+            
+            <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
+                <span class="flex items-center">
+                    <i class="fas fa-history text-gray-400 mr-2 w-5"></i>
+                    <span class="text-gray-800">Hide Maintenance History</span>
+                </span>
+                <input type="checkbox" name="scan_ui_elements" value="hide_maintenance_history" class="toggle-checkbox">
+            </label>
+            
+            <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
+                <span class="flex items-center">
+                    <i class="fas fa-tools text-gray-400 mr-2 w-5"></i>
+                    <span class="text-gray-800">Hide Maintenance Information</span>
+                </span>
+                <input type="checkbox" name="scan_ui_elements" value="hide_maintenance_info" class="toggle-checkbox">
+            </label>
+        </div>
+    </div>
+</div>
             
  <!-- Preview Section -->
 <div class="mt-8 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">

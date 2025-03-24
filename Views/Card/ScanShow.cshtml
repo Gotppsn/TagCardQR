@@ -203,8 +203,10 @@
             </div>
 
             <!-- Product Details Section -->
-            <div id="product-details" class="p-6 border-t border-gray-100">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4">Product Details</h3>
+            <div id="product-details" class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+    <h3 class="font-bold text-gray-700 flex items-center">
+        <i class="fas fa-info-circle text-primary-500 mr-2"></i> Product Details
+    </h3>
                 
                 <div class="grid grid-cols-2 gap-x-4 gap-y-6">
                     <div id="manufacture-date-section">
@@ -291,17 +293,17 @@
                 <i class="fas fa-exclamation-circle text-orange-500 mr-3"></i>
                 <span class="font-medium">Report Issue</span>
             </a>
-            <a href="#contact" class="flex items-center justify-center bg-white rounded-lg p-4 shadow-md hover:shadow-lg transition-shadow">
-                <i class="fas fa-headset text-primary-500 mr-3"></i>
-                <span class="font-medium">Contact Support</span>
-            </a>
+            <a href="#contact" id="contact-support" class="flex items-center justify-center bg-white rounded-lg p-4 shadow-md hover:shadow-lg transition-shadow">
+    <i class="fas fa-headset text-primary-500 mr-3"></i>
+    <span class="font-medium">Contact Support</span>
+</a>
         </div>
 
         <!-- Maintenance History -->
-        <div id="maintenance-history" class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
-            <div class="px-6 py-4 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
-                <h3 class="font-semibold text-gray-800">Maintenance History</h3>
-            </div>
+<div id="maintenance-history" class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+    <div class="px-6 py-4 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
+        <h3 class="font-semibold text-gray-800">Maintenance History</h3>
+    </div>
             <!-- Sample history items -->
             <div class="p-4" id="maintenance-history-content">
                 <div class="loader-spinner text-center py-4">
@@ -604,7 +606,7 @@
 });
     
     // Function to apply scan settings from URL parameters
- function applyScanSettings() {
+function applyScanSettings() {
     const urlParams = new URLSearchParams(window.location.search);
     const fields = urlParams.getAll('field');
     const uiElements = urlParams.getAll('ui');
@@ -658,15 +660,101 @@
         });
     }
     
-    // Handle UI element visibility
-    if (uiElements.includes('hide_report_issue')) hideElement('#report-issue-btn');
-    if (uiElements.includes('hide_contact')) hideElement('#contact');
+    // Handle UI element visibility - using very specific selectors
+    
+    // Hide Report Issue button
+    if (uiElements.includes('hide_report_issue')) {
+        hideElement('#report-issue-btn');
+        hideElement('a[href="#"][id="report-issue-btn"]');
+    }
+    
+    // Hide Contact Support section
+    if (uiElements.includes('hide_contact_support')) {
+        hideElement('.contact-support');
+        hideElement('#contact-support');
+        hideElement('div:has(> h3:contains("Contact Support"))');
+        hideElement('a[href="#contact"]');
+    }
+    
+    // Hide Product Details section
+    if (uiElements.includes('hide_product_details')) {
+        hideElement('#product-details');
+        hideElement('div:has(> h3:contains("Product Details"))');
+        hideElement('div:has(> h3:contains("Basic Information"))');
+        hideElement('div[id="product-details"]');
+    }
+    
+    // Hide Contact Support button
+    if (uiElements.includes('hide_contact')) {
+        hideElement('#contact');
+        hideElement('div[id="contact"]');
+        hideElement('div:has(> h3:contains("Contact Support"))');
+    }
+    
+    // Hide Maintenance History
+    if (uiElements.includes('hide_maintenance_history')) {
+        hideElement('#maintenance-history');
+        hideElement('div[id="maintenance-history"]');
+        hideElement('div:has(> h3:contains("Maintenance History"))');
+    }
+    
+    // Hide Maintenance Information
+    if (uiElements.includes('hide_maintenance_info')) {
+        hideElement('#maintenance');
+        hideElement('div[id="maintenance"]');
+        hideElement('div:has(> h3:contains("Maintenance Information"))');
+    }
 }
 
 // Helper function to hide an element by selector
 function hideElement(selector) {
-    const element = document.querySelector(selector);
-    if (element) element.style.display = 'none';
+    try {
+        const elements = document.querySelectorAll(selector);
+        if (elements && elements.length > 0) {
+            elements.forEach(el => {
+                el.style.display = 'none';
+                console.log(`Hidden element: ${selector}`);
+            });
+        } else {
+            console.log(`Element not found: ${selector}`);
+            
+            // Try direct parent element matching
+            if (selector.includes('Product Details')) {
+                const h3Elements = document.querySelectorAll('h3');
+                h3Elements.forEach(h3 => {
+                    if (h3.textContent.includes('Product Details')) {
+                        const parent = h3.closest('div');
+                        if (parent) {
+                            parent.style.display = 'none';
+                            console.log('Hidden Product Details via h3 text content');
+                        }
+                    }
+                });
+            }
+            
+            if (selector.includes('Contact Support')) {
+                const contactElements = document.querySelectorAll('div');
+                contactElements.forEach(div => {
+                    if (div.textContent.includes('Contact Support')) {
+                        div.style.display = 'none';
+                        console.log('Hidden Contact Support via text content');
+                    }
+                });
+            }
+            
+            if (selector.includes('Maintenance History')) {
+                const historyElements = document.querySelectorAll('div');
+                historyElements.forEach(div => {
+                    if (div.textContent.includes('Maintenance History')) {
+                        div.style.display = 'none';
+                        console.log('Hidden Maintenance History via text content');
+                    }
+                });
+            }
+        }
+    } catch (error) {
+        console.error(`Error hiding element ${selector}:`, error);
+    }
 }
 
 // Check if user is logged in
