@@ -468,7 +468,7 @@
             <div class="p-5">
                 <form id="issue-report-form">
                     <input type="hidden" name="CardId" value="@Model.Id">
-                    
+                    @Html.AntiForgeryToken()
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Issue Type</label>
                         <select name="IssueType" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all" required>
@@ -1016,7 +1016,7 @@ function initIssueFormSubmission() {
                 ReporterEmail: formData.get('ReporterEmail'),
                 ReporterPhone: formData.get('ReporterPhone') || '',
                 Status: "Open",
-                Resolution: "" // Add empty Resolution field
+                Resolution: "" // Required to match the model
             };
             
             // Get CSRF token
@@ -1046,16 +1046,26 @@ function initIssueFormSubmission() {
                 if (spinner) spinner.classList.add('hidden');
                 if (submitBtn) submitBtn.removeAttribute('disabled');
                 
-                // Hide modal
-                const modal = document.getElementById('report-issue-modal');
-                if (modal) modal.classList.add('hidden');
-                document.body.classList.remove('overflow-hidden');
+                // Close modal with animation instead of hiding directly
+                const modalContent = document.getElementById('modal-content');
+                const reportIssueModal = document.getElementById('report-issue-modal');
                 
-                // Show success toast
-                showToast('Issue reported', 'Your issue has been submitted successfully', 'success');
+                if (modalContent && reportIssueModal) {
+                    // Animation
+                    modalContent.classList.remove('scale-100', 'opacity-100');
+                    modalContent.classList.add('scale-95', 'opacity-0');
+                    
+                    setTimeout(() => {
+                        reportIssueModal.classList.add('hidden');
+                        document.body.classList.remove('overflow-hidden');
+                    }, 300);
+                }
                 
                 // Reset form
                 issueForm.reset();
+                
+                // Show success toast
+                showToast('Issue reported', 'Your issue has been submitted successfully', 'success');
                 
                 // Reload issues
                 loadIssueData();
@@ -1067,6 +1077,7 @@ function initIssueFormSubmission() {
                     reportDateField.value = today.toISOString().split('T')[0];
                 }
             })
+
             .catch(error => {
                 console.error('Error submitting issue report:', error);
                 
