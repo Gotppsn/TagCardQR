@@ -122,49 +122,6 @@
                 
                 <div class="mt-5 space-y-3">
                     <div class="grid grid-cols-2 gap-4">
-                        @{
-                            // Parse CustomFieldsData to get ModelNumber if available
-                            string modelNumber = "";
-                            try {
-                                if (!string.IsNullOrEmpty(Model.CustomFieldsData) && Model.CustomFieldsData != "{}")
-                                {
-                                    var customFields = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(Model.CustomFieldsData);
-                                    if (customFields.ContainsKey("ModelNumber")) {
-                                        modelNumber = customFields["ModelNumber"];
-                                    }
-                                }
-                            } catch {}
-                        }
-                        <div data-custom-field="ModelNumber" class="bg-white/10 p-3 rounded-lg">
-                            <p class="text-sm opacity-80">Model Number</p>
-                            <p class="font-medium flex items-center mt-1">
-                                <i class="fas fa-tag mr-2" style="color: @Model.AccentColor"></i>
-                                @(string.IsNullOrEmpty(modelNumber) ? "N/A" : modelNumber)
-                            </p>
-                        </div>
-                        
-                        @{
-                            // Parse CustomFieldsData to get SerialNumber if available
-                            string serialNumber = "";
-                            try {
-                                if (!string.IsNullOrEmpty(Model.CustomFieldsData) && Model.CustomFieldsData != "{}")
-                                {
-                                    var customFields = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(Model.CustomFieldsData);
-                                    if (customFields.ContainsKey("SerialNumber")) {
-                                        serialNumber = customFields["SerialNumber"];
-                                    }
-                                }
-                            } catch {}
-                        }
-                        <div data-custom-field="SerialNumber" class="bg-white/10 p-3 rounded-lg">
-                            <p class="text-sm opacity-80">Serial Number</p>
-                            <p class="font-medium flex items-center mt-1">
-                                <i class="fas fa-fingerprint mr-2" style="color: @Model.AccentColor"></i>
-                                @(string.IsNullOrEmpty(serialNumber) ? "N/A" : serialNumber)
-                            </p>
-                        </div>
-                    </div>
-                    
                     <div id="location-section" class="bg-white/10 p-3 rounded-lg">
                         <p class="text-sm opacity-80">Location</p>
                         <p class="font-medium flex items-center mt-1">
@@ -354,127 +311,152 @@
             </div>
         </div>
         
-        <!-- Contact Support Section -->
-        <div id="contact" class="bg-white rounded-xl shadow-md overflow-hidden mb-6 transform transition-all duration-300 hover:shadow-lg">
-            <div class="px-6 py-4 bg-gradient-to-r from-blue-500 to-primary-500 text-white">
-                <h3 class="font-semibold flex items-center text-lg">
-                    <i class="fas fa-headset mr-2"></i> Contact Support
-                </h3>
-            </div>
-            <div class="p-5">
-                <h4 class="text-md font-medium text-gray-800 mb-4">Contact Information</h4>
+<!-- Contact Support Section -->
+<div id="contact" class="bg-white rounded-xl shadow-md overflow-hidden mb-6 transform transition-all duration-300 hover:shadow-lg">
+    <div class="px-6 py-4 bg-gradient-to-r from-blue-500 to-primary-500 text-white">
+        <h3 class="font-semibold flex items-center text-lg">
+            <i class="fas fa-headset mr-2"></i> Contact Support
+        </h3>
+    </div>
+    <div class="p-5">
+        <h4 class="text-md font-medium text-gray-800 mb-4">Contact Information</h4>
+        
+        <div class="bg-gray-50 rounded-lg p-5 border border-gray-200 shadow-sm">
+            @{
+                // Extract creator details - prioritize LDAP user data
+                string userFullName = string.Empty;
+                string email = string.Empty;
+                string department = string.Empty;
+                string plantName = string.Empty;
+                string phoneNumber = string.Empty;
                 
-                <div class="bg-gray-50 rounded-lg p-5 border border-gray-200 shadow-sm">
-                    @{
-                        // Extract creator details from CustomFieldsData
-                        string userFullName = string.Empty;
-                        string email = string.Empty;
-                        string department = string.Empty;
-                        string plantName = string.Empty;
-                        string phoneNumber = string.Empty;
-                        
-                        // Try extracting from CustomFieldsData
-                        try {
-                            if (!string.IsNullOrEmpty(Model.CustomFieldsData) && Model.CustomFieldsData != "{}")
-                            {
-                                var customFields = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(Model.CustomFieldsData);
-                                if (customFields.ContainsKey("UserFullName")) userFullName = customFields["UserFullName"];
-                                if (customFields.ContainsKey("Email")) email = customFields["Email"];
-                                if (customFields.ContainsKey("Department")) department = customFields["Department"];
-                                if (customFields.ContainsKey("PlantName")) plantName = customFields["PlantName"];
-                                if (customFields.ContainsKey("PhoneNumber")) phoneNumber = customFields["PhoneNumber"];
-                            }
-                        } catch {}
-                        
-                        // If not found in CustomFieldsData, try using CreatedBy info
-                        if (string.IsNullOrEmpty(userFullName) && !string.IsNullOrEmpty(Model.CreatedBy)) {
-                            userFullName = Model.CreatedBy;
-                        }
-                    }
-
-                    <div class="space-y-4">
-                        @if (!string.IsNullOrEmpty(userFullName))
-                        {
-                            <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-custom-field="UserFullName">
-                                <div class="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
-                                    <i class="fas fa-user text-primary-600"></i>
-                                </div>
-                                <div class="ml-3">
-                                    <div class="text-sm text-gray-500">Contact Person</div>
-                                    <div class="font-medium text-gray-800">@userFullName</div>
-                                </div>
-                            </div>
-                        }
-                        
-                        @if (!string.IsNullOrEmpty(email))
-                        {
-                            <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-custom-field="Email">
-                                <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                                    <i class="fas fa-envelope text-blue-600"></i>
-                                </div>
-                                <div class="ml-3">
-                                    <div class="text-sm text-gray-500">Email Address</div>
-                                    <div class="font-medium">
-                                        <a href="mailto:@email" class="text-blue-600 hover:underline">@email</a>
-                                    </div>
-                                </div>
-                            </div>
-                        }
-                        
-                        @if (!string.IsNullOrEmpty(phoneNumber))
-                        {
-                            <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-custom-field="PhoneNumber">
-                                <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                                    <i class="fas fa-phone text-green-600"></i>
-                                </div>
-                                <div class="ml-3">
-                                    <div class="text-sm text-gray-500">Phone Number</div>
-                                    <div class="font-medium">
-                                        <a href="tel:@phoneNumber" class="text-green-600 hover:underline">@phoneNumber</a>
-                                    </div>
-                                </div>
-                            </div>
-                        }
-                        
-                        @if (!string.IsNullOrEmpty(department))
-                        {
-                            <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-custom-field="Department">
-                                <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center flex-shrink-0">
-                                    <i class="fas fa-building text-yellow-600"></i>
-                                </div>
-                                <div class="ml-3">
-                                    <div class="text-sm text-gray-500">Department</div>
-                                    <div class="font-medium text-gray-800">@department</div>
-                                </div>
-                            </div>
-                        }
-                        
-                        @if (!string.IsNullOrEmpty(plantName))
-                        {
-                            <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-custom-field="PlantName">
-                                <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
-                                    <i class="fas fa-industry text-purple-600"></i>
-                                </div>
-                                <div class="ml-3">
-                                    <div class="text-sm text-gray-500">Plant/Location</div>
-                                    <div class="font-medium text-gray-800">@plantName</div>
-                                </div>
-                            </div>
-                        }
-                    </div>
+                // First try to get data from LDAP (User.Claims) if user is authenticated
+                if (User.Identity?.IsAuthenticated == true)
+                {
+                    userFullName = User.FindFirst("FullName")?.Value ?? string.Empty;
+                    email = User.FindFirst("Email")?.Value ?? string.Empty;
+                    department = User.FindFirst("Department")?.Value ?? string.Empty;
+                    plantName = User.FindFirst("PlantName")?.Value ?? string.Empty;
                     
-                    @if (string.IsNullOrEmpty(userFullName) && string.IsNullOrEmpty(email) && 
-                         string.IsNullOrEmpty(department) && string.IsNullOrEmpty(plantName))
-                    {
-                        <div class="text-center py-6 text-gray-500">
-                            <i class="fas fa-user-slash text-4xl mb-3 text-gray-400"></i>
-                            <p>No contact information available for this product.</p>
+                    // Note: PhoneNumber is typically not stored in default LDAP claims
+                    // You may need to add this claim in AccountController.cs if available
+                }
+                
+                // If LDAP data not found, fall back to CustomFieldsData
+                if (string.IsNullOrEmpty(userFullName) || string.IsNullOrEmpty(email))
+                {
+                    try {
+                        if (!string.IsNullOrEmpty(Model.CustomFieldsData) && Model.CustomFieldsData != "{}")
+                        {
+                            var customFields = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(Model.CustomFieldsData);
+                            
+                            // Only use these values if not already set from LDAP
+                            if (string.IsNullOrEmpty(userFullName) && customFields.ContainsKey("UserFullName")) 
+                                userFullName = customFields["UserFullName"];
+                                
+                            if (string.IsNullOrEmpty(email) && customFields.ContainsKey("Email")) 
+                                email = customFields["Email"];
+                                
+                            if (string.IsNullOrEmpty(department) && customFields.ContainsKey("Department")) 
+                                department = customFields["Department"];
+                                
+                            if (string.IsNullOrEmpty(plantName) && customFields.ContainsKey("PlantName")) 
+                                plantName = customFields["PlantName"];
+                                
+                            if (string.IsNullOrEmpty(phoneNumber) && customFields.ContainsKey("PhoneNumber")) 
+                                phoneNumber = customFields["PhoneNumber"];
+                        }
+                    } catch {}
+                }
+                
+                // Final fallback to CreatedBy field for username
+                if (string.IsNullOrEmpty(userFullName) && !string.IsNullOrEmpty(Model.CreatedBy)) {
+                    userFullName = Model.CreatedBy;
+                }
+            }
+
+            <div class="space-y-4">
+                @if (!string.IsNullOrEmpty(userFullName))
+                {
+                    <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-custom-field="UserFullName">
+                        <div class="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-user text-primary-600"></i>
                         </div>
-                    }
-                </div>
+                        <div class="ml-3">
+                            <div class="text-sm text-gray-500">Contact Person</div>
+                            <div class="font-medium text-gray-800">@userFullName</div>
+                        </div>
+                    </div>
+                }
+                
+                @if (!string.IsNullOrEmpty(email))
+                {
+                    <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-custom-field="Email">
+                        <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-envelope text-blue-600"></i>
+                        </div>
+                        <div class="ml-3">
+                            <div class="text-sm text-gray-500">Email Address</div>
+                            <div class="font-medium">
+                                <a href="mailto:@email" class="text-blue-600 hover:underline">@email</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+                
+                @if (!string.IsNullOrEmpty(phoneNumber))
+                {
+                    <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-custom-field="PhoneNumber">
+                        <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-phone text-green-600"></i>
+                        </div>
+                        <div class="ml-3">
+                            <div class="text-sm text-gray-500">Phone Number</div>
+                            <div class="font-medium">
+                                <a href="tel:@phoneNumber" class="text-green-600 hover:underline">@phoneNumber</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+                
+                @if (!string.IsNullOrEmpty(department))
+                {
+                    <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-custom-field="Department">
+                        <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-building text-yellow-600"></i>
+                        </div>
+                        <div class="ml-3">
+                            <div class="text-sm text-gray-500">Department</div>
+                            <div class="font-medium text-gray-800">@department</div>
+                        </div>
+                    </div>
+                }
+                
+                @if (!string.IsNullOrEmpty(plantName))
+                {
+                    <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-custom-field="PlantName">
+                        <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-industry text-purple-600"></i>
+                        </div>
+                        <div class="ml-3">
+                            <div class="text-sm text-gray-500">Plant/Location</div>
+                            <div class="font-medium text-gray-800">@plantName</div>
+                        </div>
+                    </div>
+                }
             </div>
+            
+            @if (string.IsNullOrEmpty(userFullName) && string.IsNullOrEmpty(email) && 
+                 string.IsNullOrEmpty(department) && string.IsNullOrEmpty(plantName))
+            {
+                <div class="text-center py-6 text-gray-500">
+                    <i class="fas fa-user-slash text-4xl mb-3 text-gray-400"></i>
+                    <p>No contact information available for this product.</p>
+                </div>
+            }
         </div>
     </div>
+</div>
 
     <!-- Report Issue Modal -->
 <div id="report-issue-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
