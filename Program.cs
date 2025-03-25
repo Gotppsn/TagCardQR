@@ -3,6 +3,7 @@ using CardTagManager.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.AspNetCore.Antiforgery;
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
@@ -80,6 +81,12 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Card}/{action=Index}/{id?}");
+
+app.MapGet("/api/antiforgery/token", (HttpContext context, IAntiforgery antiforgery) =>
+{
+    var tokens = antiforgery.GetAndStoreTokens(context);
+    return Results.Ok(new { token = tokens.RequestToken });
+});
 
 app.Run();
 

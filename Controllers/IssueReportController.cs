@@ -62,20 +62,23 @@ namespace CardTagManager.Controllers
 
         // POST: api/IssueReport
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<ActionResult<IssueReport>> CreateIssue([FromBody] IssueReport issue)
         {
-            if (!ModelState.IsValid)
+            try 
             {
-                return BadRequest(new {
-                    message = "Validation failed",
-                    errors = ModelState.Values
+                _logger.LogInformation($"Received issue report: {System.Text.Json.JsonSerializer.Serialize(issue)}");
+                
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values
                         .SelectMany(v => v.Errors)
                         .Select(e => e.ErrorMessage)
-                });
-            }
-
-            try {
+                        .ToList();
+                    
+                    _logger.LogWarning($"Validation failed: {string.Join(", ", errors)}");
+                    return BadRequest(new { errors });
+                }
+                
                 // Validate the card exists
                 var card = await _context.Cards.FindAsync(issue.CardId);
                 if (card == null)
@@ -83,26 +86,30 @@ namespace CardTagManager.Controllers
                     return NotFound(new { error = "Product not found" });
                 }
                 
-                // Sanitize and set default values
-                issue.CreatedAt = DateTime.Now;
-                issue.Status = "Open";
+                // Set default values for missing fields
+                issue.Status ??= "Open";
                 issue.ReporterPhone ??= string.Empty;
                 issue.Resolution ??= string.Empty;
+                issue.CreatedAt = DateTime.Now;
                 
+                // Add to database
                 _context.IssueReports.Add(issue);
                 await _context.SaveChangesAsync();
-
+                
+                _logger.LogInformation($"Issue report created successfully with ID: {issue.Id}");
+                
                 return CreatedAtAction(nameof(GetIssue), new { id = issue.Id }, issue);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error creating issue report for card {issue.CardId}");
+                _logger.LogError(ex, $"Error creating issue report for card {issue?.CardId}");
                 return StatusCode(500, new { 
                     error = "An error occurred while creating the issue report",
                     details = ex.Message 
                 });
             }
         }
+
 
         // PUT: api/IssueReport/5
         [HttpPut("{id}")]

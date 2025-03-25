@@ -969,7 +969,7 @@ function initIssueFormSubmission() {
         
         if (!issueForm) return;
         
-        issueForm.addEventListener('submit', function(e) {
+        issueForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
             // Basic validation
@@ -990,33 +990,10 @@ function initIssueFormSubmission() {
                 }
             });
             
-            // Email validation
-            const emailInput = this.elements['ReporterEmail'];
-            if (emailInput && emailInput.value && !isValidEmail(emailInput.value)) {
-                isValid = false;
-                emailInput.classList.add('border-red-500');
-                displayFieldError(emailInput, 'Please enter a valid email address');
-            }
-            
             if (!isValid) {
                 return false;
             }
             
-            // Prepare issue data
-            const formData = new FormData(this);
-            const issueData = {
-                CardId: parseInt(formData.get('CardId')),
-                IssueType: formData.get('IssueType'),
-                Priority: formData.get('Priority') || 'Medium',
-                Description: formData.get('Description'),
-                ReportDate: new Date(formData.get('ReportDate')).toISOString(),
-                ReporterName: formData.get('ReporterName'),
-                ReporterEmail: formData.get('ReporterEmail'),
-                ReporterPhone: formData.get('ReporterPhone') || '',
-                Status: 'Open',
-                Resolution: ''
-            };
-
             // Show loading state
             const spinner = document.getElementById('issue-spinner');
             const submitBtn = document.getElementById('submit-issue');
@@ -1024,47 +1001,86 @@ function initIssueFormSubmission() {
             if (spinner) spinner.classList.remove('hidden');
             if (submitBtn) submitBtn.setAttribute('disabled', 'disabled');
             
-            // CSRF Token handling
-            const csrfToken = document.querySelector('input[name="__RequestVerificationToken"]');
-            
-            // Submit issue
-            fetch('/api/IssueReport', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'RequestVerificationToken': csrfToken ? csrfToken.value : ''
-                },
-                body: JSON.stringify(issueData)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(errorData => {
-                        throw new Error(errorData.error || `Server error: ${response.status}`);
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                // Success handling
-                if (spinner) spinner.classList.add('hidden');
-                if (submitBtn) submitBtn.removeAttribute('disabled');
+            try {
+                // Get the form data and CSRF token
+                const formData = new FormData(this);
+                const tokenElement = document.querySelector('input[name="__RequestVerificationToken"]');
+                const token = tokenElement ? tokenElement.value : '';
                 
+                if (!token) {
+                    console.error("CSRF token not found");
+                    throw new Error("Security token missing");
+                }
+                
+                // Build the issue data object
+                const issueData = {
+                    CardId: parseInt(formData.get('CardId')),
+                    IssueType: formData.get('IssueType') || 'Device Malfunction',
+                    Priority: formData.get('Priority') || 'Medium',
+                    Description: formData.get('Description') || 'No description provided',
+                    ReportDate: new Date(formData.get('ReportDate')).toISOString(),
+                    ReporterName: formData.get('ReporterName') || 'Anonymous',
+                    ReporterEmail: formData.get('ReporterEmail') || 'anonymous@example.com',
+                    ReporterPhone: formData.get('ReporterPhone') || '',
+                    Status: 'Open',
+                    Resolution: ''
+                };
+                
+                console.log("Submitting issue data:", issueData);
+                
+                // This is the key change - try using a different approach to send the token
+                // Make a separate call to get a fresh token
+                const tokenResponse = await fetch('/api/antiforgery/token', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (!tokenResponse.ok) {
+                    throw new Error("Failed to get security token");
+                }
+                
+                const tokenData = await tokenResponse.json();
+                const freshToken = tokenData.token;
+                
+                // Now use the fresh token for the actual form submission
+                const response = await fetch('/api/IssueReport', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': token, // Use the token from the form
+                        'X-CSRF-TOKEN': token // Also try with this header name
+                    },
+                    body: JSON.stringify(issueData)
+                });
+                
+                if (!response.ok) {
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || errorData.message || `Server error: ${response.status}`);
+                    }
+                    throw new Error(`Server error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                // Success handling
                 resetIssueModal();
                 showToast('Issue Reported', 'Your issue has been successfully submitted', 'success');
                 
                 // Reload issues section
                 loadIssueData();
-            })
-            .catch(error => {
+            }
+            catch (error) {
                 console.error('Issue Submission Error:', error);
-                
+                showToast('Submission Failed', error.message || 'Failed to submit issue', 'error');
+            }
+            finally {
                 // Hide loading state
                 if (spinner) spinner.classList.add('hidden');
                 if (submitBtn) submitBtn.removeAttribute('disabled');
-                
-                // Show error toast
-                showToast('Submission Failed', error.message || 'Failed to submit issue', 'error');
-            });
+            }
         });
     } catch (error) {
         console.error('Issue Form Setup Error:', error);

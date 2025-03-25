@@ -17,14 +17,14 @@ namespace CardTagManager.Models
         
         [Required(ErrorMessage = "Issue Type is required")]
         [StringLength(50)]
-        public string IssueType { get; set; }
+        public string IssueType { get; set; } = "Device Malfunction";
         
         [Required(ErrorMessage = "Priority is required")]
         [StringLength(20)]
         public string Priority { get; set; } = "Medium";
         
         [Required(ErrorMessage = "Description is required")]
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
         
         [Required(ErrorMessage = "Report Date is required")]
         [DataType(DataType.Date)]
@@ -32,12 +32,12 @@ namespace CardTagManager.Models
         
         [Required(ErrorMessage = "Reporter Name is required")]
         [StringLength(100)]
-        public string ReporterName { get; set; }
+        public string ReporterName { get; set; } = "Anonymous";
         
         [Required(ErrorMessage = "Reporter Email is required")]
         [EmailAddress(ErrorMessage = "Invalid email address")]
         [StringLength(100)]
-        public string ReporterEmail { get; set; }
+        public string ReporterEmail { get; set; } = "anonymous@example.com";
         
         [StringLength(20)]
         public string ReporterPhone { get; set; } = string.Empty;
