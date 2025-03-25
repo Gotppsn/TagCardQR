@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CardTagManager.Data;
 using CardTagManager.Models;
+using CardTagManager.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -19,11 +20,13 @@ namespace CardTagManager.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<IssueReportController> _logger;
+        private readonly FileUploadService _fileUploadService;
 
-        public IssueReportController(ApplicationDbContext context, ILogger<IssueReportController> logger)
+        public IssueReportController(ApplicationDbContext context, ILogger<IssueReportController> logger, FileUploadService fileUploadService)
         {
             _context = context;
             _logger = logger;
+            _fileUploadService = fileUploadService;
         }
 
         // GET: api/IssueReport/card/5
@@ -63,11 +66,11 @@ namespace CardTagManager.Controllers
         // POST: api/IssueReport
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult<IssueReport>> CreateIssue([FromBody] IssueReport issue)
+        public async Task<ActionResult<IssueReport>> CreateIssue([FromForm] IssueReport issue)
         {
             try 
             {
-                _logger.LogInformation($"Received issue report: {System.Text.Json.JsonSerializer.Serialize(issue)}");
+                _logger.LogInformation($"Received issue report with image: {issue.ImageFile != null}");
                 
                 // Remove the Card validation error since we'll set it manually
                 if (ModelState.ContainsKey("Card"))
@@ -96,6 +99,34 @@ namespace CardTagManager.Controllers
                 // Set the Card navigation property to satisfy the validation requirement
                 issue.Card = card;
                 
+                // Handle image upload if provided
+                if (issue.ImageFile != null && issue.ImageFile.Length > 0)
+                {
+                    try
+                    {
+                        // Upload image using FileUploadService
+                        var uploadResult = await _fileUploadService.UploadFile(issue.ImageFile, "IssueReports");
+                        
+                        if (uploadResult.IsSuccess)
+                        {
+                            issue.ImagePath = uploadResult.FileUrl;
+                            _logger.LogInformation($"Image uploaded: {issue.ImagePath}");
+                        }
+                        else
+                        {
+                            _logger.LogWarning($"Image upload failed: {uploadResult.ErrorMessage}");
+                            // Continue without image rather than failing
+                            ModelState.AddModelError("ImageFile", $"Upload failed: {uploadResult.ErrorMessage}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error uploading image");
+                        // Continue without image rather than failing
+                        ModelState.AddModelError("ImageFile", $"Upload error: {ex.Message}");
+                    }
+                }
+                
                 // Set default values for missing fields
                 issue.Status ??= "Open";
                 issue.ReporterPhone ??= string.Empty;
@@ -119,7 +150,6 @@ namespace CardTagManager.Controllers
                 });
             }
         }
-
 
         // PUT: api/IssueReport/5
         [HttpPut("{id}")]

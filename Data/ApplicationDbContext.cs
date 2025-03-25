@@ -158,6 +158,11 @@ namespace CardTagManager.Data
             modelBuilder.Entity<IssueReport>()
                 .Property(r => r.CreatedAt)
                 .HasDefaultValueSql("GETDATE()");
+            
+            modelBuilder.Entity<IssueReport>()
+                .Property(r => r.ImagePath)
+                .IsRequired(false)
+                .HasMaxLength(500);
         }
     }
 }

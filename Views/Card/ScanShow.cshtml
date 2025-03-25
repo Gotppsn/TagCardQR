@@ -489,7 +489,7 @@
             </div>
             <div class="p-5">
                 <!-- Updated form with multipart/form-data for file uploads -->
-                <form id="issue-report-form" enctype="multipart/form-data" method="post">
+                <form id="issue-report-form" action="/api/IssueReport" method="post" enctype="multipart/form-data">
                     <input type="hidden" name="CardId" value="@Model.Id">
                     @Html.AntiForgeryToken()
                     
@@ -539,22 +539,21 @@
                     
                     <!-- Added Image Upload Field -->
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Attach an Image (Optional)</label>
-                        <div class="mt-2 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:bg-gray-50 transition-all">
-                            <div class="space-y-1 text-center">
-                                <div id="preview-container" class="hidden mb-3">
-                                    <img id="image-preview" class="mx-auto h-32 object-cover rounded-lg shadow-sm" src="#" alt="Preview">
-                                </div>
-                                <div class="flex text-sm text-gray-600">
-                                    <label for="issueImage" class="relative cursor-pointer rounded-md font-medium text-primary-600 hover:text-primary-700 focus-within:outline-none">
-                                        <span>Upload an image</span>
-                                        <input id="issueImage" name="IssueImage" type="file" class="sr-only" accept="image/*">
-                                    </label>
-                                    <p class="pl-1">or drag and drop</p>
-                                </div>
-                                <p class="text-xs text-gray-500">PNG, JPG, GIF up to 5MB</p>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Attach an Image (optional)</label>
+                        <div class="mt-1 flex items-center">
+                            <div id="image-preview-container" class="hidden mb-2 w-full">
+                                <img id="issue-image-preview" src="#" alt="Preview" class="max-h-40 max-w-full rounded-lg shadow-sm mx-auto"/>
+                                <button type="button" id="remove-image-btn" class="mt-2 text-xs text-red-600 hover:text-red-800 flex items-center justify-center mx-auto">
+                                    <i class="fas fa-times mr-1"></i> Remove image
+                                </button>
                             </div>
+                            <label class="w-full flex justify-center items-center px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg text-sm cursor-pointer hover:bg-gray-50 transition-colors">
+                                <i class="fas fa-camera mr-2 text-gray-500"></i>
+                                <span id="upload-text" class="text-gray-500">Click to add a photo</span>
+                                <input type="file" id="imageFile" name="ImageFile" class="hidden" accept="image/*"/>
+                            </label>
                         </div>
+                        <p class="mt-1 text-xs text-gray-500">Supported formats: JPG, PNG, GIF (max 5MB)</p>
                     </div>
                     
                     <div class="mb-4">
@@ -681,96 +680,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // Load issue data
         loadIssueData();
         
-        // Initialize image preview for issue report
+        // Initialize image preview
         initImagePreview();
     } catch (e) {
         console.error("Error in initialization:", e);
     }
 });
-
-// Initialize image preview functionality
-function initImagePreview() {
-    const imageInput = document.getElementById('issueImage');
-    const previewContainer = document.getElementById('preview-container');
-    const imagePreview = document.getElementById('image-preview');
     
-    if (!imageInput || !previewContainer || !imagePreview) return;
-    
-    imageInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (!file) {
-            previewContainer.classList.add('hidden');
-            return;
-        }
-        
-        // Validate file type
-        const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-        if (!validTypes.includes(file.type)) {
-            showFormFeedback('Please select a valid image file (JPEG, PNG, GIF)', 'error');
-            imageInput.value = '';
-            previewContainer.classList.add('hidden');
-            return;
-        }
-        
-        // Validate file size (max 5MB)
-        if (file.size > 5 * 1024 * 1024) {
-            showFormFeedback('Image size must be less than 5MB', 'error');
-            imageInput.value = '';
-            previewContainer.classList.add('hidden');
-            return;
-        }
-        
-        // Create preview
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            imagePreview.src = e.target.result;
-            previewContainer.classList.remove('hidden');
-        }
-        reader.readAsDataURL(file);
-    });
-    
-    // Support drag and drop
-    const dropArea = imageInput.closest('div.border-dashed');
-    if (dropArea) {
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, preventDefaults, false);
-        });
-        
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-        
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropArea.addEventListener(eventName, function() {
-                dropArea.classList.add('bg-gray-100');
-                dropArea.classList.add('border-primary-300');
-            });
-        });
-        
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, function() {
-                dropArea.classList.remove('bg-gray-100');
-                dropArea.classList.remove('border-primary-300');
-            });
-        });
-        
-        dropArea.addEventListener('drop', function(e) {
-            const file = e.dataTransfer.files[0];
-            if (!file) return;
-            
-            // Create a new file input event to trigger the same handler
-            const dt = new DataTransfer();
-            dt.items.add(file);
-            imageInput.files = dt.files;
-            
-            // Trigger the change event manually
-            const event = new Event('change');
-            imageInput.dispatchEvent(event);
-        });
-    }
-}
-
 // Function to apply scan settings from URL parameters
 function applyScanSettings() {
     try {
@@ -860,7 +776,7 @@ function applySettingsToUI(fields, uiElements, isPrivate, isPreview) {
                     if (Array.isArray(selectors)) {
                         selectors.forEach(selector => hideElement(selector));
                     } else {
-                        hideElement(selector);
+                        hideElement(selectors);
                     }
                 }
             });
@@ -1079,7 +995,7 @@ function initReportIssueModal() {
     }
 }
 
-// Issue form submission handling with FormData support for file uploads
+// Issue form submission handling - UPDATED VERSION
 function initIssueFormSubmission() {
     try {
         const issueForm = document.getElementById('issue-report-form');
@@ -1105,7 +1021,10 @@ function initIssueFormSubmission() {
             if (submitBtn) submitBtn.setAttribute('disabled', 'disabled');
             
             try {
-                // Get anti-forgery token
+                // Get form data
+                const formData = new FormData(issueForm);
+                
+                // Get anti-forgery token from meta tag or form
                 const metaToken = document.querySelector('meta[name="RequestVerificationToken"]');
                 const formToken = document.querySelector('form input[name="__RequestVerificationToken"]');
                 const token = formToken ? formToken.value : 
@@ -1118,10 +1037,9 @@ function initIssueFormSubmission() {
                     return;
                 }
                 
-                // Create FormData from the form 
-                const formData = new FormData(issueForm);
+                console.log("Using token:", token.substring(0, 10) + "...");
                 
-                // Send form data to the server using fetch API
+                // Submit data using fetch API with FormData to handle file uploads
                 const response = await fetch('/api/IssueReport', {
                     method: 'POST',
                     headers: {
@@ -1202,29 +1120,54 @@ function initIssueFormSubmission() {
                 isValid = false;
             }
             
-            // Validate image file (if provided)
-            const imageFile = document.getElementById('issueImage');
-            if (imageFile && imageFile.files && imageFile.files.length > 0) {
-                const file = imageFile.files[0];
-                
-                // Check file type
-                const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-                if (!validTypes.includes(file.type)) {
-                    showFieldError(imageFile, 'Please select a valid image file (JPEG, PNG, GIF)');
-                    isValid = false;
-                }
-                
-                // Check file size (max 5MB)
-                if (file.size > 5 * 1024 * 1024) {
-                    showFieldError(imageFile, 'Image size must be less than 5MB');
-                    isValid = false;
-                }
-            }
-            
             return isValid;
         }
     } catch (error) {
         console.error('Issue form initialization error:', error);
+    }
+}
+
+// Initialize image preview functionality
+function initImagePreview() {
+    try {
+        const imageInput = document.getElementById('imageFile');
+        const previewContainer = document.getElementById('image-preview-container');
+        const imagePreview = document.getElementById('issue-image-preview');
+        const uploadText = document.getElementById('upload-text');
+        const removeImageBtn = document.getElementById('remove-image-btn');
+        
+        if (imageInput && previewContainer && imagePreview && uploadText) {
+            imageInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    // Check file size (max 5MB)
+                    if (this.files[0].size > 5 * 1024 * 1024) {
+                        showToast('File too large', 'Maximum file size is 5MB', 'error');
+                        this.value = '';
+                        return;
+                    }
+                    
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        imagePreview.src = e.target.result;
+                        previewContainer.classList.remove('hidden');
+                        uploadText.textContent = 'Change photo';
+                    };
+                    
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+            
+            if (removeImageBtn) {
+                removeImageBtn.addEventListener('click', function() {
+                    imageInput.value = '';
+                    previewContainer.classList.add('hidden');
+                    uploadText.textContent = 'Click to add a photo';
+                });
+            }
+        }
+    } catch (e) {
+        console.error("Error in initImagePreview:", e);
     }
 }
 
@@ -1291,14 +1234,14 @@ function resetIssueModal() {
         const issueForm = document.getElementById('issue-report-form');
         const reportIssueModal = document.getElementById('report-issue-modal');
         const modalContent = document.getElementById('modal-content');
-        const previewContainer = document.getElementById('preview-container');
         
-        if (issueForm) {
-            issueForm.reset();
-            if (previewContainer) {
-                previewContainer.classList.add('hidden');
-            }
-        }
+        if (issueForm) issueForm.reset();
+        
+        // Reset image preview
+        const imagePreview = document.getElementById('image-preview-container');
+        const uploadText = document.getElementById('upload-text');
+        if (imagePreview) imagePreview.classList.add('hidden');
+        if (uploadText) uploadText.textContent = 'Click to add a photo';
         
         // Set default date to today
         const reportDateField = document.querySelector('input[name="ReportDate"]');
@@ -1430,16 +1373,11 @@ function loadIssueData() {
                                     <h4 class="text-lg font-medium text-gray-800">${issue.issueType || 'Unknown Issue'}</h4>
                                     <p class="text-sm text-gray-600 mt-2 bg-gray-50 p-3 rounded-lg">${issue.description || 'No description provided'}</p>
                                     
-                                    ${issue.issueImageUrl ? `
-                                    <div class="mt-3 p-2 bg-gray-50 rounded-lg">
-                                        <div class="flex items-center mb-1">
-                                            <i class="fas fa-image text-blue-500 mr-2"></i>
-                                            <span class="text-sm text-gray-700">Attached Image</span>
-                                        </div>
-                                        <img src="${issue.issueImageUrl}" alt="Issue image" class="w-full max-h-40 object-contain rounded border border-gray-200 cursor-pointer" 
-                                            onclick="window.open('${issue.issueImageUrl}', '_blank')"/>
-                                    </div>
-                                    ` : ''}
+                                    ${issue.imagePath ? `
+                                    <div class="mt-3">
+                                        <img src="${issue.imagePath}" alt="Issue Image" class="max-h-40 rounded-lg shadow-sm cursor-pointer hover:opacity-90 transition-opacity" 
+                                             onclick="showFullImage('${issue.imagePath}', '${issue.issueType || 'Issue Image'}')"/>
+                                    </div>` : ''}
                                     
                                     <div class="text-xs text-gray-500 mt-3 flex items-center">
                                         <i class="fas fa-user mr-1"></i> Reported by ${issue.reporterName || 'Unknown'}
@@ -1496,6 +1434,37 @@ function loadIssueData() {
                 </div>
             `;
         }
+    }
+}
+
+// Function to show full-size image when clicked
+function showFullImage(imagePath, title) {
+    try {
+        const previewModal = document.getElementById('document-preview-modal');
+        const modalContent = document.getElementById('document-modal-content');
+        const previewTitle = document.getElementById('document-preview-title');
+        const previewContent = document.getElementById('document-preview-content');
+        
+        if (!previewModal || !modalContent || !previewTitle || !previewContent) return;
+        
+        // Set modal title
+        previewTitle.textContent = title || 'Image Preview';
+        
+        // Set content with image
+        previewContent.innerHTML = `
+            <div class="flex justify-center items-center h-full bg-gray-50 p-4">
+                <img src="${imagePath}" alt="${title || 'Image Preview'}" class="max-w-full max-h-full mx-auto shadow-lg rounded-lg">
+            </div>
+        `;
+        
+        // Show modal with animation
+        previewModal.classList.remove('hidden');
+        setTimeout(() => {
+            modalContent.classList.remove('scale-95', 'opacity-0');
+            modalContent.classList.add('scale-100', 'opacity-100');
+        }, 10);
+    } catch (e) {
+        console.error("Error in showFullImage:", e);
     }
 }
 
@@ -1721,7 +1690,7 @@ function loadMaintenanceData() {
                                         ${isPastDue ? 'Overdue: ' : 'Due: '}
                                         <span class="font-medium">${formatDate(dueDate)}</span>
                                         <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${isPastDue ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}">
-                                        ${isPastDue ? `${getDaysDiff(dueDate, new Date())} days overdue` : `${getDaysDiff(new Date(),dueDate)} days remaining`}
+${isPastDue ? `${getDaysDiff(dueDate, new Date())} days overdue` : `${getDaysDiff(new Date(), dueDate)} days remaining`}
                                         </span>
                                     </p>
                                 </div>

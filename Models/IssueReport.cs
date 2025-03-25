@@ -2,6 +2,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Http;
 
 namespace CardTagManager.Models
 {
@@ -46,6 +47,14 @@ namespace CardTagManager.Models
         public string Status { get; set; } = "Open";
         
         public string Resolution { get; set; } = string.Empty;
+        
+        // Image path to store the uploaded image
+        [StringLength(500)]
+        public string? ImagePath { get; set; }
+        
+        // The actual file uploaded (not stored in DB)
+        [NotMapped]
+        public IFormFile? ImageFile { get; set; }
         
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime? ResolvedAt { get; set; }
