@@ -13,7 +13,7 @@ namespace CardTagManager.Models
         public int CardId { get; set; }
         
         [ForeignKey("CardId")]
-        public Card Card { get; set; }
+        public Card? Card { get; set; }
         
         [Required(ErrorMessage = "Issue Type is required")]
         [StringLength(50)]

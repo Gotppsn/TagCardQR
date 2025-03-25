@@ -69,6 +69,12 @@ namespace CardTagManager.Controllers
             {
                 _logger.LogInformation($"Received issue report: {System.Text.Json.JsonSerializer.Serialize(issue)}");
                 
+                // Remove the Card validation error since we'll set it manually
+                if (ModelState.ContainsKey("Card"))
+                {
+                    ModelState.Remove("Card");
+                }
+                
                 if (!ModelState.IsValid)
                 {
                     var errors = ModelState.Values
@@ -80,12 +86,15 @@ namespace CardTagManager.Controllers
                     return BadRequest(new { errors });
                 }
                 
-                // Validate the card exists
+                // Validate the card exists and assign it to the issue
                 var card = await _context.Cards.FindAsync(issue.CardId);
                 if (card == null)
                 {
                     return NotFound(new { error = "Product not found" });
                 }
+                
+                // Set the Card navigation property to satisfy the validation requirement
+                issue.Card = card;
                 
                 // Set default values for missing fields
                 issue.Status ??= "Open";

@@ -43,7 +43,7 @@ builder.Services.AddAntiforgery(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
     options.Cookie.SameSite = SameSiteMode.Strict;
-}); 
+});
 
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<FileUploadService>();
