@@ -1306,7 +1306,7 @@ function loadIssueData() {
                 return response.json();
             })
             .then(issues => {
-                if (!issuesContainer) return; // Re-check if container exists (might have been removed)
+                if (!issuesContainer) return; // Re-check if container exists
                 
                 if (issues && Array.isArray(issues) && issues.length > 0) {
                     // Clear loading spinner
@@ -1318,6 +1318,11 @@ function loadIssueData() {
                     
                     issues.forEach(issue => {
                         if (!issue) return;
+                        
+                        // IMPORTANT FIX: Ensure we're dealing with a proper date object
+                        const reportDate = new Date(issue.reportDate);
+                        // Avoid displaying if date is invalid
+                        if (isNaN(reportDate.getTime())) return;
                         
                         // Determine status color and icon
                         let statusColor = 'bg-blue-100 text-blue-800';
@@ -1349,8 +1354,8 @@ function loadIssueData() {
                             priorityColor = 'bg-red-100 text-red-800';
                         }
                         
-                        const issueDate = new Date(issue.reportDate);
-                        if (isNaN(issueDate.getTime())) return; // Skip if date is invalid
+                        // Format time correctly using our fixed function
+                        const timeAgo = formatTimeAgo(reportDate);
                         
                         const issueItem = document.createElement('div');
                         issueItem.className = 'p-4 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1';
@@ -1367,7 +1372,7 @@ function loadIssueData() {
                                             ${issue.priority || 'Unknown'}
                                         </span>
                                         <span class="text-xs text-gray-500 ml-auto">
-                                            Reported ${formatTimeAgo(issueDate)}
+                                            Reported ${timeAgo}
                                         </span>
                                     </div>
                                     <h4 class="text-lg font-medium text-gray-800">${issue.issueType || 'Unknown Issue'}</h4>
@@ -2088,41 +2093,74 @@ function formatDate(date) {
     }
 }
 
-function formatTimeAgo(date) {
+function formatTimeAgo(dateStr) {
     try {
-        if (!(date instanceof Date) || isNaN(date.getTime())) {
-            return 'Invalid date';
+        // Parse the date string - handle different formats
+        const date = new Date(dateStr);
+        
+        // Check if date is valid
+        if (isNaN(date.getTime())) {
+            console.error("Invalid date format:", dateStr);
+            return "at unknown time";
         }
         
-        const seconds = Math.floor((new Date() - date) / 1000);
-        if (seconds < 0) return 'in the future';
+        // Get current time and calculate difference in seconds
+        const now = new Date();
+        const diffMs = now - date;
+        const diffSeconds = Math.floor(diffMs / 1000);
         
-        // Time intervals in seconds
-        const intervals = {
-            year: 31536000,
-            month: 2592000,
-            week: 604800,
-            day: 86400,
-            hour: 3600,
-            minute: 60
-        };
+        // Debug logging to help troubleshoot
+        console.log("Date:", date.toISOString());
+        console.log("Now:", now.toISOString());
+        console.log("Diff (seconds):", diffSeconds);
         
-        if (seconds < 60) {
-            return 'just now';
+        // For future dates
+        if (diffSeconds < 0) {
+            return "in the future";
         }
         
-        for (const [unit, secondsInUnit] of Object.entries(intervals)) {
-            const interval = Math.floor(seconds / secondsInUnit);
-            
-            if (interval >= 1) {
-                return interval === 1 ? `1 ${unit} ago` : `${interval} ${unit}s ago`;
-            }
+        // Less than a minute
+        if (diffSeconds < 60) {
+            return "just now";
         }
         
-        return 'just now';
-    } catch (e) {
-        console.error("Error in formatTimeAgo:", e);
-        return 'some time ago';
+        // Less than an hour
+        if (diffSeconds < 3600) {
+            const minutes = Math.floor(diffSeconds / 60);
+            return `${minutes} ${minutes === 1 ? 'minute' : 'minutes'} ago`;
+        }
+        
+        // Less than a day
+        if (diffSeconds < 86400) {
+            const hours = Math.floor(diffSeconds / 3600);
+            return `${hours} ${hours === 1 ? 'hour' : 'hours'} ago`;
+        }
+        
+        // Less than a week
+        if (diffSeconds < 604800) {
+            const days = Math.floor(diffSeconds / 86400);
+            return `${days} ${days === 1 ? 'day' : 'days'} ago`;
+        }
+        
+        // Less than a month
+        if (diffSeconds < 2592000) {
+            const weeks = Math.floor(diffSeconds / 604800);
+            return `${weeks} ${weeks === 1 ? 'week' : 'weeks'} ago`;
+        }
+        
+        // Less than a year
+        if (diffSeconds < 31536000) {
+            const months = Math.floor(diffSeconds / 2592000);
+            return `${months} ${months === 1 ? 'month' : 'months'} ago`;
+        }
+        
+        // More than a year
+        const years = Math.floor(diffSeconds / 31536000);
+        return `${years} ${years === 1 ? 'year' : 'years'} ago`;
+        
+    } catch (error) {
+        console.error("Error in formatTimeAgo:", error);
+        return "some time ago";
     }
 }
 
