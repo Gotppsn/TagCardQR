@@ -216,13 +216,16 @@ namespace CardTagManager.Controllers
                 return NotFound();
             }
 
-            // Generate QR code for display
-            string qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card);
+            // Get base URL from the current request
+            string baseUrl = $"{Request.Scheme}://{Request.Host}";
+            
+            // Generate QR code for display with base URL
+            string qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card, baseUrl);
             ViewBag.QrCodeImage = qrCodeImageData;
 
             return View(card);
         }
-        
+                
         // This method is kept for backwards compatibility if there are existing links
         // GET: Card/Detail/5
         public async Task<IActionResult> Detail(int id)

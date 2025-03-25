@@ -12,15 +12,26 @@ namespace CardTagManager.Services
     public class QrCodeService
     {
         // Generate QR code as a base64 encoded image string for inline display
-        public Task<string> GenerateQrCodeImage(Card card)
+        public Task<string> GenerateQrCodeImage(Card card, string baseUrl = null)
         {
             if (card == null)
                 return Task.FromResult(string.Empty);
                 
             try
             {
-                // Create QR code data with structured format
-                string qrData = $"PRODUCT:{card.ProductName}:CAT:{card.Category}:ID:{card.Id}";
+                // Create QR code data with URL to ScanShow page
+                string qrData;
+                
+                if (!string.IsNullOrEmpty(baseUrl))
+                {
+                    // Use URL format for scanning - direct to ScanShow page
+                    qrData = $"{baseUrl}/Card/ScanShow/{card.Id}";
+                }
+                else
+                {
+                    // Fallback to structured format if no base URL provided
+                    qrData = $"PRODUCT:{card.ProductName}:CAT:{card.Category}:ID:{card.Id}";
+                }
                 
                 // Parse colors from hex format
                 Color fgColor = ColorTranslator.FromHtml(card.QrFgColor ?? "#000000"); 
@@ -53,15 +64,26 @@ namespace CardTagManager.Services
         }
         
         // Generate QR code as a byte array for file download
-        public Task<byte[]> GenerateQrCodeBytes(Card card)
+        public Task<byte[]> GenerateQrCodeBytes(Card card, string baseUrl = null)
         {
             if (card == null)
                 return Task.FromResult(Array.Empty<byte>());
                 
             try
             {
-                // Create QR code data
-                string qrData = $"PRODUCT:{card.ProductName}:CAT:{card.Category}:ID:{card.Id}";
+                // Create QR code data with URL to ScanShow page
+                string qrData;
+                
+                if (!string.IsNullOrEmpty(baseUrl))
+                {
+                    // Use URL format for scanning - direct to ScanShow page
+                    qrData = $"{baseUrl}/Card/ScanShow/{card.Id}";
+                }
+                else
+                {
+                    // Fallback to structured format if no base URL provided
+                    qrData = $"PRODUCT:{card.ProductName}:CAT:{card.Category}:ID:{card.Id}";
+                }
                 
                 // Parse colors
                 Color fgColor = ColorTranslator.FromHtml(card.QrFgColor ?? "#000000"); 
