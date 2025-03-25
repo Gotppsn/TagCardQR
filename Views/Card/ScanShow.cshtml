@@ -605,13 +605,28 @@ function loadUserContactInfo() {
             // Hide loading indicator
             contactLoading.classList.add('hidden');
             
-            if (userData && userData.UserFullName) {
-                // Populate contact info grid
-                contactInfoGrid.innerHTML = createContactInfoHTML(userData);
-                contactInfoGrid.classList.remove('hidden');
+            // Log the entire response for debugging
+            console.log("Full API Response:", JSON.stringify(userData));
+            
+            if (userData) {
+                // Deep parse the complex nested structure and extract user data
+                const extractedData = extractUserData(userData);
                 
-                // Initialize copy to clipboard for the newly created elements
-                initCopyToClipboard();
+                // Log the extracted data for debugging
+                console.log("Extracted data:", extractedData);
+                
+                // If we have at least one piece of data, show it
+                if (extractedData.hasData) {
+                    // Create and display HTML with extracted data
+                    contactInfoGrid.innerHTML = createContactInfoHTML(extractedData);
+                    contactInfoGrid.classList.remove('hidden');
+                    
+                    // Initialize copy to clipboard for the newly created elements
+                    initCopyToClipboard();
+                } else {
+                    // If no data could be extracted, fall back to stored information
+                    showFallbackContactInfo();
+                }
             } else {
                 // If API returned no data, fall back to stored information
                 showFallbackContactInfo();
@@ -624,27 +639,260 @@ function loadUserContactInfo() {
         });
 }
 
+// Function to deeply extract user data from potentially nested structures
+function extractUserData(userData) {
+    // Initialize result object with default empty values
+    const result = {
+        fullName: '',
+        email: '',
+        department: '',
+        plant: '',
+        phone: '',
+        hasData: false
+    };
+    
+    try {
+        // Direct extraction from root level
+        if (userData.Detail_EN_FirstName && userData.Detail_EN_LastName) {
+            result.fullName = `${userData.Detail_EN_FirstName} ${userData.Detail_EN_LastName}`;
+            result.hasData = true;
+        } else if (userData.Detail_TH_FirstName && userData.Detail_TH_LastName) {
+            result.fullName = `${userData.Detail_TH_FirstName} ${userData.Detail_TH_LastName}`;
+            result.hasData = true;
+        }
+        
+        if (userData.User_Email) {
+            result.email = userData.User_Email;
+            result.hasData = true;
+        }
+        
+        // First examine the complete structure to understand what we're dealing with
+        console.log("Exploring userData structure...");
+        
+        // Check if Users object exists (commonly holds user information)
+        if (userData.Users) {
+            console.log("Found Users object");
+            
+            // Extract email from Users
+            if (userData.Users.User_Email) {
+                result.email = userData.Users.User_Email;
+                result.hasData = true;
+            }
+            
+            // Handle nested department structure
+            const departmentPath = getNestedProperty(userData, 'Users.Master_Processes.Master_Sections.Master_Departments.Department_Name');
+            if (departmentPath) {
+                result.department = departmentPath;
+                result.hasData = true;
+            }
+            
+            // Handle nested plant structure
+            const plantPath = getNestedProperty(userData, 'Users.Master_Plants.Plant_Name');
+            if (plantPath) {
+                result.plant = plantPath;
+                result.hasData = true;
+            }
+            
+            // Try to find user code info
+            if (userData.Users.User_Code) {
+                // Usually this is used for internal ID
+                console.log("Found User_Code:", userData.Users.User_Code);
+            }
+        }
+        
+        // Try alternative direct extractions based on the example data
+        if (!result.fullName && userData.System_Prefix_EN && userData.Detail_EN_FirstName && userData.Detail_EN_LastName) {
+            result.fullName = `${userData.System_Prefix_EN.Prefix_EN_Name || ''} ${userData.Detail_EN_FirstName} ${userData.Detail_EN_LastName}`.trim();
+            result.hasData = true;
+        }
+        
+        // Try to find name in unusual locations
+        if (!result.fullName) {
+            // Check other common paths for names
+            const possibleNames = [
+                getNestedProperty(userData, 'UserFullName'),
+                getNestedProperty(userData, 'Users.User_Name'),
+                getNestedProperty(userData, 'Username')
+            ];
+            
+            for (const name of possibleNames) {
+                if (name) {
+                    result.fullName = name;
+                    result.hasData = true;
+                    break;
+                }
+            }
+        }
+        
+        // Look for department name in alternative locations
+        if (!result.department) {
+            const possibleDepts = [
+                getNestedProperty(userData, 'Department_Name'),
+                getNestedProperty(userData, 'Users.Department_Name'),
+                getNestedProperty(userData, 'Department'),
+                getNestedProperty(userData, 'Users.Department')
+            ];
+            
+            for (const dept of possibleDepts) {
+                if (dept) {
+                    result.department = dept;
+                    result.hasData = true;
+                    break;
+                }
+            }
+        }
+        
+        // Look for email in alternative locations
+        if (!result.email) {
+            const possibleEmails = [
+                getNestedProperty(userData, 'Email'),
+                getNestedProperty(userData, 'Users.Email'),
+                getNestedProperty(userData, 'User_Email')
+            ];
+            
+            for (const email of possibleEmails) {
+                if (email) {
+                    result.email = email;
+                    result.hasData = true;
+                    break;
+                }
+            }
+        }
+        
+        // Look for plant in alternative locations
+        if (!result.plant) {
+            const possiblePlants = [
+                getNestedProperty(userData, 'Plant_Name'),
+                getNestedProperty(userData, 'Users.Plant_Name'),
+                getNestedProperty(userData, 'PlantName')
+            ];
+            
+            for (const plant of possiblePlants) {
+                if (plant) {
+                    result.plant = plant;
+                    result.hasData = true;
+                    break;
+                }
+            }
+        }
+        
+        // Special handling for the JSON example structure in document #12
+        const dataFromExample = extractFromExampleStructure(userData);
+        if (dataFromExample) {
+            // Merge data, prioritizing already found items
+            result.fullName = result.fullName || dataFromExample.fullName;
+            result.email = result.email || dataFromExample.email;
+            result.department = result.department || dataFromExample.department;
+            result.plant = result.plant || dataFromExample.plant;
+            
+            if (dataFromExample.hasData) {
+                result.hasData = true;
+            }
+        }
+    } catch (error) {
+        console.error("Error extracting user data:", error);
+    }
+    
+    return result;
+}
+
+// Helper function to safely get nested properties
+function getNestedProperty(obj, path) {
+    if (!obj || !path) return null;
+    
+    const properties = path.split('.');
+    let current = obj;
+    
+    for (const prop of properties) {
+        if (current === null || current === undefined || typeof current !== 'object') {
+            return null;
+        }
+        
+        current = current[prop];
+    }
+    
+    return current;
+}
+
+// Special parser for the specific example JSON structure in document #12
+function extractFromExampleStructure(data) {
+    try {
+        // Check if this is a string that needs parsing
+        let jsonData = data;
+        if (typeof data === 'string') {
+            try {
+                jsonData = JSON.parse(data);
+            } catch (e) {
+                // Not JSON, keep as is
+            }
+        }
+        
+        const result = {
+            fullName: '',
+            email: '',
+            department: '',
+            plant: '',
+            hasData: false
+        };
+        
+        // This specifically targets the structure in document #12
+        if (jsonData.Users) {
+            // Email
+            if (jsonData.Users.User_Email) {
+                result.email = jsonData.Users.User_Email;
+                result.hasData = true;
+            }
+            
+            // Department name via multiple nestings
+            if (jsonData.Users.Master_Processes?.Master_Sections?.Master_Departments?.Department_Name) {
+                result.department = jsonData.Users.Master_Processes.Master_Sections.Master_Departments.Department_Name;
+                result.hasData = true;
+            }
+            
+            // Plant
+            if (jsonData.Users.Master_Plants?.Plant_Name) {
+                result.plant = jsonData.Users.Master_Plants.Plant_Name;
+                result.hasData = true;
+            }
+        }
+        
+        // Try to construct full name from prefix and first/last name
+        if (jsonData.System_Prefix_EN?.Prefix_EN_Name && jsonData.Detail_EN_FirstName && jsonData.Detail_EN_LastName) {
+            result.fullName = `${jsonData.System_Prefix_EN.Prefix_EN_Name} ${jsonData.Detail_EN_FirstName} ${jsonData.Detail_EN_LastName}`;
+            result.hasData = true;
+        } else if (jsonData.Detail_EN_FirstName && jsonData.Detail_EN_LastName) {
+            result.fullName = `${jsonData.Detail_EN_FirstName} ${jsonData.Detail_EN_LastName}`;
+            result.hasData = true;
+        }
+        
+        return result;
+    } catch (e) {
+        console.error("Error extracting from example structure:", e);
+        return null;
+    }
+}
+
 // Create HTML for the contact info grid
 function createContactInfoHTML(userData) {
     let html = '';
     
     // Full name
-    if (userData.UserFullName) {
+    if (userData.fullName) {
         html += `
-            <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-user-field="UserFullName">
+            <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-user-field="FullName">
                 <div class="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
                     <i class="fas fa-user text-primary-600"></i>
                 </div>
                 <div class="ml-3">
                     <div class="text-sm text-gray-500">Contact Person</div>
-                    <div class="font-medium text-gray-800">${userData.UserFullName}</div>
+                    <div class="font-medium text-gray-800">${userData.fullName}</div>
                 </div>
             </div>
         `;
     }
     
     // Email
-    if (userData.Email) {
+    if (userData.email) {
         html += `
             <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-user-field="Email">
                 <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
@@ -653,24 +901,7 @@ function createContactInfoHTML(userData) {
                 <div class="ml-3">
                     <div class="text-sm text-gray-500">Email Address</div>
                     <div class="font-medium">
-                        <a href="mailto:${userData.Email}" class="text-blue-600 hover:underline">${userData.Email}</a>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-    
-    // Phone (if available)
-    if (userData.PhoneNumber) {
-        html += `
-            <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-user-field="PhoneNumber">
-                <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                    <i class="fas fa-phone text-green-600"></i>
-                </div>
-                <div class="ml-3">
-                    <div class="text-sm text-gray-500">Phone Number</div>
-                    <div class="font-medium">
-                        <a href="tel:${userData.PhoneNumber}" class="text-green-600 hover:underline">${userData.PhoneNumber}</a>
+                        <a href="mailto:${userData.email}" class="text-blue-600 hover:underline">${userData.email}</a>
                     </div>
                 </div>
             </div>
@@ -678,7 +909,7 @@ function createContactInfoHTML(userData) {
     }
     
     // Department
-    if (userData.Department) {
+    if (userData.department) {
         html += `
             <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-user-field="Department">
                 <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center flex-shrink-0">
@@ -686,22 +917,22 @@ function createContactInfoHTML(userData) {
                 </div>
                 <div class="ml-3">
                     <div class="text-sm text-gray-500">Department</div>
-                    <div class="font-medium text-gray-800">${userData.Department}</div>
+                    <div class="font-medium text-gray-800">${userData.department}</div>
                 </div>
             </div>
         `;
     }
     
     // Plant
-    if (userData.PlantName) {
+    if (userData.plant) {
         html += `
-            <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-user-field="PlantName">
+            <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-user-field="Plant">
                 <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
                     <i class="fas fa-industry text-purple-600"></i>
                 </div>
                 <div class="ml-3">
                     <div class="text-sm text-gray-500">Plant/Location</div>
-                    <div class="font-medium text-gray-800">${userData.PlantName}</div>
+                    <div class="font-medium text-gray-800">${userData.plant}</div>
                 </div>
             </div>
         `;
