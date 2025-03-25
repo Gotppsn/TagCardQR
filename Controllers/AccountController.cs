@@ -13,10 +13,12 @@ namespace CardTagManager.Controllers
     public class AccountController : Controller
     {
         private readonly LdapAuthenticationService _authService;
+        private readonly ILogger<AccountController> _logger;
 
-        public AccountController(LdapAuthenticationService authService)
+        public AccountController(LdapAuthenticationService authService, ILogger<AccountController> logger)
         {
             _authService = authService;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -38,6 +40,8 @@ namespace CardTagManager.Controllers
 
                 if (isValid)
                 {
+                    _logger.LogInformation($"User authenticated: {model.Username}, UserCode: {userInfo.UserCode}");
+                    
                     // Ensure we're creating a fresh claims identity each time
                     var claims = new List<Claim>
                     {
@@ -49,7 +53,8 @@ namespace CardTagManager.Controllers
                         new Claim("Email", userInfo.Email ?? ""),
                         new Claim("FullName", userInfo.FullName ?? ""),
                         new Claim("PlantName", userInfo.PlantName ?? ""),
-                        new Claim("User_Code", userInfo.UserCode ?? ""), // Add User_Code claim
+                        // CRITICAL: This is the claim we need for CreatedByID/UpdatedByID
+                        new Claim("User_Code", userInfo.UserCode ?? ""), 
                         // Add unique timestamp claim to prevent stale authentication
                         new Claim("login_timestamp", DateTime.UtcNow.Ticks.ToString())
                     };

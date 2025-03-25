@@ -74,7 +74,16 @@ namespace CardTagManager.Controllers
             {
                 reminder.CreatedAt = DateTime.Now;
                 reminder.UpdatedAt = DateTime.Now;
-                reminder.CreatedBy = User.Identity.Name;
+                
+                // Set creator info
+                reminder.CreatedBy = User.Identity?.Name ?? "system";
+                
+                // Get User_Code from claims if available
+                var userCodeClaim = User.Claims.FirstOrDefault(c => c.Type == "User_Code");
+                if (userCodeClaim != null)
+                {
+                    reminder.CreatedBy += $" (ID: {userCodeClaim.Value})";
+                }
                 
                 _context.MaintenanceReminders.Add(reminder);
                 await _context.SaveChangesAsync();

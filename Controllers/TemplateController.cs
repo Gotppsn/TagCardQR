@@ -126,7 +126,7 @@ namespace CardTagManager.Controllers
 
                 // Get user info from claims
                 string username = User.Identity?.Name ?? "system";
-                string userCode = User.Claims.FirstOrDefault(c => c.Type == "UserCode")?.Value ?? "";
+                string userCode = User.Claims.FirstOrDefault(c => c.Type == "User_Code")?.Value ?? "";
                 
                 _logger.LogInformation($"Updating template with user: {username}, code: {userCode}");
 
@@ -139,6 +139,11 @@ namespace CardTagManager.Controllers
                 existingTemplate.UpdatedAt = DateTime.Now;
                 existingTemplate.UpdatedBy = username;
                 existingTemplate.UpdatedByID = userCode;
+
+                // Preserve creation info
+                existingTemplate.CreatedAt = existingTemplate.CreatedAt;
+                existingTemplate.CreatedBy = existingTemplate.CreatedBy;
+                existingTemplate.CreatedByID = existingTemplate.CreatedByID;
 
                 await _context.SaveChangesAsync();
 

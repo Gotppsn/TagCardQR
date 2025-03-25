@@ -73,12 +73,15 @@ namespace CardTagManager.Controllers
                 {
                     // Set creator info
                     card.CreatedBy = User.Identity?.Name ?? "anonymous";
+                    card.UpdatedBy = card.CreatedBy;
                     
                     // Get User_Code from claims if available
                     var userCodeClaim = User.Claims.FirstOrDefault(c => c.Type == "User_Code");
                     if (userCodeClaim != null)
                     {
                         card.CreatedByID = userCodeClaim.Value;
+                        card.UpdatedByID = userCodeClaim.Value;
+                        _logger.LogInformation($"Setting User_Code from claims: {card.CreatedByID}");
                     }
                     else
                     {
@@ -95,6 +98,8 @@ namespace CardTagManager.Controllers
                                     if (userInfo != null && !string.IsNullOrEmpty(userInfo.UserCode))
                                     {
                                         card.CreatedByID = userInfo.UserCode;
+                                        card.UpdatedByID = userInfo.UserCode;
+                                        _logger.LogInformation($"Retrieved User_Code from LDAP: {card.CreatedByID}");
                                     }
                                 }
                             }
@@ -283,82 +288,182 @@ namespace CardTagManager.Controllers
         }
 
         // POST: Card/Edit/5
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> Edit(int id, Card card)
-{
-    _logger.LogInformation($"Edit POST called for product ID: {id}, Name: {card.ProductName}");
-    
-    if (id != card.Id)
-    {
-        return NotFound();
-    }
-
-    // Explicitly remove validation for ImagePath and ImageFile to prevent ModelState validation errors
-    ModelState.Remove("ImagePath");
-    ModelState.Remove("ImageFile");
-    
-    if (ModelState.IsValid)
-    {
-        try
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, Card card)
         {
-            // Get the original card from the database to compare changes
-            var originalCard = await _context.Cards.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
-            if (originalCard == null)
+            _logger.LogInformation($"Edit POST called for product ID: {id}, Name: {card.ProductName}");
+            
+            if (id != card.Id)
             {
                 return NotFound();
             }
+
+            // Explicitly remove validation for ImagePath and ImageFile to prevent ModelState validation errors
+            ModelState.Remove("ImagePath");
+            ModelState.Remove("ImageFile");
             
-            // Preserve User_Code from original card if not provided
-            if (string.IsNullOrEmpty(card.UpdatedByID))
-            {
-                card.UpdatedByID = originalCard.UpdatedByID;
-            }
-            
-            // Handle image update if a new file is provided
-            if (card.ImageFile != null && card.ImageFile.Length > 0)
+            if (ModelState.IsValid)
             {
                 try
                 {
-                    var uploadResult = await _fileUploadService.UploadFile(card.ImageFile);
-                    if (uploadResult.IsSuccess)
+                    // Get the original card from the database to compare changes
+                    var originalCard = await _context.Cards.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
+                    if (originalCard == null)
                     {
-                        // Record the image change
-                        if (originalCard.ImagePath != uploadResult.FileUrl)
-                        {
-                            var imageHistory = new CardHistory
-                            {
-                                CardId = card.Id,
-                                FieldName = "Image",
-                                OldValue = originalCard.ImagePath ?? "None",
-                                NewValue = "Updated Image",
-                                ChangedAt = DateTime.Now,
-                                ChangedBy = User.Identity?.Name ?? "system"
-                            };
-                            _context.CardHistories.Add(imageHistory);
-                        }
-                        
-                        card.ImagePath = uploadResult.FileUrl;
+                        return NotFound();
+                    }
+                    
+                    // Preserve creation information
+                    card.CreatedAt = originalCard.CreatedAt;
+                    card.CreatedBy = originalCard.CreatedBy;
+                    card.CreatedByID = originalCard.CreatedByID;
+                    
+                    // Set updater information
+                    card.UpdatedBy = User.Identity?.Name ?? "system";
+                    card.UpdatedAt = DateTime.Now;
+                    
+                    // Get User_Code from claims if available
+                    var userCodeClaim = User.Claims.FirstOrDefault(c => c.Type == "User_Code");
+                    if (userCodeClaim != null)
+                    {
+                        card.UpdatedByID = userCodeClaim.Value;
+                        _logger.LogInformation($"Setting UpdatedByID from claims: {card.UpdatedByID}");
                     }
                     else
                     {
-                        ModelState.AddModelError("ImageFile", $"Failed to upload image: {uploadResult.ErrorMessage}");
-                        
-                        // Load card history for re-displaying the edit form
-                        var history = await _context.CardHistories
-                            .Where(h => h.CardId == id)
-                            .OrderByDescending(h => h.ChangedAt)
-                            .Take(10)
-                            .ToListAsync();
+                        // If no User_Code in claims, keep original UpdatedByID
+                        card.UpdatedByID = originalCard.UpdatedByID;
+                    }
+                    
+                    // Handle image update if a new file is provided
+                    if (card.ImageFile != null && card.ImageFile.Length > 0)
+                    {
+                        try
+                        {
+                            var uploadResult = await _fileUploadService.UploadFile(card.ImageFile);
+                            if (uploadResult.IsSuccess)
+                            {
+                                // Record the image change
+                                if (originalCard.ImagePath != uploadResult.FileUrl)
+                                {
+                                    var imageHistory = new CardHistory
+                                    {
+                                        CardId = card.Id,
+                                        FieldName = "Image",
+                                        OldValue = originalCard.ImagePath ?? "None",
+                                        NewValue = "Updated Image",
+                                        ChangedAt = DateTime.Now,
+                                        ChangedBy = User.Identity?.Name ?? "system"
+                                    };
+                                    _context.CardHistories.Add(imageHistory);
+                                }
+                                
+                                card.ImagePath = uploadResult.FileUrl;
+                            }
+                            else
+                            {
+                                ModelState.AddModelError("ImageFile", $"Failed to upload image: {uploadResult.ErrorMessage}");
+                                
+                                // Load card history for re-displaying the edit form
+                                var history = await _context.CardHistories
+                                    .Where(h => h.CardId == id)
+                                    .OrderByDescending(h => h.ChangedAt)
+                                    .Take(10)
+                                    .ToListAsync();
+                                    
+                                ViewBag.History = history;
+                                return View(card);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Error uploading image during edit");
+                            ModelState.AddModelError("ImageFile", $"Upload error: {ex.Message}");
                             
-                        ViewBag.History = history;
-                        return View(card);
+                            // Load card history for re-displaying the edit form
+                            var history = await _context.CardHistories
+                                .Where(h => h.CardId == id)
+                                .OrderByDescending(h => h.ChangedAt)
+                                .Take(10)
+                                .ToListAsync();
+                                    
+                            ViewBag.History = history;
+                            return View(card);
+                        }
+                    }
+                    else
+                    {
+                        // Critical fix: Make sure we preserve the original image path when no new image uploaded
+                        _logger.LogInformation($"No new image uploaded. Preserving original image path: {originalCard.ImagePath}");
+                        card.ImagePath = originalCard.ImagePath;
+                    }
+
+                    // Validate and sanitize CustomFieldsData
+                    if (string.IsNullOrEmpty(card.CustomFieldsData))
+                    {
+                        card.CustomFieldsData = "{}";
+                    }
+                    else
+                    {
+                        try
+                        {
+                            // Parse and re-serialize to ensure valid JSON structure
+                            var customFields = JsonSerializer.Deserialize<Dictionary<string, string>>(card.CustomFieldsData);
+                            card.CustomFieldsData = JsonSerializer.Serialize(customFields);
+                            
+                            // Track custom fields changes if they differ from original
+                            if (originalCard.CustomFieldsData != card.CustomFieldsData)
+                            {
+                                var fieldsHistory = new CardHistory
+                                {
+                                    CardId = card.Id,
+                                    FieldName = "Custom Fields",
+                                    OldValue = "Previous Fields Data",
+                                    NewValue = "Updated Fields Data",
+                                    ChangedAt = DateTime.Now,
+                                    ChangedBy = User.Identity?.Name ?? "system"
+                                };
+                                _context.CardHistories.Add(fieldsHistory);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            // If invalid JSON, preserve original values
+                            card.CustomFieldsData = originalCard.CustomFieldsData;
+                            _logger.LogWarning($"Invalid CustomFieldsData JSON during edit - kept original. Error: {ex.Message}");
+                        }
+                    }
+
+                    // Track changes for history
+                    await TrackCardChanges(originalCard, card);
+
+                    // Critical fix: Ensure proper entity tracking
+                    _context.Entry(originalCard).State = EntityState.Detached;
+                    _context.Update(card);
+                    await _context.SaveChangesAsync();
+                    
+                    // Generate updated QR code
+                    await _qrCodeService.GenerateQrCodeImage(card);
+                    
+                    TempData["SuccessMessage"] = $"Product '{card.ProductName}' updated successfully.";
+                    return RedirectToAction(nameof(Details), new { id = card.Id });
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!CardExists(card.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
                     }
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error uploading image during edit");
-                    ModelState.AddModelError("ImageFile", $"Upload error: {ex.Message}");
+                    _logger.LogError(ex, $"Error updating card {id}");
+                    ModelState.AddModelError("", "An error occurred while updating the product. Please try again.");
                     
                     // Load card history for re-displaying the edit form
                     var history = await _context.CardHistories
@@ -366,112 +471,23 @@ public async Task<IActionResult> Edit(int id, Card card)
                         .OrderByDescending(h => h.ChangedAt)
                         .Take(10)
                         .ToListAsync();
-                            
+                        
                     ViewBag.History = history;
                     return View(card);
                 }
             }
-            else
-            {
-                // Critical fix: Make sure we preserve the original image path when no new image uploaded
-                _logger.LogInformation($"No new image uploaded. Preserving original image path: {originalCard.ImagePath}");
-                card.ImagePath = originalCard.ImagePath;
-            }
 
-            // Validate and sanitize CustomFieldsData
-            if (string.IsNullOrEmpty(card.CustomFieldsData))
-            {
-                card.CustomFieldsData = "{}";
-            }
-            else
-            {
-                try
-                {
-                    // Parse and re-serialize to ensure valid JSON structure
-                    var customFields = JsonSerializer.Deserialize<Dictionary<string, string>>(card.CustomFieldsData);
-                    card.CustomFieldsData = JsonSerializer.Serialize(customFields);
-                    
-                    // Track custom fields changes if they differ from original
-                    if (originalCard.CustomFieldsData != card.CustomFieldsData)
-                    {
-                        var fieldsHistory = new CardHistory
-                        {
-                            CardId = card.Id,
-                            FieldName = "Custom Fields",
-                            OldValue = "Previous Fields Data",
-                            NewValue = "Updated Fields Data",
-                            ChangedAt = DateTime.Now,
-                            ChangedBy = User.Identity?.Name ?? "system"
-                        };
-                        _context.CardHistories.Add(fieldsHistory);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    // If invalid JSON, preserve original values
-                    card.CustomFieldsData = originalCard.CustomFieldsData;
-                    _logger.LogWarning($"Invalid CustomFieldsData JSON during edit - kept original. Error: {ex.Message}");
-                }
-            }
-
-            // Track changes for history
-            await TrackCardChanges(originalCard, card);
-
-            // Update timestamp
-            card.UpdatedAt = DateTime.Now;
-            card.CreatedAt = originalCard.CreatedAt; // Preserve original creation date
-            card.CreatedBy = originalCard.CreatedBy; // Preserve original creator
-            
-            // Critical fix: Ensure proper entity tracking
-            _context.Entry(originalCard).State = EntityState.Detached;
-            _context.Update(card);
-            await _context.SaveChangesAsync();
-            
-            // Generate updated QR code
-            await _qrCodeService.GenerateQrCodeImage(card);
-            
-            TempData["SuccessMessage"] = $"Product '{card.ProductName}' updated successfully.";
-            return RedirectToAction(nameof(Details), new { id = card.Id });
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!CardExists(card.Id))
-            {
-                return NotFound();
-            }
-            else
-            {
-                throw;
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Error updating card {id}");
-            ModelState.AddModelError("", "An error occurred while updating the product. Please try again.");
-            
-            // Load card history for re-displaying the edit form
-            var history = await _context.CardHistories
+            // If model state is invalid, reload history and redisplay form
+            var cardHistory = await _context.CardHistories
                 .Where(h => h.CardId == id)
                 .OrderByDescending(h => h.ChangedAt)
                 .Take(10)
                 .ToListAsync();
                 
-            ViewBag.History = history;
+            ViewBag.History = cardHistory;
+            
             return View(card);
         }
-    }
-
-    // If model state is invalid, reload history and redisplay form
-    var cardHistory = await _context.CardHistories
-        .Where(h => h.CardId == id)
-        .OrderByDescending(h => h.ChangedAt)
-        .Take(10)
-        .ToListAsync();
-        
-    ViewBag.History = cardHistory;
-    
-    return View(card);
-}
         
         // GET: Card/Delete/5
         public async Task<IActionResult> Delete(int id)
@@ -545,6 +561,13 @@ public async Task<IActionResult> Edit(int id, Card card)
                     ChangedAt = DateTime.Now,
                     ChangedBy = User.Identity?.Name ?? "system"
                 };
+                
+                // Add User_Code to history if available
+                var userCodeClaim = User.Claims.FirstOrDefault(c => c.Type == "User_Code");
+                if (userCodeClaim != null)
+                {
+                    deletionHistory.FieldName = $"Status (ID: {userCodeClaim.Value})";
+                }
                 
                 _context.CardHistories.Add(deletionHistory);
                 
@@ -819,6 +842,17 @@ public async Task<IActionResult> Edit(int id, Card card)
                 });
             }
             
+            // Add User_Code to each history entry if available
+            var userCodeClaim = User.Claims.FirstOrDefault(c => c.Type == "User_Code");
+            if (userCodeClaim != null)
+            {
+                string userCode = userCodeClaim.Value;
+                foreach (var history in changedProperties)
+                {
+                    history.ChangedBy = $"{history.ChangedBy} (ID: {userCode})";
+                }
+            }
+            
             // Add all changes to the database if there are any
             if (changedProperties.Count > 0)
             {
@@ -938,6 +972,13 @@ public async Task<IActionResult> Edit(int id, Card card)
                 // Set default values
                 issue.CreatedAt = DateTime.Now;
                 issue.Status = "Open";
+                
+                // Add User_Code if available
+                var userCodeClaim = User.Claims.FirstOrDefault(c => c.Type == "User_Code");
+                if (userCodeClaim != null)
+                {
+                    issue.ReporterName += $" (ID: {userCodeClaim.Value})";
+                }
                 
                 _context.IssueReports.Add(issue);
                 await _context.SaveChangesAsync();
