@@ -376,126 +376,26 @@
         <p class="text-blue-100 text-sm mt-1">Contact information for this product's owner</p>
     </div>
     <div class="p-5">
-        <div class="bg-gray-50 rounded-lg p-5 border border-gray-200 shadow-sm">
-            @{
-                // Extract card owner details - prioritize card's CustomFieldsData
-                string ownerFullName = string.Empty;
-                string ownerEmail = string.Empty;
-                string ownerDepartment = string.Empty;
-                string ownerPlantName = string.Empty;
-                string ownerPhoneNumber = string.Empty;
-                
-                // First try to get data from card's CustomFieldsData
-                try {
-                    if (!string.IsNullOrEmpty(Model.CustomFieldsData) && Model.CustomFieldsData != "{}")
-                    {
-                        var customFields = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(Model.CustomFieldsData);
-                        
-                        if (customFields.ContainsKey("UserFullName")) 
-                            ownerFullName = customFields["UserFullName"];
-                            
-                        if (customFields.ContainsKey("Email")) 
-                            ownerEmail = customFields["Email"];
-                            
-                        if (customFields.ContainsKey("Department")) 
-                            ownerDepartment = customFields["Department"];
-                            
-                        if (customFields.ContainsKey("PlantName")) 
-                            ownerPlantName = customFields["PlantName"];
-                            
-                        if (customFields.ContainsKey("PhoneNumber")) 
-                            ownerPhoneNumber = customFields["PhoneNumber"];
-                    }
-                } catch {}
-                
-                // Fall back to CreatedBy field for owner name if not found in CustomFieldsData
-                if (string.IsNullOrEmpty(ownerFullName) && !string.IsNullOrEmpty(Model.CreatedBy)) {
-                    ownerFullName = Model.CreatedBy;
-                }
-            }
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                @if (!string.IsNullOrEmpty(ownerFullName))
-                {
-                    <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-custom-field="UserFullName">
-                        <div class="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-user text-primary-600"></i>
-                        </div>
-                        <div class="ml-3">
-                            <div class="text-sm text-gray-500">Contact Person</div>
-                            <div class="font-medium text-gray-800">@ownerFullName</div>
-                        </div>
-                    </div>
-                }
-                
-                @if (!string.IsNullOrEmpty(ownerEmail))
-                {
-                    <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-custom-field="Email">
-                        <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-envelope text-blue-600"></i>
-                        </div>
-                        <div class="ml-3">
-                            <div class="text-sm text-gray-500">Email Address</div>
-                            <div class="font-medium">
-                                <a href="mailto:@ownerEmail" class="text-blue-600 hover:underline">@ownerEmail</a>
-                            </div>
-                        </div>
-                    </div>
-                }
-                
-                @if (!string.IsNullOrEmpty(ownerPhoneNumber))
-                {
-                    <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-custom-field="PhoneNumber">
-                        <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-phone text-green-600"></i>
-                        </div>
-                        <div class="ml-3">
-                            <div class="text-sm text-gray-500">Phone Number</div>
-                            <div class="font-medium">
-                                <a href="tel:@ownerPhoneNumber" class="text-green-600 hover:underline">@ownerPhoneNumber</a>
-                            </div>
-                        </div>
-                    </div>
-                }
-                
-                @if (!string.IsNullOrEmpty(ownerDepartment))
-                {
-                    <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-custom-field="Department">
-                        <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-building text-yellow-600"></i>
-                        </div>
-                        <div class="ml-3">
-                            <div class="text-sm text-gray-500">Department</div>
-                            <div class="font-medium text-gray-800">@ownerDepartment</div>
-                        </div>
-                    </div>
-                }
-                
-                @if (!string.IsNullOrEmpty(ownerPlantName))
-                {
-                    <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-custom-field="PlantName">
-                        <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-industry text-purple-600"></i>
-                        </div>
-                        <div class="ml-3">
-                            <div class="text-sm text-gray-500">Plant/Location</div>
-                            <div class="font-medium text-gray-800">@ownerPlantName</div>
-                        </div>
-                    </div>
-                }
+        <div id="contact-container" class="bg-gray-50 rounded-lg p-5 border border-gray-200 shadow-sm">
+            <!-- Loading indicator, initially shown -->
+            <div id="contact-loading" class="text-center py-4">
+                <i class="fas fa-spinner fa-spin text-primary-500 text-2xl mb-3"></i>
+                <p class="text-gray-600">Loading contact information...</p>
             </div>
             
-            @if (string.IsNullOrEmpty(ownerFullName) && string.IsNullOrEmpty(ownerEmail) && 
-                 string.IsNullOrEmpty(ownerDepartment) && string.IsNullOrEmpty(ownerPlantName))
-            {
-                <div class="text-center py-6 text-gray-500">
-                    <i class="fas fa-user-slash text-4xl mb-3 text-gray-400"></i>
-                    <p>No contact information available for this product.</p>
-                    <button class="mt-4 inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all">
-                        <i class="fas fa-plus mr-2"></i> Add Contact Information
-                    </button>
-                </div>
-            }
+            <!-- Contact information grid, initially hidden -->
+            <div id="contact-info-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 hidden">
+                <!-- User info populated by JavaScript -->
+            </div>
+            
+            <!-- No contact message, initially hidden -->
+            <div id="no-contact-info" class="text-center py-6 text-gray-500 hidden">
+                <i class="fas fa-user-slash text-4xl mb-3 text-gray-400"></i>
+                <p>No contact information available for this product.</p>
+                <button class="mt-4 inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all">
+                    <i class="fas fa-plus mr-2"></i> Add Contact Information
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -672,6 +572,315 @@
 
 @section Scripts {
 <script>
+// Load user contact information from API
+function loadUserContactInfo() {
+    const contactLoading = document.getElementById('contact-loading');
+    const contactInfoGrid = document.getElementById('contact-info-grid');
+    const noContactInfo = document.getElementById('no-contact-info');
+    
+    if (!contactLoading || !contactInfoGrid || !noContactInfo) return;
+    
+    // Get user code from the card's CreatedByID
+    const userCode = '@Model.CreatedByID';
+    
+    if (!userCode || userCode === '' || userCode === 'string.Empty') {
+        showFallbackContactInfo();
+        return;
+    }
+    
+    // Show loading indicator
+    contactLoading.classList.remove('hidden');
+    contactInfoGrid.classList.add('hidden');
+    noContactInfo.classList.add('hidden');
+    
+    // Make API call to get user info
+    fetch(`https://devsever.thaiparker.co.th/E2E/api/Get/GetUser?userCode=${encodeURIComponent(userCode)}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(userData => {
+            // Hide loading indicator
+            contactLoading.classList.add('hidden');
+            
+            if (userData && userData.UserFullName) {
+                // Populate contact info grid
+                contactInfoGrid.innerHTML = createContactInfoHTML(userData);
+                contactInfoGrid.classList.remove('hidden');
+                
+                // Initialize copy to clipboard for the newly created elements
+                initCopyToClipboard();
+            } else {
+                // If API returned no data, fall back to stored information
+                showFallbackContactInfo();
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching user data:', error);
+            // Show fallback contact info on error
+            showFallbackContactInfo();
+        });
+}
+
+// Create HTML for the contact info grid
+function createContactInfoHTML(userData) {
+    let html = '';
+    
+    // Full name
+    if (userData.UserFullName) {
+        html += `
+            <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-user-field="UserFullName">
+                <div class="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-user text-primary-600"></i>
+                </div>
+                <div class="ml-3">
+                    <div class="text-sm text-gray-500">Contact Person</div>
+                    <div class="font-medium text-gray-800">${userData.UserFullName}</div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Email
+    if (userData.Email) {
+        html += `
+            <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-user-field="Email">
+                <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-envelope text-blue-600"></i>
+                </div>
+                <div class="ml-3">
+                    <div class="text-sm text-gray-500">Email Address</div>
+                    <div class="font-medium">
+                        <a href="mailto:${userData.Email}" class="text-blue-600 hover:underline">${userData.Email}</a>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Phone (if available)
+    if (userData.PhoneNumber) {
+        html += `
+            <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-user-field="PhoneNumber">
+                <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-phone text-green-600"></i>
+                </div>
+                <div class="ml-3">
+                    <div class="text-sm text-gray-500">Phone Number</div>
+                    <div class="font-medium">
+                        <a href="tel:${userData.PhoneNumber}" class="text-green-600 hover:underline">${userData.PhoneNumber}</a>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Department
+    if (userData.Department) {
+        html += `
+            <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-user-field="Department">
+                <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-building text-yellow-600"></i>
+                </div>
+                <div class="ml-3">
+                    <div class="text-sm text-gray-500">Department</div>
+                    <div class="font-medium text-gray-800">${userData.Department}</div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Plant
+    if (userData.PlantName) {
+        html += `
+            <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-user-field="PlantName">
+                <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-industry text-purple-600"></i>
+                </div>
+                <div class="ml-3">
+                    <div class="text-sm text-gray-500">Plant/Location</div>
+                    <div class="font-medium text-gray-800">${userData.PlantName}</div>
+                </div>
+            </div>
+        `;
+    }
+    
+    return html || createNoContactInfoHTML();
+}
+
+// Fall back to the stored contact information
+function showFallbackContactInfo() {
+    const contactLoading = document.getElementById('contact-loading');
+    const contactInfoGrid = document.getElementById('contact-info-grid');
+    const noContactInfo = document.getElementById('no-contact-info');
+    
+    if (!contactLoading || !contactInfoGrid || !noContactInfo) return;
+    
+    // Hide loading indicator
+    contactLoading.classList.add('hidden');
+    
+    @{
+        // Extract card owner details - prioritize card's CustomFieldsData
+        string ownerFullName = string.Empty;
+        string ownerEmail = string.Empty;
+        string ownerDepartment = string.Empty;
+        string ownerPlantName = string.Empty;
+        string ownerPhoneNumber = string.Empty;
+        
+        // First try to get data from card's CustomFieldsData
+        try {
+            if (!string.IsNullOrEmpty(Model.CustomFieldsData) && Model.CustomFieldsData != "{}")
+            {
+                var customFields = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(Model.CustomFieldsData);
+                
+                if (customFields.ContainsKey("UserFullName")) 
+                    ownerFullName = customFields["UserFullName"];
+                    
+                if (customFields.ContainsKey("Email")) 
+                    ownerEmail = customFields["Email"];
+                    
+                if (customFields.ContainsKey("Department")) 
+                    ownerDepartment = customFields["Department"];
+                    
+                if (customFields.ContainsKey("PlantName")) 
+                    ownerPlantName = customFields["PlantName"];
+                    
+                if (customFields.ContainsKey("PhoneNumber")) 
+                    ownerPhoneNumber = customFields["PhoneNumber"];
+            }
+        } catch {}
+        
+        // Fall back to CreatedBy field for owner name if not found in CustomFieldsData
+        if (string.IsNullOrEmpty(ownerFullName) && !string.IsNullOrEmpty(Model.CreatedBy)) {
+            ownerFullName = Model.CreatedBy;
+        }
+    }
+    
+    const hasStoredContactInfo = @((!string.IsNullOrEmpty(ownerFullName) || 
+                                  !string.IsNullOrEmpty(ownerEmail) || 
+                                  !string.IsNullOrEmpty(ownerDepartment) || 
+                                  !string.IsNullOrEmpty(ownerPlantName) || 
+                                  !string.IsNullOrEmpty(ownerPhoneNumber)).ToString().ToLower());
+    
+    if (hasStoredContactInfo) {
+        let html = '';
+        
+        @if (!string.IsNullOrEmpty(ownerFullName))
+        {
+            <text>
+            html += `
+                <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-custom-field="UserFullName">
+                    <div class="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-user text-primary-600"></i>
+                    </div>
+                    <div class="ml-3">
+                        <div class="text-sm text-gray-500">Contact Person</div>
+                        <div class="font-medium text-gray-800">@ownerFullName</div>
+                    </div>
+                </div>
+            `;
+            </text>
+        }
+        
+        @if (!string.IsNullOrEmpty(ownerEmail))
+        {
+            <text>
+            html += `
+                <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-custom-field="Email">
+                    <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-envelope text-blue-600"></i>
+                    </div>
+                    <div class="ml-3">
+                        <div class="text-sm text-gray-500">Email Address</div>
+                        <div class="font-medium">
+                            <a href="mailto:@ownerEmail" class="text-blue-600 hover:underline">@ownerEmail</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            </text>
+        }
+        
+        @if (!string.IsNullOrEmpty(ownerPhoneNumber))
+        {
+            <text>
+            html += `
+                <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-custom-field="PhoneNumber">
+                    <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-phone text-green-600"></i>
+                    </div>
+                    <div class="ml-3">
+                        <div class="text-sm text-gray-500">Phone Number</div>
+                        <div class="font-medium">
+                            <a href="tel:@ownerPhoneNumber" class="text-green-600 hover:underline">@ownerPhoneNumber</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            </text>
+        }
+        
+        @if (!string.IsNullOrEmpty(ownerDepartment))
+        {
+            <text>
+            html += `
+                <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-custom-field="Department">
+                    <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-building text-yellow-600"></i>
+                    </div>
+                    <div class="ml-3">
+                        <div class="text-sm text-gray-500">Department</div>
+                        <div class="font-medium text-gray-800">@ownerDepartment</div>
+                    </div>
+                </div>
+            `;
+            </text>
+        }
+        
+        @if (!string.IsNullOrEmpty(ownerPlantName))
+        {
+            <text>
+            html += `
+                <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-custom-field="PlantName">
+                    <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-industry text-purple-600"></i>
+                    </div>
+                    <div class="ml-3">
+                        <div class="text-sm text-gray-500">Plant/Location</div>
+                        <div class="font-medium text-gray-800">@ownerPlantName</div>
+                    </div>
+                </div>
+            `;
+            </text>
+        }
+        
+        if (html) {
+            contactInfoGrid.innerHTML = html;
+            contactInfoGrid.classList.remove('hidden');
+            initCopyToClipboard();
+        } else {
+            noContactInfo.classList.remove('hidden');
+        }
+    } else {
+        noContactInfo.classList.remove('hidden');
+    }
+}
+
+// Create HTML for no contact info
+function createNoContactInfoHTML() {
+    return `
+        <div class="text-center py-6 text-gray-500 col-span-2">
+            <i class="fas fa-user-slash text-4xl mb-3 text-gray-400"></i>
+            <p>No contact information available for this product.</p>
+            <button class="mt-4 inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all">
+                <i class="fas fa-plus mr-2"></i> Add Contact Information
+            </button>
+        </div>
+    `;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     try {
         // Apply scan settings if they exist in URL parameters
@@ -706,6 +915,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Initialize image preview
         initImagePreview();
+
+        // Call the function to load user contact information
+        loadUserContactInfo();
     } catch (e) {
         console.error("Error in initialization:", e);
     }
