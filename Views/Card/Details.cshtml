@@ -711,7 +711,7 @@
             </div>
         </div>
         
-<!-- Scan Settings Tab -->
+<!-- Scan Settings Tab (Updated) -->
 <div id="tab-scan-settings" class="tab-content hidden space-y-6">
     <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
         <div class="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-primary-600 to-primary-500">
@@ -724,10 +724,13 @@
         </div>
         
         <div class="p-6">
-            <p class="text-sm text-gray-600 mb-4 flex items-center">
-                <i class="fas fa-info-circle text-primary-500 mr-2"></i>
-                Control what information is visible when someone scans the QR code for this product.
-            </p>
+            <div class="flex bg-yellow-50 p-3 rounded-lg border border-yellow-200 mb-6 items-center">
+                <div class="text-yellow-600 mr-3"><i class="fas fa-info-circle text-xl"></i></div>
+                <p class="text-sm text-yellow-700">
+                    These settings control what information is visible when someone scans the QR code. 
+                    Changes will only take effect after you click "Save Settings".
+                </p>
+            </div>
             
             <!-- Access Control Card -->
             <div class="mb-6 p-5 rounded-lg border transition-all duration-300" id="access-control-container">
@@ -928,7 +931,7 @@
                                 <i class="fas fa-exclamation-triangle text-gray-400 mr-2 w-5"></i>
                                 <span class="text-gray-800">Hide "Report Issue" Button</span>
                             </span>
-                            <input type="checkbox" name="scan_ui_elements" value="report-issue-btn" class="toggle-checkbox">
+                            <input type="checkbox" name="scan_ui_elements" value="hide_report_issue" class="toggle-checkbox">
                         </label>
                         
                         <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
@@ -936,7 +939,7 @@
                                 <i class="fas fa-user text-gray-400 mr-2 w-5"></i>
                                 <span class="text-gray-800">Hide Product Owner Contact</span>
                             </span>
-                            <input type="checkbox" name="scan_ui_elements" value="contact" class="toggle-checkbox">
+                            <input type="checkbox" name="scan_ui_elements" value="hide_contact" class="toggle-checkbox">
                         </label>
                         
                         <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
@@ -944,7 +947,7 @@
                                 <i class="fas fa-info-circle text-gray-400 mr-2 w-5"></i>
                                 <span class="text-gray-800">Hide Product Details Section</span>
                             </span>
-                            <input type="checkbox" name="scan_ui_elements" value="product-details" class="toggle-checkbox">
+                            <input type="checkbox" name="scan_ui_elements" value="hide_product_details" class="toggle-checkbox">
                         </label>
                         
                         <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
@@ -952,7 +955,7 @@
                                 <i class="fas fa-headset text-gray-400 mr-2 w-5"></i>
                                 <span class="text-gray-800">Hide Contact Support Button</span>
                             </span>
-                            <input type="checkbox" name="scan_ui_elements" value="contact-support" class="toggle-checkbox">
+                            <input type="checkbox" name="scan_ui_elements" value="hide_contact_support" class="toggle-checkbox">
                         </label>
                         
                         <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
@@ -960,15 +963,7 @@
                                 <i class="fas fa-history text-gray-400 mr-2 w-5"></i>
                                 <span class="text-gray-800">Hide Maintenance History</span>
                             </span>
-                            <input type="checkbox" name="scan_ui_elements" value="maintenance-history" class="toggle-checkbox">
-                        </label>
-                        
-                        <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
-                            <span class="flex items-center">
-                                <i class="fas fa-tools text-gray-400 mr-2 w-5"></i>
-                                <span class="text-gray-800">Hide Maintenance Information</span>
-                            </span>
-                            <input type="checkbox" name="scan_ui_elements" value="maintenance" class="toggle-checkbox">
+                            <input type="checkbox" name="scan_ui_elements" value="hide_maintenance_history" class="toggle-checkbox">
                         </label>
                     </div>
                 </div>
@@ -2478,31 +2473,61 @@
             const privateModeToggle = document.getElementById('private-mode-toggle');
             const loadPreviewBtn = document.getElementById('load-preview-btn');
             const mobileLoadPreviewBtn = document.getElementById('mobile-load-preview-btn');
+            const toggleCheckboxes = document.querySelectorAll('.toggle-checkbox');
             
             // Load current settings on init
             loadScanSettings();
             
+            // Auto-refresh preview when settings change
+            toggleCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    // Don't immediately refresh to avoid too many refreshes
+                    // Add visual feedback to refresh button
+                    refreshPreviewBtn.classList.add('animate-pulse', 'bg-yellow-100');
+                    refreshPreviewBtn.innerHTML = '<i class="fas fa-sync-alt mr-1"></i> Preview Needs Refresh';
+                });
+            });
+            
             // Handle load preview button clicks
             if (loadPreviewBtn) {
                 loadPreviewBtn.addEventListener('click', function() {
+                    refreshPreviewBtn.classList.remove('animate-pulse', 'bg-yellow-100');
+                    refreshPreviewBtn.innerHTML = '<i class="fas fa-sync-alt mr-1"></i> Refresh';
                     loadScanPreview(false);
                 });
             }
             
             if (mobileLoadPreviewBtn) {
                 mobileLoadPreviewBtn.addEventListener('click', function() {
+                    refreshPreviewBtn.classList.remove('animate-pulse', 'bg-yellow-100');
+                    refreshPreviewBtn.innerHTML = '<i class="fas fa-sync-alt mr-1"></i> Refresh';
                     loadScanPreview(true);
                 });
             }
             
             if (saveScanSettingsBtn) {
                 saveScanSettingsBtn.addEventListener('click', function() {
-                    saveScanSettings();
+                    // Disable button while saving
+                    saveScanSettingsBtn.disabled = true;
+                    saveScanSettingsBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving...';
+                    
+                    saveScanSettings().then(() => {
+                        // Reset button after saving
+                        saveScanSettingsBtn.disabled = false;
+                        saveScanSettingsBtn.innerHTML = '<i class="fas fa-save mr-2"></i> Save Settings';
+                        
+                        // Automatically refresh preview after saving
+                        refreshPreviewBtn.classList.remove('animate-pulse', 'bg-yellow-100');
+                        refreshPreviewBtn.innerHTML = '<i class="fas fa-sync-alt mr-1"></i> Refresh';
+                        loadScanPreview(window.innerWidth < 640);
+                    });
                 });
             }
             
             if (refreshPreviewBtn) {
                 refreshPreviewBtn.addEventListener('click', function() {
+                    refreshPreviewBtn.classList.remove('animate-pulse', 'bg-yellow-100');
+                    refreshPreviewBtn.innerHTML = '<i class="fas fa-sync-alt mr-1"></i> Refresh';
                     const isMobile = window.innerWidth < 640;
                     loadScanPreview(isMobile);
                 });
@@ -2534,6 +2559,10 @@
             if (privateModeToggle) {
                 privateModeToggle.addEventListener('change', function() {
                     updatePrivateModeUI(this.checked);
+                    
+                    // Show refresh notification
+                    refreshPreviewBtn.classList.add('animate-pulse', 'bg-yellow-100');
+                    refreshPreviewBtn.innerHTML = '<i class="fas fa-sync-alt mr-1"></i> Preview Needs Refresh';
                 });
             }
         }
@@ -2573,82 +2602,83 @@
             }
         }
 
-        function loadScanSettings() {
+        async function loadScanSettings() {
             const cardId = document.getElementById('card-id').value;
+            const settingsLoading = true;
             
-            // Try to load settings from database first
-            fetch(`/api/ScanSettings/card/${cardId}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Settings not found in database');
-                    }
-                    return response.json();
-                })
-                .then(dbSettings => {
-                    // Parse JSON arrays from the database
-                    const fields = JSON.parse(dbSettings.fieldsJson || '[]');
-                    const uiElements = JSON.parse(dbSettings.uiElementsJson || '[]');
-                    const privateMode = dbSettings.privateMode || false;
-                    
-                    // Apply the settings to field checkboxes
-                    document.querySelectorAll('input[name="scan_fields"]').forEach(checkbox => {
-                        if (!checkbox.disabled) {
-                            checkbox.checked = fields.includes(checkbox.value);
-                        }
-                    });
-                    
-                    // Apply UI element visibility settings
-                    document.querySelectorAll('input[name="scan_ui_elements"]').forEach(checkbox => {
-                        checkbox.checked = uiElements.includes(checkbox.value);
-                    });
-                    
-                    // Apply private mode setting
-                    const privateModeToggle = document.getElementById('private-mode-toggle');
-                    if (privateModeToggle) {
-                        privateModeToggle.checked = privateMode;
-                        updatePrivateModeUI(privateModeToggle.checked);
-                    }
-                    
-                    // Update localStorage as a cache
-                    localStorage.setItem(`scan_settings_${cardId}`, JSON.stringify({
-                        fields: fields,
-                        uiElements: uiElements,
-                        privateMode: privateMode
-                    }));
-                })
-                .catch(error => {
-                    console.log('Error loading settings from database, falling back to localStorage:', error);
-                    
-                    // Fall back to localStorage
-                    const savedSettings = localStorage.getItem(`scan_settings_${cardId}`);
-                    
-                    if (savedSettings) {
-                        const settings = JSON.parse(savedSettings);
-                        
-                        // Apply settings to checkboxes
-                        document.querySelectorAll('input[name="scan_fields"]').forEach(checkbox => {
-                            if (!checkbox.disabled) {
-                                checkbox.checked = settings.fields.includes(checkbox.value);
-                            }
-                        });
-                        
-                        document.querySelectorAll('input[name="scan_ui_elements"]').forEach(checkbox => {
-                            checkbox.checked = settings.uiElements.includes(checkbox.value);
-                        });
-                        
-                        const privateModeToggle = document.getElementById('private-mode-toggle');
-                        if (privateModeToggle) {
-                            privateModeToggle.checked = settings.privateMode || false;
-                            updatePrivateModeUI(privateModeToggle.checked);
-                        }
-                    } else {
-                        // Default to public mode if no settings exist
-                        updatePrivateModeUI(false);
+            try {
+                // Try to load settings from database first
+                const response = await fetch(`/api/ScanSettings/card/${cardId}`);
+                
+                if (!response.ok) {
+                    throw new Error('Settings not found in database');
+                }
+                
+                const dbSettings = await response.json();
+                
+                // Parse JSON arrays from the database
+                const fields = JSON.parse(dbSettings.fieldsJson || '[]');
+                const uiElements = JSON.parse(dbSettings.uiElementsJson || '[]');
+                const privateMode = dbSettings.privateMode || false;
+                
+                // Apply the settings to field checkboxes
+                document.querySelectorAll('input[name="scan_fields"]').forEach(checkbox => {
+                    if (!checkbox.disabled) {
+                        checkbox.checked = fields.includes(checkbox.value);
                     }
                 });
+                
+                // Apply UI element visibility settings
+                document.querySelectorAll('input[name="scan_ui_elements"]').forEach(checkbox => {
+                    checkbox.checked = uiElements.includes(checkbox.value);
+                });
+                
+                // Apply private mode setting
+                const privateModeToggle = document.getElementById('private-mode-toggle');
+                if (privateModeToggle) {
+                    privateModeToggle.checked = privateMode;
+                    updatePrivateModeUI(privateModeToggle.checked);
+                }
+                
+                // Update localStorage as a cache
+                localStorage.setItem(`scan_settings_${cardId}`, JSON.stringify({
+                    fields: fields,
+                    uiElements: uiElements,
+                    privateMode: privateMode
+                }));
+            } catch (error) {
+                console.log('Error loading settings from database, falling back to localStorage:', error);
+                
+                // Fall back to localStorage
+                const savedSettings = localStorage.getItem(`scan_settings_${cardId}`);
+                
+                if (savedSettings) {
+                    const settings = JSON.parse(savedSettings);
+                    
+                    // Apply settings to checkboxes
+                    document.querySelectorAll('input[name="scan_fields"]').forEach(checkbox => {
+                        if (!checkbox.disabled) {
+                            checkbox.checked = settings.fields.includes(checkbox.value);
+                        }
+                    });
+                    
+                    document.querySelectorAll('input[name="scan_ui_elements"]').forEach(checkbox => {
+                        checkbox.checked = settings.uiElements.includes(checkbox.value);
+                    });
+                    
+                    const privateModeToggle = document.getElementById('private-mode-toggle');
+                    if (privateModeToggle) {
+                        privateModeToggle.checked = settings.privateMode || false;
+                        updatePrivateModeUI(privateModeToggle.checked);
+                    }
+                } else {
+                    // Default to public mode if no settings exist
+                    updatePrivateModeUI(false);
+                }
+            }
         }
 
-        function saveScanSettings() {
+        async function saveScanSettings() {
             // Get selected values
             const selectedFields = [];
             document.querySelectorAll('input[name="scan_fields"]:checked').forEach(checkbox => {
@@ -2672,26 +2702,26 @@
             };
             
             // Get CSRF token
-            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+            const token = document.querySelector('meta[name="RequestVerificationToken"]')?.getAttribute('content');
             
-            // Send request
-            fetch('/api/ScanSettings', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'RequestVerificationToken': token || ''
-                },
-                body: JSON.stringify(payload)
-            })
-            .then(response => {
+            try {
+                // Send request
+                const response = await fetch('/api/ScanSettings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': token || ''
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
                 if (!response.ok) {
-                    return response.text().then(text => {
-                        throw new Error(`HTTP error ${response.status}: ${text}`);
-                    });
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error ${response.status}: ${errorText}`);
                 }
-                return response.json();
-            })
-            .then(data => {
+                
+                const data = await response.json();
+                
                 // Save to localStorage as backup
                 localStorage.setItem(`scan_settings_${cardId}`, JSON.stringify({
                     fields: selectedFields,
@@ -2699,93 +2729,96 @@
                     privateMode: privateMode
                 }));
                 
-                showToast('Settings saved', 'Scan settings saved successfully', 'success');
-            })
-            .catch(error => {
-                console.error('Error:', error);
+                showToast('Settings saved', 'QR scan view settings saved successfully', 'success');
+                
+                return true;
+            } catch (error) {
+                console.error('Error saving settings:', error);
                 showToast('Error', `Failed to save settings: ${error.message}`, 'error');
-            });
+                
+                return false;
+            }
         }
 
-function loadScanPreview(isMobile = false) {
-    const previewElement = isMobile ? 
-        document.getElementById('mobile-scan-preview') : 
-        document.getElementById('scan-preview');
-    
-    if (!previewElement) {
-        console.error('Preview element not found');
-        return;
-    }
-    
-    // Show loading state
-    previewElement.innerHTML = '<div class="flex justify-center items-center h-full"><i class="fas fa-spinner fa-spin text-2xl text-primary-500"></i></div>';
-    
-    // Get card ID
-    const cardId = document.getElementById('card-id')?.value;
-    
-    if (!cardId) {
-        previewElement.innerHTML = '<div class="flex justify-center items-center h-full text-red-500">Error: Product ID not found</div>';
-        return;
-    }
-    
-    // Get current settings
-    const selectedFields = [];
-    document.querySelectorAll('input[name="scan_fields"]:checked').forEach(checkbox => {
-        selectedFields.push(checkbox.value);
-    });
-    
-    const uiElements = [];
-    document.querySelectorAll('input[name="scan_ui_elements"]:checked').forEach(checkbox => {
-        uiElements.push(checkbox.value);
-    });
-    
-    const privateMode = document.getElementById('private-mode-toggle')?.checked || false;
-    
-    // Build the preview URL with correct parameters
-    let previewUrl = `/Card/ScanShow/${cardId}?preview=true`;
-    
-    // Add field parameters
-    selectedFields.forEach(field => {
-        previewUrl += `&field=${encodeURIComponent(field)}`;
-    });
-    
-    // Add UI element parameters
-    uiElements.forEach(element => {
-        previewUrl += `&ui=${encodeURIComponent(element)}`;
-    });
-    
-    // Add private mode parameter if enabled
-    if (privateMode) {
-        previewUrl += '&private=true';
-    }
-    
-    // Add mobile parameter for mobile view
-    if (isMobile) {
-        previewUrl += '&mobile=true';
-    }
-    
-    // Add timestamp to prevent caching issues
-    previewUrl += `&t=${Date.now()}`;
-    
-    console.log('Preview URL:', previewUrl); // Debug log
-    console.log('UI Elements to hide:', uiElements);
-    
-    // Create iframe with appropriate classes
-    const iframeClasses = isMobile ? 
-        'w-full h-full border-0 scale-[0.85] origin-top' : 
-        'w-full h-full border-0';
-    
-    // Create and append iframe
-    const iframe = document.createElement('iframe');
-    iframe.src = previewUrl;
-    iframe.className = iframeClasses;
-    iframe.loading = "lazy";
-    iframe.allowFullscreen = true;
-    
-    // Clear and append the iframe
-    previewElement.innerHTML = '';
-    previewElement.appendChild(iframe);
-}
+        function loadScanPreview(isMobile = false) {
+            const previewElement = isMobile ? 
+                document.getElementById('mobile-scan-preview') : 
+                document.getElementById('scan-preview');
+            
+            if (!previewElement) {
+                console.error('Preview element not found');
+                return;
+            }
+            
+            // Show loading state
+            previewElement.innerHTML = '<div class="flex justify-center items-center h-full"><i class="fas fa-spinner fa-spin text-2xl text-primary-500"></i></div>';
+            
+            // Get card ID
+            const cardId = document.getElementById('card-id')?.value;
+            
+            if (!cardId) {
+                previewElement.innerHTML = '<div class="flex justify-center items-center h-full text-red-500">Error: Product ID not found</div>';
+                return;
+            }
+            
+            // Get current settings
+            const selectedFields = [];
+            document.querySelectorAll('input[name="scan_fields"]:checked').forEach(checkbox => {
+                selectedFields.push(checkbox.value);
+            });
+            
+            const selectedUIElements = [];
+            document.querySelectorAll('input[name="scan_ui_elements"]:checked').forEach(checkbox => {
+                selectedUIElements.push(checkbox.value);
+            });
+            
+            const privateMode = document.getElementById('private-mode-toggle')?.checked || false;
+            
+            // Build the preview URL with correct parameters
+            let previewUrl = `/Card/ScanShow/${cardId}?preview=true`;
+            
+            // Add field parameters
+            selectedFields.forEach(field => {
+                previewUrl += `&field=${encodeURIComponent(field)}`;
+            });
+            
+            // Add UI element parameters
+            selectedUIElements.forEach(element => {
+                previewUrl += `&ui=${encodeURIComponent(element)}`;
+            });
+            
+            // Add private mode parameter if enabled
+            if (privateMode) {
+                previewUrl += '&private=true';
+            }
+            
+            // Add mobile parameter for mobile view
+            if (isMobile) {
+                previewUrl += '&mobile=true';
+            }
+            
+            // Add timestamp to prevent caching issues
+            previewUrl += `&t=${Date.now()}`;
+            
+            console.log('Preview URL:', previewUrl);
+            console.log('UI Elements to hide:', selectedUIElements);
+            
+            // Create iframe with appropriate classes
+            const iframeClasses = isMobile ? 
+                'w-full h-full border-0 scale-[0.85] origin-top' : 
+                'w-full h-full border-0';
+            
+            // Create and append iframe
+            const iframe = document.createElement('iframe');
+            iframe.src = previewUrl;
+            iframe.className = iframeClasses;
+            iframe.loading = "lazy";
+            iframe.allowFullscreen = true;
+            
+            // Clear and append the iframe
+            previewElement.innerHTML = '';
+            previewElement.appendChild(iframe);
+        }
         
         // Helper functions
         function formatDate(date) {
