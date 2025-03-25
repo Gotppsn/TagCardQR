@@ -1,6 +1,7 @@
 // Path: Services/LdapAuthenticationService.cs
 using System;
 using System.DirectoryServices.AccountManagement;
+using System.DirectoryServices;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
@@ -9,10 +10,12 @@ namespace CardTagManager.Services
     public class LdapAuthenticationService
     {
         private readonly string _domain;
+        private readonly ILogger<LdapAuthenticationService> _logger;
 
-        public LdapAuthenticationService(string domain)
+        public LdapAuthenticationService(string domain, ILogger<LdapAuthenticationService> logger = null)
         {
             _domain = domain ?? "thaiparkerizing";
+            _logger = logger;
         }
 
         public (bool isValid, UserLdapInfo userInfo) ValidateCredentials(string username, string password)
@@ -29,7 +32,7 @@ namespace CardTagManager.Services
                     Email = "admin@thaiparker.co.th",
                     FullName = "Administrator",
                     PlantName = "Bangpoo",
-                    User_Code = "1000000"
+                    UserCode = "1670660" // Example User_Code for testing
                 };
                 return (true, userInfo);
             }
@@ -43,38 +46,70 @@ namespace CardTagManager.Services
                     
                     if (isValid)
                     {
-                        // Get user information from AD
-                        using (var user = UserPrincipal.FindByIdentity(context, username))
+                        try 
                         {
-                            if (user != null)
+                            // Get user information from AD
+                            using (var user = UserPrincipal.FindByIdentity(context, username))
                             {
-                                userInfo.Username = user.SamAccountName;
-                                userInfo.Email = user.EmailAddress;
-                                userInfo.FullName = user.DisplayName;
-                                
-                                // For department and plant, these are typically stored in custom AD attributes
-                                // You may need to adjust these based on your AD schema
-                                using (var dirEntry = user.GetUnderlyingObject() as System.DirectoryServices.DirectoryEntry)
+                                if (user != null)
                                 {
-                                    if (dirEntry != null)
+                                    userInfo.Username = user.SamAccountName;
+                                    userInfo.Email = user.EmailAddress;
+                                    userInfo.FullName = user.DisplayName;
+                                    
+                                    // Extract properties from directory entry
+                                    using (var dirEntry = user.GetUnderlyingObject() as DirectoryEntry)
                                     {
-                                        try 
+                                        if (dirEntry != null)
                                         {
-                                            userInfo.Department = dirEntry.Properties["department"].Value?.ToString();
-                                            // Assuming plant name is stored in a custom attribute like "physicalDeliveryOfficeName"
-                                            userInfo.PlantName = dirEntry.Properties["physicalDeliveryOfficeName"].Value?.ToString();
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            // Fallback values if attributes aren't found
-                                            userInfo.Department = "Unknown Department";
-                                            userInfo.PlantName = "Unknown Plant";
-                                            userInfo.User_Code = string.Empty;
-                                            Console.WriteLine($"Error retrieving LDAP attributes: {ex.Message}");
+                                            try 
+                                            {
+                                                userInfo.Department = GetPropertyValue(dirEntry, "department");
+                                                userInfo.PlantName = GetPropertyValue(dirEntry, "physicalDeliveryOfficeName");
+                                                
+                                                // Try to get User_Code - must be exact property name as in AD
+                                                userInfo.UserCode = GetPropertyValue(dirEntry, "User_Code");
+                                                
+                                                // If User_Code is empty and we have access to JSON data in the example from document #12
+                                                if (string.IsNullOrEmpty(userInfo.UserCode))
+                                                {
+                                                    var jsonData = GetPropertyValue(dirEntry, "info");
+                                                    if (!string.IsNullOrEmpty(jsonData))
+                                                    {
+                                                        try
+                                                        {
+                                                            // Try to extract from the JSON structure shown in document #12
+                                                            // This is a very specific approach based on the provided example
+                                                            var userCodeMatch = System.Text.RegularExpressions.Regex.Match(
+                                                                jsonData, "\"User_Code\":\"(\\d+)\"");
+                                                            
+                                                            if (userCodeMatch.Success && userCodeMatch.Groups.Count > 1)
+                                                            {
+                                                                userInfo.UserCode = userCodeMatch.Groups[1].Value;
+                                                                _logger?.LogInformation($"Extracted User_Code from JSON: {userInfo.UserCode}");
+                                                            }
+                                                        }
+                                                        catch (Exception ex)
+                                                        {
+                                                            _logger?.LogWarning($"Failed to parse JSON for User_Code: {ex.Message}");
+                                                        }
+                                                    }
+                                                }
+                                                
+                                                _logger?.LogInformation($"Retrieved User_Code for {username}: {userInfo.UserCode}");
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                _logger?.LogWarning($"Error retrieving LDAP attributes for {username}: {ex.Message}");
+                                            }
                                         }
                                     }
                                 }
                             }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger?.LogError($"Error retrieving user details: {ex.Message}");
                         }
                     }
                     
@@ -83,10 +118,26 @@ namespace CardTagManager.Services
             }
             catch (Exception ex)
             {
-                // Log exception silently, production code should use proper logging
-                Console.WriteLine($"LDAP Authentication error: {ex.Message}");
+                _logger?.LogError($"LDAP Authentication error: {ex.Message}");
                 return (false, userInfo);
             }
+        }
+        
+        private string GetPropertyValue(DirectoryEntry entry, string propertyName)
+        {
+            try
+            {
+                if (entry.Properties.Contains(propertyName))
+                {
+                    var value = entry.Properties[propertyName].Value;
+                    return value?.ToString() ?? string.Empty;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning($"Error getting property {propertyName}: {ex.Message}");
+            }
+            return string.Empty;
         }
     }
     
@@ -97,6 +148,6 @@ namespace CardTagManager.Services
         public string Email { get; set; } = string.Empty;
         public string FullName { get; set; } = string.Empty;
         public string PlantName { get; set; } = string.Empty;
-        public string User_Code { get; set; } = string.Empty;
+        public string UserCode { get; set; } = string.Empty;
     }
 }

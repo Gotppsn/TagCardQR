@@ -92,9 +92,9 @@ namespace CardTagManager.Controllers
                                 if (ldapService != null)
                                 {
                                     var (_, userInfo) = ldapService.ValidateCredentials(username, null);
-                                    if (userInfo != null && !string.IsNullOrEmpty(userInfo.User_Code))
+                                    if (userInfo != null && !string.IsNullOrEmpty(userInfo.UserCode))
                                     {
-                                        card.User_Code = userInfo.User_Code;
+                                        card.User_Code = userInfo.UserCode;
                                     }
                                 }
                             }

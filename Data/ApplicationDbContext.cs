@@ -112,6 +112,22 @@ namespace CardTagManager.Data
                 .HasMaxLength(50);
 
             modelBuilder.Entity<Template>()
+                .Property(t => t.CreatedBy)
+                .HasMaxLength(100);
+
+            modelBuilder.Entity<Template>()
+                .Property(t => t.CreatedByID)
+                .HasMaxLength(50);
+
+            modelBuilder.Entity<Template>()
+                .Property(t => t.UpdatedBy)
+                .HasMaxLength(100);
+
+            modelBuilder.Entity<Template>()
+                .Property(t => t.UpdatedByID)
+                .HasMaxLength(50);
+
+            modelBuilder.Entity<Template>()
                 .Property(t => t.CreatedAt)
                 .HasDefaultValueSql("GETDATE()");
 

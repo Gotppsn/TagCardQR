@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Security.Claims;
 
 namespace CardTagManager.Controllers
 {
@@ -74,7 +75,16 @@ namespace CardTagManager.Controllers
                     return BadRequest(ModelState);
                 }
 
-                template.CreatedBy = User.Identity.Name;
+                // Get user info from claims
+                string username = User.Identity?.Name ?? "system";
+                string userCode = User.Claims.FirstOrDefault(c => c.Type == "User_Code")?.Value ?? "";
+                
+                _logger.LogInformation($"Creating template with user: {username}, code: {userCode}");
+
+                template.CreatedBy = username;
+                template.CreatedByID = userCode;
+                template.UpdatedBy = username;
+                template.UpdatedByID = userCode;
                 template.CreatedAt = DateTime.Now;
                 template.UpdatedAt = DateTime.Now;
 
@@ -114,6 +124,12 @@ namespace CardTagManager.Controllers
                     return NotFound();
                 }
 
+                // Get user info from claims
+                string username = User.Identity?.Name ?? "system";
+                string userCode = User.Claims.FirstOrDefault(c => c.Type == "UserCode")?.Value ?? "";
+                
+                _logger.LogInformation($"Updating template with user: {username}, code: {userCode}");
+
                 existingTemplate.Name = template.Name;
                 existingTemplate.Category = template.Category;
                 existingTemplate.Icon = template.Icon;
@@ -121,6 +137,8 @@ namespace CardTagManager.Controllers
                 existingTemplate.IconColor = template.IconColor ?? "primary-500";
                 existingTemplate.FieldsJson = template.FieldsJson;
                 existingTemplate.UpdatedAt = DateTime.Now;
+                existingTemplate.UpdatedBy = username;
+                existingTemplate.UpdatedByID = userCode;
 
                 await _context.SaveChangesAsync();
 
@@ -194,6 +212,12 @@ namespace CardTagManager.Controllers
                     
                 if (!categoryExists)
                 {
+                    // Get user info from claims
+                    string username = User.Identity?.Name ?? "system";
+                    string userCode = User.Claims.FirstOrDefault(c => c.Type == "UserCode")?.Value ?? "";
+                    
+                    _logger.LogInformation($"Adding category with user: {username}, code: {userCode}");
+                    
                     // Create a basic template with this category to ensure it exists
                     var template = new Template
                     {
@@ -202,7 +226,10 @@ namespace CardTagManager.Controllers
                         Icon = "tag",
                         BgColor = "#f0f9ff",
                         IconColor = "primary-500",
-                        CreatedBy = User.Identity.Name,
+                        CreatedBy = username,
+                        CreatedByID = userCode,
+                        UpdatedBy = username,
+                        UpdatedByID = userCode,
                         CreatedAt = DateTime.Now,
                         UpdatedAt = DateTime.Now,
                         FieldsJson = "[]"

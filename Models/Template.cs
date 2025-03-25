@@ -27,7 +27,6 @@ namespace CardTagManager.Models
         [StringLength(20)]
         public string BgColor { get; set; } = "#f0f9ff";
         
-        // Add IconColor property
         [StringLength(50)]
         public string IconColor { get; set; } = "primary-500";
         
@@ -47,7 +46,16 @@ namespace CardTagManager.Models
         [StringLength(100)]
         public string CreatedBy { get; set; } = string.Empty;
         
+        [StringLength(50)]
+        public string CreatedByID { get; set; } = string.Empty;
+        
         public DateTime CreatedAt { get; set; } = DateTime.Now;
+        
+        [StringLength(100)]
+        public string UpdatedBy { get; set; } = string.Empty;
+        
+        [StringLength(50)]
+        public string UpdatedByID { get; set; } = string.Empty;
         
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
     }

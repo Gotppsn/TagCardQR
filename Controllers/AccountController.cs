@@ -49,7 +49,7 @@ namespace CardTagManager.Controllers
                         new Claim("Email", userInfo.Email ?? ""),
                         new Claim("FullName", userInfo.FullName ?? ""),
                         new Claim("PlantName", userInfo.PlantName ?? ""),
-                        new Claim("User_Code", userInfo.User_Code ?? ""), // Add User_Code claim
+                        new Claim("User_Code", userInfo.UserCode ?? ""), // Add User_Code claim
                         // Add unique timestamp claim to prevent stale authentication
                         new Claim("login_timestamp", DateTime.UtcNow.Ticks.ToString())
                     };
