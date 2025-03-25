@@ -1213,6 +1213,14 @@ function applySettingsToUI(fields, uiElements, isPrivate, isPreview) {
             document.body.appendChild(previewIndicator);
         }
         
+        // Debug log the settings being applied
+        console.log("Applying settings:", { 
+            fields, 
+            uiElements, 
+            isPrivate, 
+            isPreview 
+        });
+        
         // Handle private mode (show login prompt if applicable)
         if (isPrivate && !isLoggedIn() && !isPreview) {
             redirectToLogin();
@@ -1224,58 +1232,92 @@ function applySettingsToUI(fields, uiElements, isPrivate, isPreview) {
             // Always show product name (required)
             fields.push('product_name');
             
-            // Hide fields not in the list
+            // Enhanced element mapping with multiple selector options
             const elementMap = {
-                'category': '#category-section',
-                'location': '#location-section',
-                'image': ['#product-image', '#product-image-placeholder'],
-                'manufacture_date': '#manufacture-date-section',
-                'purchase_date': '#purchase-date-section',
-                'warranty': ['#warranty-section', '#warranty-status'],
-                'maintenance': '#maintenance',
-                'documents': '#documentation',
-                'issues': '#issues'
+                'category': ['#category-section', '.category-data', '[data-field="category"]'],
+                'location': ['#location-section', '.location-data', '[data-field="location"]'],
+                'image': ['#product-image', '#product-image-placeholder', '.product-image-container'],
+                'manufacture_date': ['#manufacture-date-section', '.manufacture-date-data', '[data-field="manufacture_date"]'],
+                'purchase_date': ['#purchase-date-section', '.purchase-date-data', '[data-field="purchase_date"]'],
+                'warranty': ['#warranty-section', '#warranty-status', '.warranty-data', '[data-field="warranty"]'],
+                'maintenance': ['#maintenance', '.maintenance-section', '[data-section="maintenance"]'],
+                'documents': ['#documentation', '.documents-section', '[data-section="documents"]'],
+                'issues': ['#issues', '.issues-section', '[data-section="issues"]']
             };
             
-            // Process standard fields
+            // Process standard fields with enhanced robustness
             Object.entries(elementMap).forEach(([field, selectors]) => {
                 if (!fields.includes(field)) {
+                    console.log(`Hiding field: ${field}`);
                     if (Array.isArray(selectors)) {
-                        selectors.forEach(selector => hideElement(selector));
+                        // Try each selector until one works
+                        let hidden = false;
+                        for (const selector of selectors) {
+                            if (hideElement(selector)) {
+                                hidden = true;
+                                console.log(`  ✓ Hidden using selector: ${selector}`);
+                                break;
+                            }
+                        }
+                        if (!hidden) {
+                            console.warn(`  ✗ Could not hide any elements for field: ${field}`);
+                        }
                     } else {
-                        hideElement(selector);
+                        const success = hideElement(selectors);
+                        console.log(`  ${success ? '✓' : '✗'} Hiding with selector: ${selectors}`);
                     }
                 }
             });
             
-            // Handle custom fields
+            // Handle custom fields with better attribute matching
             const customFieldElements = document.querySelectorAll('[data-custom-field]');
             if (customFieldElements) {
                 customFieldElements.forEach(el => {
                     const fieldName = el.getAttribute('data-custom-field');
                     if (fieldName && !fields.includes(`custom_${fieldName}`)) {
+                        console.log(`Hiding custom field: ${fieldName}`);
                         el.style.display = 'none';
                     }
                 });
             }
         }
         
-        // Handle UI element visibility
+        // Enhanced UI element map with multiple selector options
         const uiElementMap = {
-            'hide_report_issue': '#report-issue-btn',
-            'hide_contact_support': ['#contact', 'a[href="#contact"]'],
-            'hide_product_details': '#product-details',
-            'hide_contact': '#contact-support',
-            'hide_maintenance_history': '#maintenance-history',
-            'hide_maintenance_info': '#maintenance'
+            'hide_report_issue': ['#report-issue-btn', '.report-issue-button', '[data-action="report-issue"]'],
+            'hide_contact_support': ['#contact', 'a[href="#contact"]', '.contact-section', '[data-section="contact"]'],
+            'hide_product_details': ['#product-details', '.product-details-section', '[data-section="product-details"]'],
+            'hide_contact': ['#contact-support', '.contact-support-button', '[data-action="contact-support"]'],
+            'hide_maintenance_history': ['#maintenance-history', '.maintenance-history-section', '[data-section="maintenance-history"]'],
+            'hide_maintenance_info': ['#maintenance', '.maintenance-info-section', '[data-section="maintenance"]']
         };
         
+        // Handle UI element visibility with improved robustness
         Object.entries(uiElementMap).forEach(([element, selectors]) => {
             if (uiElements.includes(element)) {
+                console.log(`Hiding UI element: ${element}`);
                 if (Array.isArray(selectors)) {
-                    selectors.forEach(selector => hideElement(selector));
+                    // Try each selector until one works
+                    let hidden = false;
+                    for (const selector of selectors) {
+                        if (hideElement(selector)) {
+                            hidden = true;
+                            console.log(`  ✓ Hidden using selector: ${selector}`);
+                            break;
+                        }
+                    }
+                    if (!hidden) {
+                        console.warn(`  ✗ Could not hide any elements for UI element: ${element}`);
+                        // Last resort method - try finding by text content
+                        hideElementsByText(element.replace('hide_', '').replace('_', ' '));
+                    }
                 } else {
-                    hideElement(selector);
+                    const success = hideElement(selectors);
+                    console.log(`  ${success ? '✓' : '✗'} Hiding with selector: ${selectors}`);
+                    if (!success) {
+                        // Try text-based matching as fallback
+                        hideElementsByText(element.replace('hide_', '').replace('_', ' '));
+                    }
                 }
             }
         });
@@ -1290,40 +1332,62 @@ function hideElement(selector) {
         const elements = document.querySelectorAll(selector);
         if (elements && elements.length > 0) {
             elements.forEach(el => {
+                // Apply more forceful hiding
                 el.style.display = 'none';
+                el.style.visibility = 'hidden';
+                el.classList.add('hidden');
             });
             return true;
         }
-        
-        // Try content-based matching for specific cases
-        const contentMappings = {
-            "Product Details": ["h3", "Product Details"],
-            "Contact Support": ["div", "Contact Support"],
-            "Maintenance History": ["div", "Maintenance History"]
-        };
-        
-        for (const [key, [tag, content]] of Object.entries(contentMappings)) {
-            if (selector.includes(key)) {
-                const elements = document.querySelectorAll(tag);
-                let found = false;
-                
-                elements.forEach(el => {
-                    if (el.textContent.includes(content)) {
-                        const parent = el.closest('div');
-                        if (parent) {
-                            parent.style.display = 'none';
-                            found = true;
-                        }
-                    }
-                });
-                
-                return found;
-            }
-        }
-        
         return false;
     } catch (error) {
         console.error(`Error hiding element ${selector}:`, error);
+        return false;
+    }
+}
+
+function hideElementsByText(searchText) {
+    try {
+        console.log(`Attempting to hide elements containing text: "${searchText}"`);
+        let found = false;
+        
+        // Find elements that might contain the target text
+        const allHeadings = document.querySelectorAll('h1, h2, h3, h4, h5, h6, button, a');
+        allHeadings.forEach(element => {
+            if (element.textContent.toLowerCase().includes(searchText.toLowerCase())) {
+                console.log(`  Found text match in:`, element);
+                
+                // Try to find a parent container to hide
+                let parent = element;
+                for (let i = 0; i < 3; i++) { // Look up to 3 levels up
+                    parent = parent.parentElement;
+                    if (!parent) break;
+                    
+                    if (parent.tagName === 'SECTION' || 
+                        parent.tagName === 'DIV' && parent.className.includes('section') ||
+                        parent.id && parent.id.includes(searchText.replace(' ', '-').toLowerCase())) {
+                        console.log(`  ✓ Found parent container to hide:`, parent);
+                        parent.style.display = 'none';
+                        parent.style.visibility = 'hidden';
+                        parent.classList.add('hidden');
+                        found = true;
+                        break;
+                    }
+                }
+                
+                // If no good parent was found, hide this element at least
+                if (!found) {
+                    element.style.display = 'none';
+                    element.style.visibility = 'hidden';
+                    element.classList.add('hidden');
+                    found = true;
+                }
+            }
+        });
+        
+        return found;
+    } catch (error) {
+        console.error(`Error in hideElementsByText:`, error);
         return false;
     }
 }

@@ -2679,21 +2679,28 @@
         }
 
         async function saveScanSettings() {
-            // Get selected values
+            // Get selected values with improved validation
             const selectedFields = [];
             document.querySelectorAll('input[name="scan_fields"]:checked').forEach(checkbox => {
-                selectedFields.push(checkbox.value);
+                if (checkbox.value) selectedFields.push(checkbox.value);
             });
             
             const selectedUIElements = [];
             document.querySelectorAll('input[name="scan_ui_elements"]:checked').forEach(checkbox => {
-                selectedUIElements.push(checkbox.value);
+                if (checkbox.value) selectedUIElements.push(checkbox.value);
             });
             
             const privateMode = document.getElementById('private-mode-toggle').checked;
             const cardId = parseInt(document.getElementById('card-id').value);
             
-            // Create payload for the server
+            // Enhanced debugging - log what we're saving
+            console.log("Saving scan settings:", {
+                fields: selectedFields,
+                uiElements: selectedUIElements,
+                privateMode: privateMode
+            });
+            
+            // Create payload with stringified data 
             const payload = {
                 cardId: cardId,
                 fieldsJson: JSON.stringify(selectedFields),
@@ -2722,7 +2729,11 @@
                 
                 const data = await response.json();
                 
-                // Save to localStorage as backup
+                // Ensure we test settings as soon as they're saved
+                const previewUrl = `/Card/ScanShow/${cardId}?preview=true&t=${Date.now()}`;
+                console.log("Preview available at:", previewUrl);
+                
+                // Save to localStorage as backup with explicit conversion
                 localStorage.setItem(`scan_settings_${cardId}`, JSON.stringify({
                     fields: selectedFields,
                     uiElements: selectedUIElements,
@@ -2761,18 +2772,25 @@
                 return;
             }
             
-            // Get current settings
+            // Get current settings directly from checkboxes
             const selectedFields = [];
             document.querySelectorAll('input[name="scan_fields"]:checked').forEach(checkbox => {
-                selectedFields.push(checkbox.value);
+                if (checkbox.value) selectedFields.push(checkbox.value);
             });
             
             const selectedUIElements = [];
             document.querySelectorAll('input[name="scan_ui_elements"]:checked').forEach(checkbox => {
-                selectedUIElements.push(checkbox.value);
+                if (checkbox.value) selectedUIElements.push(checkbox.value);
             });
             
             const privateMode = document.getElementById('private-mode-toggle')?.checked || false;
+            
+            // Log what we're previewing
+            console.log("Preview settings:", {
+                fields: selectedFields,
+                uiElements: selectedUIElements,
+                privateMode: privateMode
+            });
             
             // Build the preview URL with correct parameters
             let previewUrl = `/Card/ScanShow/${cardId}?preview=true`;
@@ -2801,7 +2819,6 @@
             previewUrl += `&t=${Date.now()}`;
             
             console.log('Preview URL:', previewUrl);
-            console.log('UI Elements to hide:', selectedUIElements);
             
             // Create iframe with appropriate classes
             const iframeClasses = isMobile ? 
