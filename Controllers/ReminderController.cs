@@ -61,24 +61,47 @@ namespace CardTagManager.Controllers
             return Ok(reminder);
         }
 
-        // POST: api/Reminder
+        // POST: api/Reminder - Create new reminder
         [HttpPost]
-        public async Task<ActionResult<MaintenanceReminder>> CreateReminder(MaintenanceReminder reminder)
+        public async Task<ActionResult<MaintenanceReminder>> CreateReminder([FromBody] MaintenanceReminder reminder)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
+            _logger.LogInformation("Received reminder request with data: {Title}, {DueDate}", 
+                reminder?.Title, reminder?.DueDate);
+                
             try
             {
+                // Explicitly remove Card validation to prevent navigation property validation errors
+                if (ModelState.ContainsKey("Card"))
+                {
+                    ModelState.Remove("Card");
+                }
+                
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList();
+                        
+                    _logger.LogWarning("Model validation failed: {Errors}", string.Join(", ", errors));
+                    return BadRequest(new { errors });
+                }
+
+                // Verify the card exists before creating the reminder
+                var card = await _context.Cards.FindAsync(reminder.CardId);
+                if (card == null)
+                {
+                    return NotFound(new { error = "Card not found" });
+                }
+                
+                // Set metadata on the reminder
                 reminder.CreatedAt = DateTime.Now;
                 reminder.UpdatedAt = DateTime.Now;
                 
-                // Set creator info
+                // Set creator info with user identity for audit trail
                 reminder.CreatedBy = User.Identity?.Name ?? "system";
                 
-                // Get User_Code from claims if available
+                // Add User_Code for better tracking
                 var userCodeClaim = User.Claims.FirstOrDefault(c => c.Type == "User_Code");
                 if (userCodeClaim != null)
                 {
@@ -87,23 +110,31 @@ namespace CardTagManager.Controllers
                 
                 _context.MaintenanceReminders.Add(reminder);
                 await _context.SaveChangesAsync();
+                
+                _logger.LogInformation("Reminder created successfully with ID: {Id}", reminder.Id);
 
                 return CreatedAtAction(nameof(GetReminder), new { id = reminder.Id }, reminder);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creating reminder");
-                return StatusCode(500, new { error = "An error occurred while creating the reminder." });
+                _logger.LogError(ex, "Error creating reminder: {Message}", ex.Message);
+                return StatusCode(500, new { error = $"An error occurred: {ex.Message}" });
             }
         }
 
-        // PUT: api/Reminder/5
+        // PUT: api/Reminder/5 - Update existing reminder
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateReminder(int id, MaintenanceReminder reminder)
         {
             if (id != reminder.Id)
             {
                 return BadRequest();
+            }
+
+            // Remove Card validation to avoid the same navigation property issue
+            if (ModelState.ContainsKey("Card"))
+            {
+                ModelState.Remove("Card");
             }
 
             if (!ModelState.IsValid)
@@ -120,6 +151,7 @@ namespace CardTagManager.Controllers
                     return NotFound();
                 }
                 
+                // Update only the fields that should be modifiable
                 existingReminder.Title = reminder.Title;
                 existingReminder.DueDate = reminder.DueDate;
                 existingReminder.Notes = reminder.Notes;

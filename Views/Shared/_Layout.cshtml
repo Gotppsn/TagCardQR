@@ -6,6 +6,7 @@
         var requestToken = Antiforgery.GetAndStoreTokens(Context).RequestToken;
     }
     <meta name="RequestVerificationToken" content="@requestToken">
+    <meta name="csrf-token" content="@Antiforgery.GetAndStoreTokens(Context).RequestToken" />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>@ViewData["Title"] - TagCardQR Manager</title>

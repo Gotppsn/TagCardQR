@@ -1454,17 +1454,32 @@
                 reminderForm.addEventListener('submit', function(e) {
                     e.preventDefault();
                     
-                    const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
-                    const username = '@User.Identity?.Name' || 'System'; // Get username from Razor
+                    const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || 
+                                document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+                    
+                    // Format date properly
+                    const dateInput = document.getElementById('reminder-date').value;
+                    
+                    // Parse the date value correctly (browsers may format it differently)
+                    const dateParts = dateInput.split('/');
+                    let formattedDate;
+                    
+                    if (dateParts.length === 3) {
+                        // Handle MM/DD/YYYY format
+                        formattedDate = `${dateParts[2]}-${dateParts[0].padStart(2, '0')}-${dateParts[1].padStart(2, '0')}`;
+                    } else {
+                        // Try to handle other formats or use original
+                        formattedDate = dateInput;
+                    }
                     
                     const data = {
                         Id: parseInt(document.getElementById('reminder-id').value) || 0,
                         CardId: parseInt(document.getElementById('card-id').value),
                         Title: document.getElementById('reminder-title').value,
-                        DueDate: document.getElementById('reminder-date').value,
+                        DueDate: formattedDate,
                         Notes: document.getElementById('reminder-notes').value || "",
                         RepeatFrequency: document.getElementById('reminder-repeat').value,
-                        CreatedBy: username // Add CreatedBy field
+                        // We don't need to send Card, the controller will handle that
                     };
                     
                     console.log('Sending reminder data:', data);
@@ -1473,22 +1488,26 @@
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'RequestVerificationToken': token || '' // Handle if token is undefined
+                            'RequestVerificationToken': token || ''
                         },
                         body: JSON.stringify(data)
                     })
                     .then(response => {
                         if (!response.ok) {
-                            return response.json().then(errorData => {
-                                throw new Error(errorData.error || 'Server error');
-                            }).catch(() => {
-                                throw new Error(`HTTP error ${response.status}`);
+                            return response.text().then(text => {
+                                console.error('Raw error response:', text);
+                                try {
+                                    const errorData = JSON.parse(text);
+                                    throw new Error(errorData.title || errorData.error || JSON.stringify(errorData.errors));
+                                } catch (e) {
+                                    throw new Error(`Server error: ${response.status}`);
+                                }
                             });
                         }
                         return response.json();
                     })
                     .then(result => {
-                        console.log('Response:', result);
+                        console.log('Success response:', result);
                         reminderModal.classList.add('hidden');
                         loadReminders();
                         showToast('Reminder saved', 'Your maintenance reminder has been scheduled', 'success');
