@@ -1394,29 +1394,13 @@ function hideElement(selector) {
             return true;
         }
         
-        // Try content-based matching for specific cases
-        const contentMappings = {
-            "Product Details": ["h3", "Product Details"],
-            "Contact Support": ["div", "Contact Support"],
-            "Maintenance History": ["div", "Maintenance History"]
-        };
-        
-        for (const [key, [tag, content]] of Object.entries(contentMappings)) {
-            if (selector.includes(key)) {
-                const elements = document.querySelectorAll(tag);
-                let found = false;
-                
-                elements.forEach(el => {
-                    if (el.textContent.includes(content)) {
-                        const parent = el.closest('div');
-                        if (parent) {
-                            parent.style.display = 'none';
-                            found = true;
-                        }
-                    }
-                });
-                
-                return found;
+        // Try with ID-only selector (remove the # if present)
+        if (selector.startsWith('#')) {
+            const idOnly = selector.substring(1);
+            const element = document.getElementById(idOnly);
+            if (element) {
+                element.style.display = 'none';
+                return true;
             }
         }
         
@@ -1426,6 +1410,24 @@ function hideElement(selector) {
         return false;
     }
 }
+
+// In the applyScanSettings function, update the uiElementMap:
+const uiElementMap = {
+    'report-issue-btn': '#report-issue-btn',
+    'contact': '#contact',
+    'product-details': '#product-details',
+    'contact-support': '#contact-support',
+    'maintenance-history': '#maintenance-history',
+    'maintenance': '#maintenance'
+};
+
+Object.entries(uiElementMap).forEach(([element, selector]) => {
+    if (uiElements.includes(element)) {
+        console.log(`Trying to hide: ${element} using selector: ${selector}`);
+        const hidden = hideElement(selector);
+        console.log(`Hiding UI element ${element}: ${hidden ? 'Success' : 'Failed'}`);
+    }
+});
 
 // Check if user is logged in
 function isLoggedIn() {

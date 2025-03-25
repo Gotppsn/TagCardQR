@@ -928,23 +928,7 @@
                                 <i class="fas fa-exclamation-triangle text-gray-400 mr-2 w-5"></i>
                                 <span class="text-gray-800">Hide "Report Issue" Button</span>
                             </span>
-                            <input type="checkbox" name="scan_ui_elements" value="hide_report_issue_btn" class="toggle-checkbox">
-                        </label>
-                        
-                        <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
-                            <span class="flex items-center">
-                                <i class="fas fa-headset text-gray-400 mr-2 w-5"></i>
-                                <span class="text-gray-800">Hide Contact Support Section</span>
-                            </span>
-                            <input type="checkbox" name="scan_ui_elements" value="hide_contact" class="toggle-checkbox">
-                        </label>
-                        
-                        <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
-                            <span class="flex items-center">
-                                <i class="fas fa-info-circle text-gray-400 mr-2 w-5"></i>
-                                <span class="text-gray-800">Hide Product Details Section</span>
-                            </span>
-                            <input type="checkbox" name="scan_ui_elements" value="hide_product_details" class="toggle-checkbox">
+                            <input type="checkbox" name="scan_ui_elements" value="report-issue-btn" class="toggle-checkbox">
                         </label>
                         
                         <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
@@ -952,7 +936,23 @@
                                 <i class="fas fa-user text-gray-400 mr-2 w-5"></i>
                                 <span class="text-gray-800">Hide Product Owner Contact</span>
                             </span>
-                            <input type="checkbox" name="scan_ui_elements" value="hide_contact_support" class="toggle-checkbox">
+                            <input type="checkbox" name="scan_ui_elements" value="contact" class="toggle-checkbox">
+                        </label>
+                        
+                        <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
+                            <span class="flex items-center">
+                                <i class="fas fa-info-circle text-gray-400 mr-2 w-5"></i>
+                                <span class="text-gray-800">Hide Product Details Section</span>
+                            </span>
+                            <input type="checkbox" name="scan_ui_elements" value="product-details" class="toggle-checkbox">
+                        </label>
+                        
+                        <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
+                            <span class="flex items-center">
+                                <i class="fas fa-headset text-gray-400 mr-2 w-5"></i>
+                                <span class="text-gray-800">Hide Contact Support Button</span>
+                            </span>
+                            <input type="checkbox" name="scan_ui_elements" value="contact-support" class="toggle-checkbox">
                         </label>
                         
                         <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
@@ -960,7 +960,7 @@
                                 <i class="fas fa-history text-gray-400 mr-2 w-5"></i>
                                 <span class="text-gray-800">Hide Maintenance History</span>
                             </span>
-                            <input type="checkbox" name="scan_ui_elements" value="hide_maintenance_history" class="toggle-checkbox">
+                            <input type="checkbox" name="scan_ui_elements" value="maintenance-history" class="toggle-checkbox">
                         </label>
                         
                         <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
@@ -968,7 +968,7 @@
                                 <i class="fas fa-tools text-gray-400 mr-2 w-5"></i>
                                 <span class="text-gray-800">Hide Maintenance Information</span>
                             </span>
-                            <input type="checkbox" name="scan_ui_elements" value="hide_maintenance_info" class="toggle-checkbox">
+                            <input type="checkbox" name="scan_ui_elements" value="maintenance" class="toggle-checkbox">
                         </label>
                     </div>
                 </div>
@@ -2768,6 +2768,7 @@
             previewUrl += `&t=${Date.now()}`;
             
             console.log('Preview URL:', previewUrl); // Debug log
+            console.log('UI Elements to hide:', uiElements);
             
             // Create iframe with appropriate classes
             const iframeClasses = isMobile ? 
