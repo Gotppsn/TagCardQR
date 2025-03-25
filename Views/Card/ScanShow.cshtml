@@ -1002,25 +1002,27 @@ function initIssueFormSubmission() {
             if (submitBtn) submitBtn.setAttribute('disabled', 'disabled');
             
             try {
-                // Get the form data and CSRF token
+                // Get the form data
                 const formData = new FormData(this);
+                
+                // Get the anti-forgery token
                 const tokenElement = document.querySelector('input[name="__RequestVerificationToken"]');
                 const token = tokenElement ? tokenElement.value : '';
                 
+                // Ensure we have a token
                 if (!token) {
-                    console.error("CSRF token not found");
-                    throw new Error("Security token missing");
+                    throw new Error("Security token missing. Please refresh the page and try again.");
                 }
                 
-                // Build the issue data object
+                // Build the issue data object matching the C# model exactly
                 const issueData = {
                     CardId: parseInt(formData.get('CardId')),
-                    IssueType: formData.get('IssueType') || 'Device Malfunction',
-                    Priority: formData.get('Priority') || 'Medium',
-                    Description: formData.get('Description') || 'No description provided',
+                    IssueType: formData.get('IssueType'),
+                    Priority: formData.get('Priority'),
+                    Description: formData.get('Description'),
                     ReportDate: new Date(formData.get('ReportDate')).toISOString(),
-                    ReporterName: formData.get('ReporterName') || 'Anonymous',
-                    ReporterEmail: formData.get('ReporterEmail') || 'anonymous@example.com',
+                    ReporterName: formData.get('ReporterName'),
+                    ReporterEmail: formData.get('ReporterEmail'),
                     ReporterPhone: formData.get('ReporterPhone') || '',
                     Status: 'Open',
                     Resolution: ''
@@ -1028,43 +1030,43 @@ function initIssueFormSubmission() {
                 
                 console.log("Submitting issue data:", issueData);
                 
-                // This is the key change - try using a different approach to send the token
-                // Make a separate call to get a fresh token
-                const tokenResponse = await fetch('/api/antiforgery/token', {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                });
-                
-                if (!tokenResponse.ok) {
-                    throw new Error("Failed to get security token");
-                }
-                
-                const tokenData = await tokenResponse.json();
-                const freshToken = tokenData.token;
-                
-                // Now use the fresh token for the actual form submission
+                // Make the API request
                 const response = await fetch('/api/IssueReport', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'RequestVerificationToken': token, // Use the token from the form
-                        'X-CSRF-TOKEN': token // Also try with this header name
+                        'RequestVerificationToken': token
                     },
                     body: JSON.stringify(issueData)
                 });
                 
+                // Handle non-successful responses
                 if (!response.ok) {
-                    const contentType = response.headers.get('content-type');
-                    if (contentType && contentType.includes('application/json')) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.error || errorData.message || `Server error: ${response.status}`);
+                    let errorMessage = `Server error: ${response.status}`;
+                    
+                    try {
+                        const contentType = response.headers.get('content-type');
+                        if (contentType && contentType.includes('application/json')) {
+                            const errorData = await response.json();
+                            if (errorData.error) {
+                                errorMessage = errorData.error;
+                            } else if (errorData.errors) {
+                                errorMessage = Array.isArray(errorData.errors) 
+                                    ? errorData.errors.join(', ') 
+                                    : Object.values(errorData.errors).flat().join(', ');
+                            } else if (errorData.details) {
+                                errorMessage = errorData.details;
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Error parsing error response:', e);
                     }
-                    throw new Error(`Server error: ${response.status}`);
+                    
+                    throw new Error(errorMessage);
                 }
                 
                 const data = await response.json();
+                
                 // Success handling
                 resetIssueModal();
                 showToast('Issue Reported', 'Your issue has been successfully submitted', 'success');
