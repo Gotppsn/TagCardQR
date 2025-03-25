@@ -40,8 +40,8 @@ namespace CardTagManager.Models
         [StringLength(100)]
         public string ReporterEmail { get; set; } = "anonymous@example.com";
         
-        [StringLength(20)]
-        public string ReporterPhone { get; set; } = string.Empty;
+        [StringLength(20, ErrorMessage = "Phone number cannot exceed 20 characters")]
+        public string? ReporterPhone { get; set; }
         
         [StringLength(20)]
         public string Status { get; set; } = "Open";

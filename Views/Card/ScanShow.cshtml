@@ -477,17 +477,17 @@
     </div>
 
     <!-- Report Issue Modal -->
-    <div id="report-issue-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
-        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="modal-content">
-            <div class="flex justify-between items-center p-5 border-b bg-gradient-to-r from-blue-500 to-primary-500 rounded-t-lg">
-                <h3 class="text-lg font-semibold text-white flex items-center">
-                    <i class="fas fa-exclamation-circle mr-2"></i> Report an Issue
-                </h3>
-                <button id="close-report-modal" class="text-white hover:text-blue-100 transition-colors">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="p-5">
+<div id="report-issue-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0 max-h-[90vh] flex flex-col" id="modal-content">
+        <div class="flex justify-between items-center p-5 border-b bg-gradient-to-r from-blue-500 to-primary-500 rounded-t-lg flex-shrink-0">
+            <h3 class="text-lg font-semibold text-white flex items-center">
+                <i class="fas fa-exclamation-circle mr-2"></i> Report an Issue
+            </h3>
+            <button id="close-report-modal" class="text-white hover:text-blue-100 transition-colors">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="p-5 overflow-y-auto flex-grow">
                 <!-- Updated form with multipart/form-data for file uploads -->
                 <form id="issue-report-form" action="/api/IssueReport" method="post" enctype="multipart/form-data">
                     <input type="hidden" name="CardId" value="@Model.Id">
