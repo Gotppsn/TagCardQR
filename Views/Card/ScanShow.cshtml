@@ -467,9 +467,9 @@
             </div>
             <div class="p-5">
                 <!-- Direct form submission to avoid potential AJAX issues -->
-                <form id="issue-report-form" method="post">
-                    <input type="hidden" name="CardId" value="@Model.Id">
-                    <input type="hidden" name="__RequestVerificationToken" value="@Html.AntiForgeryToken().ToString()">
+            <form id="issue-report-form" action="/api/IssueReport" method="post" enctype="application/json">
+                <input type="hidden" name="CardId" value="@Model.Id">
+                @Html.AntiForgeryToken()
                     
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Issue Type</label>
@@ -557,8 +557,7 @@
                             <i class="fas fa-paper-plane mr-2"></i> Submit Report
                             <i class="fas fa-spinner fa-spin ml-2 hidden" id="issue-spinner"></i>
                         </button>
-                    </div>
-                </form>
+                    </form>
             </div>
         </div>
     </div>
@@ -997,8 +996,6 @@ function initIssueFormSubmission() {
             // Show loading state
             const spinner = document.getElementById('issue-spinner');
             const submitBtn = document.getElementById('submit-issue');
-            const feedbackArea = document.getElementById('form-feedback');
-            const feedbackMessage = document.getElementById('feedback-message');
             
             if (spinner) spinner.classList.remove('hidden');
             if (submitBtn) submitBtn.setAttribute('disabled', 'disabled');
@@ -1021,12 +1018,21 @@ function initIssueFormSubmission() {
                     Resolution: ''
                 };
                 
-                console.log("Submitting issue data:", issueData);
+                // Get the anti-forgery token - this is the critical fix
+                const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+                const token = tokenInput ? tokenInput.value : '';
                 
-                // Get the anti-forgery token
-                const token = formData.get('__RequestVerificationToken');
+                if (!token) {
+                    console.error("Anti-forgery token not found");
+                    showFormFeedback("Security token missing. Please refresh the page and try again.", 'error');
+                    if (spinner) spinner.classList.add('hidden');
+                    if (submitBtn) submitBtn.removeAttribute('disabled');
+                    return;
+                }
                 
-                // Make the API request
+                console.log("Using token:", token.substring(0, 10) + "...");
+                
+                // Make the API request with the correct token
                 const response = await fetch('/api/IssueReport', {
                     method: 'POST',
                     headers: {
@@ -1036,7 +1042,7 @@ function initIssueFormSubmission() {
                     body: JSON.stringify(issueData)
                 });
                 
-                // Process the response
+                // Process response
                 if (!response.ok) {
                     const contentType = response.headers.get("content-type");
                     if (contentType && contentType.indexOf("application/json") !== -1) {

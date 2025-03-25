@@ -62,6 +62,7 @@ namespace CardTagManager.Controllers
 
         // POST: api/IssueReport
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<ActionResult<IssueReport>> CreateIssue([FromBody] IssueReport issue)
         {
             try 
