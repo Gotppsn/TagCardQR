@@ -78,7 +78,7 @@ namespace CardTagManager.Controllers
                     var userCodeClaim = User.Claims.FirstOrDefault(c => c.Type == "User_Code");
                     if (userCodeClaim != null)
                     {
-                        card.User_Code = userCodeClaim.Value;
+                        card.CreatedByID = userCodeClaim.Value;
                     }
                     else
                     {
@@ -94,7 +94,7 @@ namespace CardTagManager.Controllers
                                     var (_, userInfo) = ldapService.ValidateCredentials(username, null);
                                     if (userInfo != null && !string.IsNullOrEmpty(userInfo.UserCode))
                                     {
-                                        card.User_Code = userInfo.UserCode;
+                                        card.CreatedByID = userInfo.UserCode;
                                     }
                                 }
                             }
@@ -310,9 +310,9 @@ public async Task<IActionResult> Edit(int id, Card card)
             }
             
             // Preserve User_Code from original card if not provided
-            if (string.IsNullOrEmpty(card.User_Code))
+            if (string.IsNullOrEmpty(card.UpdatedByID))
             {
-                card.User_Code = originalCard.User_Code;
+                card.UpdatedByID = originalCard.UpdatedByID;
             }
             
             // Handle image update if a new file is provided
