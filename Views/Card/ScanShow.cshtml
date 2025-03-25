@@ -1112,105 +1112,6 @@ function createNoContactInfoHTML() {
     `;
 }
 
-function applyScanSettings(fields, uiElements, isPrivate, isPreview) {
-    try {
-        // Debug logging
-        console.log("Applying settings:", { fields, uiElements, isPrivate, isPreview });
-        
-        // Add preview indicator if in preview mode
-        if (isPreview) {
-            const previewIndicator = document.createElement('div');
-            previewIndicator.className = 'fixed top-2 right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full z-50';
-            previewIndicator.textContent = 'Preview Mode';
-            document.body.appendChild(previewIndicator);
-        }
-        
-        // Handle private mode (show login prompt if applicable)
-        if (isPrivate && !isLoggedIn() && !isPreview) {
-            redirectToLogin();
-            return;
-        }
-        
-        // Hide elements not in the fields list
-        if (fields.length > 0) {
-            // Always show product name (required)
-            fields.push('product_name');
-            
-            // Hide fields not in the list
-            const elementMap = {
-                'category': '#category-section',
-                'location': '#location-section',
-                'image': ['#product-image', '#product-image-placeholder'],
-                'manufacture_date': '#manufacture-date-section',
-                'purchase_date': '#purchase-date-section',
-                'warranty': ['#warranty-section', '#warranty-status'],
-                'maintenance': '#maintenance',
-                'documents': '#documentation',
-                'issues': '#issues'
-            };
-            
-            // Process standard fields
-            Object.entries(elementMap).forEach(([field, selectors]) => {
-                if (!fields.includes(field)) {
-                    if (Array.isArray(selectors)) {
-                        selectors.forEach(selector => {
-                            const hidden = hideElement(selector);
-                            console.log(`Hiding ${field} (${selector}): ${hidden ? 'Success' : 'Failed'}`);
-                        });
-                    } else {
-                        const hidden = hideElement(selectors);
-                        console.log(`Hiding ${field} (${selectors}): ${hidden ? 'Success' : 'Failed'}`);
-                    }
-                }
-            });
-            
-            // Handle custom fields
-            const customFieldElements = document.querySelectorAll('[data-custom-field]');
-            if (customFieldElements) {
-                customFieldElements.forEach(el => {
-                    const fieldName = el.getAttribute('data-custom-field');
-                    if (fieldName && !fields.includes(`custom_${fieldName}`)) {
-                        el.style.display = 'none';
-                        console.log(`Hiding custom field ${fieldName}: Success`);
-                    }
-                });
-            }
-        }
-        
-        // Debug: Log all available elements
-        console.log("Available UI elements for hiding:");
-        document.querySelectorAll('div[id], a[id], button[id]').forEach(el => {
-            console.log(`#${el.id} - ${el.tagName} - ${el.textContent.substring(0, 30).trim()}...`);
-        });
-        
-        // Handle UI element visibility
-        const uiElementMap = {
-            'hide_report_issue_btn': '#report-issue-btn',
-            'hide_contact_support': ['#contact', 'a[href="#contact"]'],
-            'hide_product_details': '#product-details',
-            'hide_contact': '#contact-support',
-            'hide_maintenance_history': '#maintenance-history',
-            'hide_maintenance_info': '#maintenance'
-        };
-        
-        Object.entries(uiElementMap).forEach(([element, selectors]) => {
-            if (uiElements.includes(element)) {
-                if (Array.isArray(selectors)) {
-                    selectors.forEach(selector => {
-                        const hidden = hideElement(selector);
-                        console.log(`Hiding UI element ${element} (${selector}): ${hidden ? 'Success' : 'Failed'}`);
-                    });
-                } else {
-                    const hidden = hideElement(selectors);
-                    console.log(`Hiding UI element ${element} (${selectors}): ${hidden ? 'Success' : 'Failed'}`);
-                }
-            }
-        });
-    } catch (e) {
-        console.error("Error in applySettingsToUI:", e);
-    }
-}
-
 document.addEventListener('DOMContentLoaded', function() {
     try {
         // Apply scan settings if they exist in URL parameters
@@ -1394,13 +1295,29 @@ function hideElement(selector) {
             return true;
         }
         
-        // Try with ID-only selector (remove the # if present)
-        if (selector.startsWith('#')) {
-            const idOnly = selector.substring(1);
-            const element = document.getElementById(idOnly);
-            if (element) {
-                element.style.display = 'none';
-                return true;
+        // Try content-based matching for specific cases
+        const contentMappings = {
+            "Product Details": ["h3", "Product Details"],
+            "Contact Support": ["div", "Contact Support"],
+            "Maintenance History": ["div", "Maintenance History"]
+        };
+        
+        for (const [key, [tag, content]] of Object.entries(contentMappings)) {
+            if (selector.includes(key)) {
+                const elements = document.querySelectorAll(tag);
+                let found = false;
+                
+                elements.forEach(el => {
+                    if (el.textContent.includes(content)) {
+                        const parent = el.closest('div');
+                        if (parent) {
+                            parent.style.display = 'none';
+                            found = true;
+                        }
+                    }
+                });
+                
+                return found;
             }
         }
         
@@ -1410,24 +1327,6 @@ function hideElement(selector) {
         return false;
     }
 }
-
-// In the applyScanSettings function, update the uiElementMap:
-const uiElementMap = {
-    'report-issue-btn': '#report-issue-btn',
-    'contact': '#contact',
-    'product-details': '#product-details',
-    'contact-support': '#contact-support',
-    'maintenance-history': '#maintenance-history',
-    'maintenance': '#maintenance'
-};
-
-Object.entries(uiElementMap).forEach(([element, selector]) => {
-    if (uiElements.includes(element)) {
-        console.log(`Trying to hide: ${element} using selector: ${selector}`);
-        const hidden = hideElement(selector);
-        console.log(`Hiding UI element ${element}: ${hidden ? 'Success' : 'Failed'}`);
-    }
-});
 
 // Check if user is logged in
 function isLoggedIn() {
