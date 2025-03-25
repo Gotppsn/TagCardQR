@@ -28,7 +28,8 @@ namespace CardTagManager.Services
                     Department = "IT Department",
                     Email = "admin@thaiparker.co.th",
                     FullName = "Administrator",
-                    PlantName = "Bangpoo"
+                    PlantName = "Bangpoo",
+                    User_Code = "1000000"
                 };
                 return (true, userInfo);
             }
@@ -68,6 +69,7 @@ namespace CardTagManager.Services
                                             // Fallback values if attributes aren't found
                                             userInfo.Department = "Unknown Department";
                                             userInfo.PlantName = "Unknown Plant";
+                                            userInfo.User_Code = string.Empty;
                                             Console.WriteLine($"Error retrieving LDAP attributes: {ex.Message}");
                                         }
                                     }
@@ -95,5 +97,6 @@ namespace CardTagManager.Services
         public string Email { get; set; } = string.Empty;
         public string FullName { get; set; } = string.Empty;
         public string PlantName { get; set; } = string.Empty;
+        public string User_Code { get; set; } = string.Empty;
     }
 }

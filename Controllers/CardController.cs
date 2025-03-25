@@ -74,6 +74,37 @@ namespace CardTagManager.Controllers
                     // Set creator info
                     card.CreatedBy = User.Identity?.Name ?? "anonymous";
                     
+                    // Get User_Code from claims if available
+                    var userCodeClaim = User.Claims.FirstOrDefault(c => c.Type == "User_Code");
+                    if (userCodeClaim != null)
+                    {
+                        card.User_Code = userCodeClaim.Value;
+                    }
+                    else
+                    {
+                        // Try to get it from LDAP service if available
+                        try
+                        {
+                            var username = User.Identity?.Name;
+                            if (!string.IsNullOrEmpty(username) && username != "anonymous")
+                            {
+                                var ldapService = HttpContext.RequestServices.GetService<LdapAuthenticationService>();
+                                if (ldapService != null)
+                                {
+                                    var (_, userInfo) = ldapService.ValidateCredentials(username, null);
+                                    if (userInfo != null && !string.IsNullOrEmpty(userInfo.User_Code))
+                                    {
+                                        card.User_Code = userInfo.User_Code;
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogWarning($"Failed to retrieve User_Code from LDAP: {ex.Message}");
+                        }
+                    }
+                    
                     // Handle file upload if provided
                     if (card.ImageFile != null && card.ImageFile.Length > 0)
                     {
@@ -276,6 +307,12 @@ public async Task<IActionResult> Edit(int id, Card card)
             if (originalCard == null)
             {
                 return NotFound();
+            }
+            
+            // Preserve User_Code from original card if not provided
+            if (string.IsNullOrEmpty(card.User_Code))
+            {
+                card.User_Code = originalCard.User_Code;
             }
             
             // Handle image update if a new file is provided

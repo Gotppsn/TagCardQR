@@ -57,6 +57,10 @@ namespace CardTagManager.Models
         [Column(TypeName = "nvarchar(max)")]
         public string CustomFieldsData { get; set; } = "{}";
         
+        // LDAP User Code
+        [StringLength(20)]
+        public string User_Code { get; set; } = string.Empty;
+        
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
