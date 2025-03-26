@@ -6,7 +6,7 @@
 }
 
 <div class="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 flex flex-col">
-    <!-- Header Banner with Blur Effect -->
+    <!-- Header Banner -->
     <div class="bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-xl relative overflow-hidden">
         <div class="absolute inset-0 bg-black opacity-10 z-0"></div>
         <div class="container mx-auto px-4 py-6 relative z-10">
@@ -57,7 +57,7 @@
         </div>
     </div>
 
-    <!-- Main Content with Shadow Effect -->
+    <!-- Main Content -->
     <div class="container mx-auto px-4 py-6 flex-grow">
         <!-- Navigation Tabs -->
         <div class="mb-6 border-b border-gray-200">
@@ -76,7 +76,7 @@
 
         <!-- Tab Content - Scan Results -->
         <div id="content-scan-results" class="tab-content">
-            <!-- Live Stats Cards with Animated Counters -->
+            <!-- Live Stats Cards -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                 <div class="bg-white rounded-xl shadow-md p-4 border-l-4 border-blue-500 transform transition-all hover:shadow-lg hover:scale-[1.01]">
                     <div class="flex items-center">
@@ -135,7 +135,7 @@
                 </div>
             </div>
 
-            <!-- Advanced Search with Collapsible Panel -->
+            <!-- Advanced Search -->
             <div class="bg-white rounded-xl shadow-md border border-gray-100 mb-6 overflow-hidden">
                 <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
                     <h2 class="font-bold text-gray-700 flex items-center">
@@ -164,7 +164,7 @@
                     </div>
                 </div>
                 
-                <!-- Advanced Filter Panel (hidden by default) -->
+                <!-- Advanced Filter Panel -->
                 <div id="advanced-filter-panel" class="hidden border-t border-gray-100 p-4 bg-gray-50">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
@@ -233,7 +233,7 @@
                     </div>
                 </div>
                 
-                <!-- Active Filters (shown when filters are applied) -->
+                <!-- Active Filters -->
                 <div id="active-filters" class="hidden px-4 py-2 border-t border-gray-100 bg-blue-50">
                     <div class="flex flex-wrap items-center gap-2">
                         <span class="text-xs font-medium text-blue-700">Active Filters:</span>
@@ -267,292 +267,294 @@
             </div>
 
             <!-- Results List -->
-            @if (!Model.Any())
-            {
-                <div class="bg-white rounded-xl shadow-md p-8 text-center fade-in">
-                    <div class="mx-auto w-24 h-24 rounded-full bg-primary-50 text-primary-500 flex items-center justify-center mb-4">
-                        <i class="fas fa-qrcode text-4xl"></i>
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-800 mb-2">No scan results found</h3>
-                    <p class="text-gray-500 mb-6 max-w-md mx-auto">Scan one of your product tags to see the results here. Use a QR code scanner app on your mobile device.</p>
-                    <div class="flex gap-3 justify-center flex-wrap">
-                        <a asp-action="Index" class="btn-primary inline-flex shadow-md hover:shadow-lg">
-                            <i class="fas fa-layer-group mr-2"></i> View Products
-                        </a>
-                        <a asp-action="Create" class="btn-secondary inline-flex shadow-md hover:shadow-lg">
-                            <i class="fas fa-plus-circle mr-2"></i> Add New Product
-                        </a>
-                    </div>
-                </div>
-            }
-            else
-            {
-                <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6">
-                    <!-- Table Toolbar -->
-                    <div class="p-3 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
-                        <div class="text-sm text-gray-500">
-                            <span id="result-count">Showing <span class="font-medium text-gray-700">@Model.Count()</span> results</span>
+            <div id="results-container">
+                @if (!Model.Any())
+                {
+                    <div class="bg-white rounded-xl shadow-md p-8 text-center fade-in">
+                        <div class="mx-auto w-24 h-24 rounded-full bg-primary-50 text-primary-500 flex items-center justify-center mb-4">
+                            <i class="fas fa-qrcode text-4xl"></i>
                         </div>
-                        <div class="flex space-x-2">
-                            <div class="relative">
-                                <select id="results-per-page" class="text-sm border border-gray-200 rounded-lg py-1.5 pl-3 pr-8 appearance-none bg-white">
-                                    <option value="10">10 per page</option>
-                                    <option value="25">25 per page</option>
-                                    <option value="50">50 per page</option>
-                                    <option value="100">100 per page</option>
-                                </select>
-                                <div class="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-400">
-                                    <i class="fas fa-chevron-down text-xs"></i>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">No scan results found</h3>
+                        <p class="text-gray-500 mb-6 max-w-md mx-auto">Scan one of your product tags to see the results here. Use a QR code scanner app on your mobile device.</p>
+                        <div class="flex gap-3 justify-center flex-wrap">
+                            <a asp-action="Index" class="btn-primary inline-flex shadow-md hover:shadow-lg">
+                                <i class="fas fa-layer-group mr-2"></i> View Products
+                            </a>
+                            <a asp-action="Create" class="btn-secondary inline-flex shadow-md hover:shadow-lg">
+                                <i class="fas fa-plus-circle mr-2"></i> Add New Product
+                            </a>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6">
+                        <!-- Table Toolbar -->
+                        <div class="p-3 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+                            <div class="text-sm text-gray-500">
+                                <span id="result-count">Showing <span class="font-medium text-gray-700">@Model.Count()</span> results</span>
+                            </div>
+                            <div class="flex space-x-2">
+                                <div class="relative">
+                                    <select id="results-per-page" class="text-sm border border-gray-200 rounded-lg py-1.5 pl-3 pr-8 appearance-none bg-white">
+                                        <option value="10">10 per page</option>
+                                        <option value="25">25 per page</option>
+                                        <option value="50">50 per page</option>
+                                        <option value="100">100 per page</option>
+                                    </select>
+                                    <div class="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-400">
+                                        <i class="fas fa-chevron-down text-xs"></i>
+                                    </div>
+                                </div>
+                                <div class="flex border border-gray-200 rounded-lg overflow-hidden">
+                                    <button id="view-table" class="px-2 py-1.5 bg-white text-primary-600 border-r border-gray-200">
+                                        <i class="fas fa-table"></i>
+                                    </button>
+                                    <button id="view-cards" class="px-2 py-1.5 bg-gray-50 text-gray-500 hover:text-gray-700">
+                                        <i class="fas fa-th-large"></i>
+                                    </button>
                                 </div>
                             </div>
-                            <div class="flex border border-gray-200 rounded-lg overflow-hidden">
-                                <button id="view-table" class="px-2 py-1.5 bg-white text-primary-600 border-r border-gray-200">
-                                    <i class="fas fa-table"></i>
-                                </button>
-                                <button id="view-cards" class="px-2 py-1.5 bg-gray-50 text-gray-500 hover:text-gray-700">
-                                    <i class="fas fa-th-large"></i>
-                                </button>
-                            </div>
                         </div>
-                    </div>
-                    
-                    <!-- Table View (default) -->
-                    <div id="table-view" class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th scope="col" class="sortable px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" data-sort="product">
-                                        <div class="flex items-center">
-                                            Product <i class="fas fa-sort ml-1 text-gray-400"></i>
-                                        </div>
-                                    </th>
-                                    <th scope="col" class="sortable px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" data-sort="time">
-                                        <div class="flex items-center">
-                                            Scan Time <i class="fas fa-sort ml-1 text-gray-400"></i>
-                                        </div>
-                                    </th>
-                                    <th scope="col" class="sortable px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" data-sort="device">
-                                        <div class="flex items-center">
-                                            Device Info <i class="fas fa-sort ml-1 text-gray-400"></i>
-                                        </div>
-                                    </th>
-                                    <th scope="col" class="sortable px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" data-sort="location">
-                                        <div class="flex items-center">
-                                            Location <i class="fas fa-sort ml-1 text-gray-400"></i>
-                                        </div>
-                                    </th>
-                                    <th scope="col" class="sortable px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" data-sort="result">
-                                        <div class="flex items-center">
-                                            Result <i class="fas fa-sort ml-1 text-gray-400"></i>
-                                        </div>
-                                    </th>
-                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Actions
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody id="results-table-body" class="bg-white divide-y divide-gray-200">
-                                @{int rowIndex = 0;}
+                        
+                        <!-- Table View (default) -->
+                        <div id="table-view" class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="sortable px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" data-sort="product">
+                                            <div class="flex items-center">
+                                                Product <i class="fas fa-sort ml-1 text-gray-400"></i>
+                                            </div>
+                                        </th>
+                                        <th scope="col" class="sortable px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" data-sort="time">
+                                            <div class="flex items-center">
+                                                Scan Time <i class="fas fa-sort ml-1 text-gray-400"></i>
+                                            </div>
+                                        </th>
+                                        <th scope="col" class="sortable px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" data-sort="device">
+                                            <div class="flex items-center">
+                                                Device Info <i class="fas fa-sort ml-1 text-gray-400"></i>
+                                            </div>
+                                        </th>
+                                        <th scope="col" class="sortable px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" data-sort="location">
+                                            <div class="flex items-center">
+                                                Location <i class="fas fa-sort ml-1 text-gray-400"></i>
+                                            </div>
+                                        </th>
+                                        <th scope="col" class="sortable px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" data-sort="result">
+                                            <div class="flex items-center">
+                                                Result <i class="fas fa-sort ml-1 text-gray-400"></i>
+                                            </div>
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Actions
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="results-table-body" class="bg-white divide-y divide-gray-200">
+                                    @{int rowIndex = 0;}
+                                    @foreach (var item in Model)
+                                    {
+                                        string rowClass = rowIndex % 2 == 0 ? "" : "bg-gray-50";
+                                        rowIndex++;
+                                        
+                                        <tr class="scan-result-row hover:bg-blue-50 transition-colors @rowClass" 
+                                            data-id="@item.CardId" 
+                                            data-product="@item.CardName" 
+                                            data-time="@item.ScanTime.ToString("yyyy-MM-ddTHH:mm:ss")" 
+                                            data-device="@item.DeviceInfo" 
+                                            data-location="@item.Location" 
+                                            data-result="@item.ScanResult">
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <div class="flex-shrink-0 h-10 w-10 rounded-lg bg-primary-100 flex items-center justify-center text-primary-600 shadow-sm">
+                                                        <i class="fas fa-tag"></i>
+                                                    </div>
+                                                    <div class="ml-4">
+                                                        <div class="text-sm font-medium text-gray-900 hover:text-primary-600">@item.CardName</div>
+                                                        <div class="text-xs text-gray-500">ID: @item.CardId</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm text-gray-900">@item.ScanTime.ToString("yyyy-MM-dd")</div>
+                                                <div class="text-xs text-gray-500">@item.ScanTime.ToString("HH:mm:ss")</div>
+                                                <div class="text-xs text-gray-400">@((DateTime.Now - item.ScanTime).TotalHours < 24 ? $"{Math.Round((DateTime.Now - item.ScanTime).TotalHours)} hours ago" : $"{(DateTime.Now - item.ScanTime).Days} days ago")</div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm text-gray-500">@item.DeviceInfo</div>
+                                                @if (item.DeviceInfo?.Contains("iPhone") == true)
+                                                {
+                                                    <div class="text-xs text-blue-500"><i class="fab fa-apple mr-1"></i> iOS Device</div>
+                                                }
+                                                else if (item.DeviceInfo?.Contains("Android") == true)
+                                                {
+                                                    <div class="text-xs text-green-500"><i class="fab fa-android mr-1"></i> Android Device</div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="text-xs text-gray-400"><i class="fas fa-mobile-alt mr-1"></i> Other Device</div>
+                                                }
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                    <i class="fas fa-map-marker-alt mr-1 text-primary-500"></i>
+                                                    @item.Location
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                @if (item.ScanResult == "Success")
+                                                {
+                                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                        <i class="fas fa-check-circle mr-1"></i> Success
+                                                    </span>
+                                                }
+                                                else if (item.ScanResult == "Failed")
+                                                {
+                                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                        <i class="fas fa-times-circle mr-1"></i> Failed
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                        <i class="fas fa-exclamation-circle mr-1"></i> @item.ScanResult
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                <div class="flex justify-end space-x-2">
+                                                    <a asp-action="Details" asp-route-id="@item.CardId" class="text-primary-600 hover:text-primary-900 p-1" title="View Card Details">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a asp-action="ScanShow" asp-route-id="@item.CardId" class="text-gray-500 hover:text-gray-700 p-1" title="View Scan Details">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </a>
+                                                    <button class="text-red-500 hover:text-red-700 p-1 delete-scan" data-id="@item.Id" title="Delete Scan Record">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Card View (hidden by default) -->
+                        <div id="card-view" class="hidden p-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 @foreach (var item in Model)
                                 {
-                                    string rowClass = rowIndex % 2 == 0 ? "" : "bg-gray-50";
-                                    rowIndex++;
-                                    
-                                    <tr class="scan-result-row hover:bg-blue-50 transition-colors @rowClass" 
-                                        data-id="@item.CardId" 
-                                        data-product="@item.CardName" 
-                                        data-time="@item.ScanTime.ToString("yyyy-MM-ddTHH:mm:ss")" 
-                                        data-device="@item.DeviceInfo" 
-                                        data-location="@item.Location" 
-                                        data-result="@item.ScanResult">
-                                        <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="scan-result-card bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all overflow-hidden" 
+                                         data-id="@item.CardId" 
+                                         data-product="@item.CardName" 
+                                         data-time="@item.ScanTime.ToString("yyyy-MM-ddTHH:mm:ss")" 
+                                         data-device="@item.DeviceInfo" 
+                                         data-location="@item.Location" 
+                                         data-result="@item.ScanResult">
+                                        <div class="p-4 border-b border-gray-100 flex justify-between items-center">
                                             <div class="flex items-center">
-                                                <div class="flex-shrink-0 h-10 w-10 rounded-lg bg-primary-100 flex items-center justify-center text-primary-600 shadow-sm">
+                                                <div class="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center text-primary-600 mr-3">
                                                     <i class="fas fa-tag"></i>
                                                 </div>
-                                                <div class="ml-4">
-                                                    <div class="text-sm font-medium text-gray-900 hover:text-primary-600">@item.CardName</div>
-                                                    <div class="text-xs text-gray-500">ID: @item.CardId</div>
+                                                <div>
+                                                    <h4 class="font-medium text-gray-900">@item.CardName</h4>
+                                                    <p class="text-xs text-gray-500">ID: @item.CardId</p>
                                                 </div>
                                             </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-900">@item.ScanTime.ToString("yyyy-MM-dd")</div>
-                                            <div class="text-xs text-gray-500">@item.ScanTime.ToString("HH:mm:ss")</div>
-                                            <div class="text-xs text-gray-400">@((DateTime.Now - item.ScanTime).TotalHours < 24 ? $"{Math.Round((DateTime.Now - item.ScanTime).TotalHours)} hours ago" : $"{(DateTime.Now - item.ScanTime).Days} days ago")</div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-500">@item.DeviceInfo</div>
-                                            @if (item.DeviceInfo.Contains("iPhone"))
-                                            {
-                                                <div class="text-xs text-blue-500"><i class="fab fa-apple mr-1"></i> iOS Device</div>
-                                            }
-                                            else if (item.DeviceInfo.Contains("Android"))
-                                            {
-                                                <div class="text-xs text-green-500"><i class="fab fa-android mr-1"></i> Android Device</div>
-                                            }
-                                            else
-                                            {
-                                                <div class="text-xs text-gray-400"><i class="fas fa-mobile-alt mr-1"></i> Other Device</div>
-                                            }
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                                <i class="fas fa-map-marker-alt mr-1 text-primary-500"></i>
-                                                @item.Location
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
                                             @if (item.ScanResult == "Success")
                                             {
-                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                <span class="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                                     <i class="fas fa-check-circle mr-1"></i> Success
                                                 </span>
                                             }
                                             else if (item.ScanResult == "Failed")
                                             {
-                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                <span class="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
                                                     <i class="fas fa-times-circle mr-1"></i> Failed
                                                 </span>
                                             }
                                             else
                                             {
-                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                <span class="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                                                     <i class="fas fa-exclamation-circle mr-1"></i> @item.ScanResult
                                                 </span>
                                             }
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <div class="flex justify-end space-x-2">
-                                                <a asp-action="Details" asp-route-id="@item.CardId" class="text-primary-600 hover:text-primary-900 p-1" title="View Card Details">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                <a asp-action="ScanShow" asp-route-id="@item.CardId" class="text-gray-500 hover:text-gray-700 p-1" title="View Scan Details">
-                                                    <i class="fas fa-info-circle"></i>
-                                                </a>
-                                                <button class="text-red-500 hover:text-red-700 p-1 delete-scan" data-id="@item.Id" title="Delete Scan Record">
-                                                    <i class="fas fa-trash-alt"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    <!-- Card View (hidden by default) -->
-                    <div id="card-view" class="hidden p-4">
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            @foreach (var item in Model)
-                            {
-                                <div class="scan-result-card bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all overflow-hidden" 
-                                     data-id="@item.CardId" 
-                                     data-product="@item.CardName" 
-                                     data-time="@item.ScanTime.ToString("yyyy-MM-ddTHH:mm:ss")" 
-                                     data-device="@item.DeviceInfo" 
-                                     data-location="@item.Location" 
-                                     data-result="@item.ScanResult">
-                                    <div class="p-4 border-b border-gray-100 flex justify-between items-center">
-                                        <div class="flex items-center">
-                                            <div class="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center text-primary-600 mr-3">
-                                                <i class="fas fa-tag"></i>
-                                            </div>
-                                            <div>
-                                                <h4 class="font-medium text-gray-900">@item.CardName</h4>
-                                                <p class="text-xs text-gray-500">ID: @item.CardId</p>
-                                            </div>
                                         </div>
-                                        @if (item.ScanResult == "Success")
-                                        {
-                                            <span class="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                <i class="fas fa-check-circle mr-1"></i> Success
-                                            </span>
-                                        }
-                                        else if (item.ScanResult == "Failed")
-                                        {
-                                            <span class="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                                <i class="fas fa-times-circle mr-1"></i> Failed
-                                            </span>
-                                        }
-                                        else
-                                        {
-                                            <span class="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                                <i class="fas fa-exclamation-circle mr-1"></i> @item.ScanResult
-                                            </span>
-                                        }
-                                    </div>
-                                    <div class="p-4 space-y-3">
-                                        <div class="flex items-center text-sm">
-                                            <i class="fas fa-clock w-5 text-gray-400"></i>
-                                            <span class="ml-2">
-                                                @item.ScanTime.ToString("yyyy-MM-dd HH:mm:ss")
-                                                <span class="text-xs text-gray-500 ml-1">
-                                                    (@((DateTime.Now - item.ScanTime).TotalHours < 24 ? $"{Math.Round((DateTime.Now - item.ScanTime).TotalHours)}h ago" : $"{(DateTime.Now - item.ScanTime).Days}d ago"))
+                                        <div class="p-4 space-y-3">
+                                            <div class="flex items-center text-sm">
+                                                <i class="fas fa-clock w-5 text-gray-400"></i>
+                                                <span class="ml-2">
+                                                    @item.ScanTime.ToString("yyyy-MM-dd HH:mm:ss")
+                                                    <span class="text-xs text-gray-500 ml-1">
+                                                        (@((DateTime.Now - item.ScanTime).TotalHours < 24 ? $"{Math.Round((DateTime.Now - item.ScanTime).TotalHours)}h ago" : $"{(DateTime.Now - item.ScanTime).Days}d ago"))
+                                                    </span>
                                                 </span>
-                                            </span>
+                                            </div>
+                                            <div class="flex items-center text-sm">
+                                                <i class="fas fa-mobile-alt w-5 text-gray-400"></i>
+                                                <span class="ml-2">@item.DeviceInfo</span>
+                                            </div>
+                                            <div class="flex items-center text-sm">
+                                                <i class="fas fa-map-marker-alt w-5 text-gray-400"></i>
+                                                <span class="ml-2">@item.Location</span>
+                                            </div>
                                         </div>
-                                        <div class="flex items-center text-sm">
-                                            <i class="fas fa-mobile-alt w-5 text-gray-400"></i>
-                                            <span class="ml-2">@item.DeviceInfo</span>
-                                        </div>
-                                        <div class="flex items-center text-sm">
-                                            <i class="fas fa-map-marker-alt w-5 text-gray-400"></i>
-                                            <span class="ml-2">@item.Location</span>
+                                        <div class="px-4 py-3 bg-gray-50 border-t border-gray-100 flex justify-end space-x-2">
+                                            <a asp-action="Details" asp-route-id="@item.CardId" class="px-3 py-1 text-xs bg-primary-50 text-primary-600 rounded hover:bg-primary-100 transition-colors">
+                                                <i class="fas fa-eye mr-1"></i> View Card
+                                            </a>
+                                            <a asp-action="ScanShow" asp-route-id="@item.CardId" class="px-3 py-1 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors">
+                                                <i class="fas fa-info-circle mr-1"></i> Details
+                                            </a>
                                         </div>
                                     </div>
-                                    <div class="px-4 py-3 bg-gray-50 border-t border-gray-100 flex justify-end space-x-2">
-                                        <a asp-action="Details" asp-route-id="@item.CardId" class="px-3 py-1 text-xs bg-primary-50 text-primary-600 rounded hover:bg-primary-100 transition-colors">
-                                            <i class="fas fa-eye mr-1"></i> View Card
-                                        </a>
-                                        <a asp-action="ScanShow" asp-route-id="@item.CardId" class="px-3 py-1 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors">
-                                            <i class="fas fa-info-circle mr-1"></i> Details
-                                        </a>
-                                    </div>
+                                }
+                            </div>
+                        </div>
+                        
+                        <!-- Pagination -->
+                        <div class="px-4 py-3 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+                            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-700">
+                                        Showing <span class="font-medium">1</span> to <span class="font-medium">@(Model.Count() < 10 ? Model.Count() : 10)</span> of <span class="font-medium">@Model.Count()</span> results
+                                    </p>
                                 </div>
-                            }
-                        </div>
-                    </div>
-                    
-                    <!-- Pagination -->
-                    <div class="px-4 py-3 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
-                        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                            <div>
-                                <p class="text-sm text-gray-700">
-                                    Showing <span class="font-medium">1</span> to <span class="font-medium">@(Model.Count() < 10 ? Model.Count() : 10)</span> of <span class="font-medium">@Model.Count()</span> results
-                                </p>
-                            </div>
-                            <div>
-                                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                                    <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                                        <span class="sr-only">Previous</span>
-                                        <i class="fas fa-chevron-left"></i>
-                                    </a>
-                                    <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-primary-50 text-sm font-medium text-primary-600 hover:bg-primary-100">
-                                        1
-                                    </a>
-                                    <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                                        2
-                                    </a>
-                                    <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                                        3
-                                    </a>
-                                    <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
-                                        ...
-                                    </span>
-                                    <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                                        10
-                                    </a>
-                                    <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                                        <span class="sr-only">Next</span>
-                                        <i class="fas fa-chevron-right"></i>
-                                    </a>
-                                </nav>
+                                <div>
+                                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                        <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                            <span class="sr-only">Previous</span>
+                                            <i class="fas fa-chevron-left"></i>
+                                        </a>
+                                        <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-primary-50 text-sm font-medium text-primary-600 hover:bg-primary-100">
+                                            1
+                                        </a>
+                                        <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                            2
+                                        </a>
+                                        <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                            3
+                                        </a>
+                                        <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                                            ...
+                                        </span>
+                                        <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                            10
+                                        </a>
+                                        <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                            <span class="sr-only">Next</span>
+                                            <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </nav>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            }
+                }
+            </div>
         </div>
 
         <!-- Tab Content - Issue Reports -->
@@ -734,7 +736,7 @@
                     </div>
                 </div>
                 
-                <!-- Active Issue Filters (shown when filters are applied) -->
+                <!-- Active Issue Filters -->
                 <div id="active-issue-filters" class="hidden px-4 py-2 border-t border-gray-100 bg-blue-50">
                     <div class="flex flex-wrap items-center gap-2">
                         <span class="text-xs font-medium text-blue-700">Active Filters:</span>
@@ -800,393 +802,270 @@
             </div>
         </div>
 
-<!-- Tab Content - Analytics -->
-<div id="content-analytics" class="tab-content hidden">
-    <!-- Scan Analytics Section -->
-    <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6">
-        <div class="p-4 border-b border-gray-100 flex flex-wrap justify-between items-center">
-            <h3 class="font-bold text-gray-700 flex items-center mb-2 sm:mb-0">
-                <i class="fas fa-chart-bar text-primary-500 mr-2"></i> Scan Analytics
-            </h3>
-            <div class="flex space-x-2">
-                <button class="period-btn px-3 py-1 text-xs bg-primary-100 text-primary-600 rounded-full" data-period="week">Week</button>
-                <button class="period-btn px-3 py-1 text-xs bg-gray-100 text-gray-600 rounded-full" data-period="month">Month</button>
-                <button class="period-btn px-3 py-1 text-xs bg-gray-100 text-gray-600 rounded-full" data-period="year">Year</button>
-            </div>
-        </div>
-        
-        <!-- Analytics Summary Cards - Mobile Responsive Grid -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 p-3">
-            <div class="bg-white rounded-lg border border-gray-200 p-2 flex flex-col items-center shadow-sm">
-                <div class="text-xs text-gray-500 uppercase tracking-wider mb-1">Total Scans</div>
-                <div class="text-xl md:text-2xl font-bold text-gray-800 mb-1" id="scan-analytics-total">0</div>
-                <div class="text-xs text-gray-400">Period total</div>
-            </div>
-            <div class="bg-white rounded-lg border border-gray-200 p-2 flex flex-col items-center shadow-sm">
-                <div class="text-xs text-gray-500 uppercase tracking-wider mb-1">Products</div>
-                <div class="text-xl md:text-2xl font-bold text-gray-800 mb-1" id="scan-analytics-products">0</div>
-                <div class="text-xs text-gray-400">Unique items</div>
-            </div>
-            <div class="bg-white rounded-lg border border-gray-200 p-2 flex flex-col items-center shadow-sm">
-                <div class="text-xs text-gray-500 uppercase tracking-wider mb-1">Daily Avg</div>
-                <div class="text-xl md:text-2xl font-bold text-gray-800 mb-1" id="scan-analytics-avg">0</div>
-                <div class="text-xs text-gray-400">Scans per day</div>
-            </div>
-            <div class="bg-white rounded-lg border border-gray-200 p-2 flex flex-col items-center shadow-sm">
-                <div class="text-xs text-gray-500 uppercase tracking-wider mb-1">Today</div>
-                <div class="text-xl md:text-2xl font-bold text-gray-800 mb-1" id="scan-analytics-today">0</div>
-                <div class="flex items-center text-xs">
-                    <span class="flex items-center text-green-500 mr-1">
-                        <i class="fas fa-arrow-up mr-1"></i>8%
-                    </span>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Chart Area - Adaptive Height -->
-        <div class="p-3 md:p-4">
-            <div class="bg-white rounded-lg border border-gray-100 p-3">
-                <div class="flex flex-wrap items-center justify-between mb-3">
-                    <h4 class="text-sm font-medium text-gray-700 mb-1 sm:mb-0" id="scan-activity-title">Scan Activity (Last 7 Days)</h4>
-                    <div class="flex items-center text-xs text-gray-500">
-                        <span class="inline-block w-3 h-3 rounded-sm bg-blue-400 mr-1"></span>
-                        Regular
-                        <span class="inline-block w-3 h-3 rounded-sm bg-blue-600 ml-3 mr-1"></span>
-                        Today
+        <!-- Tab Content - Analytics -->
+        <div id="content-analytics" class="tab-content hidden">
+            <!-- Scan Analytics Section -->
+            <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6">
+                <div class="p-4 border-b border-gray-100 flex flex-wrap justify-between items-center">
+                    <h3 class="font-bold text-gray-700 flex items-center mb-2 sm:mb-0">
+                        <i class="fas fa-chart-bar text-primary-500 mr-2"></i> Scan Analytics
+                    </h3>
+                    <div class="flex space-x-2">
+                        <button class="period-btn px-3 py-1 text-xs bg-primary-100 text-primary-600 rounded-full" data-period="week">Week</button>
+                        <button class="period-btn px-3 py-1 text-xs bg-gray-100 text-gray-600 rounded-full" data-period="month">Month</button>
+                        <button class="period-btn px-3 py-1 text-xs bg-gray-100 text-gray-600 rounded-full" data-period="year">Year</button>
                     </div>
                 </div>
                 
-                <!-- Adaptive Height Chart Container -->
-                <div class="h-48 md:h-64 relative" id="scan-chart-container">
-                    <!-- Empty State Placeholder -->
-                    <div class="absolute inset-0 flex items-center justify-center bg-white rounded">
-                        <div class="text-center p-4">
-                            <div class="w-12 h-12 mx-auto rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-2">
-                                <i class="fas fa-chart-bar text-xl"></i>
-                            </div>
-                            <p class="text-sm font-medium text-gray-700">No scan data available</p>
-                            <p class="text-xs text-gray-500">Scan QR codes to see analytics</p>
-                        </div>
+                <!-- Analytics Summary Cards -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-2 p-3">
+                    <div class="bg-white rounded-lg border border-gray-200 p-2 flex flex-col items-center shadow-sm">
+                        <div class="text-xs text-gray-500 uppercase tracking-wider mb-1">Total Scans</div>
+                        <div class="text-xl md:text-2xl font-bold text-gray-800 mb-1" id="scan-analytics-total">0</div>
+                        <div class="text-xs text-gray-400">Period total</div>
                     </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Quick Stats Cards - Fill Empty Space -->
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-2 p-3 border-t border-gray-100">
-            <div class="bg-gray-50 rounded p-3 flex items-center">
-                <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-500 flex items-center justify-center mr-3">
-                    <i class="fas fa-mobile-alt"></i>
-                </div>
-                <div>
-                    <div class="text-xs text-gray-500">Top Device</div>
-                    <div class="text-sm font-medium">iPhone (68%)</div>
-                </div>
-            </div>
-            <div class="bg-gray-50 rounded p-3 flex items-center">
-                <div class="w-8 h-8 rounded-full bg-green-100 text-green-500 flex items-center justify-center mr-3">
-                    <i class="fas fa-clock"></i>
-                </div>
-                <div>
-                    <div class="text-xs text-gray-500">Peak Time</div>
-                    <div class="text-sm font-medium">2-4 PM</div>
-                </div>
-            </div>
-            <div class="bg-gray-50 rounded p-3 flex items-center col-span-2 md:col-span-1">
-                <div class="w-8 h-8 rounded-full bg-purple-100 text-purple-500 flex items-center justify-center mr-3">
-                    <i class="fas fa-map-marker-alt"></i>
-                </div>
-                <div>
-                    <div class="text-xs text-gray-500">Top Location</div>
-                    <div class="text-sm font-medium">Bangpoo Plant</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Issues Analytics Section - Fixed Empty Space -->
-    <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6">
-        <div class="p-4 border-b border-gray-100">
-            <h3 class="font-bold text-gray-700 flex items-center">
-                <i class="fas fa-exclamation-triangle text-primary-500 mr-2"></i> Issue Analytics
-            </h3>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
-            <!-- Issues by Status - Fixed Empty Space -->
-            <div class="bg-white rounded-lg border border-gray-100 p-3">
-                <h4 class="text-sm font-medium text-gray-700 mb-3">Issues by Status</h4>
-                <div class="flex items-center justify-center h-40 md:h-48">
-                    <!-- Simplified Donut Chart for Better Mobile Display -->
-                    <div class="w-32 h-32 md:w-40 md:h-40 relative">
-                        <svg viewBox="0 0 100 100" class="w-full h-full">
-                            <!-- Base circle -->
-                            <circle cx="50" cy="50" r="40" fill="transparent" stroke="#F3F4F6" stroke-width="15"/>
-                            <!-- Data segments -->
-                            <circle cx="50" cy="50" r="40" fill="transparent" stroke="#EFC700" stroke-width="15" stroke-dasharray="25 100" stroke-dashoffset="0"/>
-                            <circle cx="50" cy="50" r="40" fill="transparent" stroke="#3B82F6" stroke-width="15" stroke-dasharray="35 100" stroke-dashoffset="-25"/>
-                            <circle cx="50" cy="50" r="40" fill="transparent" stroke="#22C55E" stroke-width="15" stroke-dasharray="25 100" stroke-dashoffset="-60"/>
-                            <circle cx="50" cy="50" r="40" fill="transparent" stroke="#EF4444" stroke-width="15" stroke-dasharray="15 100" stroke-dashoffset="-85"/>
-                            
-                            <!-- Center text -->
-                            <circle cx="50" cy="50" r="30" fill="white" />
-                            <text x="50" y="50" font-size="14" text-anchor="middle" dominant-baseline="middle" font-weight="bold">100</text>
-                            <text x="50" y="62" font-size="7" text-anchor="middle" dominant-baseline="middle" fill="#6B7280">Total</text>
-                        </svg>
+                    <div class="bg-white rounded-lg border border-gray-200 p-2 flex flex-col items-center shadow-sm">
+                        <div class="text-xs text-gray-500 uppercase tracking-wider mb-1">Products</div>
+                        <div class="text-xl md:text-2xl font-bold text-gray-800 mb-1" id="scan-analytics-products">0</div>
+                        <div class="text-xs text-gray-400">Unique items</div>
                     </div>
-                </div>
-                <!-- Mobile-Friendly Legend -->
-                <div class="grid grid-cols-2 gap-2 mt-2">
-                    <div class="flex items-center text-xs">
-                        <div class="w-3 h-3 rounded-sm bg-yellow-400 mr-1"></div>
-                        <span>Open (25%)</span>
+                    <div class="bg-white rounded-lg border border-gray-200 p-2 flex flex-col items-center shadow-sm">
+                        <div class="text-xs text-gray-500 uppercase tracking-wider mb-1">Daily Avg</div>
+                        <div class="text-xl md:text-2xl font-bold text-gray-800 mb-1" id="scan-analytics-avg">0</div>
+                        <div class="text-xs text-gray-400">Scans per day</div>
                     </div>
-                    <div class="flex items-center text-xs">
-                        <div class="w-3 h-3 rounded-sm bg-blue-500 mr-1"></div>
-                        <span>In Progress (35%)</span>
-                    </div>
-                    <div class="flex items-center text-xs">
-                        <div class="w-3 h-3 rounded-sm bg-green-500 mr-1"></div>
-                        <span>Resolved (25%)</span>
-                    </div>
-                    <div class="flex items-center text-xs">
-                        <div class="w-3 h-3 rounded-sm bg-red-500 mr-1"></div>
-                        <span>Closed (15%)</span>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Issues by Priority Chart - Fixed Empty Space -->
-            <div class="bg-white rounded-lg border border-gray-100 p-3">
-                <h4 class="text-sm font-medium text-gray-700 mb-3">Issues by Priority</h4>
-                <div class="h-40 md:h-48">
-                    <!-- Fixed Bar Chart -->
-                    <div class="flex h-full flex-col">
-                        <div class="flex justify-around items-end h-32 md:h-40 relative">
-                            <!-- Mobile-friendly grid lines -->
-                            <div class="absolute left-0 right-0 top-0 h-px bg-gray-100"></div>
-                            <div class="absolute left-0 right-0 top-1/4 h-px bg-gray-100"></div>
-                            <div class="absolute left-0 right-0 top-2/4 h-px bg-gray-100"></div>
-                            <div class="absolute left-0 right-0 top-3/4 h-px bg-gray-100"></div>
-                            
-                            <!-- Priority bars with guaranteed visibility -->
-                            <div class="group flex flex-col items-center">
-                                <div class="w-10 md:w-14 rounded-t bg-green-400" style="height: 30%;">
-                                </div>
-                                <div class="mt-2 text-xs text-gray-600">Low</div>
-                            </div>
-                            <div class="group flex flex-col items-center">
-                                <div class="w-10 md:w-14 rounded-t bg-blue-400" style="height: 60%;">
-                                </div>
-                                <div class="mt-2 text-xs text-gray-600">Medium</div>
-                            </div>
-                            <div class="group flex flex-col items-center">
-                                <div class="w-10 md:w-14 rounded-t bg-orange-400" style="height: 40%;">
-                                </div>
-                                <div class="mt-2 text-xs text-gray-600">High</div>
-                            </div>
-                            <div class="group flex flex-col items-center">
-                                <div class="w-10 md:w-14 rounded-t bg-red-400" style="height: 70%;">
-                                </div>
-                                <div class="mt-2 text-xs text-gray-600">Critical</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-                
-        <!-- Issue Summary - Additional Content for Empty Space -->
-        <div class="p-4 border-t border-gray-100 bg-gray-50">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <div class="bg-white p-3 rounded shadow-sm border border-gray-200">
-                    <div class="text-xs text-gray-500 mb-1">Open Issues</div>
-                    <div class="text-lg font-bold text-orange-500">24</div>
-                </div>
-                <div class="bg-white p-3 rounded shadow-sm border border-gray-200">
-                    <div class="text-xs text-gray-500 mb-1">Avg Resolution</div>
-                    <div class="text-lg font-bold text-gray-700">3.5 days</div>
-                </div>
-                <div class="bg-white p-3 rounded shadow-sm border border-gray-200">
-                    <div class="text-xs text-gray-500 mb-1">Critical Issues</div>
-                    <div class="text-lg font-bold text-red-500">8</div>
-                </div>
-                <div class="bg-white p-3 rounded shadow-sm border border-gray-200">
-                    <div class="text-xs text-gray-500 mb-1">Response Time</div>
-                    <div class="text-lg font-bold text-green-500">4.2h</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Top Products with Issues - Compact for Mobile -->
-    <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6">
-        <div class="p-3 border-b border-gray-100 flex justify-between items-center">
-            <h3 class="font-bold text-gray-700 flex items-center">
-                <i class="fas fa-clipboard-list text-primary-500 mr-2"></i> Top Products with Issues
-            </h3>
-        </div>
-        
-        <!-- Mobile-Adaptive Table/Cards -->
-        <div class="p-3">
-            <!-- Mobile Card View (visible on small screens) -->
-            <div class="block md:hidden space-y-3">
-                <div class="border rounded-lg overflow-hidden">
-                    <div class="p-3 bg-gray-50 border-b flex justify-between items-center">
-                        <span class="font-medium">Product ABC-123</span>
-                        <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">8 Open</span>
-                    </div>
-                    <div class="p-3 space-y-2">
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-500">Total Issues:</span>
-                            <span class="font-medium">12</span>
-                        </div>
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-500">Common Issue:</span>
-                            <span>Malfunction</span>
-                        </div>
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-500">Last Reported:</span>
-                            <span>2 hours ago</span>
+                    <div class="bg-white rounded-lg border border-gray-200 p-2 flex flex-col items-center shadow-sm">
+                        <div class="text-xs text-gray-500 uppercase tracking-wider mb-1">Today</div>
+                        <div class="text-xl md:text-2xl font-bold text-gray-800 mb-1" id="scan-analytics-today">0</div>
+                        <div class="flex items-center text-xs">
+                            <span class="flex items-center text-green-500 mr-1">
+                                <i class="fas fa-arrow-up mr-1"></i>8%
+                            </span>
                         </div>
                     </div>
                 </div>
                 
-                <div class="border rounded-lg overflow-hidden">
-                    <div class="p-3 bg-gray-50 border-b flex justify-between items-center">
-                        <span class="font-medium">Product XYZ-789</span>
-                        <span class="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full">5 Open</span>
+                <!-- Chart Area -->
+                <div class="p-3 md:p-4">
+                    <div class="bg-white rounded-lg border border-gray-100 p-3">
+                        <div class="flex flex-wrap items-center justify-between mb-3">
+                            <h4 class="text-sm font-medium text-gray-700 mb-1 sm:mb-0" id="scan-activity-title">Scan Activity (Last 7 Days)</h4>
+                            <div class="flex items-center text-xs text-gray-500">
+                                <span class="inline-block w-3 h-3 rounded-sm bg-blue-400 mr-1"></span>
+                                Regular
+                                <span class="inline-block w-3 h-3 rounded-sm bg-blue-600 ml-3 mr-1"></span>
+                                Today
+                            </div>
+                        </div>
+                        
+                        <!-- Chart Container -->
+                        <div class="h-48 md:h-64 relative" id="scan-chart-container">
+                            <!-- Empty State Placeholder -->
+                            <div class="absolute inset-0 flex items-center justify-center bg-white rounded">
+                                <div class="text-center p-4">
+                                    <div class="w-12 h-12 mx-auto rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-2">
+                                        <i class="fas fa-chart-bar text-xl"></i>
+                                    </div>
+                                    <p class="text-sm font-medium text-gray-700">No scan data available</p>
+                                    <p class="text-xs text-gray-500">Scan QR codes to see analytics</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="p-3 space-y-2">
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-500">Total Issues:</span>
-                            <span class="font-medium">9</span>
+                </div>
+                
+                <!-- Quick Stats Cards -->
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-2 p-3 border-t border-gray-100">
+                    <div class="bg-gray-50 rounded p-3 flex items-center">
+                        <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-500 flex items-center justify-center mr-3">
+                            <i class="fas fa-mobile-alt"></i>
                         </div>
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-500">Common Issue:</span>
-                            <span>Connectivity</span>
+                        <div>
+                            <div class="text-xs text-gray-500">Top Device</div>
+                            <div class="text-sm font-medium">iPhone (68%)</div>
                         </div>
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-500">Last Reported:</span>
-                            <span>Yesterday</span>
+                    </div>
+                    <div class="bg-gray-50 rounded p-3 flex items-center">
+                        <div class="w-8 h-8 rounded-full bg-green-100 text-green-500 flex items-center justify-center mr-3">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs text-gray-500">Peak Time</div>
+                            <div class="text-sm font-medium">2-4 PM</div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 rounded p-3 flex items-center col-span-2 md:col-span-1">
+                        <div class="w-8 h-8 rounded-full bg-purple-100 text-purple-500 flex items-center justify-center mr-3">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs text-gray-500">Top Location</div>
+                            <div class="text-sm font-medium">Bangpoo Plant</div>
                         </div>
                     </div>
                 </div>
             </div>
-            
-            <!-- Desktop Table View (hidden on small screens) -->
-            <div class="hidden md:block overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Product
-                            </th>
-                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Total Issues
-                            </th>
-                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Open Issues
-                            </th>
-                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Common Issue
-                            </th>
-                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Last Reported
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <tr>
-                            <td class="px-4 py-3 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">Product ABC-123</div>
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">12</td>
-                            <td class="px-4 py-3 whitespace-nowrap">
-                                <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                    8
-                                </span>
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">Malfunction</td>
-                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">2 hours ago</td>
-                        </tr>
-                        <tr>
-                            <td class="px-4 py-3 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">Product XYZ-789</div>
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">9</td>
-                            <td class="px-4 py-3 whitespace-nowrap">
-                                <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">
-                                    5
-                                </span>
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">Connectivity</td>
-                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">Yesterday</td>
-                        </tr>
-                        <tr>
-                            <td class="px-4 py-3 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">Product DEF-456</div>
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">7</td>
-                            <td class="px-4 py-3 whitespace-nowrap">
-                                <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                    1
-                                </span>
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">Performance</td>
-                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">3 days ago</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
 
-    <!-- Top Products with Issues -->
-    <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6">
-        <div class="p-4 border-b border-gray-100 flex justify-between items-center">
-            <h3 class="font-bold text-gray-700 flex items-center">
-                <i class="fas fa-clipboard-list text-primary-500 mr-2"></i> Top Products with Issues
-            </h3>
-            <div class="text-xs bg-gray-100 px-3 py-1 rounded-full text-gray-600">
-                <i class="fas fa-filter mr-1"></i> Last 30 days
+            <!-- Issues Analytics Section -->
+            <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6">
+                <div class="p-4 border-b border-gray-100">
+                    <h3 class="font-bold text-gray-700 flex items-center">
+                        <i class="fas fa-exclamation-triangle text-primary-500 mr-2"></i> Issue Analytics
+                    </h3>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
+                    <!-- Issues by Status -->
+                    <div class="bg-white rounded-lg border border-gray-100 p-3">
+                        <h4 class="text-sm font-medium text-gray-700 mb-3">Issues by Status</h4>
+                        <div class="flex items-center justify-center h-40 md:h-48">
+                            <!-- Donut Chart -->
+                            <div class="w-32 h-32 md:w-40 md:h-40 relative">
+                                <svg viewBox="0 0 100 100" class="w-full h-full">
+                                    <!-- Base circle -->
+                                    <circle cx="50" cy="50" r="40" fill="transparent" stroke="#F3F4F6" stroke-width="15"/>
+                                    <!-- Data segments -->
+                                    <circle cx="50" cy="50" r="40" fill="transparent" stroke="#EFC700" stroke-width="15" stroke-dasharray="25 100" stroke-dashoffset="0"/>
+                                    <circle cx="50" cy="50" r="40" fill="transparent" stroke="#3B82F6" stroke-width="15" stroke-dasharray="35 100" stroke-dashoffset="-25"/>
+                                    <circle cx="50" cy="50" r="40" fill="transparent" stroke="#22C55E" stroke-width="15" stroke-dasharray="25 100" stroke-dashoffset="-60"/>
+                                    <circle cx="50" cy="50" r="40" fill="transparent" stroke="#EF4444" stroke-width="15" stroke-dasharray="15 100" stroke-dashoffset="-85"/>
+                                    
+                                    <!-- Center text -->
+                                    <circle cx="50" cy="50" r="30" fill="white" />
+                                    <text x="50" y="50" font-size="14" text-anchor="middle" dominant-baseline="middle" font-weight="bold">100</text>
+                                    <text x="50" y="62" font-size="7" text-anchor="middle" dominant-baseline="middle" fill="#6B7280">Total</text>
+                                </svg>
+                            </div>
+                        </div>
+                        <!-- Legend -->
+                        <div class="grid grid-cols-2 gap-2 mt-2">
+                            <div class="flex items-center text-xs">
+                                <div class="w-3 h-3 rounded-sm bg-yellow-400 mr-1"></div>
+                                <span>Open (25%)</span>
+                            </div>
+                            <div class="flex items-center text-xs">
+                                <div class="w-3 h-3 rounded-sm bg-blue-500 mr-1"></div>
+                                <span>In Progress (35%)</span>
+                            </div>
+                            <div class="flex items-center text-xs">
+                                <div class="w-3 h-3 rounded-sm bg-green-500 mr-1"></div>
+                                <span>Resolved (25%)</span>
+                            </div>
+                            <div class="flex items-center text-xs">
+                                <div class="w-3 h-3 rounded-sm bg-red-500 mr-1"></div>
+                                <span>Closed (15%)</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Issues by Priority Chart -->
+                    <div class="bg-white rounded-lg border border-gray-100 p-3">
+                        <h4 class="text-sm font-medium text-gray-700 mb-3">Issues by Priority</h4>
+                        <div class="h-40 md:h-48">
+                            <!-- Bar Chart -->
+                            <div class="flex h-full flex-col">
+                                <div class="flex justify-around items-end h-32 md:h-40 relative">
+                                    <!-- Grid lines -->
+                                    <div class="absolute left-0 right-0 top-0 h-px bg-gray-100"></div>
+                                    <div class="absolute left-0 right-0 top-1/4 h-px bg-gray-100"></div>
+                                    <div class="absolute left-0 right-0 top-2/4 h-px bg-gray-100"></div>
+                                    <div class="absolute left-0 right-0 top-3/4 h-px bg-gray-100"></div>
+                                    
+                                    <!-- Priority bars -->
+                                    <div class="group flex flex-col items-center">
+                                        <div class="w-10 md:w-14 rounded-t bg-green-400" style="height: 30%;">
+                                        </div>
+                                        <div class="mt-2 text-xs text-gray-600">Low</div>
+                                    </div>
+                                    <div class="group flex flex-col items-center">
+                                        <div class="w-10 md:w-14 rounded-t bg-blue-400" style="height: 60%;">
+                                        </div>
+                                        <div class="mt-2 text-xs text-gray-600">Medium</div>
+                                    </div>
+                                    <div class="group flex flex-col items-center">
+                                        <div class="w-10 md:w-14 rounded-t bg-orange-400" style="height: 40%;">
+                                        </div>
+                                        <div class="mt-2 text-xs text-gray-600">High</div>
+                                    </div>
+                                    <div class="group flex flex-col items-center">
+                                        <div class="w-10 md:w-14 rounded-t bg-red-400" style="height: 70%;">
+                                        </div>
+                                        <div class="mt-2 text-xs text-gray-600">Critical</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                        
+                <!-- Issue Summary -->
+                <div class="p-4 border-t border-gray-100 bg-gray-50">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div class="bg-white p-3 rounded shadow-sm border border-gray-200">
+                            <div class="text-xs text-gray-500 mb-1">Open Issues</div>
+                            <div class="text-lg font-bold text-orange-500">24</div>
+                        </div>
+                        <div class="bg-white p-3 rounded shadow-sm border border-gray-200">
+                            <div class="text-xs text-gray-500 mb-1">Avg Resolution</div>
+                            <div class="text-lg font-bold text-gray-700">3.5 days</div>
+                        </div>
+                        <div class="bg-white p-3 rounded shadow-sm border border-gray-200">
+                            <div class="text-xs text-gray-500 mb-1">Critical Issues</div>
+                            <div class="text-lg font-bold text-red-500">8</div>
+                        </div>
+                        <div class="bg-white p-3 rounded shadow-sm border border-gray-200">
+                            <div class="text-xs text-gray-500 mb-1">Response Time</div>
+                            <div class="text-lg font-bold text-green-500">4.2h</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="p-4">
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Product
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Total Issues
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Open Issues
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Most Common Issue
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Last Reported
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200" id="products-issue-table">
-                        <!-- Table rows will be populated by JavaScript -->
-                        <tr>
-                            <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
-                                <i class="fas fa-spinner fa-spin mr-2"></i> Loading data...
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+
+            <!-- Top Products with Issues -->
+            <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6">
+                <div class="p-4 border-b border-gray-100 flex justify-between items-center">
+                    <h3 class="font-bold text-gray-700 flex items-center">
+                        <i class="fas fa-clipboard-list text-primary-500 mr-2"></i> Top Products with Issues
+                    </h3>
+                    <div class="text-xs bg-gray-100 px-3 py-1 rounded-full text-gray-600">
+                        <i class="fas fa-filter mr-1"></i> Last 30 days
+                    </div>
+                </div>
+                <div class="p-4">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Product
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Total Issues
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Open Issues
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Most Common Issue
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Last Reported
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200" id="products-issue-table">
+                                <!-- Table rows will be populated by JavaScript -->
+                                <tr>
+                                    <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
+                                        <i class="fas fa-spinner fa-spin mr-2"></i> Loading data...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
     <!-- Footer -->
     <footer class="bg-white border-t border-gray-200 py-4 mt-auto">
