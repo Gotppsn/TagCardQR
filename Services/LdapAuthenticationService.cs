@@ -3,7 +3,6 @@ using System;
 using System.DirectoryServices.AccountManagement;
 using System.DirectoryServices;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Net.Http;
 using Microsoft.Extensions.Logging;
@@ -36,8 +35,10 @@ namespace CardTagManager.Services
                     FullName = "Administrator",
                     PlantName = "Bangpoo",
                     UserCode = "1670660",
-                    RawJsonData = @"{""Detail_TH_FirstName"":""แอดมิน"",""Detail_TH_LastName"":""ทดสอบ""}"
+                    RawJsonData = @"{""Detail_TH_FirstName"":""แอดมิน"",""Detail_TH_LastName"":""ทดสอบ"",""Detail_EN_FirstName"":""Admin"",""Detail_EN_LastName"":""Test""}"
                 };
+                // Extract names from JSON
+                ExtractNameDataFromJson(userInfo, userInfo.RawJsonData);
                 return (true, userInfo);
             }
 
@@ -66,7 +67,19 @@ namespace CardTagManager.Services
                                         {
                                             userInfo.Department = GetPropertyValue(dirEntry, "department");
                                             userInfo.PlantName = GetPropertyValue(dirEntry, "physicalDeliveryOfficeName");
-                                            userInfo.UserCode = GetPropertyValue(dirEntry, "User_Code");
+                                            userInfo.UserCode = GetPropertyValue(dirEntry, "employeeID") ?? 
+                                                               GetPropertyValue(dirEntry, "User_Code") ?? 
+                                                               GetPropertyValue(dirEntry, "employeeNumber");
+                                            
+                                            // Try to extract first and last name from fullname if not already set
+                                            if (!string.IsNullOrEmpty(userInfo.FullName) && 
+                                                string.IsNullOrEmpty(userInfo.EnglishFirstName) && 
+                                                string.IsNullOrEmpty(userInfo.EnglishLastName))
+                                            {
+                                                var names = userInfo.FullName.Split(' ', 2);
+                                                if (names.Length > 0) userInfo.EnglishFirstName = names[0];
+                                                if (names.Length > 1) userInfo.EnglishLastName = names[1];
+                                            }
                                             
                                             // Extract raw JSON data if available
                                             string[] possibleJsonProps = new[] { "info", "description", "comment", "notes" };
@@ -85,7 +98,7 @@ namespace CardTagManager.Services
                                             // If User_Code not found directly, extract from JSON
                                             if (string.IsNullOrEmpty(userInfo.UserCode) && !string.IsNullOrEmpty(userInfo.RawJsonData))
                                             {
-                                                var userCodeMatch = System.Text.RegularExpressions.Regex.Match(
+                                                var userCodeMatch = Regex.Match(
                                                     userInfo.RawJsonData, "\"User_Code\":\"(\\d+)\"");
                                                 
                                                 if (userCodeMatch.Success && userCodeMatch.Groups.Count > 1)
@@ -120,45 +133,45 @@ namespace CardTagManager.Services
             }
         }
         
-private void ExtractNameDataFromJson(UserLdapInfo userInfo, string jsonData)
-{
-    if (string.IsNullOrEmpty(jsonData)) return;
-    
-    // More flexible patterns to handle different JSON formats
-    var thFirstNameMatch = Regex.Match(jsonData, "\"Detail_TH_FirstName\"\\s*:\\s*\"([^\"]+)\"");
-    if (thFirstNameMatch.Success && thFirstNameMatch.Groups.Count > 1)
-    {
-        userInfo.ThaiFirstName = thFirstNameMatch.Groups[1].Value;
-    }
-    
-    var thLastNameMatch = Regex.Match(jsonData, "\"Detail_TH_LastName\"\\s*:\\s*\"([^\"]+)\"");
-    if (thLastNameMatch.Success && thLastNameMatch.Groups.Count > 1)
-    {
-        userInfo.ThaiLastName = thLastNameMatch.Groups[1].Value;
-    }
-    
-    var enFirstNameMatch = Regex.Match(jsonData, "\"Detail_EN_FirstName\"\\s*:\\s*\"([^\"]+)\"");
-    if (enFirstNameMatch.Success && enFirstNameMatch.Groups.Count > 1)
-    {
-        userInfo.EnglishFirstName = enFirstNameMatch.Groups[1].Value;
-    }
-    
-    var enLastNameMatch = Regex.Match(jsonData, "\"Detail_EN_LastName\"\\s*:\\s*\"([^\"]+)\"");
-    if (enLastNameMatch.Success && enLastNameMatch.Groups.Count > 1)
-    {
-        userInfo.EnglishLastName = enLastNameMatch.Groups[1].Value;
-    }
-    
-    // Ensure we also try to extract User_Code if not already set
-    if (string.IsNullOrEmpty(userInfo.UserCode))
-    {
-        var userCodeMatch = Regex.Match(jsonData, "\"User_Code\"\\s*:\\s*\"([^\"]+)\"");
-        if (userCodeMatch.Success && userCodeMatch.Groups.Count > 1)
+        private void ExtractNameDataFromJson(UserLdapInfo userInfo, string jsonData)
         {
-            userInfo.UserCode = userCodeMatch.Groups[1].Value;
+            if (string.IsNullOrEmpty(jsonData)) return;
+            
+            // More flexible patterns to handle different JSON formats
+            var thFirstNameMatch = Regex.Match(jsonData, "\"Detail_TH_FirstName\"\\s*:\\s*\"([^\"]+)\"");
+            if (thFirstNameMatch.Success && thFirstNameMatch.Groups.Count > 1)
+            {
+                userInfo.ThaiFirstName = thFirstNameMatch.Groups[1].Value;
+            }
+            
+            var thLastNameMatch = Regex.Match(jsonData, "\"Detail_TH_LastName\"\\s*:\\s*\"([^\"]+)\"");
+            if (thLastNameMatch.Success && thLastNameMatch.Groups.Count > 1)
+            {
+                userInfo.ThaiLastName = thLastNameMatch.Groups[1].Value;
+            }
+            
+            var enFirstNameMatch = Regex.Match(jsonData, "\"Detail_EN_FirstName\"\\s*:\\s*\"([^\"]+)\"");
+            if (enFirstNameMatch.Success && enFirstNameMatch.Groups.Count > 1)
+            {
+                userInfo.EnglishFirstName = enFirstNameMatch.Groups[1].Value;
+            }
+            
+            var enLastNameMatch = Regex.Match(jsonData, "\"Detail_EN_LastName\"\\s*:\\s*\"([^\"]+)\"");
+            if (enLastNameMatch.Success && enLastNameMatch.Groups.Count > 1)
+            {
+                userInfo.EnglishLastName = enLastNameMatch.Groups[1].Value;
+            }
+            
+            // Ensure we also try to extract User_Code if not already set
+            if (string.IsNullOrEmpty(userInfo.UserCode))
+            {
+                var userCodeMatch = Regex.Match(jsonData, "\"User_Code\"\\s*:\\s*\"([^\"]+)\"");
+                if (userCodeMatch.Success && userCodeMatch.Groups.Count > 1)
+                {
+                    userInfo.UserCode = userCodeMatch.Groups[1].Value;
+                }
+            }
         }
-    }
-}
         
         public async Task<UserLdapInfo> GetUserDataFromApiAsync(string userCode)
         {

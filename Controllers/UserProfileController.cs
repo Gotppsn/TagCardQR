@@ -1,5 +1,4 @@
 // Path: Controllers/UserProfileController.cs
-using System;
 using System.Threading.Tasks;
 using CardTagManager.Models;
 using CardTagManager.Services;
@@ -38,51 +37,6 @@ namespace CardTagManager.Controllers
                 // This shouldn't happen if login process is working correctly
                 _logger.LogWarning($"User profile not found for authenticated user: {username}");
                 return RedirectToAction("Login", "Account");
-            }
-
-            return View(userProfile);
-        }
-
-        // GET: UserProfile/Edit
-        public async Task<IActionResult> Edit()
-        {
-            var username = User.Identity?.Name;
-            if (string.IsNullOrEmpty(username))
-            {
-                return RedirectToAction("Login", "Account");
-            }
-
-            var userProfile = await _userProfileService.GetUserProfileAsync(username);
-            if (userProfile == null)
-            {
-                return RedirectToAction("Login", "Account");
-            }
-
-            return View(userProfile);
-        }
-
-        // POST: UserProfile/Edit
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(UserProfile userProfile)
-        {
-            var username = User.Identity?.Name;
-            if (string.IsNullOrEmpty(username) || username != userProfile.Username)
-            {
-                // Ensure users can only edit their own profile
-                return Forbid();
-            }
-
-            if (ModelState.IsValid)
-            {
-                var result = await _userProfileService.UpdateUserProfileAsync(userProfile);
-                if (result)
-                {
-                    TempData["SuccessMessage"] = "Your profile has been updated successfully.";
-                    return RedirectToAction(nameof(Index));
-                }
-                
-                ModelState.AddModelError("", "An error occurred while updating your profile.");
             }
 
             return View(userProfile);
