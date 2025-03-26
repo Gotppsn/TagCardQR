@@ -359,7 +359,7 @@ namespace CardTagManager.Data
                 .Property(d => d.UploadedBy)
                 .HasMaxLength(100);
                 
-            // Seed default roles
+            // Seed default roles with static values
             modelBuilder.Entity<Role>().HasData(
                 new Role 
                 { 
@@ -367,8 +367,8 @@ namespace CardTagManager.Data
                     Name = "Admin", 
                     NormalizedName = "ADMIN", 
                     Description = "Administrator with full system access",
-                    CreatedAt = DateTime.Now,
-                    ConcurrencyStamp = Guid.NewGuid().ToString()
+                    CreatedAt = new DateTime(2023, 1, 1), // Fixed static date
+                    ConcurrencyStamp = "8f9460e9-0637-4c21-8002-3048e67fc674" // Fixed static GUID
                 },
                 new Role 
                 { 
@@ -376,8 +376,8 @@ namespace CardTagManager.Data
                     Name = "Manager", 
                     NormalizedName = "MANAGER", 
                     Description = "Manager with limited administrative access",
-                    CreatedAt = DateTime.Now,
-                    ConcurrencyStamp = Guid.NewGuid().ToString()
+                    CreatedAt = new DateTime(2023, 1, 1), // Fixed static date
+                    ConcurrencyStamp = "c2d6d1e4-4f50-40de-9d12-849722d39b27" // Fixed static GUID
                 },
                 new Role 
                 { 
@@ -385,8 +385,8 @@ namespace CardTagManager.Data
                     Name = "User", 
                     NormalizedName = "USER", 
                     Description = "Standard user with basic access",
-                    CreatedAt = DateTime.Now,
-                    ConcurrencyStamp = Guid.NewGuid().ToString()
+                    CreatedAt = new DateTime(2023, 1, 1), // Fixed static date
+                    ConcurrencyStamp = "3f36708b-6b0e-4630-b31b-51d0d8f3956d" // Fixed static GUID
                 }
             );
         }
