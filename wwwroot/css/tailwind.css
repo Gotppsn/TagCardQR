@@ -1228,6 +1228,10 @@ body {
   top: 1.5rem;
 }
 
+.top-full {
+  top: 100%;
+}
+
 .z-0 {
   z-index: 0;
 }
@@ -2403,6 +2407,11 @@ body {
   background-color: rgb(229 231 235 / var(--tw-bg-opacity));
 }
 
+.bg-gray-300 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(209 213 219 / var(--tw-bg-opacity));
+}
+
 .bg-gray-50 {
   --tw-bg-opacity: 1;
   background-color: rgb(249 250 251 / var(--tw-bg-opacity));
@@ -3305,6 +3314,10 @@ body {
   transition-duration: 150ms;
 }
 
+.duration-100 {
+  transition-duration: 100ms;
+}
+
 .duration-1000 {
   transition-duration: 1000ms;
 }
@@ -3319,6 +3332,18 @@ body {
 
 .duration-500 {
   transition-duration: 500ms;
+}
+
+.duration-75 {
+  transition-duration: 75ms;
+}
+
+.ease-in {
+  transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
+}
+
+.ease-out {
+  transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
 }
 
 /* Custom components */
@@ -3506,6 +3531,11 @@ body {
   background-color: rgb(209 213 219 / var(--tw-bg-opacity));
 }
 
+.hover\:bg-gray-400:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(156 163 175 / var(--tw-bg-opacity));
+}
+
 .hover\:bg-gray-50:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(249 250 251 / var(--tw-bg-opacity));
@@ -3554,11 +3584,6 @@ body {
 .hover\:bg-red-50:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(254 242 242 / var(--tw-bg-opacity));
-}
-
-.hover\:bg-red-600:hover {
-  --tw-bg-opacity: 1;
-  background-color: rgb(220 38 38 / var(--tw-bg-opacity));
 }
 
 .hover\:bg-red-700:hover {
@@ -3643,6 +3668,11 @@ body {
 .hover\:text-gray-800:hover {
   --tw-text-opacity: 1;
   color: rgb(31 41 55 / var(--tw-text-opacity));
+}
+
+.hover\:text-gray-900:hover {
+  --tw-text-opacity: 1;
+  color: rgb(17 24 39 / var(--tw-text-opacity));
 }
 
 .hover\:text-primary-600:hover {

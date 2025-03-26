@@ -19,166 +19,98 @@ namespace CardTagManager.Services
             _logger = logger;
         }
 
-        public (bool isValid, UserLdapInfo userInfo) ValidateCredentials(string username, string password)
+public (bool isValid, UserLdapInfo userInfo) ValidateCredentials(string username, string password)
+{
+    var userInfo = new UserLdapInfo();
+    
+    // Add raw JSON to test admin user
+    if (username == "admin" && password == "admin")
+    {
+        userInfo = new UserLdapInfo
         {
-            var userInfo = new UserLdapInfo();
-            
-            // Support test admin user - ENSURE USERCODE IS POPULATED HERE
-            if (username == "admin" && password == "admin")
-            {
-                userInfo = new UserLdapInfo
-                {
-                    Username = "admin",
-                    Department = "IT Department",
-                    Email = "admin@thaiparker.co.th",
-                    FullName = "Administrator",
-                    PlantName = "Bangpoo",
-                    UserCode = "1670660" // Example User_Code for testing
-                };
-                _logger?.LogInformation($"Test admin login - setting UserCode to {userInfo.UserCode}");
-                return (true, userInfo);
-            }
+            Username = "admin",
+            Department = "IT Department",
+            Email = "admin@thaiparker.co.th",
+            FullName = "Administrator",
+            PlantName = "Bangpoo",
+            UserCode = "1670660",
+            RawJsonData = @"{""Detail_TH_FirstName"":""แอดมิน"",""Detail_TH_LastName"":""ทดสอบ""}"
+        };
+        return (true, userInfo);
+    }
 
-            try
+    try
+    {
+        using (var context = new PrincipalContext(ContextType.Domain, _domain))
+        {
+            bool isValid = context.ValidateCredentials(username, password);
+            
+            if (isValid)
             {
-                // For actual LDAP authentication
-                using (var context = new PrincipalContext(ContextType.Domain, _domain))
+                // Get user details
+                using (var user = UserPrincipal.FindByIdentity(context, username))
                 {
-                    bool isValid = false;
-                    
-                    // If password is null, we're just doing a lookup without authentication
-                    if (password != null)
+                    if (user != null)
                     {
-                        isValid = context.ValidateCredentials(username, password);
-                    }
-                    else
-                    {
-                        isValid = true; // Skip validation when doing lookup only
-                    }
-                    
-                    if (isValid || password == null)
-                    {
-                        try 
+                        userInfo.Username = user.SamAccountName;
+                        userInfo.Email = user.EmailAddress;
+                        userInfo.FullName = user.DisplayName;
+                        
+                        using (var dirEntry = user.GetUnderlyingObject() as DirectoryEntry)
                         {
-                            // Get user information from AD
-                            using (var user = UserPrincipal.FindByIdentity(context, username))
+                            if (dirEntry != null)
                             {
-                                if (user != null)
+                                try 
                                 {
-                                    userInfo.Username = user.SamAccountName;
-                                    userInfo.Email = user.EmailAddress;
-                                    userInfo.FullName = user.DisplayName;
+                                    userInfo.Department = GetPropertyValue(dirEntry, "department");
+                                    userInfo.PlantName = GetPropertyValue(dirEntry, "physicalDeliveryOfficeName");
+                                    userInfo.UserCode = GetPropertyValue(dirEntry, "User_Code");
                                     
-                                    // Extract properties from directory entry
-                                    using (var dirEntry = user.GetUnderlyingObject() as DirectoryEntry)
+                                    // Extract raw JSON data if available
+                                    string[] possibleJsonProps = new[] { "info", "description", "comment", "notes" };
+                                    foreach (var propName in possibleJsonProps)
                                     {
-                                        if (dirEntry != null)
+                                        var jsonData = GetPropertyValue(dirEntry, propName);
+                                        if (!string.IsNullOrEmpty(jsonData) && 
+                                            (jsonData.Contains("Detail_TH_FirstName") || 
+                                             jsonData.Contains("User_Code")))
                                         {
-                                            try 
-                                            {
-                                                userInfo.Department = GetPropertyValue(dirEntry, "department");
-                                                userInfo.PlantName = GetPropertyValue(dirEntry, "physicalDeliveryOfficeName");
-                                                
-                                                // FIRST APPROACH: Try to get User_Code directly as property
-                                                userInfo.UserCode = GetPropertyValue(dirEntry, "User_Code");
-                                                _logger?.LogInformation($"First attempt - User_Code={userInfo.UserCode}");
-                                                
-                                                // SECOND APPROACH: If first approach failed, try extension attribute
-                                                if (string.IsNullOrEmpty(userInfo.UserCode))
-                                                {
-                                                    for (int i = 1; i <= 15; i++)
-                                                    {
-                                                        string extAttrName = $"extensionAttribute{i}";
-                                                        string value = GetPropertyValue(dirEntry, extAttrName);
-                                                        
-                                                        // Check if this attribute contains User_Code
-                                                        if (!string.IsNullOrEmpty(value) && 
-                                                            (value.Contains("User_Code") || 
-                                                             Regex.IsMatch(value, @"^\d{5,10}$"))) // If it's just a numeric ID
-                                                        {
-                                                            userInfo.UserCode = Regex.Match(value, @"\d+").Value;
-                                                            _logger?.LogInformation($"Found User_Code in {extAttrName}: {userInfo.UserCode}");
-                                                            break;
-                                                        }
-                                                    }
-                                                }
-                                                
-                                                // THIRD APPROACH: If User_Code is still empty and we have access to JSON data
-                                                if (string.IsNullOrEmpty(userInfo.UserCode))
-                                                {
-                                                    // Check multiple possible property names
-                                                    string[] possibleJsonProps = new[] { "info", "description", "comment", "notes" };
-                                                    
-                                                    foreach (var propName in possibleJsonProps)
-                                                    {
-                                                        var jsonData = GetPropertyValue(dirEntry, propName);
-                                                        if (!string.IsNullOrEmpty(jsonData))
-                                                        {
-                                                            try
-                                                            {
-                                                                // Try to extract from the JSON structure shown in document #12
-                                                                var userCodeMatch = Regex.Match(
-                                                                    jsonData, "\"User_Code\":\"(\\d+)\"");
-                                                                
-                                                                if (userCodeMatch.Success && userCodeMatch.Groups.Count > 1)
-                                                                {
-                                                                    userInfo.UserCode = userCodeMatch.Groups[1].Value;
-                                                                    _logger?.LogInformation($"Extracted User_Code from JSON in {propName}: {userInfo.UserCode}");
-                                                                    break;
-                                                                }
-                                                            }
-                                                            catch (Exception ex)
-                                                            {
-                                                                _logger?.LogWarning($"Failed to parse JSON for User_Code in {propName}: {ex.Message}");
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                                
-                                                // FALLBACK: If still no User_Code, use a default based on username
-                                                if (string.IsNullOrEmpty(userInfo.UserCode))
-                                                {
-                                                    // Try to extract numbers from username if it contains any
-                                                    var match = Regex.Match(username, @"\d+");
-                                                    if (match.Success)
-                                                    {
-                                                        userInfo.UserCode = match.Value;
-                                                        _logger?.LogInformation($"Using numbers from username as User_Code: {userInfo.UserCode}");
-                                                    }
-                                                    else
-                                                    {
-                                                        // Generate a hash code from username
-                                                        userInfo.UserCode = Math.Abs(username.GetHashCode()).ToString();
-                                                        _logger?.LogInformation($"Generated User_Code from username hash: {userInfo.UserCode}");
-                                                    }
-                                                }
-                                                
-                                                _logger?.LogInformation($"Final User_Code for {username}: {userInfo.UserCode}");
-                                            }
-                                            catch (Exception ex)
-                                            {
-                                                _logger?.LogWarning($"Error retrieving LDAP attributes for {username}: {ex.Message}");
-                                            }
+                                            userInfo.RawJsonData = jsonData;
+                                            break;
+                                        }
+                                    }
+
+                                    // If User_Code not found directly, extract from JSON
+                                    if (string.IsNullOrEmpty(userInfo.UserCode) && !string.IsNullOrEmpty(userInfo.RawJsonData))
+                                    {
+                                        var userCodeMatch = System.Text.RegularExpressions.Regex.Match(
+                                            userInfo.RawJsonData, "\"User_Code\":\"(\\d+)\"");
+                                        
+                                        if (userCodeMatch.Success && userCodeMatch.Groups.Count > 1)
+                                        {
+                                            userInfo.UserCode = userCodeMatch.Groups[1].Value;
                                         }
                                     }
                                 }
+                                catch (Exception ex)
+                                {
+                                    _logger?.LogWarning($"Error retrieving LDAP attributes: {ex.Message}");
+                                }
                             }
                         }
-                        catch (Exception ex)
-                        {
-                            _logger?.LogError($"Error retrieving user details: {ex.Message}");
-                        }
                     }
-                    
-                    return (isValid || password == null, userInfo);
                 }
             }
-            catch (Exception ex)
-            {
-                _logger?.LogError($"LDAP Authentication error: {ex.Message}");
-                return (false, userInfo);
-            }
+            
+            return (isValid, userInfo);
         }
+    }
+    catch (Exception ex)
+    {
+        _logger?.LogError($"LDAP authentication error: {ex.Message}");
+        return (false, userInfo);
+    }
+}
         
         private string GetPropertyValue(DirectoryEntry entry, string propertyName)
         {
@@ -198,13 +130,14 @@ namespace CardTagManager.Services
         }
     }
     
-    public class UserLdapInfo
-    {
-        public string Username { get; set; } = string.Empty;
-        public string Department { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string FullName { get; set; } = string.Empty;
-        public string PlantName { get; set; } = string.Empty;
-        public string UserCode { get; set; } = string.Empty;
-    }
+public class UserLdapInfo
+{
+    public string Username { get; set; } = string.Empty;
+    public string Department { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string FullName { get; set; } = string.Empty;
+    public string PlantName { get; set; } = string.Empty;
+    public string UserCode { get; set; } = string.Empty;
+    public string RawJsonData { get; set; } = string.Empty;
+}
 }

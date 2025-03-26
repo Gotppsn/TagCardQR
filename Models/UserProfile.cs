@@ -14,29 +14,29 @@ namespace CardTagManager.Models
         public string Username { get; set; }
         
         [StringLength(100)]
-        public string Detail_TH_FirstName { get; set; }
+        public string Detail_TH_FirstName { get; set; } = ""; // Default empty string
         
         [StringLength(100)]
-        public string Detail_TH_LastName { get; set; }
+        public string Detail_TH_LastName { get; set; } = ""; // Default empty string
         
         [StringLength(100)]
-        public string Detail_EN_FirstName { get; set; }
+        public string Detail_EN_FirstName { get; set; } = ""; // Default empty string
         
         [StringLength(100)]
-        public string Detail_EN_LastName { get; set; }
+        public string Detail_EN_LastName { get; set; } = ""; // Default empty string
         
         [EmailAddress]
         [StringLength(255)]
-        public string User_Email { get; set; }
+        public string User_Email { get; set; } = ""; // Default empty string
         
         [StringLength(100)]
-        public string Plant_Name { get; set; }
+        public string Plant_Name { get; set; } = ""; // Default empty string
         
         [StringLength(100)]
-        public string Department_Name { get; set; }
+        public string Department_Name { get; set; } = ""; // Default empty string
         
         [StringLength(50)]
-        public string User_Code { get; set; }
+        public string User_Code { get; set; } = ""; // Default empty string
         
         public DateTime FirstLoginAt { get; set; } = DateTime.Now;
         
