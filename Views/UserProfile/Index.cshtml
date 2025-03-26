@@ -1,0 +1,89 @@
+@model CardTagManager.Models.UserProfile
+@{
+    ViewData["Title"] = "User Profile";
+}
+
+<div class="bg-white shadow-lg rounded-lg overflow-hidden max-w-4xl mx-auto my-8">
+    <div class="bg-gradient-to-r from-blue-500 to-primary-500 p-6">
+        <h1 class="text-white text-2xl font-bold">Your Profile</h1>
+        <p class="text-blue-100">View and manage your account information</p>
+    </div>
+    
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4" role="alert">
+            <p>@TempData["SuccessMessage"]</p>
+        </div>
+    }
+    
+    <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">English Information</h2>
+                <div class="space-y-4">
+                    <div>
+                        <p class="text-sm text-gray-500">First Name</p>
+                        <p class="text-lg font-medium">@Model.Detail_EN_FirstName</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Last Name</p>
+                        <p class="text-lg font-medium">@Model.Detail_EN_LastName</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Thai Information</h2>
+                <div class="space-y-4">
+                    <div>
+                        <p class="text-sm text-gray-500">First Name (TH)</p>
+                        <p class="text-lg font-medium">@Model.Detail_TH_FirstName</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Last Name (TH)</p>
+                        <p class="text-lg font-medium">@Model.Detail_TH_LastName</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <hr class="my-6 border-gray-200">
+        
+        <div class="space-y-4">
+            <div>
+                <p class="text-sm text-gray-500">Username</p>
+                <p class="text-lg font-medium">@Model.Username</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Email</p>
+                <p class="text-lg font-medium">@Model.User_Email</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Department</p>
+                <p class="text-lg font-medium">@Model.Department_Name</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Plant</p>
+                <p class="text-lg font-medium">@Model.Plant_Name</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">User Code</p>
+                <p class="text-lg font-medium">@Model.User_Code</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">First Login</p>
+                <p class="text-lg font-medium">@Model.FirstLoginAt.ToString("g")</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Last Login</p>
+                <p class="text-lg font-medium">@Model.LastLoginAt.ToString("g")</p>
+            </div>
+        </div>
+        
+        <div class="mt-8 flex justify-end">
+            <a asp-action="Edit" class="bg-primary-600 hover:bg-primary-700 text-white font-bold py-2 px-4 rounded-lg flex items-center">
+                <i class="fas fa-edit mr-2"></i> Edit Profile
+            </a>
+        </div>
+    </div>
+</div>

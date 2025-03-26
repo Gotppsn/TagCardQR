@@ -19,6 +19,7 @@ namespace CardTagManager.Data
         public DbSet<Template> Templates { get; set; }
         public DbSet<ScanSettings> ScanSettings { get; set; }
         public DbSet<ScanResult> ScanResults { get; set; }
+        public DbSet<UserProfile> UserProfiles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

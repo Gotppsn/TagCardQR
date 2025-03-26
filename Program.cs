@@ -33,6 +33,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => {
 });
 // Register services
 builder.Services.AddScoped<QrCodeService>();
+builder.Services.AddScoped<UserProfileService>();
 builder.Services.AddSingleton<LdapAuthenticationService>(provider => 
     new LdapAuthenticationService(builder.Configuration["LdapSettings:Domain"] ?? "thaiparkerizing"));
 builder.Services.AddAntiforgery(options => 
