@@ -1136,7 +1136,7 @@
         }
     });
 
-        function loadScanResults() {
+    function loadScanResults() {
         const tableBody = document.getElementById('results-table-body');
         const cardView = document.getElementById('card-view');
         
@@ -1842,41 +1842,6 @@
     
     // Initialize analytics tab functionality
     function initAnalyticsTab() {
-        // Load sample data for analytics charts
-        // In a real implementation, this would fetch data from an API
-        function loadAnalyticsData() {
-            const productsIssueTable = document.getElementById('products-issue-table');
-            if (!productsIssueTable) return;
-            
-            // Sample data for the products with issues table
-            const sampleData = [
-                { productName: "RustShield Pro 5000", totalIssues: 5, openIssues: 2, commonIssue: "Performance Issues", lastReported: "2025-03-15" },
-                { productName: "Industrial Spray Booth", totalIssues: 3, openIssues: 1, commonIssue: "Maintenance Required", lastReported: "2025-03-10" },
-                { productName: "Precision Lab Scale", totalIssues: 2, openIssues: 0, commonIssue: "Calibration Issues", lastReported: "2025-03-01" },
-                { productName: "Emergency Eyewash Station", totalIssues: 1, openIssues: 1, commonIssue: "Safety Concern", lastReported: "2025-03-17" }
-            ];
-            
-            // Populate the table
-            productsIssueTable.innerHTML = '';
-            sampleData.forEach(item => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td class="px-6 py-4">
-                        <div class="text-sm font-medium text-gray-900">${item.productName}</div>
-                    </td>
-                    <td class="px-6 py-4 text-sm text-gray-500">${item.totalIssues}</td>
-                    <td class="px-6 py-4">
-                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${item.openIssues > 0 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}">
-                            ${item.openIssues}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 text-sm text-gray-500">${item.commonIssue}</td>
-                    <td class="px-6 py-4 text-sm text-gray-500">${formatDate(new Date(item.lastReported))}</td>
-                `;
-                productsIssueTable.appendChild(row);
-            });
-        }
-        
         // Period buttons for analytics charts
         const periodBtns = document.querySelectorAll('.period-btn');
         if (periodBtns) {
@@ -1891,11 +1856,396 @@
                     this.classList.remove('bg-gray-100', 'text-gray-600');
                     this.classList.add('bg-primary-100', 'text-primary-600');
                     
-                    // In a real implementation, this would fetch data for the selected period
+                    // Fetch data for the selected period
                     const period = this.getAttribute('data-period');
-                    showToast('Analytics period changed', `Showing data for the last ${period}`, 'info');
+                    loadAnalyticsData(period);
                 });
             });
+        }
+        
+        // Initial load with default period (week)
+        loadAnalyticsData('week');
+    }
+
+    // Load analytics data based on selected period
+    function loadAnalyticsData(period = 'week') {
+        // Get container elements
+        const scanChartContainer = document.querySelector('#content-analytics .aspect-\\[1\\.4142\\]');
+        const productsIssueTable = document.getElementById('products-issue-table');
+        
+        if (!scanChartContainer || !productsIssueTable) return;
+        
+        // Show loading states
+        scanChartContainer.innerHTML = `
+            <div class="flex items-center justify-center h-full">
+                <div class="text-center">
+                    <i class="fas fa-spinner fa-spin text-primary-500 text-2xl mb-3"></i>
+                    <p class="text-gray-500">Loading scan activity data...</p>
+                </div>
+            </div>
+        `;
+        
+        productsIssueTable.innerHTML = `
+            <tr>
+                <td colspan="5" class="px-6 py-4 text-center">
+                    <i class="fas fa-spinner fa-spin text-primary-500 mr-2"></i> Loading issue data...
+                </td>
+            </tr>
+        `;
+        
+        // Fetch scan activity data
+        fetch(`/api/Card/GetScanAnalytics?period=${period}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch scan analytics');
+                }
+                return response.json();
+            })
+            .then(data => {
+                renderScanChart(data, period, scanChartContainer);
+            })
+            .catch(error => {
+                console.error('Error loading scan analytics:', error);
+                scanChartContainer.innerHTML = `
+                    <div class="flex items-center justify-center h-full">
+                        <div class="text-center">
+                            <div class="w-16 h-16 mx-auto rounded-full bg-red-100 flex items-center justify-center text-red-500 mb-3">
+                                <i class="fas fa-exclamation-triangle text-xl"></i>
+                            </div>
+                            <p class="text-gray-700 font-medium mb-2">Failed to load scan data</p>
+                            <p class="text-gray-500 text-sm mb-4">${error.message}</p>
+                            <button onclick="loadAnalyticsData('${period}')" class="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700 text-sm">
+                                Try Again
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        
+        // Fetch top products with issues
+        fetch('/api/Card/GetTopProductsWithIssues')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch products with issues');
+                }
+                return response.json();
+            })
+            .then(data => {
+                renderProductsIssuesTable(data, productsIssueTable);
+            })
+            .catch(error => {
+                console.error('Error loading products with issues:', error);
+                productsIssueTable.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="px-6 py-4 text-center text-red-500">
+                            <i class="fas fa-exclamation-triangle mr-2"></i> Failed to load data: ${error.message}
+                        </td>
+                    </tr>
+                `;
+            });
+        
+        // Load issues by status and priority charts
+        loadIssueAnalyticsCharts();
+    }
+
+    // Render scan activity chart
+    function renderScanChart(data, period, container) {
+        let periodLabel;
+        switch(period) {
+            case 'week': periodLabel = 'Last 7 Days'; break;
+            case 'month': periodLabel = 'Last 30 Days'; break;
+            case 'year': periodLabel = 'Last 12 Months'; break;
+            default: periodLabel = 'Last 7 Days';
+        }
+        
+        if (!data || data.length === 0) {
+            container.innerHTML = `
+                <div class="flex items-center justify-center h-full">
+                    <div class="text-center">
+                        <div class="w-16 h-16 mx-auto rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-3">
+                            <i class="fas fa-chart-bar text-2xl"></i>
+                        </div>
+                        <p class="text-gray-700 font-medium mb-2">No scan data available</p>
+                        <p class="text-gray-500 text-sm">There are no scans recorded for this period.</p>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+        
+        // Create chart html
+        let chartHtml = `
+            <div class="text-center">
+                <p class="text-gray-500 mb-2">Scan Activity (${periodLabel})</p>
+                <div class="w-full max-w-3xl mx-auto h-60 flex items-end justify-around px-4">
+        `;
+        
+        // Get max value for scaling
+        const maxValue = Math.max(...data.map(d => d.count));
+        
+        // Add bar for each data point
+        data.forEach(item => {
+            const height = maxValue > 0 ? Math.max(5, (item.count / maxValue) * 100) : 5;
+            const isToday = new Date(item.date).toDateString() === new Date().toDateString();
+            const label = formatDateLabel(item.date, period);
+            
+            chartHtml += `
+                <div class="flex flex-col items-center group">
+                    <div class="relative">
+                        <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                            ${item.count} scans
+                        </div>
+                        <div class="w-14 bg-${isToday ? "primary" : "blue"}-${isToday ? "500" : "400"} rounded-t transition-all hover:bg-${isToday ? "primary" : "blue"}-${isToday ? "600" : "500"}" style="height: ${height}%"></div>
+                    </div>
+                    <div class="text-xs mt-2 text-gray-600">${label}</div>
+                </div>
+            `;
+        });
+        
+        chartHtml += `
+                </div>
+            </div>
+        `;
+        
+        container.innerHTML = chartHtml;
+    }
+
+    // Render products with issues table
+    function renderProductsIssuesTable(data, tableElement) {
+        if (!data || data.length === 0) {
+            tableElement.innerHTML = `
+                <tr>
+                    <td colspan="5" class="px-6 py-4 text-center">
+                        <div class="py-4">
+                            <div class="w-12 h-12 mx-auto rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
+                                <i class="fas fa-clipboard-check"></i>
+                            </div>
+                            <p class="mt-2 text-gray-500">No product issues found</p>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+        
+        // Clear table
+        tableElement.innerHTML = '';
+        
+        // Add rows for each product
+        data.forEach(item => {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-50';
+            
+            row.innerHTML = `
+                <td class="px-6 py-4">
+                    <div class="text-sm font-medium text-gray-900">${item.productName}</div>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500">${item.totalIssues}</td>
+                <td class="px-6 py-4">
+                    <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${item.openIssues > 0 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}">
+                        ${item.openIssues}
+                    </span>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500">${item.commonIssue}</td>
+                <td class="px-6 py-4 text-sm text-gray-500">${formatDate(new Date(item.lastReported))}</td>
+            `;
+            
+            tableElement.appendChild(row);
+        });
+    }
+
+    // Load issues by status and priority charts
+    function loadIssueAnalyticsCharts() {
+        fetch('/api/Card/GetIssueAnalytics')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch issue analytics');
+                }
+                return response.json();
+            })
+            .then(data => {
+                renderIssueStatusChart(data.byStatus);
+                renderIssuePriorityChart(data.byPriority);
+            })
+            .catch(error => {
+                console.error('Error loading issue analytics:', error);
+                // Set error state for charts
+                const statusChartContainer = document.querySelector('#content-analytics .grid.grid-cols-1.md\\:grid-cols-2 > div:first-child .aspect-\\[1\\.4142\\]');
+                const priorityChartContainer = document.querySelector('#content-analytics .grid.grid-cols-1.md\\:grid-cols-2 > div:last-child .w-full.h-56');
+                
+                if (statusChartContainer) {
+                    statusChartContainer.innerHTML = `
+                        <div class="flex items-center justify-center h-full">
+                            <div class="text-center">
+                                <p class="text-red-500"><i class="fas fa-exclamation-triangle mr-1"></i> Failed to load chart data</p>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                if (priorityChartContainer) {
+                    priorityChartContainer.innerHTML = `
+                        <div class="flex items-center justify-center h-full">
+                            <div class="text-center">
+                                <p class="text-red-500"><i class="fas fa-exclamation-triangle mr-1"></i> Failed to load chart data</p>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+    }
+
+    // Render issue status chart
+    function renderIssueStatusChart(statusData) {
+        const container = document.querySelector('#content-analytics .grid.grid-cols-1.md\\:grid-cols-2 > div:first-child .aspect-\\[1\\.4142\\]');
+        
+        if (!container) return;
+        
+        if (!statusData || Object.keys(statusData).length === 0) {
+            container.innerHTML = `
+                <div class="flex items-center justify-center h-full">
+                    <div class="text-center">
+                        <p class="text-gray-500">No issue status data available</p>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+        
+        const statusColors = {
+            'Open': '#EAB308', // yellow-500
+            'In Progress': '#3B82F6', // blue-500
+            'Resolved': '#22C55E', // green-500
+            'Closed': '#EF4444' // red-500
+        };
+        
+        // Create a simple pie chart representation
+        container.innerHTML = `
+            <div class="w-full max-w-xs mx-auto">
+                <div class="w-48 h-48 mx-auto relative">
+                    ${renderPieChart(statusData, statusColors)}
+                </div>
+                <div class="flex flex-wrap justify-center gap-4 mt-4">
+                    ${Object.entries(statusData).map(([status, count]) => `
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 rounded-sm mr-1" style="background-color: ${statusColors[status] || '#6B7280'}"></div>
+                            <span class="text-xs">${status} (${count})</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    // Render issue priority chart
+    function renderIssuePriorityChart(priorityData) {
+        const container = document.querySelector('#content-analytics .grid.grid-cols-1.md\\:grid-cols-2 > div:last-child .w-full.h-56');
+        
+        if (!container) return;
+        
+        if (!priorityData || Object.keys(priorityData).length === 0) {
+            container.innerHTML = `
+                <div class="flex items-center justify-center h-full">
+                    <div class="text-center">
+                        <p class="text-gray-500">No issue priority data available</p>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+        
+        const priorityColors = {
+            'Low': 'green',
+            'Medium': 'blue',
+            'High': 'orange',
+            'Critical': 'red'
+        };
+        
+        // Get max value for scaling
+        const maxValue = Math.max(...Object.values(priorityData));
+        
+        // Clear container
+        container.innerHTML = '';
+        
+        // Create a bar for each priority
+        Object.entries(priorityData).forEach(([priority, count]) => {
+            const height = maxValue > 0 ? Math.max(5, (count / maxValue) * 100) : 5;
+            const color = priorityColors[priority] || 'gray';
+            
+            const bar = document.createElement('div');
+            bar.className = 'flex flex-col items-center group';
+            bar.innerHTML = `
+                <div class="relative">
+                    <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                        ${count} issues
+                    </div>
+                    <div class="w-16 bg-${color}-500 rounded-t transition-all hover:bg-${color}-600" style="height: ${height}%"></div>
+                </div>
+                <div class="text-xs mt-2 text-gray-600">${priority}</div>
+            `;
+            
+            container.appendChild(bar);
+        });
+    }
+
+    // Helper function to render a simple SVG pie chart
+    function renderPieChart(data, colorMap) {
+        const total = Object.values(data).reduce((sum, count) => sum + count, 0);
+        if (total === 0) return '<div class="w-full h-full flex items-center justify-center text-gray-400">No data</div>';
+        
+        let svg = `<svg viewBox="0 0 100 100" class="w-full h-full">`;
+        
+        let cumulativePercent = 0;
+        Object.entries(data).forEach(([label, value]) => {
+            const startPercent = cumulativePercent;
+            const percent = value / total;
+            cumulativePercent += percent;
+            
+            if (percent === 0) return;
+            
+            // Ensure the last slice goes back to 0
+            const endPercent = label === Object.keys(data)[Object.keys(data).length - 1] ? 0 : cumulativePercent;
+            
+            const start = polarToCartesian(50, 50, 50, 360 * startPercent);
+            const end = polarToCartesian(50, 50, 50, 360 * endPercent);
+            
+            const largeArcFlag = percent > 0.5 ? 1 : 0;
+            
+            svg += `<path d="M 50 50 L ${start.x} ${start.y} A 50 50 0 ${largeArcFlag} 1 ${end.x} ${end.y} Z" fill="${colorMap[label] || '#6B7280'}" />`;
+        });
+        
+        // Add center circle to create donut chart
+        svg += `<circle cx="50" cy="50" r="30" fill="white" />`;
+        
+        // Add total count in center
+        svg += `<text x="50" y="50" font-size="12" text-anchor="middle" dominant-baseline="middle" font-weight="bold">${total}</text>`;
+        svg += `<text x="50" y="62" font-size="8" text-anchor="middle" dominant-baseline="middle" fill="#6B7280">Total Issues</text>`;
+        
+        svg += `</svg>`;
+        return svg;
+    }
+
+    // Helper function for SVG pie chart
+    function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+        const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
+        return {
+            x: centerX + (radius * Math.cos(angleInRadians)),
+            y: centerY + (radius * Math.sin(angleInRadians))
+        };
+    }
+
+    // Format date label based on period
+    function formatDateLabel(dateString, period) {
+        const date = new Date(dateString);
+        switch(period) {
+            case 'week':
+                return date.toLocaleDateString(undefined, { weekday: 'short' });
+            case 'month':
+                return date.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+            case 'year':
+                return date.toLocaleDateString(undefined, { month: 'short' });
+            default:
+                return date.toLocaleDateString(undefined, { weekday: 'short' });
         }
     }
     
@@ -2425,140 +2775,6 @@
         showToast('Table sorted', `Sorted by ${column} in ${direction === 'asc' ? 'ascending' : 'descending'} order`, 'info');
     }
     
-    function initializeDeleteFunctionality() {
-        const deleteButtons = document.querySelectorAll('.delete-scan');
-        const deleteModal = document.getElementById('delete-modal');
-        const cancelDeleteBtn = document.getElementById('cancel-delete');
-        const confirmDeleteBtn = document.getElementById('confirm-delete');
-        const deleteItemDetails = document.getElementById('delete-item-details');
-        
-        if (deleteButtons && deleteModal) {
-            deleteButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    
-                    const id = this.getAttribute('data-id');
-                    const row = this.closest('tr.scan-result-row');
-                    
-                    // Populate delete modal with details
-                    deleteItemDetails.innerHTML = `
-                        <p><strong>Product:</strong> ${row.getAttribute('data-product')}</p>
-                        <p><strong>Scan Time:</strong> ${new Date(row.getAttribute('data-time')).toLocaleString()}</p>
-                        <p><strong>Location:</strong> ${row.getAttribute('data-location')}</p>
-                        <p><strong>Result:</strong> ${row.getAttribute('data-result')}</p>
-                    `;
-                    
-                    // Store the row reference for deletion
-                    confirmDeleteBtn.setAttribute('data-row-id', row.getAttribute('data-id'));
-                    
-                    // Show the modal
-                    deleteModal.classList.remove('hidden');
-                });
-            });
-            
-            cancelDeleteBtn.addEventListener('click', function() {
-                deleteModal.classList.add('hidden');
-            });
-            
-            confirmDeleteBtn.addEventListener('click', function() {
-                const id = this.getAttribute('data-row-id');
-                
-                // Get the CSRF token
-                const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
-                
-                // Send delete request
-                fetch('/Card/DeleteScanResult', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'RequestVerificationToken': token
-                    },
-                    body: `id=${id}`
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        // Find and remove the row and card
-                        const row = document.querySelector(`.scan-result-row[data-id="${id}"]`);
-                        const card = document.querySelector(`.scan-result-card[data-id="${id}"]`);
-                        
-                        if (row) row.remove();
-                        if (card) card.remove();
-                        
-                        // Update counters
-                        updateCounters();
-                        
-                        // Show toast notification
-                        showToast('Record deleted', 'Scan record has been permanently deleted', 'success');
-                    } else {
-                        showToast('Error', data.error || 'Failed to delete record', 'error');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('Error', 'Failed to delete record. Please try again.', 'error');
-                })
-                .finally(() => {
-                    // Hide the modal
-                    deleteModal.classList.add('hidden');
-                });
-            });
-            
-            // Close modal when clicking outside
-            deleteModal.addEventListener('click', function(e) {
-                if (e.target === deleteModal) {
-                    deleteModal.classList.add('hidden');
-                }
-            });
-        }
-    }
-    
-    function updateCounters() {
-        const totalCounter = document.getElementById('total-scans-counter');
-        const todayCounter = document.getElementById('today-scans-counter');
-        const locationsCounter = document.getElementById('locations-counter');
-        const successRateCounter = document.getElementById('success-rate-counter');
-        
-        if (totalCounter) {
-            const visibleRows = document.querySelectorAll('.scan-result-row:not([style*="display: none"])');
-            const total = visibleRows.length;
-            
-            totalCounter.querySelector('.animate-counter').textContent = total;
-            
-            // Count today's scans
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const todayScans = Array.from(visibleRows).filter(row => {
-                const scanTime = new Date(row.getAttribute('data-time'));
-                return scanTime >= today;
-            }).length;
-            
-            if (todayCounter) {
-                todayCounter.querySelector('.animate-counter').textContent = todayScans;
-            }
-            
-            // Count unique locations
-            const locations = new Set(Array.from(visibleRows).map(row => row.getAttribute('data-location')));
-            
-            if (locationsCounter) {
-                locationsCounter.querySelector('.animate-counter').textContent = locations.size;
-            }
-            
-            // Calculate success rate
-            const successfulScans = Array.from(visibleRows).filter(row => row.getAttribute('data-result') === 'Success').length;
-            const successRate = total > 0 ? Math.round((successfulScans / total) * 100) : 0;
-            
-            if (successRateCounter) {
-                successRateCounter.querySelector('.animate-counter').textContent = successRate;
-            }
-        }
-    }
-    
     function initializeExportMenu() {
         const exportMenuBtn = document.getElementById('export-menu-btn');
         const exportMenu = document.getElementById('export-menu');
@@ -2892,32 +3108,29 @@
             </div>
         `;
         
-        // Use the correct API URL with proper error handling
+        // Fetch from API
         fetch('/api/Card/GetAllIssues')
             .then(response => {
                 if (!response.ok) {
-                    // Convert non-2xx HTTP responses into errors
-                    return response.text().then(text => {
-                        throw new Error(`HTTP error! Status: ${response.status}, Message: ${text || 'No details available'}`);
-                    });
+                    throw new Error(`HTTP error! Status: ${response.status}`);
                 }
                 return response.json();
             })
             .then(issues => {
-                // Process the issues data as before
-                console.log("Successfully loaded issues:", issues.length);
-                
                 // Update issue counters
                 const totalIssues = issues.length;
                 const openIssues = issues.filter(i => i.status === 'Open').length;
                 const inProgressIssues = issues.filter(i => i.status === 'In Progress').length;
-                const resolvedIssues = issues.filter(i => i.status === 'Resolved').length;
+                const resolvedIssues = issues.filter(i => i.status === 'Resolved' || i.status === 'Closed').length;
                 
                 // Update UI counters
-                document.getElementById('total-issues-counter').querySelector('.animate-counter').textContent = totalIssues;
-                document.getElementById('open-issues-counter').querySelector('.animate-counter').textContent = openIssues;
-                document.getElementById('inprogress-issues-counter').querySelector('.animate-counter').textContent = inProgressIssues;
-                document.getElementById('resolved-issues-counter').querySelector('.animate-counter').textContent = resolvedIssues;
+                document.getElementById('total-issues-counter').querySelector('.animate-counter').setAttribute('data-count', totalIssues);
+                document.getElementById('open-issues-counter').querySelector('.animate-counter').setAttribute('data-count', openIssues);
+                document.getElementById('inprogress-issues-counter').querySelector('.animate-counter').setAttribute('data-count', inProgressIssues);
+                document.getElementById('resolved-issues-counter').querySelector('.animate-counter').setAttribute('data-count', resolvedIssues);
+                
+                // Refresh animated counters
+                initAnimatedCounters();
                 
                 // Update issues count display
                 document.getElementById('issues-count').textContent = `Showing ${totalIssues} issues`;
@@ -2928,52 +3141,53 @@
             .catch(error => {
                 console.error('Error loading issues:', error);
                 
-                // Show user-friendly error message with retry button
+                // Show error message
                 issuesContainer.innerHTML = `
                     <div class="text-center py-8">
-                        <div class="w-16 h-16 mx-auto rounded-full bg-red-100 flex items-center justify-center text-red-500">
+                        <div class="w-16 h-16 mx-auto rounded-full bg-red-100 flex items-center justify-center text-red-500 mb-3">
                             <i class="fas fa-exclamation-triangle text-2xl"></i>
                         </div>
-                        <p class="text-lg font-medium text-gray-700 mt-4">Error Loading Issues</p>
-                        <p class="text-red-500 mt-2">${error.message}</p>
-                        <button id="retry-load-issues" class="mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
-                            Retry
-                        </button>
+                        <p class="font-medium">Failed to load issues</p>
+                        <p class="text-sm mt-2">${error.message}</p>
+                        <button id="retry-load-issues" class="mt-4 px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700">Retry</button>
                     </div>
                 `;
                 
                 // Add retry button handler
-                document.getElementById('retry-load-issues').addEventListener('click', loadIssueData);
+                const retryButton = document.getElementById('retry-load-issues');
+                if (retryButton) {
+                    retryButton.addEventListener('click', loadIssueData);
+                }
             });
     }
 
     function renderIssuesList(issues, container) {
-    if (!issues || issues.length === 0) {
-        // No issues found
-        container.innerHTML = `
-            <div class="text-center py-8">
-                <div class="w-16 h-16 mx-auto rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
-                    <i class="fas fa-clipboard-check text-2xl"></i>
+        if (!issues || issues.length === 0) {
+            // No issues found
+            container.innerHTML = `
+                <div class="text-center py-8">
+                    <div class="w-16 h-16 mx-auto rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
+                        <i class="fas fa-clipboard-check text-2xl"></i>
+                    </div>
+                    <p class="text-lg font-medium text-gray-700 mt-4">No Issue Reports</p>
+                    <p class="text-gray-500 mt-2 max-w-md mx-auto">There are currently no reported issues for any products.</p>
                 </div>
-                <p class="text-lg font-medium text-gray-700 mt-4">No Issue Reports</p>
-                <p class="text-gray-500 mt-2 max-w-md mx-auto">There are currently no reported issues for any products.</p>
-            </div>
-        `;
-        return;
+            `;
+            return;
+        }
+        
+        // Clear loading spinner
+        container.innerHTML = '';
+        
+        // Create issues list
+        const issuesList = document.createElement('div');
+        issuesList.className = 'space-y-4';
+        
+        // Render each issue
+        issues.forEach(issue => renderIssueCard(issue, issuesList));
+        
+        container.appendChild(issuesList);
     }
-    
-    // Clear loading spinner
-    container.innerHTML = '';
-    
-    // Create issues list
-    const issuesList = document.createElement('div');
-    issuesList.className = 'space-y-4';
-    
-    // Render each issue
-    issues.forEach(issue => renderIssueCard(issue, issuesList));
-    
-    container.appendChild(issuesList);
-}
     
     function formatDate(date) {
         return date.toLocaleDateString(undefined, { 
@@ -2984,124 +3198,125 @@
     }
 
     function renderIssueCard(issue, container) {
-    // Create issue card element
-    const issueItem = document.createElement('div');
-    issueItem.className = 'issue-item bg-white rounded-lg shadow border border-gray-200 transition-all hover:shadow-md overflow-hidden';
-    issueItem.setAttribute('data-id', issue.id);
-    issueItem.setAttribute('data-status', issue.status);
-    issueItem.setAttribute('data-priority', issue.priority);
-    issueItem.setAttribute('data-type', issue.issueType);
-    issueItem.setAttribute('data-date', new Date(issue.reportDate).toISOString());
-    
-    // Determine status color and icon
-    let statusColor, statusIcon, statusBg;
-    switch (issue.status) {
-        case 'Open':
-            statusColor = 'text-yellow-700';
-            statusBg = 'bg-yellow-100';
-            statusIcon = 'fas fa-exclamation-circle';
-            break;
-        case 'In Progress':
-            statusColor = 'text-blue-700';
-            statusBg = 'bg-blue-100';
-            statusIcon = 'fas fa-tools';
-            break;
-        case 'Resolved':
-            statusColor = 'text-green-700';
-            statusBg = 'bg-green-100';
-            statusIcon = 'fas fa-check-circle';
-            break;
-        case 'Closed':
-            statusColor = 'text-gray-700';
-            statusBg = 'bg-gray-100';
-            statusIcon = 'fas fa-archive';
-            break;
-        default:
-            statusColor = 'text-gray-700';
-            statusBg = 'bg-gray-100';
-            statusIcon = 'fas fa-question-circle';
-    }
-    
-    // Determine priority color and icon
-    let priorityColor, priorityIcon;
-    switch (issue.priority) {
-        case 'Low':
-            priorityColor = 'text-green-600';
-            priorityIcon = 'fas fa-arrow-down';
-            break;
-        case 'Medium':
-            priorityColor = 'text-yellow-600';
-            priorityIcon = 'fas fa-equals';
-            break;
-        case 'High':
-            priorityColor = 'text-orange-600';
-            priorityIcon = 'fas fa-arrow-up';
-            break;
-        case 'Critical':
-            priorityColor = 'text-red-600';
-            priorityIcon = 'fas fa-exclamation';
-            break;
-        default:
-            priorityColor = 'text-gray-600';
-            priorityIcon = 'fas fa-circle';
-    }
-    
-    // Create issue card HTML
-    issueItem.innerHTML = `
-        <div class="p-4 border-b border-gray-100 flex justify-between items-center">
-            <div class="flex items-center">
-                <div class="w-12 h-12 rounded-lg ${statusBg} flex items-center justify-center ${statusColor} mr-3 shadow-inner">
-                    <i class="${statusIcon} text-xl"></i>
-                </div>
-                <div>
-                    <div class="flex items-center mb-1">
-                        <h4 class="font-medium text-gray-900">${issue.issueType}</h4>
-                        <span class="ml-2 px-2 py-0.5 rounded-full text-xs font-medium ${priorityColor} bg-gray-100 border border-gray-200">
-                            <i class="${priorityIcon} mr-1"></i> ${issue.priority}
-                        </span>
+        // Create issue card element
+        const issueItem = document.createElement('div');
+        issueItem.className = 'issue-item bg-white rounded-lg shadow border border-gray-200 transition-all hover:shadow-md overflow-hidden';
+        issueItem.setAttribute('data-id', issue.id);
+        issueItem.setAttribute('data-status', issue.status);
+        issueItem.setAttribute('data-priority', issue.priority);
+        issueItem.setAttribute('data-type', issue.issueType);
+        issueItem.setAttribute('data-date', new Date(issue.reportDate).toISOString());
+        
+        // Determine status color and icon
+        let statusColor, statusIcon, statusBg;
+        switch (issue.status) {
+            case 'Open':
+                statusColor = 'text-yellow-700';
+                statusBg = 'bg-yellow-100';
+                statusIcon = 'fas fa-exclamation-circle';
+                break;
+            case 'In Progress':
+                statusColor = 'text-blue-700';
+                statusBg = 'bg-blue-100';
+                statusIcon = 'fas fa-tools';
+                break;
+            case 'Resolved':
+                statusColor = 'text-green-700';
+                statusBg = 'bg-green-100';
+                statusIcon = 'fas fa-check-circle';
+                break;
+            case 'Closed':
+                statusColor = 'text-gray-700';
+                statusBg = 'bg-gray-100';
+                statusIcon = 'fas fa-archive';
+                break;
+            default:
+                statusColor = 'text-gray-700';
+                statusBg = 'bg-gray-100';
+                statusIcon = 'fas fa-question-circle';
+        }
+        
+        // Determine priority color and icon
+        let priorityColor, priorityIcon;
+        switch (issue.priority) {
+            case 'Low':
+                priorityColor = 'text-green-600';
+                priorityIcon = 'fas fa-arrow-down';
+                break;
+            case 'Medium':
+                priorityColor = 'text-yellow-600';
+                priorityIcon = 'fas fa-equals';
+                break;
+            case 'High':
+                priorityColor = 'text-orange-600';
+                priorityIcon = 'fas fa-arrow-up';
+                break;
+            case 'Critical':
+                priorityColor = 'text-red-600';
+                priorityIcon = 'fas fa-exclamation';
+                break;
+            default:
+                priorityColor = 'text-gray-600';
+                priorityIcon = 'fas fa-circle';
+        }
+        
+        // Create issue card HTML
+        issueItem.innerHTML = `
+            <div class="p-4 border-b border-gray-100 flex justify-between items-center">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 rounded-lg ${statusBg} flex items-center justify-center ${statusColor} mr-3 shadow-inner">
+                        <i class="${statusIcon} text-xl"></i>
                     </div>
-                    <p class="text-sm text-gray-500">Product: ${issue.cardName}</p>
+                    <div>
+                        <div class="flex items-center mb-1">
+                            <h4 class="font-medium text-gray-900">${issue.issueType}</h4>
+                            <span class="ml-2 px-2 py-0.5 rounded-full text-xs font-medium ${priorityColor} bg-gray-100 border border-gray-200">
+                                <i class="${priorityIcon} mr-1"></i> ${issue.priority}
+                            </span>
+                        </div>
+                        <p class="text-sm text-gray-500">Product: ${issue.cardName}</p>
+                    </div>
                 </div>
-            </div>
-            <span class="px-2.5 py-1 rounded-full text-xs font-medium ${statusColor} ${statusBg}">
-                ${issue.status}
-            </span>
-        </div>
-        
-        <div class="p-4 space-y-3">
-            <div class="text-sm text-gray-700">
-                ${issue.description || 'No description provided'}
+                <span class="px-2.5 py-1 rounded-full text-xs font-medium ${statusColor} ${statusBg}">
+                    ${issue.status}
+                </span>
             </div>
             
-            <div class="flex items-center text-sm text-gray-500">
-                <i class="fas fa-calendar-alt w-5 text-gray-400"></i>
-                <span class="ml-2">Reported on ${formatDate(new Date(issue.reportDate))}</span>
-            </div>
-            
-            <div class="flex items-center text-sm text-gray-500">
-                <i class="fas fa-user w-5 text-gray-400"></i>
-                <span class="ml-2">By ${issue.reporterName || 'Anonymous'}</span>
-            </div>
-            
-            ${issue.resolvedAt ? `
+            <div class="p-4 space-y-3">
+                <div class="text-sm text-gray-700">
+                    ${issue.description || 'No description provided'}
+                </div>
+                
                 <div class="flex items-center text-sm text-gray-500">
-                    <i class="fas fa-check-circle w-5 text-green-500"></i>
-                    <span class="ml-2">Resolved on ${formatDate(new Date(issue.resolvedAt))}</span>
+                    <i class="fas fa-calendar-alt w-5 text-gray-400"></i>
+                    <span class="ml-2">Reported on ${formatDate(new Date(issue.reportDate))}</span>
                 </div>
-            ` : ''}
-        </div>
+                
+                <div class="flex items-center text-sm text-gray-500">
+                    <i class="fas fa-user w-5 text-gray-400"></i>
+                    <span class="ml-2">By ${issue.reporterName || 'Anonymous'}</span>
+                </div>
+                
+                ${issue.resolvedAt ? `
+                    <div class="flex items-center text-sm text-gray-500">
+                        <i class="fas fa-check-circle w-5 text-green-500"></i>
+                        <span class="ml-2">Resolved on ${formatDate(new Date(issue.resolvedAt))}</span>
+                    </div>
+                ` : ''}
+            </div>
+            
+            <div class="px-4 py-3 bg-gray-50 border-t border-gray-100 flex justify-end space-x-2">
+                <a href="/Card/Details/${issue.cardId}" class="px-3 py-1 text-xs bg-primary-50 text-primary-600 rounded hover:bg-primary-100 transition-colors">
+                    <i class="fas fa-eye mr-1"></i> View Product
+                </a>
+                <button class="update-status-btn px-3 py-1 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors" data-id="${issue.id}">
+                    <i class="fas fa-edit mr-1"></i> Update Status
+                </button>
+            </div>
+        `;
         
-        <div class="px-4 py-3 bg-gray-50 border-t border-gray-100 flex justify-end space-x-2">
-            <a href="/Card/Details/${issue.cardId}" class="px-3 py-1 text-xs bg-primary-50 text-primary-600 rounded hover:bg-primary-100 transition-colors">
-                <i class="fas fa-eye mr-1"></i> View Product
-            </a>
-            <button class="update-status-btn px-3 py-1 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors" data-id="${issue.id}">
-                <i class="fas fa-edit mr-1"></i> Update Status
-            </button>
-        </div>
-    `;
-    
-    container.appendChild(issueItem);
+        container.appendChild(issueItem);
+    }
 }
 </script>
 }

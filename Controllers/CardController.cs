@@ -1176,5 +1176,163 @@ namespace CardTagManager.Controllers
                 await _context.SaveChangesAsync();
             }
         }
+
+        // API endpoint for scan analytics
+        [HttpGet("api/[controller]/GetScanAnalytics")]
+        public async Task<IActionResult> GetScanAnalytics(string period = "week")
+        {
+            try
+            {
+                // Determine date range based on period
+                var endDate = DateTime.Now;
+                var startDate = period.ToLower() switch
+                {
+                    "week" => endDate.AddDays(-7),
+                    "month" => endDate.AddDays(-30),
+                    "year" => endDate.AddYears(-1),
+                    _ => endDate.AddDays(-7)
+                };
+                
+                // Query scan results from database
+                var scanData = await _context.ScanResults
+                    .Where(s => s.ScanTime >= startDate && s.ScanTime <= endDate)
+                    .GroupBy(s => period.ToLower() switch
+                    {
+                        "week" => s.ScanTime.Date,
+                        "month" => s.ScanTime.Date,
+                        "year" => new DateTime(s.ScanTime.Year, s.ScanTime.Month, 1),
+                        _ => s.ScanTime.Date
+                    })
+                    .Select(g => new
+                    {
+                        date = g.Key,
+                        count = g.Count()
+                    })
+                    .OrderBy(g => g.date)
+                    .ToListAsync();
+                
+                // For week/month with sparse data, fill in missing dates
+                if (period.ToLower() == "week" || period.ToLower() == "month")
+                {
+                    var filledData = new List<object>();
+                    var current = startDate.Date;
+                    
+                    while (current <= endDate.Date)
+                    {
+                        var existingData = scanData.FirstOrDefault(d => ((DateTime)d.date).Date == current);
+                        filledData.Add(new
+                        {
+                            date = current,
+                            count = existingData != null ? (int)existingData.count : 0
+                        });
+                        
+                        current = current.AddDays(1);
+                    }
+                    
+                    return Ok(filledData);
+                }
+                // For year, fill in missing months
+                else if (period.ToLower() == "year")
+                {
+                    var filledData = new List<object>();
+                    var current = new DateTime(startDate.Year, startDate.Month, 1);
+                    
+                    while (current <= endDate)
+                    {
+                        var existingData = scanData.FirstOrDefault(d => 
+                            ((DateTime)d.date).Year == current.Year && 
+                            ((DateTime)d.date).Month == current.Month);
+                        
+                        filledData.Add(new
+                        {
+                            date = current,
+                            count = existingData != null ? (int)existingData.count : 0
+                        });
+                        
+                        current = current.AddMonths(1);
+                    }
+                    
+                    return Ok(filledData);
+                }
+                
+                return Ok(scanData);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving scan analytics");
+                return StatusCode(500, new { error = "An error occurred while retrieving scan analytics." });
+            }
+        }
+
+        // API endpoint for issue analytics
+        [HttpGet("api/[controller]/GetIssueAnalytics")]
+        public async Task<IActionResult> GetIssueAnalytics()
+        {
+            try
+            {
+                // Get issues by status
+                var issuesByStatus = await _context.IssueReports
+                    .GroupBy(i => i.Status)
+                    .Select(g => new { status = g.Key, count = g.Count() })
+                    .ToDictionaryAsync(g => g.status, g => g.count);
+                
+                // Get issues by priority
+                var issuesByPriority = await _context.IssueReports
+                    .GroupBy(i => i.Priority)
+                    .Select(g => new { priority = g.Key, count = g.Count() })
+                    .ToDictionaryAsync(g => g.priority, g => g.count);
+                
+                // Combine the results
+                var result = new
+                {
+                    byStatus = issuesByStatus,
+                    byPriority = issuesByPriority
+                };
+                
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving issue analytics");
+                return StatusCode(500, new { error = "An error occurred while retrieving issue analytics." });
+            }
+        }
+
+        // API endpoint for top products with issues
+        [HttpGet("api/[controller]/GetTopProductsWithIssues")]
+        public async Task<IActionResult> GetTopProductsWithIssues()
+        {
+            try
+            {
+                // Group issues by card and calculate metrics
+                var productIssues = await _context.IssueReports
+                    .Include(i => i.Card)
+                    .GroupBy(i => i.CardId)
+                    .Select(g => new
+                    {
+                        cardId = g.Key,
+                        productName = g.First().Card.ProductName,
+                        totalIssues = g.Count(),
+                        openIssues = g.Count(i => i.Status == "Open" || i.Status == "In Progress"),
+                        // Most common issue type
+                        commonIssue = g.GroupBy(i => i.IssueType)
+                                    .OrderByDescending(ig => ig.Count())
+                                    .Select(ig => ig.Key)
+                                    .FirstOrDefault() ?? "Unknown",
+                        // Most recent issue report date
+                        lastReported = g.Max(i => i.ReportDate)
+                    })
+                    .OrderByDescending(p => p.totalIssues)
+                    .Take(10) // Limit to top 10
+                    .ToListAsync();
+                
+                return Ok(productIssues);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving products with issues");
+                return StatusCode(500, new { error = "An error occurred while retrieving products with issues." });
+            }
+        } 
     }
 }
