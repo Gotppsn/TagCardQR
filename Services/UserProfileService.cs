@@ -35,37 +35,80 @@ public async Task<UserProfile> CreateUserProfileIfNotExistsAsync(
     string plant = "", 
     string userCode = "",
     string thaiFirstName = "",
-    string thaiLastName = "")
+    string thaiLastName = "",
+    string rawJsonData = "")
 {
-    var existingProfile = await GetUserProfileAsync(username);
-    
-    if (existingProfile != null)
+    try
     {
-        existingProfile.LastLoginAt = DateTime.Now;
+        var existingProfile = await GetUserProfileAsync(username);
+        
+        if (existingProfile != null)
+        {
+            // Update only if fields are empty
+            if (string.IsNullOrEmpty(existingProfile.Detail_EN_FirstName) && !string.IsNullOrEmpty(firstName))
+                existingProfile.Detail_EN_FirstName = firstName;
+                
+            if (string.IsNullOrEmpty(existingProfile.Detail_EN_LastName) && !string.IsNullOrEmpty(lastName))
+                existingProfile.Detail_EN_LastName = lastName;
+                
+            if (string.IsNullOrEmpty(existingProfile.Detail_TH_FirstName) && !string.IsNullOrEmpty(thaiFirstName))
+                existingProfile.Detail_TH_FirstName = thaiFirstName;
+                
+            if (string.IsNullOrEmpty(existingProfile.Detail_TH_LastName) && !string.IsNullOrEmpty(thaiLastName))
+                existingProfile.Detail_TH_LastName = thaiLastName;
+                
+            if (string.IsNullOrEmpty(existingProfile.User_Email) && !string.IsNullOrEmpty(email))
+                existingProfile.User_Email = email;
+                
+            if (string.IsNullOrEmpty(existingProfile.Department_Name) && !string.IsNullOrEmpty(department))
+                existingProfile.Department_Name = department;
+                
+            if (string.IsNullOrEmpty(existingProfile.Plant_Name) && !string.IsNullOrEmpty(plant))
+                existingProfile.Plant_Name = plant;
+                
+            if (string.IsNullOrEmpty(existingProfile.User_Code) && !string.IsNullOrEmpty(userCode))
+                existingProfile.User_Code = userCode;
+                
+            // Always update login time
+            existingProfile.LastLoginAt = DateTime.Now;
+            
+            await _dbContext.SaveChangesAsync();
+            return existingProfile;
+        }
+        
+        // Create new profile with all available data
+        var newProfile = new UserProfile
+        {
+            Username = username,
+            Detail_TH_FirstName = thaiFirstName ?? "",
+            Detail_TH_LastName = thaiLastName ?? "",
+            Detail_EN_FirstName = firstName ?? "",
+            Detail_EN_LastName = lastName ?? "",
+            User_Email = email ?? "",
+            Department_Name = department ?? "",
+            Plant_Name = plant ?? "",
+            User_Code = userCode ?? "",
+            FirstLoginAt = DateTime.Now,
+            LastLoginAt = DateTime.Now,
+            IsActive = true
+        };
+        
+        _dbContext.UserProfiles.Add(newProfile);
         await _dbContext.SaveChangesAsync();
-        return existingProfile;
+        
+        // If raw JSON data is available, try to enrich profile further
+        if (!string.IsNullOrEmpty(rawJsonData))
+        {
+            await EnrichUserProfileFromJsonAsync(username, rawJsonData);
+        }
+        
+        return newProfile;
     }
-    
-    var newProfile = new UserProfile
+    catch (Exception ex)
     {
-        Username = username,
-        Detail_TH_FirstName = thaiFirstName ?? "",
-        Detail_TH_LastName = thaiLastName ?? "",
-        Detail_EN_FirstName = firstName ?? "",
-        Detail_EN_LastName = lastName ?? "",
-        User_Email = email ?? "",
-        Department_Name = department ?? "",
-        Plant_Name = plant ?? "",
-        User_Code = userCode ?? "",
-        FirstLoginAt = DateTime.Now,
-        LastLoginAt = DateTime.Now,
-        IsActive = true
-    };
-    
-    _dbContext.UserProfiles.Add(newProfile);
-    await _dbContext.SaveChangesAsync();
-    
-    return newProfile;
+        _logger.LogError(ex, $"Error creating/updating profile for {username}");
+        throw;
+    }
 }
         
         public async Task<bool> UpdateUserProfileAsync(UserProfile userProfile)
