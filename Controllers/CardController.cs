@@ -1193,9 +1193,13 @@ namespace CardTagManager.Controllers
                     _ => endDate.AddDays(-7)
                 };
                 
-                // Query scan results from database
-                var scanData = await _context.ScanResults
+                // Query scan results from database - FIXED to fetch without complex grouping
+                var results = await _context.ScanResults
                     .Where(s => s.ScanTime >= startDate && s.ScanTime <= endDate)
+                    .ToListAsync();
+                    
+                // Process in memory after fetching from database
+                var scanData = results
                     .GroupBy(s => period.ToLower() switch
                     {
                         "week" => s.ScanTime.Date,
@@ -1209,7 +1213,7 @@ namespace CardTagManager.Controllers
                         count = g.Count()
                     })
                     .OrderBy(g => g.date)
-                    .ToListAsync();
+                    .ToList();
                 
                 // For week/month with sparse data, fill in missing dates
                 if (period.ToLower() == "week" || period.ToLower() == "month")
@@ -1223,7 +1227,7 @@ namespace CardTagManager.Controllers
                         filledData.Add(new
                         {
                             date = current,
-                            count = existingData != null ? (int)existingData.count : 0
+                            count = existingData != null ? existingData.count : 0
                         });
                         
                         current = current.AddDays(1);
@@ -1246,7 +1250,7 @@ namespace CardTagManager.Controllers
                         filledData.Add(new
                         {
                             date = current,
-                            count = existingData != null ? (int)existingData.count : 0
+                            count = existingData != null ? existingData.count : 0
                         });
                         
                         current = current.AddMonths(1);
