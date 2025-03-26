@@ -57,7 +57,7 @@ namespace CardTagManager.Models
         [NotMapped]
         public bool IsRoutineScan => ScanCategory == "Regular";
         
-        // Method to easily create an issue from this scan
+        // Method to create an issue from this scan
         public IssueReport CreateIssueFromScan()
         {
             return new IssueReport
@@ -66,11 +66,11 @@ namespace CardTagManager.Models
                 ReportDate = DateTime.Now,
                 Description = $"Issue detected during scan #{Id} on {ScanTime.ToShortDateString()}",
                 IssueType = "Scan Detection",
-                Priority = "Medium",
+                Priority = "Medium", 
                 Status = "Open",
                 ReporterName = this.ScannedBy,
-                ReporterEmail = string.Empty, // Would need to be filled in
-                ReporterPhone = string.Empty // Would need to be filled in
+                ReporterEmail = string.Empty,
+                ReporterPhone = string.Empty
             };
         }
     }

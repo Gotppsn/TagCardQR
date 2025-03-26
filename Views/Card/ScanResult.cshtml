@@ -2982,5 +2982,126 @@
             day: 'numeric' 
         });
     }
+
+    function renderIssueCard(issue, container) {
+    // Create issue card element
+    const issueItem = document.createElement('div');
+    issueItem.className = 'issue-item bg-white rounded-lg shadow border border-gray-200 transition-all hover:shadow-md overflow-hidden';
+    issueItem.setAttribute('data-id', issue.id);
+    issueItem.setAttribute('data-status', issue.status);
+    issueItem.setAttribute('data-priority', issue.priority);
+    issueItem.setAttribute('data-type', issue.issueType);
+    issueItem.setAttribute('data-date', new Date(issue.reportDate).toISOString());
+    
+    // Determine status color and icon
+    let statusColor, statusIcon, statusBg;
+    switch (issue.status) {
+        case 'Open':
+            statusColor = 'text-yellow-700';
+            statusBg = 'bg-yellow-100';
+            statusIcon = 'fas fa-exclamation-circle';
+            break;
+        case 'In Progress':
+            statusColor = 'text-blue-700';
+            statusBg = 'bg-blue-100';
+            statusIcon = 'fas fa-tools';
+            break;
+        case 'Resolved':
+            statusColor = 'text-green-700';
+            statusBg = 'bg-green-100';
+            statusIcon = 'fas fa-check-circle';
+            break;
+        case 'Closed':
+            statusColor = 'text-gray-700';
+            statusBg = 'bg-gray-100';
+            statusIcon = 'fas fa-archive';
+            break;
+        default:
+            statusColor = 'text-gray-700';
+            statusBg = 'bg-gray-100';
+            statusIcon = 'fas fa-question-circle';
+    }
+    
+    // Determine priority color and icon
+    let priorityColor, priorityIcon;
+    switch (issue.priority) {
+        case 'Low':
+            priorityColor = 'text-green-600';
+            priorityIcon = 'fas fa-arrow-down';
+            break;
+        case 'Medium':
+            priorityColor = 'text-yellow-600';
+            priorityIcon = 'fas fa-equals';
+            break;
+        case 'High':
+            priorityColor = 'text-orange-600';
+            priorityIcon = 'fas fa-arrow-up';
+            break;
+        case 'Critical':
+            priorityColor = 'text-red-600';
+            priorityIcon = 'fas fa-exclamation';
+            break;
+        default:
+            priorityColor = 'text-gray-600';
+            priorityIcon = 'fas fa-circle';
+    }
+    
+    // Create issue card HTML
+    issueItem.innerHTML = `
+        <div class="p-4 border-b border-gray-100 flex justify-between items-center">
+            <div class="flex items-center">
+                <div class="w-12 h-12 rounded-lg ${statusBg} flex items-center justify-center ${statusColor} mr-3 shadow-inner">
+                    <i class="${statusIcon} text-xl"></i>
+                </div>
+                <div>
+                    <div class="flex items-center mb-1">
+                        <h4 class="font-medium text-gray-900">${issue.issueType}</h4>
+                        <span class="ml-2 px-2 py-0.5 rounded-full text-xs font-medium ${priorityColor} bg-gray-100 border border-gray-200">
+                            <i class="${priorityIcon} mr-1"></i> ${issue.priority}
+                        </span>
+                    </div>
+                    <p class="text-sm text-gray-500">Product: ${issue.cardName}</p>
+                </div>
+            </div>
+            <span class="px-2.5 py-1 rounded-full text-xs font-medium ${statusColor} ${statusBg}">
+                ${issue.status}
+            </span>
+        </div>
+        
+        <div class="p-4 space-y-3">
+            <div class="text-sm text-gray-700">
+                ${issue.description || 'No description provided'}
+            </div>
+            
+            <div class="flex items-center text-sm text-gray-500">
+                <i class="fas fa-calendar-alt w-5 text-gray-400"></i>
+                <span class="ml-2">Reported on ${formatDate(new Date(issue.reportDate))}</span>
+            </div>
+            
+            <div class="flex items-center text-sm text-gray-500">
+                <i class="fas fa-user w-5 text-gray-400"></i>
+                <span class="ml-2">By ${issue.reporterName || 'Anonymous'}</span>
+            </div>
+            
+            ${issue.resolvedAt ? `
+                <div class="flex items-center text-sm text-gray-500">
+                    <i class="fas fa-check-circle w-5 text-green-500"></i>
+                    <span class="ml-2">Resolved on ${formatDate(new Date(issue.resolvedAt))}</span>
+                </div>
+            ` : ''}
+        </div>
+        
+        <div class="px-4 py-3 bg-gray-50 border-t border-gray-100 flex justify-end space-x-2">
+            <a href="/Card/Details/${issue.cardId}" class="px-3 py-1 text-xs bg-primary-50 text-primary-600 rounded hover:bg-primary-100 transition-colors">
+                <i class="fas fa-eye mr-1"></i> View Product
+            </a>
+            <button class="update-status-btn px-3 py-1 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors" data-id="${issue.id}">
+                <i class="fas fa-edit mr-1"></i> Update Status
+            </button>
+        </div>
+    `;
+    
+    container.appendChild(issueItem);
+}
 </script>
 }
