@@ -19,19 +19,21 @@ namespace CardTagManager.Services
                 
             try
             {
-                // Create QR code data with URL to ScanShow page
+                // Create QR code data with absolute URL to ScanShow page
                 string qrData;
                 
                 if (!string.IsNullOrEmpty(baseUrl))
                 {
-                    // Use URL format for scanning - direct to ScanShow page
+                    // Use fully qualified URL to ScanShow page
                     qrData = $"{baseUrl}/Card/ScanShow/{card.Id}";
                 }
                 else
                 {
-                    // Fallback to structured format if no base URL provided
-                    qrData = $"PRODUCT:{card.ProductName}:CAT:{card.Category}:ID:{card.Id}";
+                    // Fallback to relative path if no base URL provided
+                    qrData = $"/Card/ScanShow/{card.Id}";
                 }
+                
+                // Rest of the method remains the same...
                 
                 // Parse colors from hex format
                 Color fgColor = ColorTranslator.FromHtml(card.QrFgColor ?? "#000000"); 

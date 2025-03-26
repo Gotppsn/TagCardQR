@@ -35,7 +35,7 @@
             <!-- QR Code Section -->
             <div class="p-8 text-center">
                 <h1 class="text-2xl font-bold mb-1" style="color: @Model.AccentColor">Scan this QR Code</h1>
-                <p class="text-gray-500 mb-6">to access detailed information about this product</p>
+                <p class="text-gray-500 mb-6">to access detailed product information via ScanShow page</p>
                 
                 <div class="relative group mb-6">
                     <div class="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-primary-500 rounded-lg blur opacity-30 group-hover:opacity-70 transition duration-500"></div>
@@ -81,7 +81,7 @@
                         <i class="fas fa-info text-blue-500"></i>
                     </div>
                     <div class="text-sm text-gray-600">
-                        <p>Open your camera app and point it at the QR code to scan. The product details page will open automatically.</p>
+                        <p>Open your camera app and point it at the QR code to scan. The ScanShow page will open automatically and display product details.</p>
                     </div>
                 </div>
             </div>
@@ -92,8 +92,8 @@
             <a href="@Url.Action("Details", new { id = Model.Id })" class="btn-secondary py-3 text-center">
                 <i class="fas fa-info-circle mr-2"></i> View Details
             </a>
-            <a href="@Url.Action("Print", new { id = Model.Id })" class="btn-primary py-3 text-center">
-                <i class="fas fa-print mr-2"></i> Print Tag
+            <a href="@Url.Action("ScanShow", new { id = Model.Id })" class="btn-primary py-3 text-center">
+                <i class="fas fa-qrcode mr-2"></i> Preview ScanShow
             </a>
         </div>
     </div>
@@ -107,7 +107,7 @@
                 </div>
             </div>
             <h3 class="text-xl font-bold text-center mb-2">Successful Scan!</h3>
-            <p class="text-gray-600 text-center">Product information accessed successfully</p>
+            <p class="text-gray-600 text-center">Opening ScanShow page with product information</p>
         </div>
     </div>
     
@@ -123,6 +123,10 @@
 @section Scripts {
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Store the current URL for sharing and QR purposes
+        const baseUrl = window.location.origin;
+        const scanShowUrl = `${baseUrl}/Card/ScanShow/@Model.Id`;
+        
         // Fullscreen functionality
         const fullscreenBtn = document.getElementById('fullscreen-btn');
         const fullscreenModal = document.getElementById('fullscreen-modal');
@@ -183,15 +187,15 @@
                 if (navigator.share) {
                     navigator.share({
                         title: 'QR Code for @Model.ProductName',
-                        text: 'Scan this QR code to access information about @Model.ProductName',
-                        url: window.location.href
+                        text: 'Scan this QR code to access information about @Model.ProductName on the ScanShow page',
+                        url: scanShowUrl
                     })
                     .then(() => showToast('Shared successfully!', 'success'))
                     .catch((error) => showToast('Error sharing: ' + error, 'error'));
                 } else {
                     // Clipboard fallback
-                    navigator.clipboard.writeText(window.location.href)
-                        .then(() => showToast('Link copied to clipboard!', 'success'))
+                    navigator.clipboard.writeText(scanShowUrl)
+                        .then(() => showToast('ScanShow link copied to clipboard!', 'success'))
                         .catch(() => showToast('Failed to copy link', 'error'));
                 }
             });
@@ -213,7 +217,7 @@
                     successModal.classList.add('scale-100', 'opacity-100');
                 }, 10);
                 
-                // Hide after 2 seconds
+                // Hide after 2 seconds and redirect to ScanShow
                 setTimeout(() => {
                     successModal.classList.remove('scale-100', 'opacity-100');
                     successModal.classList.add('scale-110', 'opacity-0');
@@ -222,6 +226,9 @@
                         scanSuccess.classList.add('hidden');
                         successModal.classList.remove('scale-110');
                         successModal.classList.add('scale-90');
+                        
+                        // Redirect to ScanShow page
+                        window.location.href = scanShowUrl;
                     }, 300);
                 }, 2000);
             });

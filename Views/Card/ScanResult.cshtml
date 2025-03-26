@@ -1110,24 +1110,416 @@
 @section Scripts {
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Initialize animated counters for scan results tab
-        initAnimatedCounters();
-        
-        // Tab switching functionality
-        initTabSwitching();
-        
-        // Scan results tab functionality
-        initScanResultsTab();
-        
-        // Issue reports tab functionality
-        initIssueReportsTab();
-        
-        // Analytics tab functionality
-        initAnalyticsTab();
-        
-        // Shared functionality
-        initSharedFunctionality();
+        try {
+            // Initialize animated counters for scan results tab
+            initAnimatedCounters();
+            
+            // Tab switching functionality
+            initTabSwitching();
+            
+            // Scan results tab functionality
+            initScanResultsTab();
+            
+            // Issue reports tab functionality
+            initIssueReportsTab();
+            
+            // Analytics tab functionality
+            initAnalyticsTab();
+            
+            // Shared functionality
+            initSharedFunctionality();
+            
+            // Load real scan data from API
+            loadScanResults();
+        } catch (e) {
+            console.error("Error in initialization:", e);
+        }
     });
+
+        function loadScanResults() {
+        const tableBody = document.getElementById('results-table-body');
+        const cardView = document.getElementById('card-view');
+        
+        if (!tableBody || !cardView) return;
+        
+        // Show loading state
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="6" class="px-6 py-4 text-center">
+                    <i class="fas fa-spinner fa-spin text-primary-500 mr-2"></i> Loading scan results...
+                </td>
+            </tr>
+        `;
+        
+        cardView.innerHTML = `
+            <div class="text-center py-6">
+                <i class="fas fa-spinner fa-spin text-primary-500 mr-2"></i> Loading scan results...
+            </div>
+        `;
+        
+        // Fetch from API
+        fetch('/api/Card/GetScanResults')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(scanResults => {
+                // Update counters
+                document.getElementById('total-scans-counter').querySelector('.animate-counter').setAttribute('data-count', scanResults.length);
+                
+                // Today's scans counter
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const todayScans = scanResults.filter(s => new Date(s.scanTime) >= today).length;
+                document.getElementById('today-scans-counter').querySelector('.animate-counter').setAttribute('data-count', todayScans);
+                
+                // Locations counter
+                const uniqueLocations = new Set(scanResults.map(s => s.location)).size;
+                document.getElementById('locations-counter').querySelector('.animate-counter').setAttribute('data-count', uniqueLocations);
+                
+                // Success rate counter
+                const successRate = scanResults.length > 0 ? 
+                    Math.round((scanResults.filter(s => s.scanResult === "Success").length / scanResults.length) * 100) : 0;
+                document.getElementById('success-rate-counter').querySelector('.animate-counter').setAttribute('data-count', successRate);
+                
+                // Refresh animated counters
+                initAnimatedCounters();
+                
+                if (scanResults && scanResults.length > 0) {
+                    // Populate table view
+                    tableBody.innerHTML = '';
+                    
+                    // Build table rows
+                    let rowIndex = 0;
+                    scanResults.forEach(item => {
+                        const rowClass = rowIndex % 2 == 0 ? "" : "bg-gray-50";
+                        rowIndex++;
+                        
+                        const row = document.createElement('tr');
+                        row.className = `scan-result-row hover:bg-blue-50 transition-colors ${rowClass}`;
+                        row.setAttribute('data-id', item.cardId);
+                        row.setAttribute('data-product', item.cardName);
+                        row.setAttribute('data-time', new Date(item.scanTime).toISOString());
+                        row.setAttribute('data-device', item.deviceInfo);
+                        row.setAttribute('data-location', item.location);
+                        row.setAttribute('data-result', item.scanResult);
+                        
+                        // Build row HTML
+                        row.innerHTML = `
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10 rounded-lg bg-primary-100 flex items-center justify-center text-primary-600 shadow-sm">
+                                        <i class="fas fa-tag"></i>
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900 hover:text-primary-600">${item.cardName}</div>
+                                        <div class="text-xs text-gray-500">ID: ${item.cardId}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">${new Date(item.scanTime).toLocaleDateString()}</div>
+                                <div class="text-xs text-gray-500">${new Date(item.scanTime).toLocaleTimeString()}</div>
+                                <div class="text-xs text-gray-400">${formatTimeAgo(new Date(item.scanTime))}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-500">${item.deviceInfo}</div>
+                                ${item.deviceInfo.includes("iPhone") ?
+                                    `<div class="text-xs text-blue-500"><i class="fab fa-apple mr-1"></i> iOS Device</div>` :
+                                    item.deviceInfo.includes("Android") ?
+                                    `<div class="text-xs text-green-500"><i class="fab fa-android mr-1"></i> Android Device</div>` :
+                                    `<div class="text-xs text-gray-400"><i class="fas fa-mobile-alt mr-1"></i> Other Device</div>`
+                                }
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                    <i class="fas fa-map-marker-alt mr-1 text-primary-500"></i>
+                                    ${item.location}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                ${item.scanResult === "Success" ?
+                                    `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        <i class="fas fa-check-circle mr-1"></i> Success
+                                    </span>` :
+                                    item.scanResult === "Failed" ?
+                                    `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                        <i class="fas fa-times-circle mr-1"></i> Failed
+                                    </span>` :
+                                    `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                        <i class="fas fa-exclamation-circle mr-1"></i> ${item.scanResult}
+                                    </span>`
+                                }
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <div class="flex justify-end space-x-2">
+                                    <a href="/Card/Details/${item.cardId}" class="text-primary-600 hover:text-primary-900 p-1" title="View Card Details">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="/Card/ScanShow/${item.cardId}" class="text-gray-500 hover:text-gray-700 p-1" title="View Scan Details">
+                                        <i class="fas fa-info-circle"></i>
+                                    </a>
+                                    <button class="text-red-500 hover:text-red-700 p-1 delete-scan" data-id="${item.id}" title="Delete Scan Record">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        `;
+                        
+                        tableBody.appendChild(row);
+                    });
+                    
+                    // Populate card view
+                    cardView.innerHTML = '';
+                    const cardGrid = document.createElement('div');
+                    cardGrid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4';
+                    
+                    scanResults.forEach(item => {
+                        const card = document.createElement('div');
+                        card.className = 'scan-result-card bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all overflow-hidden';
+                        card.setAttribute('data-id', item.cardId);
+                        card.setAttribute('data-product', item.cardName);
+                        card.setAttribute('data-time', new Date(item.scanTime).toISOString());
+                        card.setAttribute('data-device', item.deviceInfo);
+                        card.setAttribute('data-location', item.location);
+                        card.setAttribute('data-result', item.scanResult);
+                        
+                        // Build card HTML
+                        card.innerHTML = `
+                            <div class="p-4 border-b border-gray-100 flex justify-between items-center">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center text-primary-600 mr-3">
+                                        <i class="fas fa-tag"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-gray-900">${item.cardName}</h4>
+                                        <p class="text-xs text-gray-500">ID: ${item.cardId}</p>
+                                    </div>
+                                </div>
+                                ${item.scanResult === "Success" ?
+                                    `<span class="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        <i class="fas fa-check-circle mr-1"></i> Success
+                                    </span>` :
+                                    item.scanResult === "Failed" ?
+                                    `<span class="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                        <i class="fas fa-times-circle mr-1"></i> Failed
+                                    </span>` :
+                                    `<span class="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                        <i class="fas fa-exclamation-circle mr-1"></i> ${item.scanResult}
+                                    </span>`
+                                }
+                            </div>
+                            <div class="p-4 space-y-3">
+                                <div class="flex items-center text-sm">
+                                    <i class="fas fa-clock w-5 text-gray-400"></i>
+                                    <span class="ml-2">
+                                        ${new Date(item.scanTime).toLocaleString()}
+                                        <span class="text-xs text-gray-500 ml-1">
+                                            (${formatTimeAgo(new Date(item.scanTime))})
+                                        </span>
+                                    </span>
+                                </div>
+                                <div class="flex items-center text-sm">
+                                    <i class="fas fa-mobile-alt w-5 text-gray-400"></i>
+                                    <span class="ml-2">${item.deviceInfo}</span>
+                                </div>
+                                <div class="flex items-center text-sm">
+                                    <i class="fas fa-map-marker-alt w-5 text-gray-400"></i>
+                                    <span class="ml-2">${item.location}</span>
+                                </div>
+                            </div>
+                            <div class="px-4 py-3 bg-gray-50 border-t border-gray-100 flex justify-end space-x-2">
+                                <a href="/Card/Details/${item.cardId}" class="px-3 py-1 text-xs bg-primary-50 text-primary-600 rounded hover:bg-primary-100 transition-colors">
+                                    <i class="fas fa-eye mr-1"></i> View Card
+                                </a>
+                                <a href="/Card/ScanShow/${item.cardId}" class="px-3 py-1 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors">
+                                    <i class="fas fa-info-circle mr-1"></i> Details
+                                </a>
+                            </div>
+                        `;
+                        
+                        cardGrid.appendChild(card);
+                    });
+                    
+                    cardView.appendChild(cardGrid);
+                    
+                    // Update result count
+                    document.getElementById('result-count').innerHTML = `Showing <span class="font-medium text-gray-700">${scanResults.length}</span> results`;
+                    
+                    // Initialize delete functionality
+                    initializeDeleteFunctionality();
+                } else {
+                    // No scan results
+                    showNoScansMessage();
+                }
+            })
+            .catch(error => {
+                console.error('Error loading scan results:', error);
+                
+                // Show error message
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="px-6 py-4 text-center text-red-500">
+                            <div class="py-6">
+                                <div class="w-16 h-16 mx-auto rounded-full bg-red-100 flex items-center justify-center text-red-500 mb-3">
+                                    <i class="fas fa-exclamation-triangle text-2xl"></i>
+                                </div>
+                                <p class="font-medium">Failed to load scan results</p>
+                                <p class="text-sm mt-2">${error.message}</p>
+                                <button id="retry-button" class="mt-4 px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700">Retry</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                
+                // Add retry button handler
+                const retryButton = document.getElementById('retry-button');
+                if (retryButton) {
+                    retryButton.addEventListener('click', loadScanResults);
+                }
+            });
+    }
+    
+    // Add or update the delete scan functionality:
+    function initializeDeleteFunctionality() {
+        const deleteButtons = document.querySelectorAll('.delete-scan');
+        const deleteModal = document.getElementById('delete-modal');
+        const cancelDeleteBtn = document.getElementById('cancel-delete');
+        const confirmDeleteBtn = document.getElementById('confirm-delete');
+        const deleteItemDetails = document.getElementById('delete-item-details');
+        
+        if (deleteButtons && deleteModal) {
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const id = this.getAttribute('data-id');
+                    const row = this.closest('tr.scan-result-row');
+                    
+                    // Populate delete modal with details
+                    deleteItemDetails.innerHTML = `
+                        <p><strong>Product:</strong> ${row.getAttribute('data-product')}</p>
+                        <p><strong>Scan Time:</strong> ${new Date(row.getAttribute('data-time')).toLocaleString()}</p>
+                        <p><strong>Location:</strong> ${row.getAttribute('data-location')}</p>
+                        <p><strong>Result:</strong> ${row.getAttribute('data-result')}</p>
+                    `;
+                    
+                    // Store the ID for deletion
+                    confirmDeleteBtn.setAttribute('data-scan-id', id);
+                    
+                    // Show the modal
+                    deleteModal.classList.remove('hidden');
+                });
+            });
+            
+            if (confirmDeleteBtn) {
+                confirmDeleteBtn.addEventListener('click', function() {
+                    const id = this.getAttribute('data-scan-id');
+                    
+                    // Get the CSRF token
+                    const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
+                    
+                    // Send delete request
+                    fetch('/Card/DeleteScanResult', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'RequestVerificationToken': token
+                        },
+                        body: `id=${id}`
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            // Reload data after successful deletion
+                            loadScanResults();
+                            
+                            // Show toast notification
+                            showToast('Record deleted', 'Scan record has been permanently deleted', 'success');
+                            
+                            // Hide the modal
+                            deleteModal.classList.add('hidden');
+                        } else {
+                            showToast('Error', data.error || 'Failed to delete record', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showToast('Error', 'Failed to delete record. Please try again.', 'error');
+                    });
+                });
+            }
+        }
+    }
+
+    // Helper function to format time ago for better UI
+    function formatTimeAgo(date) {
+        const now = new Date();
+        const diffMs = now - date;
+        const diffSec = Math.floor(diffMs / 1000);
+        const diffMin = Math.floor(diffSec / 60);
+        const diffHour = Math.floor(diffMin / 60);
+        const diffDay = Math.floor(diffHour / 24);
+
+        if (diffSec < 60) {
+            return `just now`;
+        } else if (diffMin < 60) {
+            return `${diffMin}m ago`;
+        } else if (diffHour < 24) {
+            return `${diffHour}h ago`;
+        } else if (diffDay < 30) {
+            return `${diffDay}d ago`;
+        } else {
+            return date.toLocaleDateString();
+        }
+    }
+
+    // Display empty state
+    function showNoScansMessage() {
+        const tableBody = document.getElementById('results-table-body');
+        const cardView = document.getElementById('card-view');
+        
+        if (tableBody) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="px-6 py-8 text-center">
+                        <div class="mx-auto w-24 h-24 rounded-full bg-primary-50 text-primary-500 flex items-center justify-center mb-4">
+                            <i class="fas fa-qrcode text-4xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">No scan results found</h3>
+                        <p class="text-gray-500 mb-6 max-w-md mx-auto">Scan one of your product tags to see the results here. Use a QR code scanner app on your mobile device.</p>
+                    </td>
+                </tr>
+            `;
+        }
+        
+        if (cardView) {
+            cardView.innerHTML = `
+                <div class="bg-white rounded-xl shadow-md p-8 text-center fade-in">
+                    <div class="mx-auto w-24 h-24 rounded-full bg-primary-50 text-primary-500 flex items-center justify-center mb-4">
+                        <i class="fas fa-qrcode text-4xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">No scan results found</h3>
+                    <p class="text-gray-500 mb-6 max-w-md mx-auto">Scan one of your product tags to see the results here. Use a QR code scanner app on your mobile device.</p>
+                    <div class="flex gap-3 justify-center flex-wrap">
+                        <a href="/Card/Index" class="btn-primary inline-flex shadow-md hover:shadow-lg">
+                            <i class="fas fa-layer-group mr-2"></i> View Products
+                        </a>
+                        <a href="/Card/Create" class="btn-secondary inline-flex shadow-md hover:shadow-lg">
+                            <i class="fas fa-plus-circle mr-2"></i> Add New Product
+                        </a>
+                    </div>
+                </div>
+            `;
+        }
+    }
     
     // Initialize animated counters
     function initAnimatedCounters() {

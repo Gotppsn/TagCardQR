@@ -18,6 +18,7 @@ namespace CardTagManager.Data
         public DbSet<IssueReport> IssueReports { get; set; }
         public DbSet<Template> Templates { get; set; }
         public DbSet<ScanSettings> ScanSettings { get; set; }
+        public DbSet<ScanResult> ScanResults { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -179,6 +180,16 @@ namespace CardTagManager.Data
                 .Property(r => r.ImagePath)
                 .IsRequired(false)
                 .HasMaxLength(500);
+
+            // ScanResuly configuration
+            modelBuilder.Entity<ScanResult>()
+                .HasKey(s => s.Id);
+                
+            modelBuilder.Entity<ScanResult>()
+                .HasOne(s => s.Card)
+                .WithMany()
+                .HasForeignKey(s => s.CardId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

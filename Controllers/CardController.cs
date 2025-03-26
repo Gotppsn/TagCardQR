@@ -242,6 +242,33 @@ namespace CardTagManager.Controllers
                 return NotFound();
             }
 
+            // Record this scan event
+            var scanResult = new ScanResult
+            {
+                CardId = card.Id,
+                ScanTime = DateTime.Now,
+                DeviceInfo = Request.Headers["User-Agent"].ToString(),
+                Location = Request.Headers["Referer"].ToString() ?? "Direct Access",
+                Result = "Success",
+                ScannedBy = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Anonymous",
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown"
+            };
+            
+            // Extract additional useful information if possible
+            if (Request.Headers.ContainsKey("X-Forwarded-For"))
+            {
+                scanResult.IpAddress = Request.Headers["X-Forwarded-For"].ToString();
+            }
+            
+            // Try to extract more meaningful location if available
+            if (Request.Headers.ContainsKey("Sec-Ch-Ua-Platform"))
+            {
+                scanResult.DeviceInfo += " | " + Request.Headers["Sec-Ch-Ua-Platform"].ToString();
+            }
+            
+            _context.ScanResults.Add(scanResult);
+            await _context.SaveChangesAsync();
+
             // Generate QR code for display
             string qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card);
             ViewBag.QrCodeImage = qrCodeImageData;
@@ -611,6 +638,17 @@ namespace CardTagManager.Controllers
                     _logger.LogInformation($"Deleted {documents.Count} related documents for product ID: {id}");
                 }
                 
+                // Delete related scan results
+                var scanResults = await _context.ScanResults
+                    .Where(s => s.CardId == id)
+                    .ToListAsync();
+                
+                if (scanResults.Any())
+                {
+                    _context.ScanResults.RemoveRange(scanResults);
+                    _logger.LogInformation($"Deleted {scanResults.Count} related scan results for product ID: {id}");
+                }
+                
                 // Delete the card
                 _context.Cards.Remove(card);
                 await _context.SaveChangesAsync();
@@ -635,49 +673,323 @@ namespace CardTagManager.Controllers
         {
             try
             {
-                // Create a sample list of scan results for demonstration
-                var scanResults = new List<ScanResultViewModel>();
-                
-                // Get actual cards from the database
-                var cards = await _context.Cards.Take(10).ToListAsync();
-                
-                // Create sample scan results based on actual cards
-                foreach (var card in cards)
-                {
-                    // Add a few scan results for each card
-                    scanResults.Add(new ScanResultViewModel
+                // Get real scan results from the database
+                var scanResults = await _context.ScanResults
+                    .Include(s => s.Card)
+                    .OrderByDescending(s => s.ScanTime)
+                    .Select(s => new ScanResultViewModel
                     {
-                        Id = scanResults.Count + 1,
-                        CardId = card.Id,
-                        CardName = card.ProductName,
-                        ScanTime = DateTime.Now.AddHours(-new Random().Next(1, 48)),
-                        DeviceInfo = GetRandomDeviceInfo(),
-                        Location = GetRandomLocation(),
-                        ScanResult = GetRandomScanResult()
-                    });
-                    
-                    // Add another scan with different time
-                    scanResults.Add(new ScanResultViewModel
-                    {
-                        Id = scanResults.Count + 1,
-                        CardId = card.Id,
-                        CardName = card.ProductName,
-                        ScanTime = DateTime.Now.AddDays(-new Random().Next(1, 7)),
-                        DeviceInfo = GetRandomDeviceInfo(),
-                        Location = GetRandomLocation(),
-                        ScanResult = GetRandomScanResult()
-                    });
-                }
-                
-                // Sort by scan time (most recent first)
-                scanResults = scanResults.OrderByDescending(s => s.ScanTime).ToList();
+                        Id = s.Id,
+                        CardId = s.CardId,
+                        CardName = s.Card.ProductName,
+                        ScanTime = s.ScanTime,
+                        DeviceInfo = s.DeviceInfo,
+                        Location = s.Location,
+                        ScanResult = s.Result
+                    })
+                    .Take(100) // Limit to recent 100 for performance
+                    .ToListAsync();
                 
                 return View(scanResults);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error generating scan results");
+                _logger.LogError(ex, "Error retrieving scan results");
+                
+                // Create an empty list as fallback
                 return View(new List<ScanResultViewModel>());
+            }
+        }
+
+        // API endpoint to get scan results
+        [HttpGet("api/Card/GetScanResults")]
+        public async Task<IActionResult> GetScanResults()
+        {
+            try
+            {
+                var scanResults = await _context.ScanResults
+                    .Include(s => s.Card)
+                    .OrderByDescending(s => s.ScanTime)
+                    .Select(s => new ScanResultViewModel
+                    {
+                        Id = s.Id,
+                        CardId = s.CardId,
+                        CardName = s.Card.ProductName,
+                        ScanTime = s.ScanTime,
+                        DeviceInfo = s.DeviceInfo,
+                        Location = s.Location,
+                        ScanResult = s.Result
+                    })
+                    .Take(100) // Limit to recent 100 for performance
+                    .ToListAsync();
+                    
+                return Ok(scanResults);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving scan results");
+                return StatusCode(500, new { error = "An error occurred while retrieving scan results." });
+            }
+        }
+
+        // POST: DeleteScanResult endpoint
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteScanResult(int id)
+        {
+            try
+            {
+                var scanResult = await _context.ScanResults.FindAsync(id);
+                if (scanResult == null)
+                {
+                    return Json(new { success = false, error = "Scan result not found" });
+                }
+                
+                _context.ScanResults.Remove(scanResult);
+                await _context.SaveChangesAsync();
+                
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error deleting scan result {id}");
+                return Json(new { success = false, error = "An error occurred while deleting the scan result." });
+            }
+        }
+        
+        // GET: Card/GetCardHistory/5
+        [HttpGet]
+        public async Task<IActionResult> GetCardHistory(int id)
+        {
+            // Get card history for the specified card
+            var history = await _context.CardHistories
+                .Where(h => h.CardId == id)
+                .OrderByDescending(h => h.ChangedAt)
+                .Take(20) // Limit to recent 20 records
+                .ToListAsync();
+                
+            return Json(history);
+        }
+
+        // Helper method to check if a card exists
+        private bool CardExists(int id)
+        {
+            return _context.Cards.Any(e => e.Id == id);
+        }
+        
+        // GET: Card/GetCardIssues/5 
+        [HttpGet]
+        public async Task<IActionResult> GetCardIssues(int id)
+        {
+            var issues = await _context.IssueReports
+                .Where(i => i.CardId == id)
+                .OrderByDescending(i => i.ReportDate)
+                .ToListAsync();
+                
+            return Json(issues);
+        }
+        
+        // POST: Card/ReportIssue
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ReportIssue([FromBody] IssueReport issue)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            
+            try
+            {
+                // Validate the card exists
+                var card = await _context.Cards.FindAsync(issue.CardId);
+                if (card == null)
+                {
+                    return NotFound(new { error = "Product not found" });
+                }
+                
+                // Set default values
+                issue.CreatedAt = DateTime.Now;
+                issue.Status = "Open";
+                
+                // Add User_Code if available
+                var userCodeClaim = User.Claims.FirstOrDefault(c => c.Type == "User_Code");
+                if (userCodeClaim != null)
+                {
+                    issue.ReporterName += $" (ID: {userCodeClaim.Value})";
+                }
+                
+                _context.IssueReports.Add(issue);
+                await _context.SaveChangesAsync();
+                
+                return Json(new { success = true, issueId = issue.Id });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating issue report");
+                return StatusCode(500, new { error = "An error occurred while creating the issue report" });
+            }
+        }
+        
+        // GET: Card/GetCardDocuments/5
+        [HttpGet]
+        public async Task<IActionResult> GetCardDocuments(int id)
+        {
+            var documents = await _context.CardDocuments
+                .Where(d => d.CardId == id)
+                .OrderByDescending(d => d.UploadedAt)
+                .ToListAsync();
+                
+            return Json(documents);
+        }
+        
+        // GET: Card/DownloadDocument/5
+        public async Task<IActionResult> DownloadDocument(int id)
+        {
+            var document = await _context.CardDocuments.FindAsync(id);
+            if (document == null)
+            {
+                return NotFound();
+            }
+            
+            // In a real implementation, you would retrieve the file from storage
+            // For now, redirect to the file URL
+            if (!string.IsNullOrEmpty(document.FilePath))
+            {
+                return Redirect(document.FilePath);
+            }
+            else
+            {
+                return NotFound("Document file not found");
+            }
+        }
+        
+        // GET: Card/Print/5
+        public async Task<IActionResult> Print(int id)
+        {
+            var card = await _context.Cards.FindAsync(id);
+            if (card == null)
+            {
+                return NotFound();
+            }
+            
+            // Generate QR code for printing
+            string qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card);
+            ViewBag.QrCodeImage = qrCodeImageData;
+
+            return View(card);
+        }
+
+        // GET: Card/PrintAll
+        public async Task<IActionResult> PrintAll()
+        {
+            var cards = await _context.Cards.ToListAsync();
+            
+            // Generate QR codes for all cards
+            var cardIds = cards.Select(c => c.Id).ToList();
+            ViewBag.QrCodeImages = new Dictionary<int, string>();
+            
+            foreach (var card in cards)
+            {
+                ViewBag.QrCodeImages[card.Id] = await _qrCodeService.GenerateQrCodeImage(card);
+            }
+            
+            return View(cards);
+        }
+        
+        // GET: Card/DownloadQrCode/5
+        public async Task<IActionResult> DownloadQrCode(int id)
+        {
+            var card = await _context.Cards.FindAsync(id);
+            if (card == null)
+            {
+                return NotFound();
+            }
+            
+            // Generate QR code image for download
+            var qrCodeBytes = await _qrCodeService.GenerateQrCodeBytes(card);
+            
+            if (qrCodeBytes == null || qrCodeBytes.Length == 0)
+            {
+                return NotFound("Could not generate QR code");
+            }
+            
+            // Create a safe filename based on the product name
+            var filename = card.ProductName.Replace(" ", "_");
+            filename = string.Join("_", filename.Split(Path.GetInvalidFileNameChars()));
+            
+            return File(qrCodeBytes, "image/png", $"{filename}_QRCode.png");
+        }
+
+        // API endpoint for getting all issues
+        [HttpGet("api/Card/GetAllIssues")]
+        public async Task<IActionResult> GetAllIssues()
+        {
+            try
+            {
+                var issues = await _context.IssueReports
+                    .Include(i => i.Card)
+                    .OrderByDescending(i => i.ReportDate)
+                    .Select(i => new {
+                        id = i.Id,
+                        cardId = i.CardId,
+                        cardName = i.Card.ProductName,
+                        status = i.Status,
+                        priority = i.Priority,
+                        issueType = i.IssueType,
+                        description = i.Description,
+                        reportDate = i.ReportDate,
+                        reporterName = i.ReporterName,
+                        reporterEmail = i.ReporterEmail,
+                        resolution = i.Resolution,
+                        resolvedAt = i.ResolvedAt
+                    })
+                    .Take(100) // Limit to recent 100 for performance
+                    .ToListAsync();
+                    
+                return Ok(issues);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving all issues");
+                return StatusCode(500, new { error = "An error occurred while retrieving issues." });
+            }
+        }
+
+        // POST: UpdateIssueStatus endpoint
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateIssueStatus([FromBody] IssueStatusUpdateModel model)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return Json(new { success = false, error = "Invalid model state" });
+                }
+                
+                var issue = await _context.IssueReports.FindAsync(model.Id);
+                if (issue == null)
+                {
+                    return Json(new { success = false, error = "Issue not found" });
+                }
+                
+                issue.Status = model.Status;
+                
+                if (model.Status == "Resolved" || model.Status == "Closed")
+                {
+                    issue.Resolution = model.Resolution ?? string.Empty;
+                    issue.ResolvedAt = DateTime.Now;
+                }
+                
+                await _context.SaveChangesAsync();
+                
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating issue status");
+                return Json(new { success = false, error = "An error occurred while updating the issue status." });
             }
         }
         
@@ -862,218 +1174,6 @@ namespace CardTagManager.Controllers
                 _context.CardHistories.AddRange(changedProperties);
                 await _context.SaveChangesAsync();
             }
-        }
-
-        // GET: Card/Print/5
-        public async Task<IActionResult> Print(int id)
-        {
-            var card = await _context.Cards.FindAsync(id);
-            if (card == null)
-            {
-                return NotFound();
-            }
-            
-            // Generate QR code for printing
-            string qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card);
-            ViewBag.QrCodeImage = qrCodeImageData;
-
-            return View(card);
-        }
-
-        // GET: Card/PrintAll
-        public async Task<IActionResult> PrintAll()
-        {
-            var cards = await _context.Cards.ToListAsync();
-            
-            // Generate QR codes for all cards
-            var cardIds = cards.Select(c => c.Id).ToList();
-            ViewBag.QrCodeImages = new Dictionary<int, string>();
-            
-            foreach (var card in cards)
-            {
-                ViewBag.QrCodeImages[card.Id] = await _qrCodeService.GenerateQrCodeImage(card);
-            }
-            
-            return View(cards);
-        }
-        
-        // GET: Card/DownloadQrCode/5
-        public async Task<IActionResult> DownloadQrCode(int id)
-        {
-            var card = await _context.Cards.FindAsync(id);
-            if (card == null)
-            {
-                return NotFound();
-            }
-            
-            // Generate QR code image for download
-            var qrCodeBytes = await _qrCodeService.GenerateQrCodeBytes(card);
-            
-            if (qrCodeBytes == null || qrCodeBytes.Length == 0)
-            {
-                return NotFound("Could not generate QR code");
-            }
-            
-            // Create a safe filename based on the product name
-            var filename = card.ProductName.Replace(" ", "_");
-            filename = string.Join("_", filename.Split(Path.GetInvalidFileNameChars()));
-            
-            return File(qrCodeBytes, "image/png", $"{filename}_QRCode.png");
-        }
-
-        // GET: Card/GetCardHistory/5
-        [HttpGet]
-        public async Task<IActionResult> GetCardHistory(int id)
-        {
-            // Get card history for the specified card
-            var history = await _context.CardHistories
-                .Where(h => h.CardId == id)
-                .OrderByDescending(h => h.ChangedAt)
-                .Take(20) // Limit to recent 20 records
-                .ToListAsync();
-                
-            return Json(history);
-        }
-
-        // Helper method to check if a card exists
-        private bool CardExists(int id)
-        {
-            return _context.Cards.Any(e => e.Id == id);
-        }
-        
-        // GET: Card/GetCardIssues/5 
-        [HttpGet]
-        public async Task<IActionResult> GetCardIssues(int id)
-        {
-            var issues = await _context.IssueReports
-                .Where(i => i.CardId == id)
-                .OrderByDescending(i => i.ReportDate)
-                .ToListAsync();
-                
-            return Json(issues);
-        }
-        
-        // POST: Card/ReportIssue
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ReportIssue([FromBody] IssueReport issue)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            
-            try
-            {
-                // Validate the card exists
-                var card = await _context.Cards.FindAsync(issue.CardId);
-                if (card == null)
-                {
-                    return NotFound(new { error = "Product not found" });
-                }
-                
-                // Set default values
-                issue.CreatedAt = DateTime.Now;
-                issue.Status = "Open";
-                
-                // Add User_Code if available
-                var userCodeClaim = User.Claims.FirstOrDefault(c => c.Type == "User_Code");
-                if (userCodeClaim != null)
-                {
-                    issue.ReporterName += $" (ID: {userCodeClaim.Value})";
-                }
-                
-                _context.IssueReports.Add(issue);
-                await _context.SaveChangesAsync();
-                
-                return Json(new { success = true, issueId = issue.Id });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error creating issue report");
-                return StatusCode(500, new { error = "An error occurred while creating the issue report" });
-            }
-        }
-        
-        // GET: Card/GetCardDocuments/5
-        [HttpGet]
-        public async Task<IActionResult> GetCardDocuments(int id)
-        {
-            var documents = await _context.CardDocuments
-                .Where(d => d.CardId == id)
-                .OrderByDescending(d => d.UploadedAt)
-                .ToListAsync();
-                
-            return Json(documents);
-        }
-        
-        // GET: Card/DownloadDocument/5
-        public async Task<IActionResult> DownloadDocument(int id)
-        {
-            var document = await _context.CardDocuments.FindAsync(id);
-            if (document == null)
-            {
-                return NotFound();
-            }
-            
-            // In a real implementation, you would retrieve the file from storage
-            // For now, redirect to the file URL
-            if (!string.IsNullOrEmpty(document.FilePath))
-            {
-                return Redirect(document.FilePath);
-            }
-            else
-            {
-                return NotFound("Document file not found");
-            }
-        }
-        
-        // Helper methods for generating sample scan data
-        private string GetRandomDeviceInfo()
-        {
-            string[] devices = new[] {
-                "iPhone 14 Pro (iOS 16.4)",
-                "Samsung Galaxy S22 (Android 13)",
-                "Google Pixel 7 (Android 13)",
-                "iPad Air (iOS 16.3)",
-                "Xiaomi Mi 11 (Android 12)",
-                "OnePlus 10 Pro (Android 13)",
-                "iPhone 13 (iOS 16.4)",
-                "Samsung Galaxy Tab S8 (Android 13)"
-            };
-            
-            return devices[new Random().Next(devices.Length)];
-        }
-        
-        private string GetRandomLocation()
-        {
-            string[] locations = new[] {
-                "Production Line A",
-                "Warehouse C",
-                "Main Office",
-                "Building 3",
-                "Inspection Area",
-                "Field Location",
-                "Client Site",
-                "Storage Area B"
-            };
-            
-            return locations[new Random().Next(locations.Length)];
-        }
-        
-        private string GetRandomScanResult()
-        {
-            string[] results = new[] {
-                "Success",
-                "Success",
-                "Success",
-                "Success",
-                "Success",
-                "Failed",
-                "Partial"
-            };
-            
-            return results[new Random().Next(results.Length)];
         }
     }
 }
