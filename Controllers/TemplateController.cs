@@ -28,19 +28,35 @@ namespace CardTagManager.Controllers
         }
 
         // GET: api/Template
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Template>>> GetTemplates()
+[HttpGet]
+public async Task<ActionResult<IEnumerable<Template>>> GetTemplates()
+{
+    try
+    {
+        // Get current user's department from claims
+        string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
+        bool isAdmin = User.IsInRole("Admin");
+        
+        // Start with all templates
+        var query = _context.Templates.AsQueryable();
+        
+        // Filter by department for non-admin users
+        if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
         {
-            try
-            {
-                return await _context.Templates.ToListAsync();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving templates");
-                return StatusCode(500, new { error = "An error occurred while retrieving templates." });
-            }
+            query = from template in query
+                    join profile in _context.UserProfiles on template.CreatedByID equals profile.User_Code
+                    where profile.Department_Name == userDepartment
+                    select template;
         }
+        
+        return await query.ToListAsync();
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error retrieving templates with department filtering");
+        return StatusCode(500, new { error = "An error occurred while retrieving templates." });
+    }
+}
 
         // GET: api/Template/5
         [HttpGet("{id}")]

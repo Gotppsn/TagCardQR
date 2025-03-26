@@ -38,11 +38,38 @@ namespace CardTagManager.Controllers
         // GET: Card
         public async Task<IActionResult> Index()
         {
-            var cards = await _context.Cards
-                .OrderByDescending(c => c.UpdatedAt)
-                .ToListAsync();
+            try
+            {
+                // Get current user's department from claims
+                string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
                 
-            return View(cards);
+                _logger.LogInformation($"Filtering cards for department: {userDepartment}");
+                
+                // Admin role can see all cards regardless of department
+                bool isAdmin = User.IsInRole("Admin");
+                
+                // Build query based on department access
+                var query = _context.Cards.AsQueryable();
+                
+                if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
+                {
+                    // Join with UserProfiles to filter by department
+                    query = from card in _context.Cards
+                            join profile in _context.UserProfiles on card.CreatedByID equals profile.User_Code
+                            where profile.Department_Name == userDepartment
+                            select card;
+                }
+                
+                // Order results
+                var cards = await query.OrderByDescending(c => c.UpdatedAt).ToListAsync();
+                
+                return View(cards);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving cards with department filtering");
+                return View(new List<Card>());
+            }
         }
 
         // GET: Card/Create
@@ -77,6 +104,8 @@ namespace CardTagManager.Controllers
                     
                     // Get User_Code from claims if available
                     var userCodeClaim = User.Claims.FirstOrDefault(c => c.Type == "User_Code");
+                    var departmentClaim = User.Claims.FirstOrDefault(c => c.Type == "Department");
+                    
                     if (userCodeClaim != null)
                     {
                         card.CreatedByID = userCodeClaim.Value;
@@ -210,20 +239,48 @@ namespace CardTagManager.Controllers
         // GET: Card/Details/5
         public async Task<IActionResult> Details(int id)
         {
-            var card = await _context.Cards.FindAsync(id);
-            if (card == null)
+            try
             {
-                return NotFound();
+                // Get current user's department from claims
+                string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
+                bool isAdmin = User.IsInRole("Admin");
+                
+                var card = await _context.Cards.FindAsync(id);
+                if (card == null)
+                {
+                    return NotFound();
+                }
+                
+                // Check if user has access to this card (admin or same department)
+                if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
+                {
+                    bool hasAccess = await (from c in _context.Cards
+                                         join profile in _context.UserProfiles on c.CreatedByID equals profile.User_Code
+                                         where c.Id == id && profile.Department_Name == userDepartment
+                                         select c).AnyAsync();
+                    
+                    if (!hasAccess)
+                    {
+                        TempData["ErrorMessage"] = "You don't have permission to view this card.";
+                        return RedirectToAction(nameof(Index));
+                    }
+                }
+
+                // Get base URL from the current request
+                string baseUrl = $"{Request.Scheme}://{Request.Host}";
+                
+                // Generate QR code for display with base URL
+                string qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card, baseUrl);
+                ViewBag.QrCodeImage = qrCodeImageData;
+
+                return View(card);
             }
-
-            // Get base URL from the current request
-            string baseUrl = $"{Request.Scheme}://{Request.Host}";
-            
-            // Generate QR code for display with base URL
-            string qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card, baseUrl);
-            ViewBag.QrCodeImage = qrCodeImageData;
-
-            return View(card);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error accessing card details for ID {id}");
+                TempData["ErrorMessage"] = "An error occurred while retrieving the card details.";
+                return RedirectToAction(nameof(Index));
+            }
         }
                 
         // This method is kept for backwards compatibility if there are existing links
@@ -295,26 +352,54 @@ namespace CardTagManager.Controllers
         // GET: Card/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
-            var card = await _context.Cards.FindAsync(id);
-            if (card == null)
+            try
             {
-                return NotFound();
-            }
-            
-            // Get card history for display
-            var history = await _context.CardHistories
-                .Where(h => h.CardId == id)
-                .OrderByDescending(h => h.ChangedAt)
-                .Take(10) // Get the most recent 10 changes
-                .ToListAsync();
+                // Get current user's department from claims
+                string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
+                bool isAdmin = User.IsInRole("Admin");
                 
-            ViewBag.History = history;
-            
-            // Generate QR code for display
-            string qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card);
-            ViewBag.QrCodeImage = qrCodeImageData;
-            
-            return View(card);
+                var card = await _context.Cards.FindAsync(id);
+                if (card == null)
+                {
+                    return NotFound();
+                }
+                
+                // Check if user has access to edit this card (admin or same department)
+                if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
+                {
+                    bool hasAccess = await (from c in _context.Cards
+                                         join profile in _context.UserProfiles on c.CreatedByID equals profile.User_Code
+                                         where c.Id == id && profile.Department_Name == userDepartment
+                                         select c).AnyAsync();
+                    
+                    if (!hasAccess)
+                    {
+                        TempData["ErrorMessage"] = "You don't have permission to edit this card.";
+                        return RedirectToAction(nameof(Index));
+                    }
+                }
+                
+                // Get card history for display
+                var history = await _context.CardHistories
+                    .Where(h => h.CardId == id)
+                    .OrderByDescending(h => h.ChangedAt)
+                    .Take(10) // Get the most recent 10 changes
+                    .ToListAsync();
+                    
+                ViewBag.History = history;
+                
+                // Generate QR code for display
+                string qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card);
+                ViewBag.QrCodeImage = qrCodeImageData;
+                
+                return View(card);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error accessing edit page for card ID {id}");
+                TempData["ErrorMessage"] = "An error occurred while accessing the edit page.";
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         // POST: Card/Edit/5
@@ -337,11 +422,30 @@ namespace CardTagManager.Controllers
             {
                 try
                 {
+                    // Get current user's department from claims
+                    string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
+                    bool isAdmin = User.IsInRole("Admin");
+                    
                     // Get the original card from the database to compare changes
                     var originalCard = await _context.Cards.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
                     if (originalCard == null)
                     {
                         return NotFound();
+                    }
+                    
+                    // Check if user has access to edit this card (admin or same department)
+                    if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
+                    {
+                        bool hasAccess = await (from c in _context.Cards
+                                             join profile in _context.UserProfiles on c.CreatedByID equals profile.User_Code
+                                             where c.Id == id && profile.Department_Name == userDepartment
+                                             select c).AnyAsync();
+                        
+                        if (!hasAccess)
+                        {
+                            TempData["ErrorMessage"] = "You don't have permission to edit this card.";
+                            return RedirectToAction(nameof(Index));
+                        }
                     }
                     
                     // Preserve creation information
@@ -522,17 +626,36 @@ namespace CardTagManager.Controllers
         // GET: Card/Delete/5
         public async Task<IActionResult> Delete(int id)
         {
-            _logger.LogInformation($"Delete GET request for product ID: {id}");
-            
-            var card = await _context.Cards.FindAsync(id);
-            if (card == null)
-            {
-                _logger.LogWarning($"Delete attempt for non-existent product ID: {id}");
-                return NotFound();
-            }
-
             try
             {
+                _logger.LogInformation($"Delete GET request for product ID: {id}");
+                
+                // Get current user's department from claims
+                string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
+                bool isAdmin = User.IsInRole("Admin");
+                
+                var card = await _context.Cards.FindAsync(id);
+                if (card == null)
+                {
+                    _logger.LogWarning($"Delete attempt for non-existent product ID: {id}");
+                    return NotFound();
+                }
+                
+                // Check if user has access to delete this card (admin or same department)
+                if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
+                {
+                    bool hasAccess = await (from c in _context.Cards
+                                         join profile in _context.UserProfiles on c.CreatedByID equals profile.User_Code
+                                         where c.Id == id && profile.Department_Name == userDepartment
+                                         select c).AnyAsync();
+                    
+                    if (!hasAccess)
+                    {
+                        TempData["ErrorMessage"] = "You don't have permission to delete this card.";
+                        return RedirectToAction(nameof(Index));
+                    }
+                }
+
                 // Generate QR code for display
                 string qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card);
                 ViewBag.QrCodeImage = qrCodeImageData;
@@ -571,11 +694,30 @@ namespace CardTagManager.Controllers
             
             try
             {
+                // Get current user's department from claims
+                string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
+                bool isAdmin = User.IsInRole("Admin");
+                
                 var card = await _context.Cards.FindAsync(id);
                 if (card == null)
                 {
                     _logger.LogWarning($"Delete confirmation for non-existent product ID: {id}");
                     return NotFound();
+                }
+                
+                // Check if user has access to delete this card (admin or same department)
+                if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
+                {
+                    bool hasAccess = await (from c in _context.Cards
+                                         join profile in _context.UserProfiles on c.CreatedByID equals profile.User_Code
+                                         where c.Id == id && profile.Department_Name == userDepartment
+                                         select c).AnyAsync();
+                    
+                    if (!hasAccess)
+                    {
+                        TempData["ErrorMessage"] = "You don't have permission to delete this card.";
+                        return RedirectToAction(nameof(Index));
+                    }
                 }
 
                 // Store product information for the success message
@@ -673,9 +815,26 @@ namespace CardTagManager.Controllers
         {
             try
             {
-                // Get real scan results from the database
-                var scanResults = await _context.ScanResults
-                    .Include(s => s.Card)
+                // Get current user's department from claims
+                string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
+                bool isAdmin = User.IsInRole("Admin");
+                
+                // Build base query
+                IQueryable<ScanResult> scanResultsQuery = _context.ScanResults
+                    .Include(s => s.Card);
+                
+                // Apply department filter for non-admin users
+                if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
+                {
+                    scanResultsQuery = from scan in scanResultsQuery
+                                      join card in _context.Cards on scan.CardId equals card.Id
+                                      join profile in _context.UserProfiles on card.CreatedByID equals profile.User_Code
+                                      where profile.Department_Name == userDepartment
+                                      select scan;
+                }
+                
+                // Get filtered results and map to viewmodel
+                var scanResults = await scanResultsQuery
                     .OrderByDescending(s => s.ScanTime)
                     .Select(s => new ScanResultViewModel
                     {
@@ -694,7 +853,7 @@ namespace CardTagManager.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving scan results");
+                _logger.LogError(ex, "Error retrieving scan results with department filtering");
                 
                 // Create an empty list as fallback
                 return View(new List<ScanResultViewModel>());
@@ -707,8 +866,25 @@ namespace CardTagManager.Controllers
         {
             try
             {
-                var scanResults = await _context.ScanResults
-                    .Include(s => s.Card)
+                // Get current user's department from claims
+                string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
+                bool isAdmin = User.IsInRole("Admin");
+                
+                // Build base query
+                IQueryable<ScanResult> scanResultsQuery = _context.ScanResults
+                    .Include(s => s.Card);
+                
+                // Apply department filter for non-admin users
+                if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
+                {
+                    scanResultsQuery = from scan in scanResultsQuery
+                                      join card in _context.Cards on scan.CardId equals card.Id
+                                      join profile in _context.UserProfiles on card.CreatedByID equals profile.User_Code
+                                      where profile.Department_Name == userDepartment
+                                      select scan;
+                }
+                
+                var scanResults = await scanResultsQuery
                     .OrderByDescending(s => s.ScanTime)
                     .Select(s => new ScanResultViewModel
                     {
@@ -727,7 +903,7 @@ namespace CardTagManager.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving scan results");
+                _logger.LogError(ex, "Error retrieving scan results with department filtering");
                 return StatusCode(500, new { error = "An error occurred while retrieving scan results." });
             }
         }
@@ -743,6 +919,24 @@ namespace CardTagManager.Controllers
                 if (scanResult == null)
                 {
                     return Json(new { success = false, error = "Scan result not found" });
+                }
+                
+                // Department check - only allow deletion if admin or same department
+                string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
+                bool isAdmin = User.IsInRole("Admin");
+                
+                if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
+                {
+                    bool hasAccess = await (from scan in _context.ScanResults
+                                          join card in _context.Cards on scan.CardId equals card.Id
+                                          join profile in _context.UserProfiles on card.CreatedByID equals profile.User_Code
+                                          where scan.Id == id && profile.Department_Name == userDepartment
+                                          select scan).AnyAsync();
+                    
+                    if (!hasAccess)
+                    {
+                        return Json(new { success = false, error = "You don't have permission to delete this scan result." });
+                    }
                 }
                 
                 _context.ScanResults.Remove(scanResult);
@@ -761,14 +955,39 @@ namespace CardTagManager.Controllers
         [HttpGet]
         public async Task<IActionResult> GetCardHistory(int id)
         {
-            // Get card history for the specified card
-            var history = await _context.CardHistories
-                .Where(h => h.CardId == id)
-                .OrderByDescending(h => h.ChangedAt)
-                .Take(20) // Limit to recent 20 records
-                .ToListAsync();
+            try 
+            {
+                // Department check - only allow access if admin or same department
+                string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
+                bool isAdmin = User.IsInRole("Admin");
                 
-            return Json(history);
+                if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
+                {
+                    bool hasAccess = await (from card in _context.Cards
+                                         join profile in _context.UserProfiles on card.CreatedByID equals profile.User_Code
+                                         where card.Id == id && profile.Department_Name == userDepartment
+                                         select card).AnyAsync();
+                    
+                    if (!hasAccess)
+                    {
+                        return Json(new { error = "You don't have permission to view history for this card." });
+                    }
+                }
+                
+                // Get card history for the specified card
+                var history = await _context.CardHistories
+                    .Where(h => h.CardId == id)
+                    .OrderByDescending(h => h.ChangedAt)
+                    .Take(20) // Limit to recent 20 records
+                    .ToListAsync();
+                    
+                return Json(history);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving history for card {id}");
+                return Json(new { error = "An error occurred while retrieving card history." });
+            }
         }
 
         // Helper method to check if a card exists
@@ -781,12 +1000,38 @@ namespace CardTagManager.Controllers
         [HttpGet]
         public async Task<IActionResult> GetCardIssues(int id)
         {
-            var issues = await _context.IssueReports
-                .Where(i => i.CardId == id)
-                .OrderByDescending(i => i.ReportDate)
-                .ToListAsync();
+            try
+            {
+                // Get current user's department from claims
+                string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
+                bool isAdmin = User.IsInRole("Admin");
                 
-            return Json(issues);
+                // Check if card belongs to user's department first (security check)
+                if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
+                {
+                    bool hasAccess = await (from card in _context.Cards
+                                         join profile in _context.UserProfiles on card.CreatedByID equals profile.User_Code
+                                         where card.Id == id && profile.Department_Name == userDepartment
+                                         select card).AnyAsync();
+                    
+                    if (!hasAccess)
+                    {
+                        return Json(new { error = "You don't have permission to view issues for this card." });
+                    }
+                }
+                
+                var issues = await _context.IssueReports
+                    .Where(i => i.CardId == id)
+                    .OrderByDescending(i => i.ReportDate)
+                    .ToListAsync();
+                    
+                return Json(issues);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving issues for card {id}");
+                return Json(new { error = "An error occurred while retrieving issues." });
+            }
         }
         
         // POST: Card/ReportIssue
@@ -801,11 +1046,28 @@ namespace CardTagManager.Controllers
             
             try
             {
-                // Validate the card exists
+                // Validate the card exists and user has access
+                string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
+                bool isAdmin = User.IsInRole("Admin");
+                
                 var card = await _context.Cards.FindAsync(issue.CardId);
                 if (card == null)
                 {
                     return NotFound(new { error = "Product not found" });
+                }
+                
+                // Check department access for non-admin users
+                if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
+                {
+                    bool hasAccess = await (from c in _context.Cards
+                                         join profile in _context.UserProfiles on c.CreatedByID equals profile.User_Code
+                                         where c.Id == issue.CardId && profile.Department_Name == userDepartment
+                                         select c).AnyAsync();
+                    
+                    if (!hasAccess)
+                    {
+                        return StatusCode(403, new { error = "You don't have permission to report issues for this card." });
+                    }
                 }
                 
                 // Set default values
@@ -835,90 +1097,220 @@ namespace CardTagManager.Controllers
         [HttpGet]
         public async Task<IActionResult> GetCardDocuments(int id)
         {
-            var documents = await _context.CardDocuments
-                .Where(d => d.CardId == id)
-                .OrderByDescending(d => d.UploadedAt)
-                .ToListAsync();
+            try
+            {
+                // Department check - only allow access if admin or same department
+                string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
+                bool isAdmin = User.IsInRole("Admin");
                 
-            return Json(documents);
+                if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
+                {
+                    bool hasAccess = await (from card in _context.Cards
+                                         join profile in _context.UserProfiles on card.CreatedByID equals profile.User_Code
+                                         where card.Id == id && profile.Department_Name == userDepartment
+                                         select card).AnyAsync();
+                    
+                    if (!hasAccess)
+                    {
+                        return Json(new { error = "You don't have permission to view documents for this card." });
+                    }
+                }
+                
+                var documents = await _context.CardDocuments
+                    .Where(d => d.CardId == id)
+                    .OrderByDescending(d => d.UploadedAt)
+                    .ToListAsync();
+                    
+                return Json(documents);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving documents for card {id}");
+                return Json(new { error = "An error occurred while retrieving documents." });
+            }
         }
         
         // GET: Card/DownloadDocument/5
         public async Task<IActionResult> DownloadDocument(int id)
         {
-            var document = await _context.CardDocuments.FindAsync(id);
-            if (document == null)
+            try
             {
-                return NotFound();
+                var document = await _context.CardDocuments.FindAsync(id);
+                if (document == null)
+                {
+                    return NotFound();
+                }
+                
+                // Department check - only allow access if admin or same department
+                string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
+                bool isAdmin = User.IsInRole("Admin");
+                
+                if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
+                {
+                    bool hasAccess = await (from card in _context.Cards
+                                         join profile in _context.UserProfiles on card.CreatedByID equals profile.User_Code
+                                         where card.Id == document.CardId && profile.Department_Name == userDepartment
+                                         select card).AnyAsync();
+                    
+                    if (!hasAccess)
+                    {
+                        TempData["ErrorMessage"] = "You don't have permission to download this document.";
+                        return RedirectToAction(nameof(Index));
+                    }
+                }
+                
+                // In a real implementation, you would retrieve the file from storage
+                // For now, redirect to the file URL
+                if (!string.IsNullOrEmpty(document.FilePath))
+                {
+                    return Redirect(document.FilePath);
+                }
+                else
+                {
+                    return NotFound("Document file not found");
+                }
             }
-            
-            // In a real implementation, you would retrieve the file from storage
-            // For now, redirect to the file URL
-            if (!string.IsNullOrEmpty(document.FilePath))
+            catch (Exception ex)
             {
-                return Redirect(document.FilePath);
-            }
-            else
-            {
-                return NotFound("Document file not found");
+                _logger.LogError(ex, $"Error downloading document {id}");
+                return StatusCode(500, "An error occurred while downloading the document.");
             }
         }
         
         // GET: Card/Print/5
         public async Task<IActionResult> Print(int id)
         {
-            var card = await _context.Cards.FindAsync(id);
-            if (card == null)
+            try
             {
-                return NotFound();
-            }
-            
-            // Generate QR code for printing
-            string qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card);
-            ViewBag.QrCodeImage = qrCodeImageData;
+                // Department check - only allow access if admin or same department
+                string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
+                bool isAdmin = User.IsInRole("Admin");
+                
+                var card = await _context.Cards.FindAsync(id);
+                if (card == null)
+                {
+                    return NotFound();
+                }
+                
+                if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
+                {
+                    bool hasAccess = await (from c in _context.Cards
+                                         join profile in _context.UserProfiles on c.CreatedByID equals profile.User_Code
+                                         where c.Id == id && profile.Department_Name == userDepartment
+                                         select c).AnyAsync();
+                    
+                    if (!hasAccess)
+                    {
+                        TempData["ErrorMessage"] = "You don't have permission to print this card.";
+                        return RedirectToAction(nameof(Index));
+                    }
+                }
+                
+                // Generate QR code for printing
+                string qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card);
+                ViewBag.QrCodeImage = qrCodeImageData;
 
-            return View(card);
+                return View(card);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error preparing print view for card {id}");
+                TempData["ErrorMessage"] = "An error occurred while preparing the print view.";
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         // GET: Card/PrintAll
         public async Task<IActionResult> PrintAll()
         {
-            var cards = await _context.Cards.ToListAsync();
-            
-            // Generate QR codes for all cards
-            var cardIds = cards.Select(c => c.Id).ToList();
-            ViewBag.QrCodeImages = new Dictionary<int, string>();
-            
-            foreach (var card in cards)
+            try
             {
-                ViewBag.QrCodeImages[card.Id] = await _qrCodeService.GenerateQrCodeImage(card);
+                // Get current user's department from claims
+                string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
+                bool isAdmin = User.IsInRole("Admin");
+                
+                // Build query based on department access
+                var query = _context.Cards.AsQueryable();
+                
+                if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
+                {
+                    // Join with UserProfiles to filter by department
+                    query = from card in _context.Cards
+                            join profile in _context.UserProfiles on card.CreatedByID equals profile.User_Code
+                            where profile.Department_Name == userDepartment
+                            select card;
+                }
+                
+                var cards = await query.ToListAsync();
+                
+                // Generate QR codes for all cards
+                var cardIds = cards.Select(c => c.Id).ToList();
+                ViewBag.QrCodeImages = new Dictionary<int, string>();
+                
+                foreach (var card in cards)
+                {
+                    ViewBag.QrCodeImages[card.Id] = await _qrCodeService.GenerateQrCodeImage(card);
+                }
+                
+                return View(cards);
             }
-            
-            return View(cards);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error preparing print all view");
+                TempData["ErrorMessage"] = "An error occurred while preparing the print view.";
+                return RedirectToAction(nameof(Index));
+            }
         }
         
         // GET: Card/DownloadQrCode/5
         public async Task<IActionResult> DownloadQrCode(int id)
         {
-            var card = await _context.Cards.FindAsync(id);
-            if (card == null)
+            try
             {
-                return NotFound();
+                // Department check - only allow access if admin or same department
+                string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
+                bool isAdmin = User.IsInRole("Admin");
+                
+                var card = await _context.Cards.FindAsync(id);
+                if (card == null)
+                {
+                    return NotFound();
+                }
+                
+                if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
+                {
+                    bool hasAccess = await (from c in _context.Cards
+                                         join profile in _context.UserProfiles on c.CreatedByID equals profile.User_Code
+                                         where c.Id == id && profile.Department_Name == userDepartment
+                                         select c).AnyAsync();
+                    
+                    if (!hasAccess)
+                    {
+                        TempData["ErrorMessage"] = "You don't have permission to download QR code for this card.";
+                        return RedirectToAction(nameof(Index));
+                    }
+                }
+                
+                // Generate QR code image for download
+                var qrCodeBytes = await _qrCodeService.GenerateQrCodeBytes(card);
+                
+                if (qrCodeBytes == null || qrCodeBytes.Length == 0)
+                {
+                    return NotFound("Could not generate QR code");
+                }
+                
+                // Create a safe filename based on the product name
+                var filename = card.ProductName.Replace(" ", "_");
+                filename = string.Join("_", filename.Split(Path.GetInvalidFileNameChars()));
+                
+                return File(qrCodeBytes, "image/png", $"{filename}_QRCode.png");
             }
-            
-            // Generate QR code image for download
-            var qrCodeBytes = await _qrCodeService.GenerateQrCodeBytes(card);
-            
-            if (qrCodeBytes == null || qrCodeBytes.Length == 0)
+            catch (Exception ex)
             {
-                return NotFound("Could not generate QR code");
+                _logger.LogError(ex, $"Error generating QR code download for card {id}");
+                TempData["ErrorMessage"] = "An error occurred while generating the QR code.";
+                return RedirectToAction(nameof(Index));
             }
-            
-            // Create a safe filename based on the product name
-            var filename = card.ProductName.Replace(" ", "_");
-            filename = string.Join("_", filename.Split(Path.GetInvalidFileNameChars()));
-            
-            return File(qrCodeBytes, "image/png", $"{filename}_QRCode.png");
         }
 
         // API endpoint for getting all issues
@@ -928,8 +1320,24 @@ namespace CardTagManager.Controllers
         {
             try
             {
-                var issues = await _context.IssueReports
-                    .Include(i => i.Card)
+                // Get current user's department from claims
+                string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
+                bool isAdmin = User.IsInRole("Admin");
+                
+                // Build query for issues
+                IQueryable<IssueReport> issuesQuery = _context.IssueReports.Include(i => i.Card);
+                
+                // Apply department filter for non-admin users
+                if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
+                {
+                    issuesQuery = from issue in issuesQuery
+                                 join card in _context.Cards on issue.CardId equals card.Id
+                                 join profile in _context.UserProfiles on card.CreatedByID equals profile.User_Code
+                                 where profile.Department_Name == userDepartment
+                                 select issue;
+                }
+                
+                var issues = await issuesQuery
                     .OrderByDescending(i => i.ReportDate)
                     .Select(i => new {
                         id = i.Id,
@@ -973,6 +1381,24 @@ namespace CardTagManager.Controllers
                 if (issue == null)
                 {
                     return Json(new { success = false, error = "Issue not found" });
+                }
+                
+                // Department check - only allow access if admin or same department
+                string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
+                bool isAdmin = User.IsInRole("Admin");
+                
+                if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
+                {
+                    bool hasAccess = await (from i in _context.IssueReports
+                                         join card in _context.Cards on i.CardId equals card.Id
+                                         join profile in _context.UserProfiles on card.CreatedByID equals profile.User_Code
+                                         where i.Id == model.Id && profile.Department_Name == userDepartment
+                                         select i).AnyAsync();
+                    
+                    if (!hasAccess)
+                    {
+                        return Json(new { success = false, error = "You don't have permission to update this issue." });
+                    }
                 }
                 
                 issue.Status = model.Status;
@@ -1183,6 +1609,10 @@ namespace CardTagManager.Controllers
         {
             try
             {
+                // Get current user's department from claims
+                string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
+                bool isAdmin = User.IsInRole("Admin");
+                
                 // Determine date range based on period
                 var endDate = DateTime.Now;
                 var startDate = period.ToLower() switch
@@ -1193,11 +1623,23 @@ namespace CardTagManager.Controllers
                     _ => endDate.AddDays(-7)
                 };
                 
-                // Query scan results from database - FIXED to fetch without complex grouping
-                var results = await _context.ScanResults
-                    .Where(s => s.ScanTime >= startDate && s.ScanTime <= endDate)
-                    .ToListAsync();
-                    
+                // Build base query with department filtering
+                IQueryable<ScanResult> baseQuery = _context.ScanResults
+                    .Where(s => s.ScanTime >= startDate && s.ScanTime <= endDate);
+                
+                // Apply department filter for non-admin users
+                if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
+                {
+                    baseQuery = from scan in baseQuery
+                              join card in _context.Cards on scan.CardId equals card.Id
+                              join profile in _context.UserProfiles on card.CreatedByID equals profile.User_Code
+                              where profile.Department_Name == userDepartment
+                              select scan;
+                }
+                
+                // Fetch results
+                var results = await baseQuery.ToListAsync();
+                
                 // Process in memory after fetching from database
                 var scanData = results
                     .GroupBy(s => period.ToLower() switch
@@ -1274,14 +1716,31 @@ namespace CardTagManager.Controllers
         {
             try
             {
+                // Get current user's department from claims
+                string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
+                bool isAdmin = User.IsInRole("Admin");
+                
+                // Build base query
+                IQueryable<IssueReport> issuesQuery = _context.IssueReports;
+                
+                // Apply department filter for non-admin users
+                if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
+                {
+                    issuesQuery = from issue in issuesQuery
+                                 join card in _context.Cards on issue.CardId equals card.Id
+                                 join profile in _context.UserProfiles on card.CreatedByID equals profile.User_Code
+                                 where profile.Department_Name == userDepartment
+                                 select issue;
+                }
+                
                 // Get issues by status
-                var issuesByStatus = await _context.IssueReports
+                var issuesByStatus = await issuesQuery
                     .GroupBy(i => i.Status)
                     .Select(g => new { status = g.Key, count = g.Count() })
                     .ToDictionaryAsync(g => g.status, g => g.count);
                 
                 // Get issues by priority
-                var issuesByPriority = await _context.IssueReports
+                var issuesByPriority = await issuesQuery
                     .GroupBy(i => i.Priority)
                     .Select(g => new { priority = g.Key, count = g.Count() })
                     .ToDictionaryAsync(g => g.priority, g => g.count);
@@ -1308,9 +1767,25 @@ namespace CardTagManager.Controllers
         {
             try
             {
+                // Get current user's department from claims
+                string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
+                bool isAdmin = User.IsInRole("Admin");
+                
+                // Build query for products with issues
+                var productsQuery = _context.IssueReports.Include(i => i.Card).AsQueryable();
+                
+                // Apply department filter for non-admin users
+                if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
+                {
+                    productsQuery = from issue in productsQuery
+                                   join card in _context.Cards on issue.CardId equals card.Id
+                                   join profile in _context.UserProfiles on card.CreatedByID equals profile.User_Code
+                                   where profile.Department_Name == userDepartment
+                                   select issue;
+                }
+                
                 // Group issues by card and calculate metrics
-                var productIssues = await _context.IssueReports
-                    .Include(i => i.Card)
+                var productIssues = await productsQuery
                     .GroupBy(i => i.CardId)
                     .Select(g => new
                     {
