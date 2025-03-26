@@ -1,63 +1,163 @@
-<!-- Path: Views/UserProfile/Index.cshtml -->
 @model CardTagManager.Models.UserProfile
 @{
     ViewData["Title"] = "User Profile";
 }
 
-<div class="bg-white shadow-lg rounded-lg overflow-hidden max-w-4xl mx-auto my-8">
-    <div class="bg-gradient-to-r from-blue-500 to-primary-500 p-6">
-        <h1 class="text-white text-2xl font-bold">Your Profile</h1>
-        <p class="text-blue-100">View your account information</p>
+<div class="glass-card max-w-4xl mx-auto overflow-hidden shadow-lg">
+    <!-- Profile Header -->
+    <div class="bg-gradient-to-r from-blue-500 to-primary-500 p-6 relative">
+        <div class="flex items-center">
+            <div class="w-16 h-16 rounded-full bg-white flex items-center justify-center text-2xl font-bold text-blue-500 shadow-md border-2 border-white">
+                @((!string.IsNullOrEmpty(Model.Detail_EN_FirstName) ? Model.Detail_EN_FirstName.Substring(0, 1) : 
+                  (!string.IsNullOrEmpty(Model.Username) ? Model.Username.Substring(0, 1) : "U")).ToUpper())
+            </div>
+            <div class="ml-5">
+                <h1 class="text-white text-2xl font-bold">
+                    @((!string.IsNullOrEmpty(Model.Detail_EN_FirstName) && !string.IsNullOrEmpty(Model.Detail_EN_LastName)) ? 
+                      $"{Model.Detail_EN_FirstName} {Model.Detail_EN_LastName}" : Model.Username)
+                </h1>
+                <p class="text-blue-100 flex items-center">
+                    <i class="fas fa-id-badge mr-2"></i>
+                    <span>@Model.User_Code</span>
+                </p>
+            </div>
+        </div>
     </div>
     
+    <!-- Profile Content -->
     <div class="p-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-                <h2 class="text-xl font-semibold text-gray-800 mb-4">English Information</h2>
-                <div class="space-y-4">
-                    <div>
-                        <p class="text-sm text-gray-500">First Name</p>
-                        <p class="text-lg font-medium">@Model.Detail_EN_FirstName</p>
+        <div class="mb-8">
+            <div class="inline-block border border-blue-100 rounded-lg px-3 py-1 text-blue-600 bg-blue-50 mb-4">
+                <i class="fas fa-user mr-2"></i> Personal Information
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- English Information -->
+                <div class="bg-white rounded-lg border border-gray-100 shadow-sm p-4">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-3 border-b border-gray-100 pb-2">
+                        <i class="fas fa-globe-americas text-blue-500 mr-2"></i>
+                        English Information
+                    </h2>
+                    <div class="space-y-3">
+                        <div class="flex">
+                            <div class="w-1/3">
+                                <p class="text-sm text-gray-500">First Name</p>
+                            </div>
+                            <div class="w-2/3">
+                                <p class="font-medium">@Model.Detail_EN_FirstName</p>
+                            </div>
+                        </div>
+                        <div class="flex">
+                            <div class="w-1/3">
+                                <p class="text-sm text-gray-500">Last Name</p>
+                            </div>
+                            <div class="w-2/3">
+                                <p class="font-medium">@Model.Detail_EN_LastName</p>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <p class="text-sm text-gray-500">Last Name</p>
-                        <p class="text-lg font-medium">@Model.Detail_EN_LastName</p>
+                </div>
+                
+                <!-- Thai Information -->
+                <div class="bg-white rounded-lg border border-gray-100 shadow-sm p-4">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-3 border-b border-gray-100 pb-2">
+                        <i class="fas fa-language text-blue-500 mr-2"></i>
+                        Thai Information
+                    </h2>
+                    <div class="space-y-3">
+                        <div class="flex">
+                            <div class="w-1/3">
+                                <p class="text-sm text-gray-500">First Name</p>
+                            </div>
+                            <div class="w-2/3">
+                                <p class="font-medium">@Model.Detail_TH_FirstName</p>
+                            </div>
+                        </div>
+                        <div class="flex">
+                            <div class="w-1/3">
+                                <p class="text-sm text-gray-500">Last Name</p>
+                            </div>
+                            <div class="w-2/3">
+                                <p class="font-medium">@Model.Detail_TH_LastName</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
         
-        <hr class="my-6 border-gray-200">
-        
-        <div class="space-y-4">
-            <div>
-                <p class="text-sm text-gray-500">Username</p>
-                <p class="text-lg font-medium">@Model.Username</p>
+        <!-- Account Information -->
+        <div class="mb-8">
+            <div class="inline-block border border-green-100 rounded-lg px-3 py-1 text-green-600 bg-green-50 mb-4">
+                <i class="fas fa-building mr-2"></i> Company Information
             </div>
-            <div>
-                <p class="text-sm text-gray-500">Email</p>
-                <p class="text-lg font-medium">@Model.User_Email</p>
-            </div>
-            <div>
-                <p class="text-sm text-gray-500">Department</p>
-                <p class="text-lg font-medium">@Model.Department_Name</p>
-            </div>
-            <div>
-                <p class="text-sm text-gray-500">Plant</p>
-                <p class="text-lg font-medium">@Model.Plant_Name</p>
-            </div>
-            <div>
-                <p class="text-sm text-gray-500">First Login</p>
-                <p class="text-lg font-medium">@Model.FirstLoginAt.ToString("g")</p>
-            </div>
-            <div>
-                <p class="text-sm text-gray-500">Last Login</p>
-                <p class="text-lg font-medium">@Model.LastLoginAt.ToString("g")</p>
+            
+            <div class="bg-white rounded-lg border border-gray-100 shadow-sm p-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-3">
+                        <div class="flex">
+                            <div class="w-1/3">
+                                <p class="text-sm text-gray-500">Username</p>
+                            </div>
+                            <div class="w-2/3">
+                                <p class="font-medium">@Model.Username</p>
+                            </div>
+                        </div>
+                        <div class="flex">
+                            <div class="w-1/3">
+                                <p class="text-sm text-gray-500">Email</p>
+                            </div>
+                            <div class="w-2/3">
+                                <p class="font-medium">@Model.User_Email</p>
+                            </div>
+                        </div>
+                        <div class="flex">
+                            <div class="w-1/3">
+                                <p class="text-sm text-gray-500">Department</p>
+                            </div>
+                            <div class="w-2/3">
+                                <p class="font-medium">@Model.Department_Name</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div class="flex">
+                            <div class="w-1/3">
+                                <p class="text-sm text-gray-500">Plant</p>
+                            </div>
+                            <div class="w-2/3">
+                                <p class="font-medium">@Model.Plant_Name</p>
+                            </div>
+                        </div>
+                        <div class="flex">
+                            <div class="w-1/3">
+                                <p class="text-sm text-gray-500">First Login</p>
+                            </div>
+                            <div class="w-2/3">
+                                <p class="font-medium">@Model.FirstLoginAt.ToString("g")</p>
+                            </div>
+                        </div>
+                        <div class="flex">
+                            <div class="w-1/3">
+                                <p class="text-sm text-gray-500">Last Login</p>
+                            </div>
+                            <div class="w-2/3">
+                                <p class="font-medium">@Model.LastLoginAt.ToString("g")</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         
-        <div class="mt-8 flex justify-end">
-            <a asp-controller="Card" asp-action="Index" class="bg-primary-600 hover:bg-primary-700 text-white font-bold py-2 px-4 rounded-lg flex items-center">
+        <!-- Action Buttons -->
+        <div class="flex justify-end gap-3 mt-6">
+            <a asp-controller="Card" asp-action="Index" class="btn-secondary">
                 <i class="fas fa-home mr-2"></i> Back to Home
+            </a>
+            <a asp-controller="Card" asp-action="ScanResult" class="btn-primary">
+                <i class="fas fa-qrcode mr-2"></i> View Scan Results
             </a>
         </div>
     </div>

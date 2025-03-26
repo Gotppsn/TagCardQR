@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿
+<!DOCTYPE html>
 <html lang="en">
 <head>
     @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
@@ -9,7 +10,7 @@
     <meta name="csrf-token" content="@Antiforgery.GetAndStoreTokens(Context).RequestToken" />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>@ViewData["Title"] - TagCardQR Manager</title>
+    <title>@ViewData["Title"] - TagCardQR Manager</title>
     <link rel="stylesheet" href="~/css/tailwind.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
@@ -61,6 +62,11 @@
         .btn-secondary {
             @@apply px-4 py-2 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 rounded-lg shadow-sm hover:shadow transition-all duration-200 flex items-center justify-center gap-2;
         }
+        
+        /* Glass effect for cards */
+        .glass-card {
+            @@apply bg-white bg-opacity-70 backdrop-blur-sm border border-gray-100 shadow-lg rounded-xl;
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen flex flex-col font-inter">
@@ -68,10 +74,10 @@
     <div class="container mx-auto px-4">
         <div class="flex justify-between items-center">
             <a href="/" class="flex items-center gap-2">
-                <div class="w-10 h-10 rounded-lg bg-blue-600 text-white flex items-center justify-center shadow-sm">
+                <div class="w-10 h-10 rounded-lg bg-gradient-to-r from-blue-500 to-primary-500 text-white flex items-center justify-center shadow-sm">
                     <i class="fas fa-box-open text-xl"></i>
                 </div>
-                <span class="text-xl font-bold text-blue-600">TagCardQR Manager</span>
+                <span class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-primary-500">TagCardQR Manager</span>
             </a>
             
             <nav class="hidden md:flex items-center space-x-2">
@@ -84,7 +90,49 @@
                 <a asp-controller="Card" asp-action="PrintAll" class="px-3 py-2 text-gray-600 hover:text-blue-600 flex items-center">
                     <i class="fas fa-print mr-2"></i> Print All
                 </a>
-                <partial name="_LoginPartial" />
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <a asp-controller="Card" asp-action="ScanResult" class="px-3 py-2 text-gray-600 hover:text-blue-600 flex items-center">
+                        <i class="fas fa-qrcode mr-2"></i> Scan Results
+                    </a>
+                }
+                <!-- Using our custom _LoginPartial with dropdown menu -->
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <div class="flex items-center relative" id="userDropdownContainer">
+                        <button id="userDropdownButton" class="flex items-center space-x-2 text-sm text-gray-700 hover:text-gray-900">
+                            <div class="w-8 h-8 rounded-full bg-primary-500 text-white flex items-center justify-center">
+                                @{
+                                    var username = User.Identity?.Name;
+                                    var firstLetter = !string.IsNullOrEmpty(username) ? username.Substring(0, 1).ToUpper() : "U";
+                                }
+                                <span>@firstLetter</span>
+                            </div>
+                            <span class="hidden md:inline-block">@username</span>
+                            <i class="fas fa-chevron-down text-xs ml-1"></i>
+                        </button>
+                        
+                        <div id="userDropdownMenu" class="hidden absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50">
+                            <a asp-controller="UserProfile" asp-action="Index" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-user mr-2"></i> Profile
+                            </a>
+                            
+                            <div class="border-t border-gray-100 my-1"></div>
+                            
+                            <form asp-controller="Account" asp-action="Logout" method="post" id="logoutForm">
+                                <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <a asp-controller="Account" asp-action="Login" class="text-sm font-medium text-primary-600 hover:text-primary-800">
+                        <i class="fas fa-sign-in-alt mr-1"></i> Login
+                    </a>
+                }
             </nav>
             
             <button class="md:hidden w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600" id="mobile-menu-button">
@@ -93,7 +141,7 @@
         </div>
     </div>
 </header>
-  <div class="mobile-menu hidden md:hidden bg-white border-b border-gray-200 shadow-md">
+<div class="mobile-menu hidden md:hidden bg-white border-b border-gray-200 shadow-md">
     <div class="container mx-auto px-4 py-3">
         <nav class="flex flex-col space-y-2 py-2">
             <a asp-controller="Card" asp-action="Index" class="nav-item">
@@ -107,9 +155,17 @@
             </a>
             @if (User.Identity.IsAuthenticated)
             {
-                <a asp-controller="Account" asp-action="Logout" class="nav-item text-red-600 hover:bg-red-50 hover:text-red-700">
-                    <i class="fas fa-sign-out-alt mr-2 w-5 text-center"></i> Logout
+                <a asp-controller="Card" asp-action="ScanResult" class="nav-item">
+                    <i class="fas fa-qrcode mr-2 w-5 text-center"></i> Scan Results
                 </a>
+                <a asp-controller="UserProfile" asp-action="Index" class="nav-item">
+                    <i class="fas fa-user mr-2 w-5 text-center"></i> Profile
+                </a>
+                <form asp-controller="Account" asp-action="Logout" method="post">
+                    <button type="submit" class="nav-item text-red-600 hover:bg-red-50 hover:text-red-700 w-full text-left">
+                        <i class="fas fa-sign-out-alt mr-2 w-5 text-center"></i> Logout
+                    </button>
+                </form>
             }
             else
             {
@@ -118,7 +174,7 @@
                 </a>
             }
             <div class="pt-2 mt-2 border-t border-gray-100">
-                <a asp-controller="Card" asp-action="Create" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-sm flex items-center justify-center">
+                <a asp-controller="Card" asp-action="Create" class="w-full bg-gradient-to-r from-blue-500 to-primary-500 hover:from-blue-600 hover:to-primary-600 text-white px-4 py-2 rounded-lg shadow-sm flex items-center justify-center">
                     <i class="fas fa-plus mr-2"></i> Add New Product
                 </a>
             </div>
@@ -165,28 +221,55 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script>
         // Mobile menu toggle
-        document.getElementById('mobile-menu-button').addEventListener('click', function() {
-            const mobileMenu = document.querySelector('.mobile-menu');
-            mobileMenu.classList.toggle('hidden');
-            if (!mobileMenu.classList.contains('hidden')) {
-                mobileMenu.classList.add('slide-in-right');
-                setTimeout(() => {
-                    mobileMenu.classList.remove('slide-in-right');
-                }, 300);
-            }
-        });
-        
-        // Set active nav item
         document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            if (mobileMenuButton) {
+                mobileMenuButton.addEventListener('click', function() {
+                    const mobileMenu = document.querySelector('.mobile-menu');
+                    mobileMenu.classList.toggle('hidden');
+                    if (!mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('slide-in-right');
+                        setTimeout(() => {
+                            mobileMenu.classList.remove('slide-in-right');
+                        }, 300);
+                    }
+                });
+            }
+            
+            // Set active nav item
             const currentPath = window.location.pathname;
-            const navItems = document.querySelectorAll('.nav-item');
+            const navItems = document.querySelectorAll('.nav-item, nav a');
             
             navItems.forEach(item => {
                 const href = item.getAttribute('href');
                 if (href && currentPath.includes(href) && href !== '/') {
                     item.classList.add('active');
+                    if(item.classList.contains('text-gray-600')) {
+                        item.classList.remove('text-gray-600');
+                        item.classList.add('text-blue-600');
+                    }
                 }
             });
+            
+            // Dropdown menu toggle functionality
+            const dropdownButton = document.getElementById('userDropdownButton');
+            const dropdownMenu = document.getElementById('userDropdownMenu');
+            const dropdownContainer = document.getElementById('userDropdownContainer');
+            
+            if (dropdownButton && dropdownMenu && dropdownContainer) {
+                // Toggle dropdown when button is clicked
+                dropdownButton.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    dropdownMenu.classList.toggle('hidden');
+                });
+                
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!dropdownContainer.contains(e.target)) {
+                        dropdownMenu.classList.add('hidden');
+                    }
+                });
+            }
         });
         
         // Notification system
