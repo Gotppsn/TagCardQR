@@ -78,9 +78,13 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Card}/{action=Index}/{id?}");
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers(); // This is crucial for API endpoints to work
+    endpoints.MapControllerRoute(
+        name: "default",
+        pattern: "{controller=Card}/{action=Index}/{id?}");
+});
 
 app.MapGet("/api/antiforgery/token", (HttpContext context, IAntiforgery antiforgery) =>
 {

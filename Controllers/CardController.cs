@@ -922,7 +922,8 @@ namespace CardTagManager.Controllers
         }
 
         // API endpoint for getting all issues
-        [HttpGet("api/Card/GetAllIssues")]
+        [HttpGet]
+        [Route("api/[controller]/GetAllIssues")] // Explicit routing definition
         public async Task<IActionResult> GetAllIssues()
         {
             try

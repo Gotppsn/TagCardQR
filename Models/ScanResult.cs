@@ -32,5 +32,46 @@ namespace CardTagManager.Models
         
         [StringLength(100)]
         public string IpAddress { get; set; } = string.Empty;
+        
+        // Issue tracking enhancements
+        [StringLength(100)]
+        public string ScanContext { get; set; } = string.Empty;
+        
+        // Flag to indicate if an issue was detected during this scan
+        public bool IssueDetected { get; set; } = false;
+        
+        // Reference to an issue if this scan led to issue reporting
+        public int? RelatedIssueId { get; set; }
+        
+        [ForeignKey("RelatedIssueId")]
+        public IssueReport RelatedIssue { get; set; }
+        
+        // Metadata to assist with issue categorization
+        [StringLength(50)]
+        public string ScanCategory { get; set; } = "Regular";
+        
+        // Boolean flags for quick filtering
+        [NotMapped]
+        public bool HasIssue => RelatedIssueId.HasValue;
+        
+        [NotMapped]
+        public bool IsRoutineScan => ScanCategory == "Regular";
+        
+        // Method to easily create an issue from this scan
+        public IssueReport CreateIssueFromScan()
+        {
+            return new IssueReport
+            {
+                CardId = this.CardId,
+                ReportDate = DateTime.Now,
+                Description = $"Issue detected during scan #{Id} on {ScanTime.ToShortDateString()}",
+                IssueType = "Scan Detection",
+                Priority = "Medium",
+                Status = "Open",
+                ReporterName = this.ScannedBy,
+                ReporterEmail = string.Empty, // Would need to be filled in
+                ReporterPhone = string.Empty // Would need to be filled in
+            };
+        }
     }
 }
