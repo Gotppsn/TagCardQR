@@ -802,7 +802,7 @@
 
         <!-- Tab Content - Analytics -->
         <div id="content-analytics" class="tab-content hidden">
-            <!-- Analytics Overview -->
+            <!-- Scan Analytics Section -->
             <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6">
                 <div class="p-4 border-b border-gray-100 flex justify-between items-center">
                     <h3 class="font-bold text-gray-700 flex items-center">
@@ -814,89 +814,48 @@
                         <button class="period-btn px-3 py-1 text-xs bg-gray-100 text-gray-600 rounded-full" data-period="year">Year</button>
                     </div>
                 </div>
-                <div class="p-4">
-                    <div class="aspect-[1.4142] bg-gray-50 rounded-lg border border-gray-100 flex items-center justify-center">
-                        <!-- This would be a chart in the real implementation -->
-                        <div class="text-center">
-                            <p class="text-gray-500 mb-2">Scan Activity (Last 7 Days)</p>
-                            <div class="w-full max-w-3xl mx-auto h-40 flex items-end justify-around px-4">
-                                @{
-                                    Random rand = new Random(DateTime.Now.Day);
-                                    for (int i = 6; i >= 0; i--)
-                                    {
-                                        var day = DateTime.Now.AddDays(-i);
-                                        var height = rand.Next(20, 100);
-                                        var isToday = i == 0;
-                                        
-                                        <div class="flex flex-col items-center">
-                                            <div class="w-12 bg-@(isToday ? "primary" : "blue")-@(isToday ? "500" : "300") rounded-t transition-all hover:bg-@(isToday ? "primary" : "blue")-@(isToday ? "600" : "400")" style="height: @(height)%"></div>
-                                            <div class="text-xs mt-2 text-gray-600">@day.ToString("ddd")</div>
-                                        </div>
-                                    }
-                                }
+                <div class="p-6">
+                    <!-- This div contains the scan activity chart -->
+                    <div class="aspect-[1.4142] bg-white rounded-lg border border-gray-100 p-4">
+                        <!-- Chart content will be populated by JavaScript -->
+                        <div class="flex items-center justify-center h-full">
+                            <div class="text-center">
+                                <i class="fas fa-spinner fa-spin text-primary-500 text-xl mb-2"></i>
+                                <p class="text-gray-500">Loading scan activity data...</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Issues Analytics -->
+            <!-- Issues Analytics Section -->
             <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6">
-                <div class="p-4 border-b border-gray-100 flex justify-between items-center">
+                <div class="p-4 border-b border-gray-100">
                     <h3 class="font-bold text-gray-700 flex items-center">
                         <i class="fas fa-exclamation-triangle text-primary-500 mr-2"></i> Issue Analytics
                     </h3>
                 </div>
-                <div class="p-4">
+                <div class="p-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Issues by Status Chart -->
-                        <div class="bg-gray-50 rounded-lg border border-gray-100 p-4">
+                        <div class="bg-white rounded-lg border border-gray-100 p-4">
                             <h4 class="text-sm font-medium text-gray-700 mb-3">Issues by Status</h4>
                             <div class="aspect-[1.4142] flex items-center justify-center">
-                                <div class="w-full max-w-xs">
-                                    <!-- Placeholder for pie chart -->
-                                    <div class="w-32 h-32 mx-auto relative">
-                                        <div class="absolute inset-0 border-8 border-r-red-500 border-t-blue-500 border-b-green-500 border-l-yellow-500 rounded-full"></div>
-                                        <div class="absolute inset-8 bg-white rounded-full"></div>
-                                    </div>
-                                    <div class="flex justify-center space-x-4 mt-4">
-                                        <div class="flex items-center">
-                                            <div class="w-3 h-3 bg-yellow-500 rounded-sm mr-1"></div>
-                                            <span class="text-xs">Open</span>
-                                        </div>
-                                        <div class="flex items-center">
-                                            <div class="w-3 h-3 bg-blue-500 rounded-sm mr-1"></div>
-                                            <span class="text-xs">In Progress</span>
-                                        </div>
-                                        <div class="flex items-center">
-                                            <div class="w-3 h-3 bg-green-500 rounded-sm mr-1"></div>
-                                            <span class="text-xs">Resolved</span>
-                                        </div>
-                                        <div class="flex items-center">
-                                            <div class="w-3 h-3 bg-red-500 rounded-sm mr-1"></div>
-                                            <span class="text-xs">Closed</span>
-                                        </div>
-                                    </div>
+                                <!-- Status chart will be populated by JavaScript -->
+                                <div class="flex items-center justify-center">
+                                    <i class="fas fa-spinner fa-spin text-primary-500 text-xl"></i>
                                 </div>
                             </div>
                         </div>
                         
                         <!-- Issues by Priority Chart -->
-                        <div class="bg-gray-50 rounded-lg border border-gray-100 p-4">
+                        <div class="bg-white rounded-lg border border-gray-100 p-4">
                             <h4 class="text-sm font-medium text-gray-700 mb-3">Issues by Priority</h4>
-                            <div class="w-full h-56 flex items-end justify-around px-4">
-                                @foreach (var priority in new[] { "Low", "Medium", "High", "Critical" })
-                                {
-                                    var height = rand.Next(20, 100);
-                                    var color = priority == "Low" ? "green" : 
-                                              priority == "Medium" ? "blue" :
-                                              priority == "High" ? "orange" : "red";
-                                    
-                                    <div class="flex flex-col items-center">
-                                        <div class="w-16 bg-@color-500 rounded-t transition-all hover:bg-@color-600" style="height: @(height)%"></div>
-                                        <div class="text-xs mt-2 text-gray-600">@priority</div>
-                                    </div>
-                                }
+                            <div class="w-full h-56 flex items-center justify-center">
+                                <!-- Priority chart will be populated by JavaScript -->
+                                <div class="flex items-center justify-center">
+                                    <i class="fas fa-spinner fa-spin text-primary-500 text-xl"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -933,7 +892,7 @@
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200" id="products-issue-table">
-                                <!-- This will be populated via JavaScript -->
+                                <!-- Table rows will be populated by JavaScript -->
                                 <tr>
                                     <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
                                         <i class="fas fa-spinner fa-spin mr-2"></i> Loading data...
@@ -1867,6 +1826,351 @@
         loadAnalyticsData('week');
     }
 
+    // Render scan activity chart with clean, modern styling
+    function renderScanChart(data, period, container) {
+        let periodLabel;
+        switch(period) {
+            case 'week': periodLabel = 'Last 7 Days'; break;
+            case 'month': periodLabel = 'Last 30 Days'; break;
+            case 'year': periodLabel = 'Last 12 Months'; break;
+            default: periodLabel = 'Last 7 Days';
+        }
+        
+        if (!data || data.length === 0) {
+            container.innerHTML = `
+                <div class="flex items-center justify-center h-full">
+                    <div class="text-center">
+                        <div class="w-16 h-16 mx-auto rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-3">
+                            <i class="fas fa-chart-bar text-2xl"></i>
+                        </div>
+                        <p class="text-gray-700 font-medium mb-2">No scan data available</p>
+                        <p class="text-gray-500 text-sm">There are no scans recorded for this period.</p>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+        
+        // Clean, modern chart design
+        let chartHtml = `
+            <div class="text-center">
+                <p class="text-gray-500 mb-6">Scan Activity (${periodLabel})</p>
+                <div class="w-full h-80">
+                    <div class="relative h-full">
+                        <!-- Y-axis labels -->
+                        <div class="absolute left-0 top-0 bottom-0 w-10 flex flex-col justify-between text-xs text-gray-500">
+                            <span>100</span>
+                            <span>75</span>
+                            <span>50</span>
+                            <span>25</span>
+                            <span>0</span>
+                        </div>
+                        
+                        <!-- Chart area -->
+                        <div class="absolute left-10 right-0 top-0 bottom-16 border-l border-b border-gray-200">
+                            <!-- Grid lines -->
+                            <div class="absolute left-0 right-0 top-0 h-px bg-gray-100"></div>
+                            <div class="absolute left-0 right-0 top-1/4 h-px bg-gray-100"></div>
+                            <div class="absolute left-0 right-0 top-2/4 h-px bg-gray-100"></div>
+                            <div class="absolute left-0 right-0 top-3/4 h-px bg-gray-100"></div>
+                            
+                            <!-- Bars -->
+                            <div class="flex items-end justify-between h-full px-2">
+        `;
+        
+        // Get max value for scaling
+        const maxValue = Math.max(...data.map(d => d.count));
+        
+        // Add bar for each data point
+        data.forEach(item => {
+            const height = maxValue > 0 ? Math.max(5, (item.count / maxValue) * 100) : 5;
+            const isToday = new Date(item.date).toDateString() === new Date().toDateString();
+            const barColor = isToday ? 'bg-blue-500' : 'bg-blue-400';
+            const hoverColor = isToday ? 'hover:bg-blue-600' : 'hover:bg-blue-500';
+            
+            chartHtml += `
+                <div class="relative flex flex-col items-center group" style="height: 100%;">
+                    <div class="absolute bottom-0 w-12 rounded-t ${barColor} ${hoverColor} transition-all" style="height: ${height}%;">
+                        <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                            ${item.count} scans
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        chartHtml += `
+                            </div>
+                        </div>
+                        
+                        <!-- X-axis labels -->
+                        <div class="absolute left-10 right-0 bottom-0 h-16 flex justify-between px-2">
+        `;
+        
+        // Add x-axis labels
+        data.forEach(item => {
+            const label = formatDateLabel(item.date, period);
+            chartHtml += `
+                <div class="flex flex-col items-center">
+                    <div class="h-4 border-l border-gray-200"></div>
+                    <div class="text-xs mt-2 text-gray-600">${label}</div>
+                </div>
+            `;
+        });
+        
+        chartHtml += `
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        container.innerHTML = chartHtml;
+    }
+
+    // Render issue status pie chart with clean, modern styling
+    function renderIssueStatusChart(statusData) {
+        const container = document.querySelector('#content-analytics .grid.grid-cols-1.md\\:grid-cols-2 > div:first-child .aspect-\\[1\\.4142\\]');
+        
+        if (!container) return;
+        
+        if (!statusData || Object.keys(statusData).length === 0) {
+            container.innerHTML = `
+                <div class="flex items-center justify-center h-full">
+                    <div class="text-center">
+                        <p class="text-gray-500">No issue status data available</p>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+        
+        const statusColors = {
+            'Open': '#EFC700',      // yellow
+            'In Progress': '#3B82F6', // blue
+            'Resolved': '#22C55E',   // green
+            'Closed': '#EF4444'      // red
+        };
+        
+        const total = Object.values(statusData).reduce((sum, count) => sum + count, 0);
+        
+        // Create modern donut chart
+        container.innerHTML = `
+            <div class="flex flex-col items-center justify-center h-full">
+                <div class="w-48 h-48 relative">
+                    <svg viewBox="0 0 100 100" class="w-full h-full">
+                        ${renderDonutSlices(statusData, statusColors)}
+                        <!-- Center white circle -->
+                        <circle cx="50" cy="50" r="30" fill="white" />
+                        <!-- Total count text -->
+                        <text x="50" y="50" font-size="14" text-anchor="middle" dominant-baseline="middle" font-weight="bold">${total}</text>
+                        <text x="50" y="62" font-size="8" text-anchor="middle" dominant-baseline="middle" fill="#6B7280">Total Issues</text>
+                    </svg>
+                </div>
+                
+                <!-- Legend -->
+                <div class="flex flex-wrap justify-center gap-4 mt-6">
+                    ${Object.entries(statusData).map(([status, count]) => `
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 rounded-sm mr-1" style="background-color: ${statusColors[status] || '#6B7280'}"></div>
+                            <span class="text-xs">${status} (${count})</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    // Helper function to create donut chart slices
+    function renderDonutSlices(data, colorMap) {
+        const total = Object.values(data).reduce((sum, count) => sum + count, 0);
+        if (total === 0) return '';
+        
+        let slices = '';
+        let cumulativePercent = 0;
+        
+        Object.entries(data).forEach(([label, value]) => {
+            const startPercent = cumulativePercent;
+            const percent = value / total;
+            cumulativePercent += percent;
+            
+            if (percent === 0) return;
+            
+            const startAngle = 2 * Math.PI * startPercent;
+            const endAngle = 2 * Math.PI * cumulativePercent;
+            
+            // Calculate points on the arc
+            const startX = 50 + 40 * Math.cos(startAngle - Math.PI/2);
+            const startY = 50 + 40 * Math.sin(startAngle - Math.PI/2);
+            const endX = 50 + 40 * Math.cos(endAngle - Math.PI/2);
+            const endY = 50 + 40 * Math.sin(endAngle - Math.PI/2);
+            
+            // Determine if we need the large arc flag
+            const largeArcFlag = percent > 0.5 ? 1 : 0;
+            
+            slices += `<path d="M 50 50 L ${startX} ${startY} A 40 40 0 ${largeArcFlag} 1 ${endX} ${endY} Z" fill="${colorMap[label] || '#6B7280'}" />`;
+        });
+        
+        return slices;
+    }
+
+    // Render issue priority bar chart with clean, modern styling
+    function renderIssuePriorityChart(priorityData) {
+        const container = document.querySelector('#content-analytics .grid.grid-cols-1.md\\:grid-cols-2 > div:last-child .w-full.h-56');
+        
+        if (!container) return;
+        
+        if (!priorityData || Object.keys(priorityData).length === 0) {
+            container.innerHTML = `
+                <div class="flex items-center justify-center h-full">
+                    <div class="text-center">
+                        <p class="text-gray-500">No issue priority data available</p>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+        
+        const priorityOrder = ['Low', 'Medium', 'High', 'Critical'];
+        const priorityColors = {
+            'Low': '#22C55E',       // green
+            'Medium': '#3B82F6',    // blue
+            'High': '#F97316',      // orange
+            'Critical': '#EF4444'   // red
+        };
+        
+        // Sort priorities in correct order
+        const sortedPriorities = Object.entries(priorityData)
+            .sort((a, b) => priorityOrder.indexOf(a[0]) - priorityOrder.indexOf(b[0]));
+        
+        // Get max value for scaling
+        const maxValue = Math.max(...Object.values(priorityData));
+        
+        // Create modern bar chart HTML
+        let chartHtml = `
+            <div class="flex flex-col w-full h-full pt-4">
+                <!-- Chart area with bars -->
+                <div class="flex items-end justify-around h-48 mb-2">
+        `;
+        
+        // Add bars for each priority
+        sortedPriorities.forEach(([priority, count]) => {
+            const height = maxValue > 0 ? Math.max(10, (count / maxValue) * 100) : 10;
+            const color = priorityColors[priority] || '#6B7280';
+            
+            chartHtml += `
+                <div class="flex flex-col items-center group">
+                    <div class="relative">
+                        <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                            ${count} ${priority} issues
+                        </div>
+                        <div class="w-16 rounded-t transition-all bg-opacity-80 hover:bg-opacity-100" 
+                             style="height: ${height}%; background-color: ${color}"></div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        chartHtml += `
+                </div>
+                
+                <!-- X-axis labels -->
+                <div class="flex justify-around w-full">
+        `;
+        
+        // Add x-axis labels
+        sortedPriorities.forEach(([priority]) => {
+            chartHtml += `<div class="text-xs text-gray-600">${priority}</div>`;
+        });
+        
+        chartHtml += `
+                </div>
+            </div>
+        `;
+        
+        container.innerHTML = chartHtml;
+    }
+
+    // Format date label based on period
+    function formatDateLabel(dateString, period) {
+        const date = new Date(dateString);
+        switch(period) {
+            case 'week':
+                return date.toLocaleDateString(undefined, { weekday: 'short' });
+            case 'month':
+                return date.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+            case 'year':
+                return date.toLocaleDateString(undefined, { month: 'short' });
+            default:
+                return date.toLocaleDateString(undefined, { weekday: 'short' });
+        }
+    }
+
+    // Load issue analytics data and render charts
+    function loadIssueAnalyticsCharts() {
+        const statusContainer = document.querySelector('#content-analytics .grid.grid-cols-1.md\\:grid-cols-2 > div:first-child .aspect-\\[1\\.4142\\]');
+        const priorityContainer = document.querySelector('#content-analytics .grid.grid-cols-1.md\\:grid-cols-2 > div:last-child .w-full.h-56');
+        
+        if (statusContainer) {
+            statusContainer.innerHTML = `
+                <div class="flex items-center justify-center h-full">
+                    <div class="text-center">
+                        <i class="fas fa-spinner fa-spin text-primary-500 text-xl mb-2"></i>
+                        <p class="text-gray-500">Loading issue data...</p>
+                    </div>
+                </div>
+            `;
+        }
+        
+        if (priorityContainer) {
+            priorityContainer.innerHTML = `
+                <div class="flex items-center justify-center h-full">
+                    <div class="text-center">
+                        <i class="fas fa-spinner fa-spin text-primary-500 text-xl mb-2"></i>
+                        <p class="text-gray-500">Loading issue data...</p>
+                    </div>
+                </div>
+            `;
+        }
+        
+        fetch('/api/Card/GetIssueAnalytics')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch issue analytics');
+                }
+                return response.json();
+            })
+            .then(data => {
+                renderIssueStatusChart(data.byStatus);
+                renderIssuePriorityChart(data.byPriority);
+            })
+            .catch(error => {
+                console.error('Error loading issue analytics:', error);
+                
+                if (statusContainer) {
+                    statusContainer.innerHTML = `
+                        <div class="flex items-center justify-center h-full">
+                            <div class="text-center text-red-500">
+                                <i class="fas fa-exclamation-triangle text-xl mb-2"></i>
+                                <p>Failed to load issue status data</p>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                if (priorityContainer) {
+                    priorityContainer.innerHTML = `
+                        <div class="flex items-center justify-center h-full">
+                            <div class="text-center text-red-500">
+                                <i class="fas fa-exclamation-triangle text-xl mb-2"></i>
+                                <p>Failed to load issue priority data</p>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+    }
+
     // Load analytics data based on selected period
     function loadAnalyticsData(period = 'week') {
         // Get container elements
@@ -1879,7 +2183,7 @@
         scanChartContainer.innerHTML = `
             <div class="flex items-center justify-center h-full">
                 <div class="text-center">
-                    <i class="fas fa-spinner fa-spin text-primary-500 text-2xl mb-3"></i>
+                    <i class="fas fa-spinner fa-spin text-primary-500 text-xl mb-2"></i>
                     <p class="text-gray-500">Loading scan activity data...</p>
                 </div>
             </div>
@@ -1948,68 +2252,6 @@
         loadIssueAnalyticsCharts();
     }
 
-    // Render scan activity chart
-    function renderScanChart(data, period, container) {
-        let periodLabel;
-        switch(period) {
-            case 'week': periodLabel = 'Last 7 Days'; break;
-            case 'month': periodLabel = 'Last 30 Days'; break;
-            case 'year': periodLabel = 'Last 12 Months'; break;
-            default: periodLabel = 'Last 7 Days';
-        }
-        
-        if (!data || data.length === 0) {
-            container.innerHTML = `
-                <div class="flex items-center justify-center h-full">
-                    <div class="text-center">
-                        <div class="w-16 h-16 mx-auto rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-3">
-                            <i class="fas fa-chart-bar text-2xl"></i>
-                        </div>
-                        <p class="text-gray-700 font-medium mb-2">No scan data available</p>
-                        <p class="text-gray-500 text-sm">There are no scans recorded for this period.</p>
-                    </div>
-                </div>
-            `;
-            return;
-        }
-        
-        // Create chart html
-        let chartHtml = `
-            <div class="text-center">
-                <p class="text-gray-500 mb-2">Scan Activity (${periodLabel})</p>
-                <div class="w-full max-w-3xl mx-auto h-60 flex items-end justify-around px-4">
-        `;
-        
-        // Get max value for scaling
-        const maxValue = Math.max(...data.map(d => d.count));
-        
-        // Add bar for each data point
-        data.forEach(item => {
-            const height = maxValue > 0 ? Math.max(5, (item.count / maxValue) * 100) : 5;
-            const isToday = new Date(item.date).toDateString() === new Date().toDateString();
-            const label = formatDateLabel(item.date, period);
-            
-            chartHtml += `
-                <div class="flex flex-col items-center group">
-                    <div class="relative">
-                        <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                            ${item.count} scans
-                        </div>
-                        <div class="w-14 bg-${isToday ? "primary" : "blue"}-${isToday ? "500" : "400"} rounded-t transition-all hover:bg-${isToday ? "primary" : "blue"}-${isToday ? "600" : "500"}" style="height: ${height}%"></div>
-                    </div>
-                    <div class="text-xs mt-2 text-gray-600">${label}</div>
-                </div>
-            `;
-        });
-        
-        chartHtml += `
-                </div>
-            </div>
-        `;
-        
-        container.innerHTML = chartHtml;
-    }
-
     // Render products with issues table
     function renderProductsIssuesTable(data, tableElement) {
         if (!data || data.length === 0) {
@@ -2054,210 +2296,364 @@
         });
     }
 
-    // Load issues by status and priority charts
-    function loadIssueAnalyticsCharts() {
-        fetch('/api/Card/GetIssueAnalytics')
+    // Load issue data
+    function loadIssueData() {
+        const issuesContainer = document.getElementById('issues-content');
+        if (!issuesContainer) return;
+        
+        // Show loading state
+        issuesContainer.innerHTML = `
+            <div class="text-center py-8">
+                <div class="w-16 h-16 mx-auto rounded-full bg-primary-50 flex items-center justify-center">
+                    <i class="fas fa-spinner fa-spin text-primary-500 text-xl"></i>
+                </div>
+                <p class="mt-4 text-gray-500">Loading issues...</p>
+            </div>
+        `;
+        
+        // Fetch from API
+        fetch('/api/Card/GetAllIssues')
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Failed to fetch issue analytics');
+                    throw new Error(`HTTP error! Status: ${response.status}`);
                 }
                 return response.json();
             })
-            .then(data => {
-                renderIssueStatusChart(data.byStatus);
-                renderIssuePriorityChart(data.byPriority);
+            .then(issues => {
+                // Update issue counters
+                const totalIssues = issues.length;
+                const openIssues = issues.filter(i => i.status === 'Open').length;
+                const inProgressIssues = issues.filter(i => i.status === 'In Progress').length;
+                const resolvedIssues = issues.filter(i => i.status === 'Resolved' || i.status === 'Closed').length;
+                
+                // Update UI counters
+                document.getElementById('total-issues-counter').querySelector('.animate-counter').setAttribute('data-count', totalIssues);
+                document.getElementById('open-issues-counter').querySelector('.animate-counter').setAttribute('data-count', openIssues);
+                document.getElementById('inprogress-issues-counter').querySelector('.animate-counter').setAttribute('data-count', inProgressIssues);
+                document.getElementById('resolved-issues-counter').querySelector('.animate-counter').setAttribute('data-count', resolvedIssues);
+                
+                // Refresh animated counters
+                initAnimatedCounters();
+                
+                // Update issues count display
+                document.getElementById('issues-count').textContent = `Showing ${totalIssues} issues`;
+                
+                // Render the issues list
+                renderIssuesList(issues, issuesContainer);
             })
             .catch(error => {
-                console.error('Error loading issue analytics:', error);
-                // Set error state for charts
-                const statusChartContainer = document.querySelector('#content-analytics .grid.grid-cols-1.md\\:grid-cols-2 > div:first-child .aspect-\\[1\\.4142\\]');
-                const priorityChartContainer = document.querySelector('#content-analytics .grid.grid-cols-1.md\\:grid-cols-2 > div:last-child .w-full.h-56');
+                console.error('Error loading issues:', error);
                 
-                if (statusChartContainer) {
-                    statusChartContainer.innerHTML = `
-                        <div class="flex items-center justify-center h-full">
-                            <div class="text-center">
-                                <p class="text-red-500"><i class="fas fa-exclamation-triangle mr-1"></i> Failed to load chart data</p>
-                            </div>
+                // Show error message
+                issuesContainer.innerHTML = `
+                    <div class="text-center py-8">
+                        <div class="w-16 h-16 mx-auto rounded-full bg-red-100 flex items-center justify-center text-red-500 mb-3">
+                            <i class="fas fa-exclamation-triangle text-2xl"></i>
                         </div>
-                    `;
-                }
+                        <p class="font-medium">Failed to load issues</p>
+                        <p class="text-sm mt-2">${error.message}</p>
+                        <button id="retry-load-issues" class="mt-4 px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700">Retry</button>
+                    </div>
+                `;
                 
-                if (priorityChartContainer) {
-                    priorityChartContainer.innerHTML = `
-                        <div class="flex items-center justify-center h-full">
-                            <div class="text-center">
-                                <p class="text-red-500"><i class="fas fa-exclamation-triangle mr-1"></i> Failed to load chart data</p>
-                            </div>
-                        </div>
-                    `;
+                // Add retry button handler
+                const retryButton = document.getElementById('retry-load-issues');
+                if (retryButton) {
+                    retryButton.addEventListener('click', loadIssueData);
                 }
             });
     }
 
-    // Render issue status chart
-    function renderIssueStatusChart(statusData) {
-        const container = document.querySelector('#content-analytics .grid.grid-cols-1.md\\:grid-cols-2 > div:first-child .aspect-\\[1\\.4142\\]');
-        
-        if (!container) return;
-        
-        if (!statusData || Object.keys(statusData).length === 0) {
+    function renderIssuesList(issues, container) {
+        if (!issues || issues.length === 0) {
+            // No issues found
             container.innerHTML = `
-                <div class="flex items-center justify-center h-full">
-                    <div class="text-center">
-                        <p class="text-gray-500">No issue status data available</p>
+                <div class="text-center py-8">
+                    <div class="w-16 h-16 mx-auto rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
+                        <i class="fas fa-clipboard-check text-2xl"></i>
                     </div>
+                    <p class="text-lg font-medium text-gray-700 mt-4">No Issue Reports</p>
+                    <p class="text-gray-500 mt-2 max-w-md mx-auto">There are currently no reported issues for any products.</p>
                 </div>
             `;
             return;
         }
         
-        const statusColors = {
-            'Open': '#EAB308', // yellow-500
-            'In Progress': '#3B82F6', // blue-500
-            'Resolved': '#22C55E', // green-500
-            'Closed': '#EF4444' // red-500
-        };
-        
-        // Create a simple pie chart representation
-        container.innerHTML = `
-            <div class="w-full max-w-xs mx-auto">
-                <div class="w-48 h-48 mx-auto relative">
-                    ${renderPieChart(statusData, statusColors)}
-                </div>
-                <div class="flex flex-wrap justify-center gap-4 mt-4">
-                    ${Object.entries(statusData).map(([status, count]) => `
-                        <div class="flex items-center">
-                            <div class="w-3 h-3 rounded-sm mr-1" style="background-color: ${statusColors[status] || '#6B7280'}"></div>
-                            <span class="text-xs">${status} (${count})</span>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-        `;
-    }
-
-    // Render issue priority chart
-    function renderIssuePriorityChart(priorityData) {
-        const container = document.querySelector('#content-analytics .grid.grid-cols-1.md\\:grid-cols-2 > div:last-child .w-full.h-56');
-        
-        if (!container) return;
-        
-        if (!priorityData || Object.keys(priorityData).length === 0) {
-            container.innerHTML = `
-                <div class="flex items-center justify-center h-full">
-                    <div class="text-center">
-                        <p class="text-gray-500">No issue priority data available</p>
-                    </div>
-                </div>
-            `;
-            return;
-        }
-        
-        const priorityColors = {
-            'Low': 'green',
-            'Medium': 'blue',
-            'High': 'orange',
-            'Critical': 'red'
-        };
-        
-        // Get max value for scaling
-        const maxValue = Math.max(...Object.values(priorityData));
-        
-        // Clear container
+        // Clear loading spinner
         container.innerHTML = '';
         
-        // Create a bar for each priority
-        Object.entries(priorityData).forEach(([priority, count]) => {
-            const height = maxValue > 0 ? Math.max(5, (count / maxValue) * 100) : 5;
-            const color = priorityColors[priority] || 'gray';
-            
-            const bar = document.createElement('div');
-            bar.className = 'flex flex-col items-center group';
-            bar.innerHTML = `
-                <div class="relative">
-                    <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity">
-                        ${count} issues
-                    </div>
-                    <div class="w-16 bg-${color}-500 rounded-t transition-all hover:bg-${color}-600" style="height: ${height}%"></div>
-                </div>
-                <div class="text-xs mt-2 text-gray-600">${priority}</div>
-            `;
-            
-            container.appendChild(bar);
+        // Create issues list
+        const issuesList = document.createElement('div');
+        issuesList.className = 'space-y-4';
+        
+        // Render each issue
+        issues.forEach(issue => renderIssueCard(issue, issuesList));
+        
+        container.appendChild(issuesList);
+    }
+    
+    function formatDate(date) {
+        return date.toLocaleDateString(undefined, { 
+            year: 'numeric', 
+            month: 'short', 
+            day: 'numeric' 
         });
     }
 
-    // Helper function to render a simple SVG pie chart
-    function renderPieChart(data, colorMap) {
-        const total = Object.values(data).reduce((sum, count) => sum + count, 0);
-        if (total === 0) return '<div class="w-full h-full flex items-center justify-center text-gray-400">No data</div>';
+    function renderIssueCard(issue, container) {
+        // Create issue card element
+        const issueItem = document.createElement('div');
+        issueItem.className = 'issue-item bg-white rounded-lg shadow border border-gray-200 transition-all hover:shadow-md overflow-hidden';
+        issueItem.setAttribute('data-id', issue.id);
+        issueItem.setAttribute('data-status', issue.status);
+        issueItem.setAttribute('data-priority', issue.priority);
+        issueItem.setAttribute('data-type', issue.issueType);
+        issueItem.setAttribute('data-date', new Date(issue.reportDate).toISOString());
         
-        let svg = `<svg viewBox="0 0 100 100" class="w-full h-full">`;
-        
-        let cumulativePercent = 0;
-        Object.entries(data).forEach(([label, value]) => {
-            const startPercent = cumulativePercent;
-            const percent = value / total;
-            cumulativePercent += percent;
-            
-            if (percent === 0) return;
-            
-            // Ensure the last slice goes back to 0
-            const endPercent = label === Object.keys(data)[Object.keys(data).length - 1] ? 0 : cumulativePercent;
-            
-            const start = polarToCartesian(50, 50, 50, 360 * startPercent);
-            const end = polarToCartesian(50, 50, 50, 360 * endPercent);
-            
-            const largeArcFlag = percent > 0.5 ? 1 : 0;
-            
-            svg += `<path d="M 50 50 L ${start.x} ${start.y} A 50 50 0 ${largeArcFlag} 1 ${end.x} ${end.y} Z" fill="${colorMap[label] || '#6B7280'}" />`;
-        });
-        
-        // Add center circle to create donut chart
-        svg += `<circle cx="50" cy="50" r="30" fill="white" />`;
-        
-        // Add total count in center
-        svg += `<text x="50" y="50" font-size="12" text-anchor="middle" dominant-baseline="middle" font-weight="bold">${total}</text>`;
-        svg += `<text x="50" y="62" font-size="8" text-anchor="middle" dominant-baseline="middle" fill="#6B7280">Total Issues</text>`;
-        
-        svg += `</svg>`;
-        return svg;
-    }
-
-    // Helper function for SVG pie chart
-    function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
-        const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
-        return {
-            x: centerX + (radius * Math.cos(angleInRadians)),
-            y: centerY + (radius * Math.sin(angleInRadians))
-        };
-    }
-
-    // Format date label based on period
-    function formatDateLabel(dateString, period) {
-        const date = new Date(dateString);
-        switch(period) {
-            case 'week':
-                return date.toLocaleDateString(undefined, { weekday: 'short' });
-            case 'month':
-                return date.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
-            case 'year':
-                return date.toLocaleDateString(undefined, { month: 'short' });
+        // Determine status color and icon
+        let statusColor, statusIcon, statusBg;
+        switch (issue.status) {
+            case 'Open':
+                statusColor = 'text-yellow-700';
+                statusBg = 'bg-yellow-100';
+                statusIcon = 'fas fa-exclamation-circle';
+                break;
+            case 'In Progress':
+                statusColor = 'text-blue-700';
+                statusBg = 'bg-blue-100';
+                statusIcon = 'fas fa-tools';
+                break;
+            case 'Resolved':
+                statusColor = 'text-green-700';
+                statusBg = 'bg-green-100';
+                statusIcon = 'fas fa-check-circle';
+                break;
+            case 'Closed':
+                statusColor = 'text-gray-700';
+                statusBg = 'bg-gray-100';
+                statusIcon = 'fas fa-archive';
+                break;
             default:
-                return date.toLocaleDateString(undefined, { weekday: 'short' });
+                statusColor = 'text-gray-700';
+                statusBg = 'bg-gray-100';
+                statusIcon = 'fas fa-question-circle';
         }
-    }
-    
-    // Shared functionality for all tabs
-    function initSharedFunctionality() {
-        // Initialize modals
-        initializeModals();
         
-        // Initialize toast notifications
-        initializeToastNotifications();
+        // Determine priority color and icon
+        let priorityColor, priorityIcon;
+        switch (issue.priority) {
+            case 'Low':
+                priorityColor = 'text-green-600';
+                priorityIcon = 'fas fa-arrow-down';
+                break;
+            case 'Medium':
+                priorityColor = 'text-yellow-600';
+                priorityIcon = 'fas fa-equals';
+                break;
+            case 'High':
+                priorityColor = 'text-orange-600';
+                priorityIcon = 'fas fa-arrow-up';
+                break;
+            case 'Critical':
+                priorityColor = 'text-red-600';
+                priorityIcon = 'fas fa-exclamation';
+                break;
+            default:
+                priorityColor = 'text-gray-600';
+                priorityIcon = 'fas fa-circle';
+        }
+        
+        // Create issue card HTML
+        issueItem.innerHTML = `
+            <div class="p-4 border-b border-gray-100 flex justify-between items-center">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 rounded-lg ${statusBg} flex items-center justify-center ${statusColor} mr-3 shadow-inner">
+                        <i class="${statusIcon} text-xl"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center mb-1">
+                            <h4 class="font-medium text-gray-900">${issue.issueType}</h4>
+                            <span class="ml-2 px-2 py-0.5 rounded-full text-xs font-medium ${priorityColor} bg-gray-100 border border-gray-200">
+                                <i class="${priorityIcon} mr-1"></i> ${issue.priority}
+                            </span>
+                        </div>
+                        <p class="text-sm text-gray-500">Product: ${issue.cardName}</p>
+                    </div>
+                </div>
+                <span class="px-2.5 py-1 rounded-full text-xs font-medium ${statusColor} ${statusBg}">
+                    ${issue.status}
+                </span>
+            </div>
+            
+            <div class="p-4 space-y-3">
+                <div class="text-sm text-gray-700">
+                    ${issue.description || 'No description provided'}
+                </div>
+                
+                <div class="flex items-center text-sm text-gray-500">
+                    <i class="fas fa-calendar-alt w-5 text-gray-400"></i>
+                    <span class="ml-2">Reported on ${formatDate(new Date(issue.reportDate))}</span>
+                </div>
+                
+                <div class="flex items-center text-sm text-gray-500">
+                    <i class="fas fa-user w-5 text-gray-400"></i>
+                    <span class="ml-2">By ${issue.reporterName || 'Anonymous'}</span>
+                </div>
+                
+                ${issue.resolvedAt ? `
+                    <div class="flex items-center text-sm text-gray-500">
+                        <i class="fas fa-check-circle w-5 text-green-500"></i>
+                        <span class="ml-2">Resolved on ${formatDate(new Date(issue.resolvedAt))}</span>
+                    </div>
+                ` : ''}
+            </div>
+            
+            <div class="px-4 py-3 bg-gray-50 border-t border-gray-100 flex justify-end space-x-2">
+                <a href="/Card/Details/${issue.cardId}" class="px-3 py-1 text-xs bg-primary-50 text-primary-600 rounded hover:bg-primary-100 transition-colors">
+                    <i class="fas fa-eye mr-1"></i> View Product
+                </a>
+                <button class="update-status-btn px-3 py-1 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors" data-id="${issue.id}">
+                    <i class="fas fa-edit mr-1"></i> Update Status
+                </button>
+            </div>
+        `;
+        
+        container.appendChild(issueItem);
     }
-    
+
+    function initUpdateStatusModal() {
+        const updateStatusModal = document.getElementById('update-status-modal');
+        const cancelStatusUpdateBtn = document.getElementById('cancel-status-update');
+        const confirmStatusUpdateBtn = document.getElementById('confirm-status-update');
+        const newStatusSelect = document.getElementById('new-status');
+        const resolutionContainer = document.getElementById('resolution-container');
+        
+        if (updateStatusModal) {
+            // Close modal handlers
+            if (cancelStatusUpdateBtn) {
+                cancelStatusUpdateBtn.addEventListener('click', function() {
+                    updateStatusModal.classList.add('hidden');
+                });
+            }
+            
+            // Show/hide resolution notes based on status
+            if (newStatusSelect && resolutionContainer) {
+                newStatusSelect.addEventListener('change', function() {
+                    if (this.value === 'Resolved' || this.value === 'Closed') {
+                        resolutionContainer.classList.remove('hidden');
+                    } else {
+                        resolutionContainer.classList.add('hidden');
+                    }
+                });
+            }
+            
+            // Handle status update submission
+            if (confirmStatusUpdateBtn) {
+                confirmStatusUpdateBtn.addEventListener('click', function() {
+                    const issueId = this.getAttribute('data-issue-id');
+                    const newStatus = newStatusSelect.value;
+                    const resolutionNotes = document.getElementById('resolution-notes').value;
+                    
+                    if (!issueId) {
+                        showToast('Error', 'No issue selected for update', 'error');
+                        return;
+                    }
+                    
+                    // Get the CSRF token
+                    const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
+                    
+                    // Create request data
+                    const data = {
+                        id: parseInt(issueId),
+                        status: newStatus,
+                        resolution: resolutionNotes
+                    };
+                    
+                    // Send update request
+                    fetch('/Card/UpdateIssueStatus', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': token
+                        },
+                        body: JSON.stringify(data)
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(errorData => {
+                                throw new Error(errorData.error || 'Server error');
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(result => {
+                        if (result.success) {
+                            // Close the modal
+                            updateStatusModal.classList.add('hidden');
+                            
+                            // Show success toast
+                            showToast('Status updated', `Issue status changed to ${newStatus}`, 'success');
+                            
+                            // Reload the issues data
+                            loadIssueData();
+                        } else {
+                            showToast('Error', result.error || 'Failed to update status', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error updating status:', error);
+                        showToast('Error', error.message || 'Failed to update status', 'error');
+                    });
+                });
+            }
+            
+            // Close modal when clicking outside
+            updateStatusModal.addEventListener('click', function(e) {
+                if (e.target === updateStatusModal) {
+                    updateStatusModal.classList.add('hidden');
+                }
+            });
+        }
+        
+        // Delegate click event for issue status update buttons
+        document.addEventListener('click', function(e) {
+            const updateStatusBtn = e.target.closest('.update-status-btn');
+            if (!updateStatusBtn) return;
+            
+            const issueId = updateStatusBtn.getAttribute('data-id');
+            const issueItem = updateStatusBtn.closest('.issue-item');
+            
+            if (issueItem && issueId) {
+                // Populate issue details
+                const issueDetails = document.getElementById('issue-details');
+                const issueType = issueItem.getAttribute('data-type');
+                const issuePriority = issueItem.getAttribute('data-priority');
+                const issueStatus = issueItem.getAttribute('data-status');
+                
+                issueDetails.innerHTML = `
+                    <p><strong>Issue Type:</strong> ${issueType}</p>
+                    <p><strong>Priority:</strong> ${issuePriority}</p>
+                    <p><strong>Current Status:</strong> ${issueStatus}</p>
+                `;
+                
+                // Set current status
+                if (newStatusSelect) {
+                    newStatusSelect.value = issueStatus;
+                    
+                    // Trigger change event to show/hide resolution notes
+                    const event = new Event('change');
+                    newStatusSelect.dispatchEvent(event);
+                }
+                
+                // Set issue ID for submission
+                confirmStatusUpdateBtn.setAttribute('data-issue-id', issueId);
+                
+                // Show the modal
+                updateStatusModal.classList.remove('hidden');
+            }
+        });
+    }
+
     function applyTimeFilter(filter) {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -2824,13 +3220,13 @@
             refreshBtn.addEventListener('click', function() {
                 this.querySelector('i').classList.add('animate-spin');
                 
-                // Simulate refresh delay
+                // Reload the actual data
+                loadScanResults();
+                
+                // After load completes, remove spinning and show toast
                 setTimeout(() => {
                     this.querySelector('i').classList.remove('animate-spin');
                     showToast('Data refreshed', 'Scan results updated', 'success');
-                    
-                    // In a real app, you would reload the data here
-                    // location.reload();
                 }, 1000);
             });
         }
@@ -2903,139 +3299,23 @@
                 showToast('Settings', 'Settings panel would open here', 'info');
             });
         }
-    }
-    
-    function initUpdateStatusModal() {
-        const updateStatusModal = document.getElementById('update-status-modal');
-        const cancelStatusUpdateBtn = document.getElementById('cancel-status-update');
-        const confirmStatusUpdateBtn = document.getElementById('confirm-status-update');
-        const newStatusSelect = document.getElementById('new-status');
-        const resolutionContainer = document.getElementById('resolution-container');
         
-        if (updateStatusModal) {
-            // Close modal handlers
-            if (cancelStatusUpdateBtn) {
-                cancelStatusUpdateBtn.addEventListener('click', function() {
-                    updateStatusModal.classList.add('hidden');
-                });
-            }
-            
-            // Show/hide resolution notes based on status
-            if (newStatusSelect && resolutionContainer) {
-                newStatusSelect.addEventListener('change', function() {
-                    if (this.value === 'Resolved' || this.value === 'Closed') {
-                        resolutionContainer.classList.remove('hidden');
-                    } else {
-                        resolutionContainer.classList.add('hidden');
-                    }
-                });
-            }
-            
-            // Handle status update submission
-            if (confirmStatusUpdateBtn) {
-                confirmStatusUpdateBtn.addEventListener('click', function() {
-                    const issueId = this.getAttribute('data-issue-id');
-                    const newStatus = newStatusSelect.value;
-                    const resolutionNotes = document.getElementById('resolution-notes').value;
-                    
-                    if (!issueId) {
-                        showToast('Error', 'No issue selected for update', 'error');
-                        return;
-                    }
-                    
-                    // Get the CSRF token
-                    const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
-                    
-                    // Create request data
-                    const data = {
-                        id: parseInt(issueId),
-                        status: newStatus,
-                        resolution: resolutionNotes
-                    };
-                    
-                    // Send update request
-                    fetch('/Card/UpdateIssueStatus', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'RequestVerificationToken': token
-                        },
-                        body: JSON.stringify(data)
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            return response.json().then(errorData => {
-                                throw new Error(errorData.error || 'Server error');
-                            });
-                        }
-                        return response.json();
-                    })
-                    .then(result => {
-                        if (result.success) {
-                            // Close the modal
-                            updateStatusModal.classList.add('hidden');
-                            
-                            // Show success toast
-                            showToast('Status updated', `Issue status changed to ${newStatus}`, 'success');
-                            
-                            // Reload the issues data
-                            loadIssueData();
-                        } else {
-                            showToast('Error', result.error || 'Failed to update status', 'error');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error updating status:', error);
-                        showToast('Error', error.message || 'Failed to update status', 'error');
-                    });
-                });
-            }
+        // Delete modal
+        const deleteModal = document.getElementById('delete-modal');
+        const cancelDeleteBtn = document.getElementById('cancel-delete');
+        
+        if (deleteModal && cancelDeleteBtn) {
+            cancelDeleteBtn.addEventListener('click', function() {
+                deleteModal.classList.add('hidden');
+            });
             
             // Close modal when clicking outside
-            updateStatusModal.addEventListener('click', function(e) {
-                if (e.target === updateStatusModal) {
-                    updateStatusModal.classList.add('hidden');
+            deleteModal.addEventListener('click', function(e) {
+                if (e.target === deleteModal) {
+                    deleteModal.classList.add('hidden');
                 }
             });
         }
-        
-        // Delegate click event for issue status update buttons
-        document.addEventListener('click', function(e) {
-            const updateStatusBtn = e.target.closest('.update-status-btn');
-            if (!updateStatusBtn) return;
-            
-            const issueId = updateStatusBtn.getAttribute('data-id');
-            const issueItem = updateStatusBtn.closest('.issue-item');
-            
-            if (issueItem && issueId) {
-                // Populate issue details
-                const issueDetails = document.getElementById('issue-details');
-                const issueType = issueItem.getAttribute('data-type');
-                const issuePriority = issueItem.getAttribute('data-priority');
-                const issueStatus = issueItem.getAttribute('data-status');
-                
-                issueDetails.innerHTML = `
-                    <p><strong>Issue Type:</strong> ${issueType}</p>
-                    <p><strong>Priority:</strong> ${issuePriority}</p>
-                    <p><strong>Current Status:</strong> ${issueStatus}</p>
-                `;
-                
-                // Set current status
-                if (newStatusSelect) {
-                    newStatusSelect.value = issueStatus;
-                    
-                    // Trigger change event to show/hide resolution notes
-                    const event = new Event('change');
-                    newStatusSelect.dispatchEvent(event);
-                }
-                
-                // Set issue ID for submission
-                confirmStatusUpdateBtn.setAttribute('data-issue-id', issueId);
-                
-                // Show the modal
-                updateStatusModal.classList.remove('hidden');
-            }
-        });
     }
     
     function initializeToastNotifications() {
@@ -3093,229 +3373,56 @@
         }, 5000);
     }
     
-    // Load issue data
-    function loadIssueData() {
-        const issuesContainer = document.getElementById('issues-content');
-        if (!issuesContainer) return;
+    // Initialize shared functionality
+    function initSharedFunctionality() {
+        // Initialize modals
+        initializeModals();
         
-        // Show loading state
-        issuesContainer.innerHTML = `
-            <div class="text-center py-8">
-                <div class="w-16 h-16 mx-auto rounded-full bg-primary-50 flex items-center justify-center">
-                    <i class="fas fa-spinner fa-spin text-primary-500 text-xl"></i>
-                </div>
-                <p class="mt-4 text-gray-500">Loading issues...</p>
-            </div>
-        `;
+        // Initialize toast notifications
+        initializeToastNotifications();
         
-        // Fetch from API
-        fetch('/api/Card/GetAllIssues')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(issues => {
-                // Update issue counters
-                const totalIssues = issues.length;
-                const openIssues = issues.filter(i => i.status === 'Open').length;
-                const inProgressIssues = issues.filter(i => i.status === 'In Progress').length;
-                const resolvedIssues = issues.filter(i => i.status === 'Resolved' || i.status === 'Closed').length;
+        // Add clear all filters event listener
+        const clearAllFiltersBtn = document.getElementById('clear-all-filters');
+        if (clearAllFiltersBtn) {
+            clearAllFiltersBtn.addEventListener('click', function() {
+                document.getElementById('date-from').value = '';
+                document.getElementById('date-to').value = '';
+                document.getElementById('result-filter').value = '';
+                document.getElementById('location-filter').value = '';
                 
-                // Update UI counters
-                document.getElementById('total-issues-counter').querySelector('.animate-counter').setAttribute('data-count', totalIssues);
-                document.getElementById('open-issues-counter').querySelector('.animate-counter').setAttribute('data-count', openIssues);
-                document.getElementById('inprogress-issues-counter').querySelector('.animate-counter').setAttribute('data-count', inProgressIssues);
-                document.getElementById('resolved-issues-counter').querySelector('.animate-counter').setAttribute('data-count', resolvedIssues);
+                // Reset all filter tags
+                document.getElementById('active-filters').classList.add('hidden');
+                document.getElementById('filter-tags').innerHTML = '';
                 
-                // Refresh animated counters
-                initAnimatedCounters();
+                // Reset all results visibility
+                resetFilters();
                 
-                // Update issues count display
-                document.getElementById('issues-count').textContent = `Showing ${totalIssues} issues`;
-                
-                // Render the issues list
-                renderIssuesList(issues, issuesContainer);
-            })
-            .catch(error => {
-                console.error('Error loading issues:', error);
-                
-                // Show error message
-                issuesContainer.innerHTML = `
-                    <div class="text-center py-8">
-                        <div class="w-16 h-16 mx-auto rounded-full bg-red-100 flex items-center justify-center text-red-500 mb-3">
-                            <i class="fas fa-exclamation-triangle text-2xl"></i>
-                        </div>
-                        <p class="font-medium">Failed to load issues</p>
-                        <p class="text-sm mt-2">${error.message}</p>
-                        <button id="retry-load-issues" class="mt-4 px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700">Retry</button>
-                    </div>
-                `;
-                
-                // Add retry button handler
-                const retryButton = document.getElementById('retry-load-issues');
-                if (retryButton) {
-                    retryButton.addEventListener('click', loadIssueData);
-                }
+                // Show toast notification
+                showToast('Filters cleared', 'All filters have been reset', 'info');
             });
-    }
-
-    function renderIssuesList(issues, container) {
-        if (!issues || issues.length === 0) {
-            // No issues found
-            container.innerHTML = `
-                <div class="text-center py-8">
-                    <div class="w-16 h-16 mx-auto rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
-                        <i class="fas fa-clipboard-check text-2xl"></i>
-                    </div>
-                    <p class="text-lg font-medium text-gray-700 mt-4">No Issue Reports</p>
-                    <p class="text-gray-500 mt-2 max-w-md mx-auto">There are currently no reported issues for any products.</p>
-                </div>
-            `;
-            return;
         }
         
-        // Clear loading spinner
-        container.innerHTML = '';
-        
-        // Create issues list
-        const issuesList = document.createElement('div');
-        issuesList.className = 'space-y-4';
-        
-        // Render each issue
-        issues.forEach(issue => renderIssueCard(issue, issuesList));
-        
-        container.appendChild(issuesList);
-    }
-    
-    function formatDate(date) {
-        return date.toLocaleDateString(undefined, { 
-            year: 'numeric', 
-            month: 'short', 
-            day: 'numeric' 
-        });
-    }
-
-    function renderIssueCard(issue, container) {
-        // Create issue card element
-        const issueItem = document.createElement('div');
-        issueItem.className = 'issue-item bg-white rounded-lg shadow border border-gray-200 transition-all hover:shadow-md overflow-hidden';
-        issueItem.setAttribute('data-id', issue.id);
-        issueItem.setAttribute('data-status', issue.status);
-        issueItem.setAttribute('data-priority', issue.priority);
-        issueItem.setAttribute('data-type', issue.issueType);
-        issueItem.setAttribute('data-date', new Date(issue.reportDate).toISOString());
-        
-        // Determine status color and icon
-        let statusColor, statusIcon, statusBg;
-        switch (issue.status) {
-            case 'Open':
-                statusColor = 'text-yellow-700';
-                statusBg = 'bg-yellow-100';
-                statusIcon = 'fas fa-exclamation-circle';
-                break;
-            case 'In Progress':
-                statusColor = 'text-blue-700';
-                statusBg = 'bg-blue-100';
-                statusIcon = 'fas fa-tools';
-                break;
-            case 'Resolved':
-                statusColor = 'text-green-700';
-                statusBg = 'bg-green-100';
-                statusIcon = 'fas fa-check-circle';
-                break;
-            case 'Closed':
-                statusColor = 'text-gray-700';
-                statusBg = 'bg-gray-100';
-                statusIcon = 'fas fa-archive';
-                break;
-            default:
-                statusColor = 'text-gray-700';
-                statusBg = 'bg-gray-100';
-                statusIcon = 'fas fa-question-circle';
+        // Add clear all issue filters event listener
+        const clearAllIssueFiltersBtn = document.getElementById('clear-all-issue-filters');
+        if (clearAllIssueFiltersBtn) {
+            clearAllIssueFiltersBtn.addEventListener('click', function() {
+                document.getElementById('status-filter').value = '';
+                document.getElementById('priority-filter').value = '';
+                document.getElementById('issue-type-filter').value = '';
+                document.getElementById('issue-date-from').value = '';
+                document.getElementById('issue-date-to').value = '';
+                
+                // Reset all filter tags
+                document.getElementById('active-issue-filters').classList.add('hidden');
+                document.getElementById('issue-filter-tags').innerHTML = '';
+                
+                // Reset all issues visibility
+                resetIssueFilters();
+                
+                // Show toast notification
+                showToast('Filters cleared', 'All issue filters have been reset', 'info');
+            });
         }
-        
-        // Determine priority color and icon
-        let priorityColor, priorityIcon;
-        switch (issue.priority) {
-            case 'Low':
-                priorityColor = 'text-green-600';
-                priorityIcon = 'fas fa-arrow-down';
-                break;
-            case 'Medium':
-                priorityColor = 'text-yellow-600';
-                priorityIcon = 'fas fa-equals';
-                break;
-            case 'High':
-                priorityColor = 'text-orange-600';
-                priorityIcon = 'fas fa-arrow-up';
-                break;
-            case 'Critical':
-                priorityColor = 'text-red-600';
-                priorityIcon = 'fas fa-exclamation';
-                break;
-            default:
-                priorityColor = 'text-gray-600';
-                priorityIcon = 'fas fa-circle';
-        }
-        
-        // Create issue card HTML
-        issueItem.innerHTML = `
-            <div class="p-4 border-b border-gray-100 flex justify-between items-center">
-                <div class="flex items-center">
-                    <div class="w-12 h-12 rounded-lg ${statusBg} flex items-center justify-center ${statusColor} mr-3 shadow-inner">
-                        <i class="${statusIcon} text-xl"></i>
-                    </div>
-                    <div>
-                        <div class="flex items-center mb-1">
-                            <h4 class="font-medium text-gray-900">${issue.issueType}</h4>
-                            <span class="ml-2 px-2 py-0.5 rounded-full text-xs font-medium ${priorityColor} bg-gray-100 border border-gray-200">
-                                <i class="${priorityIcon} mr-1"></i> ${issue.priority}
-                            </span>
-                        </div>
-                        <p class="text-sm text-gray-500">Product: ${issue.cardName}</p>
-                    </div>
-                </div>
-                <span class="px-2.5 py-1 rounded-full text-xs font-medium ${statusColor} ${statusBg}">
-                    ${issue.status}
-                </span>
-            </div>
-            
-            <div class="p-4 space-y-3">
-                <div class="text-sm text-gray-700">
-                    ${issue.description || 'No description provided'}
-                </div>
-                
-                <div class="flex items-center text-sm text-gray-500">
-                    <i class="fas fa-calendar-alt w-5 text-gray-400"></i>
-                    <span class="ml-2">Reported on ${formatDate(new Date(issue.reportDate))}</span>
-                </div>
-                
-                <div class="flex items-center text-sm text-gray-500">
-                    <i class="fas fa-user w-5 text-gray-400"></i>
-                    <span class="ml-2">By ${issue.reporterName || 'Anonymous'}</span>
-                </div>
-                
-                ${issue.resolvedAt ? `
-                    <div class="flex items-center text-sm text-gray-500">
-                        <i class="fas fa-check-circle w-5 text-green-500"></i>
-                        <span class="ml-2">Resolved on ${formatDate(new Date(issue.resolvedAt))}</span>
-                    </div>
-                ` : ''}
-            </div>
-            
-            <div class="px-4 py-3 bg-gray-50 border-t border-gray-100 flex justify-end space-x-2">
-                <a href="/Card/Details/${issue.cardId}" class="px-3 py-1 text-xs bg-primary-50 text-primary-600 rounded hover:bg-primary-100 transition-colors">
-                    <i class="fas fa-eye mr-1"></i> View Product
-                </a>
-                <button class="update-status-btn px-3 py-1 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors" data-id="${issue.id}">
-                    <i class="fas fa-edit mr-1"></i> Update Status
-                </button>
-            </div>
-        `;
-        
-        container.appendChild(issueItem);
     }
 </script>
 }
