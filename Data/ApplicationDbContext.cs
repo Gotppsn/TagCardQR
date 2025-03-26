@@ -20,6 +20,8 @@ namespace CardTagManager.Data
         public DbSet<ScanSettings> ScanSettings { get; set; }
         public DbSet<ScanResult> ScanResults { get; set; }
         public DbSet<UserProfile> UserProfiles { get; set; }
+        public DbSet<Role> Roles { get; set; }
+        public DbSet<UserRole> UserRoles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -137,7 +139,7 @@ namespace CardTagManager.Data
                 .Property(t => t.UpdatedAt)
                 .HasDefaultValueSql("GETDATE()");
                 
-            //Scan setting entity configuration 
+            // Scan setting entity configuration 
             modelBuilder.Entity<ScanSettings>()
                 .HasKey(s => s.Id);
 
@@ -182,7 +184,7 @@ namespace CardTagManager.Data
                 .IsRequired(false)
                 .HasMaxLength(500);
 
-            // ScanResuly configuration
+            // ScanResult configuration
             modelBuilder.Entity<ScanResult>()
                 .HasKey(s => s.Id);
                 
@@ -191,6 +193,202 @@ namespace CardTagManager.Data
                 .WithMany()
                 .HasForeignKey(s => s.CardId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // UserProfile configuration
+            modelBuilder.Entity<UserProfile>()
+                .HasKey(u => u.Id);
+                
+            modelBuilder.Entity<UserProfile>()
+                .Property(u => u.Username)
+                .IsRequired()
+                .HasMaxLength(100);
+                
+            modelBuilder.Entity<UserProfile>()
+                .HasIndex(u => u.Username)
+                .IsUnique();
+                
+            modelBuilder.Entity<UserProfile>()
+                .Property(u => u.Detail_TH_FirstName)
+                .HasMaxLength(100);
+                
+            modelBuilder.Entity<UserProfile>()
+                .Property(u => u.Detail_TH_LastName)
+                .HasMaxLength(100);
+                
+            modelBuilder.Entity<UserProfile>()
+                .Property(u => u.Detail_EN_FirstName)
+                .HasMaxLength(100);
+                
+            modelBuilder.Entity<UserProfile>()
+                .Property(u => u.Detail_EN_LastName)
+                .HasMaxLength(100);
+                
+            modelBuilder.Entity<UserProfile>()
+                .Property(u => u.User_Email)
+                .HasMaxLength(255);
+                
+            modelBuilder.Entity<UserProfile>()
+                .Property(u => u.User_Code)
+                .HasMaxLength(50);
+                
+            modelBuilder.Entity<UserProfile>()
+                .Property(u => u.Department_Name)
+                .HasMaxLength(100);
+                
+            modelBuilder.Entity<UserProfile>()
+                .Property(u => u.Plant_Name)
+                .HasMaxLength(100);
+
+            // Configure Role entity
+            modelBuilder.Entity<Role>()
+                .HasKey(r => r.Id);
+                
+            modelBuilder.Entity<Role>()
+                .Property(r => r.Name)
+                .IsRequired()
+                .HasMaxLength(50);
+                
+            modelBuilder.Entity<Role>()
+                .Property(r => r.NormalizedName)
+                .IsRequired()
+                .HasMaxLength(50);
+                
+            modelBuilder.Entity<Role>()
+                .HasIndex(r => r.NormalizedName)
+                .IsUnique();
+                
+            modelBuilder.Entity<Role>()
+                .Property(r => r.Description)
+                .HasMaxLength(255);
+                
+            modelBuilder.Entity<Role>()
+                .Property(r => r.ConcurrencyStamp)
+                .IsRequired();
+
+            // Configure UserRole entity
+            modelBuilder.Entity<UserRole>()
+                .HasKey(ur => ur.Id);
+                
+            modelBuilder.Entity<UserRole>()
+                .HasOne(ur => ur.User)
+                .WithMany()
+                .HasForeignKey(ur => ur.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+                
+            modelBuilder.Entity<UserRole>()
+                .HasOne(ur => ur.Role)
+                .WithMany(r => r.UserRoles)
+                .HasForeignKey(ur => ur.RoleId)
+                .OnDelete(DeleteBehavior.Cascade);
+                
+            // Create a unique index on UserId and RoleId to prevent duplicate role assignments
+            modelBuilder.Entity<UserRole>()
+                .HasIndex(ur => new { ur.UserId, ur.RoleId })
+                .IsUnique();
+                
+            modelBuilder.Entity<UserRole>()
+                .Property(ur => ur.CreatedBy)
+                .HasMaxLength(100);
+
+            // MaintenanceReminder configuration
+            modelBuilder.Entity<MaintenanceReminder>()
+                .HasKey(m => m.Id);
+                
+            modelBuilder.Entity<MaintenanceReminder>()
+                .HasOne(m => m.Card)
+                .WithMany()
+                .HasForeignKey(m => m.CardId)
+                .OnDelete(DeleteBehavior.Cascade);
+                
+            modelBuilder.Entity<MaintenanceReminder>()
+                .Property(m => m.Title)
+                .IsRequired()
+                .HasMaxLength(100);
+                
+            modelBuilder.Entity<MaintenanceReminder>()
+                .Property(m => m.Notes)
+                .IsRequired(false);
+                
+            modelBuilder.Entity<MaintenanceReminder>()
+                .Property(m => m.RepeatFrequency)
+                .HasMaxLength(20)
+                .HasDefaultValue("never");
+                
+            modelBuilder.Entity<MaintenanceReminder>()
+                .Property(m => m.CreatedBy)
+                .HasMaxLength(100);
+
+            // CardDocument configuration
+            modelBuilder.Entity<CardDocument>()
+                .HasKey(d => d.Id);
+                
+            modelBuilder.Entity<CardDocument>()
+                .HasOne(d => d.Card)
+                .WithMany()
+                .HasForeignKey(d => d.CardId)
+                .OnDelete(DeleteBehavior.Cascade);
+                
+            modelBuilder.Entity<CardDocument>()
+                .Property(d => d.Title)
+                .IsRequired()
+                .HasMaxLength(100);
+                
+            modelBuilder.Entity<CardDocument>()
+                .Property(d => d.DocumentType)
+                .HasMaxLength(50);
+                
+            modelBuilder.Entity<CardDocument>()
+                .Property(d => d.Description)
+                .IsRequired(false);
+                
+            modelBuilder.Entity<CardDocument>()
+                .Property(d => d.FilePath)
+                .IsRequired()
+                .HasMaxLength(500);
+                
+            modelBuilder.Entity<CardDocument>()
+                .Property(d => d.FileName)
+                .IsRequired()
+                .HasMaxLength(255);
+                
+            modelBuilder.Entity<CardDocument>()
+                .Property(d => d.FileType)
+                .HasMaxLength(100);
+                
+            modelBuilder.Entity<CardDocument>()
+                .Property(d => d.UploadedBy)
+                .HasMaxLength(100);
+                
+            // Seed default roles
+            modelBuilder.Entity<Role>().HasData(
+                new Role 
+                { 
+                    Id = 1, 
+                    Name = "Admin", 
+                    NormalizedName = "ADMIN", 
+                    Description = "Administrator with full system access",
+                    CreatedAt = DateTime.Now,
+                    ConcurrencyStamp = Guid.NewGuid().ToString()
+                },
+                new Role 
+                { 
+                    Id = 2, 
+                    Name = "Manager", 
+                    NormalizedName = "MANAGER", 
+                    Description = "Manager with limited administrative access",
+                    CreatedAt = DateTime.Now,
+                    ConcurrencyStamp = Guid.NewGuid().ToString()
+                },
+                new Role 
+                { 
+                    Id = 3, 
+                    Name = "User", 
+                    NormalizedName = "USER", 
+                    Description = "Standard user with basic access",
+                    CreatedAt = DateTime.Now,
+                    ConcurrencyStamp = Guid.NewGuid().ToString()
+                }
+            );
         }
     }
 }

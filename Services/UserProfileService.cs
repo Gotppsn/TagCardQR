@@ -1,5 +1,6 @@
 // Path: Services/UserProfileService.cs
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CardTagManager.Data;
@@ -25,6 +26,18 @@ namespace CardTagManager.Services
         {
             return await _dbContext.UserProfiles
                 .FirstOrDefaultAsync(u => u.Username == username);
+        }
+        
+        public async Task<UserProfile> GetUserProfileByIdAsync(int id)
+        {
+            return await _dbContext.UserProfiles.FindAsync(id);
+        }
+        
+        public async Task<List<UserProfile>> GetAllUserProfilesAsync()
+        {
+            return await _dbContext.UserProfiles
+                .OrderBy(u => u.Username)
+                .ToListAsync();
         }
         
         public async Task<UserProfile> CreateUserProfileIfNotExistsAsync(
@@ -150,6 +163,9 @@ namespace CardTagManager.Services
                     await EnrichUserProfileFromJsonAsync(username, rawJsonData);
                 }
                 
+                // Assign default User role to new user 
+                await AssignDefaultRoleAsync(newProfile.Id);
+                
                 return newProfile;
             }
             catch (Exception ex)
@@ -269,6 +285,51 @@ namespace CardTagManager.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Error enriching user profile from JSON for {username}");
+                return false;
+            }
+        }
+
+        // Role-related methods
+        private async Task<bool> AssignDefaultRoleAsync(int userId)
+        {
+            try
+            {
+                // Get the default User role (ID 3 based on seed data)
+                var userRole = await _dbContext.Roles.FirstOrDefaultAsync(r => r.NormalizedName == "USER");
+                if (userRole == null)
+                {
+                    _logger.LogWarning("Default User role not found when assigning roles to new user");
+                    return false;
+                }
+
+                // Check if user already has this role
+                bool hasRole = await _dbContext.UserRoles
+                    .AnyAsync(ur => ur.UserId == userId && ur.RoleId == userRole.Id);
+                
+                if (hasRole)
+                {
+                    return true; // Already has the role
+                }
+
+                // Assign the default role
+                var newUserRole = new UserRole
+                {
+                    UserId = userId,
+                    RoleId = userRole.Id,
+                    CreatedAt = DateTime.Now,
+                    CreatedBy = "System"
+                };
+
+                _dbContext.UserRoles.Add(newUserRole);
+                await _dbContext.SaveChangesAsync();
+                
+                _logger.LogInformation($"Assigned default User role to user ID {userId}");
+                
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error assigning default role to user {userId}");
                 return false;
             }
         }

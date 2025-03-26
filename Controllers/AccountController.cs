@@ -16,15 +16,18 @@ namespace CardTagManager.Controllers
     {
         private readonly LdapAuthenticationService _authService;
         private readonly UserProfileService _userProfileService;
+        private readonly RoleService _roleService;
         private readonly ILogger<AccountController> _logger;
 
         public AccountController(
             LdapAuthenticationService authService, 
             UserProfileService userProfileService,
+            RoleService roleService,
             ILogger<AccountController> logger)
         {
             _authService = authService;
             _userProfileService = userProfileService;
+            _roleService = roleService;
             _logger = logger;
         }
 
@@ -98,11 +101,35 @@ namespace CardTagManager.Controllers
                             return View(model);
                         }
 
+                        // Get user roles
+                        var userRoles = await _roleService.GetUserRolesAsync(userProfile.Id);
+                        
+                        // Special case for admin user - ensure they have admin role
+                        if (model.Username.ToLower() == "admin" && !userRoles.Any(r => r.NormalizedName == "ADMIN"))
+                        {
+                            var adminRole = await _roleService.GetRoleByNameAsync("ADMIN");
+                            if (adminRole != null)
+                            {
+                                await _roleService.AssignRoleToUserAsync(userProfile.Id, adminRole.Id, "System");
+                                userRoles.Add(adminRole);
+                            }
+                        }
+                        
+                        // If no roles assigned, try assigning default User role
+                        if (!userRoles.Any())
+                        {
+                            var userRole = await _roleService.GetRoleByNameAsync("USER");
+                            if (userRole != null)
+                            {
+                                await _roleService.AssignRoleToUserAsync(userProfile.Id, userRole.Id, "System");
+                                userRoles.Add(userRole);
+                            }
+                        }
+
                         // Create authentication claims
                         var claims = new List<Claim>
                         {
                             new Claim(ClaimTypes.Name, model.Username),
-                            new Claim(ClaimTypes.Role, model.Username == "admin" ? "Administrator" : "User"),
                             new Claim("Username", userInfo.Username),
                             new Claim("Department", userInfo.Department ?? ""),
                             new Claim("Email", userInfo.Email ?? ""),
@@ -113,6 +140,12 @@ namespace CardTagManager.Controllers
                             new Claim("TH_LastName", userInfo.ThaiLastName ?? ""),
                             new Claim("login_timestamp", DateTime.UtcNow.Ticks.ToString())
                         };
+                        
+                        // Add role claims
+                        foreach (var role in userRoles)
+                        {
+                            claims.Add(new Claim(ClaimTypes.Role, role.Name));
+                        }
 
                         var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                         var authProperties = new AuthenticationProperties
