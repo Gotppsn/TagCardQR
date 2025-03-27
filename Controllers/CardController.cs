@@ -330,95 +330,105 @@ namespace CardTagManager.Controllers
         }
 
         // GET: Card/ScanShow/5
-        [AllowAnonymous] 
-        public async Task<IActionResult> ScanShow(int id, bool preview = false)
+[AllowAnonymous] 
+public async Task<IActionResult> ScanShow(int id, bool preview = false)
+{
+    try
+    {
+        var card = await _context.Cards.FindAsync(id);
+        if (card == null)
         {
-            try
+            return NotFound();
+        }
+
+        // Check if QR code is active
+        if (!card.IsQrCodeActive && !preview)
+        {
+            // Generate QR code for display
+            string qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card);
+            ViewBag.QrCodeImage = qrCodeImageData;
+            return View("DeactivatedQR", card);
+        }
+
+        // Rest of the method remains the same...
+        // Check if this card has private mode enabled
+        var scanSettings = await _context.ScanSettings
+            .FirstOrDefaultAsync(s => s.CardId == id);
+            
+        bool privateMode = scanSettings?.PrivateMode ?? false;
+
+        // If preview mode, pass requested fields from query string
+        if (preview)
+        {
+            ViewBag.PreviewMode = true;
+            ViewBag.RequestedFields = Request.Query["field"].ToList();
+            ViewBag.UIElements = Request.Query["ui"].ToList();
+            
+            // Override private mode from query string for preview
+            if (Request.Query.ContainsKey("private"))
             {
-                var card = await _context.Cards.FindAsync(id);
-                if (card == null)
-                {
-                    return NotFound();
-                }
-
-                // Check if this card has private mode enabled
-                var scanSettings = await _context.ScanSettings
-                    .FirstOrDefaultAsync(s => s.CardId == id);
-                    
-                bool privateMode = scanSettings?.PrivateMode ?? false;
-
-                // If preview mode, pass requested fields from query string
-                if (preview)
-                {
-                    ViewBag.PreviewMode = true;
-                    ViewBag.RequestedFields = Request.Query["field"].ToList();
-                    ViewBag.UIElements = Request.Query["ui"].ToList();
-                    
-                    // Override private mode from query string for preview
-                    if (Request.Query.ContainsKey("private"))
-                    {
-                        privateMode = bool.Parse(Request.Query["private"].ToString());
-                    }
-                }
-                
-                // Check access control - if private and not authenticated, redirect to login
-                if (privateMode && !User.Identity.IsAuthenticated && !preview)
-                {
-                    // Store the return URL to redirect back after login
-                    string returnUrl = $"{Request.Path}";
-                    
-                    // Add Scan context for analytics
-                    TempData["ScanRedirect"] = "PrivateAccess";
-                    
-                    return RedirectToAction("Login", "Account", new { returnUrl });
-                }
-
-                // Record this scan event if not in preview mode
-                if (!preview)
-                {
-                    var scanResult = new ScanResult
-                    {
-                        CardId = card.Id,
-                        ScanTime = DateTime.Now,
-                        DeviceInfo = Request.Headers["User-Agent"].ToString(),
-                        Location = Request.Headers["Referer"].ToString() ?? "Direct Access",
-                        Result = privateMode && User.Identity.IsAuthenticated ? "AuthenticatedAccess" : "PublicAccess",
-                        ScannedBy = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Anonymous",
-                        IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
-                        ScanContext = TempData["ScanRedirect"]?.ToString() ?? "Direct"
-                    };
-                    
-                    // Extract additional useful information if possible
-                    if (Request.Headers.ContainsKey("X-Forwarded-For"))
-                    {
-                        scanResult.IpAddress = Request.Headers["X-Forwarded-For"].ToString();
-                    }
-                    
-                    _context.ScanResults.Add(scanResult);
-                    await _context.SaveChangesAsync();
-                }
-
-                // Generate QR code for display
-                string qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card);
-                ViewBag.QrCodeImage = qrCodeImageData;
-                
-                // Pass private mode to view
-                ViewBag.PrivateMode = privateMode;
-                
-                // Pass scan settings to view if they exist
-                if (scanSettings != null)
-                {
-                    ViewBag.ScanSettings = scanSettings;
-                }
-
-                return View(card);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error in ScanShow for card ID: {id}");
-                return View("Error", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+                privateMode = bool.Parse(Request.Query["private"].ToString());
             }
         }
+        
+        // Check access control - if private and not authenticated, redirect to login
+        if (privateMode && !User.Identity.IsAuthenticated && !preview)
+        {
+            // Store the return URL to redirect back after login
+            string returnUrl = $"{Request.Path}";
+            
+            // Add Scan context for analytics
+            TempData["ScanRedirect"] = "PrivateAccess";
+            
+            return RedirectToAction("Login", "Account", new { returnUrl });
+        }
+
+        // Record this scan event if not in preview mode
+        if (!preview)
+        {
+            var scanResult = new ScanResult
+            {
+                CardId = card.Id,
+                ScanTime = DateTime.Now,
+                DeviceInfo = Request.Headers["User-Agent"].ToString(),
+                Location = Request.Headers["Referer"].ToString() ?? "Direct Access",
+                Result = privateMode && User.Identity.IsAuthenticated ? "AuthenticatedAccess" : "PublicAccess",
+                ScannedBy = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Anonymous",
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
+                ScanContext = TempData["ScanRedirect"]?.ToString() ?? "Direct"
+            };
+            
+            // Extract additional useful information if possible
+            if (Request.Headers.ContainsKey("X-Forwarded-For"))
+            {
+                scanResult.IpAddress = Request.Headers["X-Forwarded-For"].ToString();
+            }
+            
+            _context.ScanResults.Add(scanResult);
+            await _context.SaveChangesAsync();
+        }
+
+        // Generate QR code for display
+        string qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card);
+        ViewBag.QrCodeImage = qrCodeImageData;
+        
+        // Pass private mode to view
+        ViewBag.PrivateMode = privateMode;
+        
+        // Pass scan settings to view if they exist
+        if (scanSettings != null)
+        {
+            ViewBag.ScanSettings = scanSettings;
+        }
+
+        return View(card);
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, $"Error in ScanShow for card ID: {id}");
+        return View("Error", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+    }
+}
 
         // GET: Card/QrCode/5
         public async Task<IActionResult> QrCode(int id)
@@ -1916,5 +1926,309 @@ namespace CardTagManager.Controllers
                 return StatusCode(500, new { error = "An error occurred while retrieving products with issues." });
             }
         } 
+
+        public async Task<IActionResult> Archive(int id)
+{
+    try
+    {
+        var card = await _context.Cards.FindAsync(id);
+        if (card == null)
+        {
+            return NotFound();
+        }
+
+        // Check if user has access to archive this card
+        string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
+        bool isAdmin = User.IsInRole("Admin");
+        
+        if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
+        {
+            bool hasAccess = await (from c in _context.Cards
+                                 join profile in _context.UserProfiles on c.CreatedByID equals profile.User_Code
+                                 where c.Id == id && profile.Department_Name == userDepartment
+                                 select c).AnyAsync();
+            
+            if (!hasAccess)
+            {
+                TempData["ErrorMessage"] = "You don't have permission to archive this card.";
+                return RedirectToAction(nameof(Index));
+            }
+        }
+        
+        // Generate QR code for display
+        string qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card);
+        ViewBag.QrCodeImage = qrCodeImageData;
+
+        return View(card);
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, $"Error accessing archive page for card ID {id}");
+        TempData["ErrorMessage"] = "An error occurred while accessing the archive page.";
+        return RedirectToAction(nameof(Index));
+    }
+}
+
+// POST: Card/Archive/5
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> ArchiveConfirmed(int id)
+{
+    try
+    {
+        var card = await _context.Cards.FindAsync(id);
+        if (card == null)
+        {
+            return NotFound();
+        }
+
+        // Check if user has access to archive this card
+        string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
+        bool isAdmin = User.IsInRole("Admin");
+        
+        if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
+        {
+            bool hasAccess = await (from c in _context.Cards
+                                 join profile in _context.UserProfiles on c.CreatedByID equals profile.User_Code
+                                 where c.Id == id && profile.Department_Name == userDepartment
+                                 select c).AnyAsync();
+            
+            if (!hasAccess)
+            {
+                TempData["ErrorMessage"] = "You don't have permission to archive this card.";
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        // Archive the card
+        card.IsArchived = true;
+        card.UpdatedAt = DateTime.Now;
+        card.UpdatedBy = User.Identity?.Name ?? "system";
+        
+        // Get User_Code from claims if available
+        var userCodeClaim = User.Claims.FirstOrDefault(c => c.Type == "User_Code");
+        if (userCodeClaim != null)
+        {
+            card.UpdatedByID = userCodeClaim.Value;
+        }
+
+        // Track change in history
+        var archiveHistory = new CardHistory
+        {
+            CardId = id,
+            FieldName = "Status",
+            OldValue = "Active",
+            NewValue = "Archived",
+            ChangedAt = DateTime.Now,
+            ChangedBy = User.Identity?.Name ?? "system"
+        };
+        
+        _context.CardHistories.Add(archiveHistory);
+        _context.Update(card);
+        await _context.SaveChangesAsync();
+        
+        TempData["SuccessMessage"] = $"Product '{card.ProductName}' has been archived.";
+        
+        return RedirectToAction(nameof(Index));
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, $"Error archiving card {id}");
+        TempData["ErrorMessage"] = "An error occurred while archiving the product.";
+        return RedirectToAction(nameof(Details), new { id });
+    }
+}
+
+// GET: Card/Deactivate/5
+public async Task<IActionResult> Deactivate(int id)
+{
+    try
+    {
+        var card = await _context.Cards.FindAsync(id);
+        if (card == null)
+        {
+            return NotFound();
+        }
+
+        // Check if user has access to deactivate this card
+        string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
+        bool isAdmin = User.IsInRole("Admin");
+        
+        if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
+        {
+            bool hasAccess = await (from c in _context.Cards
+                                 join profile in _context.UserProfiles on c.CreatedByID equals profile.User_Code
+                                 where c.Id == id && profile.Department_Name == userDepartment
+                                 select c).AnyAsync();
+            
+            if (!hasAccess)
+            {
+                TempData["ErrorMessage"] = "You don't have permission to deactivate this card's QR code.";
+                return RedirectToAction(nameof(Index));
+            }
+        }
+        
+        // Generate QR code for display
+        string qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card);
+        ViewBag.QrCodeImage = qrCodeImageData;
+
+        return View(card);
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, $"Error accessing deactivate page for card ID {id}");
+        TempData["ErrorMessage"] = "An error occurred while accessing the deactivate page.";
+        return RedirectToAction(nameof(Index));
+    }
+}
+
+// POST: Card/Deactivate/5
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> DeactivateConfirmed(int id)
+{
+    try
+    {
+        var card = await _context.Cards.FindAsync(id);
+        if (card == null)
+        {
+            return NotFound();
+        }
+
+        // Check if user has access to deactivate this card
+        string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
+        bool isAdmin = User.IsInRole("Admin");
+        
+        if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
+        {
+            bool hasAccess = await (from c in _context.Cards
+                                 join profile in _context.UserProfiles on c.CreatedByID equals profile.User_Code
+                                 where c.Id == id && profile.Department_Name == userDepartment
+                                 select c).AnyAsync();
+            
+            if (!hasAccess)
+            {
+                TempData["ErrorMessage"] = "You don't have permission to deactivate this card's QR code.";
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        // Deactivate the QR code
+        card.IsQrCodeActive = false;
+        card.UpdatedAt = DateTime.Now;
+        card.UpdatedBy = User.Identity?.Name ?? "system";
+        
+        // Get User_Code from claims if available
+        var userCodeClaim = User.Claims.FirstOrDefault(c => c.Type == "User_Code");
+        if (userCodeClaim != null)
+        {
+            card.UpdatedByID = userCodeClaim.Value;
+        }
+
+        // Track change in history
+        var deactivateHistory = new CardHistory
+        {
+            CardId = id,
+            FieldName = "QR Code Status",
+            OldValue = "Active",
+            NewValue = "Deactivated",
+            ChangedAt = DateTime.Now,
+            ChangedBy = User.Identity?.Name ?? "system"
+        };
+        
+        _context.CardHistories.Add(deactivateHistory);
+        _context.Update(card);
+        await _context.SaveChangesAsync();
+        
+        TempData["SuccessMessage"] = $"QR code for product '{card.ProductName}' has been deactivated.";
+        
+        return RedirectToAction(nameof(Details), new { id });
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, $"Error deactivating QR code for card {id}");
+        TempData["ErrorMessage"] = "An error occurred while deactivating the QR code.";
+        return RedirectToAction(nameof(Details), new { id });
+    }
+}
+
+public async Task<IActionResult> Index(bool showArchived = false)
+{
+    try
+    {
+        // Get current user's department from claims
+        string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
+        bool isAdmin = User.IsInRole("Admin");
+        
+        // Get user ID for department access check
+        var username = User.Identity?.Name;
+        var userProfile = await _userProfileService.GetUserProfileAsync(username);
+        
+        if (userProfile == null)
+        {
+            _logger.LogWarning($"User profile not found for user: {username}");
+            return View(new List<Card>());
+        }
+        
+        List<Card> cards = new List<Card>();
+        
+        // Admin sees all cards
+        if (isAdmin)
+        {
+            // Filter by archive status
+            var query = _context.Cards.AsQueryable();
+            if (!showArchived)
+            {
+                query = query.Where(c => !c.IsArchived);
+            }
+            
+            cards = await query
+                .OrderByDescending(c => c.UpdatedAt)
+                .ToListAsync();
+        }
+        else
+        {
+            // Get all departments this user can access
+            var accessibleDepartments = await _departmentAccessService.GetUserAccessibleDepartmentsAsync(userProfile.Id);
+            
+            if (!accessibleDepartments.Any())
+            {
+                // No departments accessible, return empty list
+                _logger.LogWarning($"No accessible departments found for user: {username}");
+                return View(new List<Card>());
+            }
+            
+            // Log the departments for debugging
+            _logger.LogInformation($"User {username} has access to departments: {string.Join(", ", accessibleDepartments)}");
+            
+            // Process each department separately to avoid complex SQL translation
+            foreach (var department in accessibleDepartments)
+            {
+                var deptCards = await _context.Cards
+                    .Where(c => !c.IsArchived || showArchived)
+                    .FromSqlRaw(@"
+                        SELECT c.* FROM Cards c
+                        INNER JOIN UserProfiles u ON c.CreatedByID = u.User_Code
+                        WHERE u.Department_Name = {0}", department)
+                    .ToListAsync();
+                
+                cards.AddRange(deptCards);
+            }
+            
+            // Remove duplicates and sort
+            cards = cards.Distinct().OrderByDescending(c => c.UpdatedAt).ToList();
+        }
+        
+        // Add archive toggle state to ViewBag
+        ViewBag.ShowArchived = showArchived;
+        
+        return View(cards);
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error retrieving cards with department filtering: {Message}", ex.Message);
+        return View(new List<Card>());
+    }
+}
     }
 }

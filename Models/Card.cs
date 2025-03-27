@@ -72,5 +72,9 @@ namespace CardTagManager.Models
         public string CreatedBy { get; set; } = string.Empty;
         
         public string UpdatedBy { get; set; } = string.Empty;
+        
+        // New properties for archive and QR code activation
+        public bool IsArchived { get; set; } = false;
+        public bool IsQrCodeActive { get; set; } = true;
     }
 }
