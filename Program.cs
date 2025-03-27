@@ -31,6 +31,8 @@ public class Program
         app.Run();
     }
 
+    
+
     private static void ConfigureServices(IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)
     {
         // Database Context Configuration
