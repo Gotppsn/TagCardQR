@@ -48,8 +48,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>5sfg1fky30</Fingerprint>
-      <Integrity>5bBJyp9o/Lta+805Wqm/e9g3yiPf0gTE6sBgniv/HYg=</Integrity>
+      <Fingerprint>da49z6xtsn</Fingerprint>
+      <Integrity>9ahNK76mQEUUI+6toyNssp1W8I4UVXGRmHKbcEf9MEA=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\tailwind.css'))</OriginalItemSpec>

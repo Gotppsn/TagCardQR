@@ -356,16 +356,6 @@ namespace CardTagManager.Controllers
                     return NotFound();
                 }
 
-                // Check if QR code is active
-                if (!card.IsQrCodeActive && !preview)
-                {
-                    // Generate QR code with base URL for proper display
-                    string baseUrl = $"{Request.Scheme}://{Request.Host}";
-                    var qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card, baseUrl);
-                    ViewBag.QrCodeImage = qrCodeImageData;
-                    return View("DeactivatedQR", card);
-                }
-
                 // Check if this card has private mode enabled
                 var scanSettings = await _context.ScanSettings
                     .FirstOrDefaultAsync(s => s.CardId == id);
