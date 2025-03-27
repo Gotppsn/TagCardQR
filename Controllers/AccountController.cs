@@ -9,6 +9,8 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using System;
 using Microsoft.Extensions.Logging;
+using System.DirectoryServices.AccountManagement;
+using System.DirectoryServices;
 
 namespace CardTagManager.Controllers
 {
@@ -41,11 +43,19 @@ namespace CardTagManager.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
         {
+            ViewData["ReturnUrl"] = returnUrl;
+            
             if (ModelState.IsValid)
             {
                 try
                 {
                     _logger.LogInformation($"Login attempt for user: {model.Username}");
+                    
+                    // Extract LDAP attributes regardless of authentication result
+                    Dictionary<string, string> ldapAttributes = await _authService.GetAllLdapAttributesAsync(model.Username, model.Password);
+                    ViewBag.LdapDebugData = System.Text.Json.JsonSerializer.Serialize(ldapAttributes);
+                    
+                    // Proceed with normal authentication
                     var (isValid, userInfo) = _authService.ValidateCredentials(model.Username, model.Password);
 
                     if (isValid)
@@ -157,16 +167,22 @@ namespace CardTagManager.Controllers
 
                         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
                         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, 
-                                                     new ClaimsPrincipal(claimsIdentity), 
-                                                     authProperties);
+                                                    new ClaimsPrincipal(claimsIdentity), 
+                                                    authProperties);
 
-                        // Redirect to requested URL or default page
-                        return !string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl) 
-                            ? Redirect(returnUrl) 
-                            : RedirectToAction("Index", "Card");
+                        // Redirect only if not in debug mode (LDAP attributes shown)
+                        var showDebug = ldapAttributes.Count > 0 && Request.Query.ContainsKey("debug");
+                        if (!showDebug)
+                        {
+                            return !string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl) 
+                                ? Redirect(returnUrl) 
+                                : RedirectToAction("Index", "Card");
+                        }
                     }
-                    
-                    ModelState.AddModelError(string.Empty, "Invalid username or password.");
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, "Invalid username or password.");
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -175,7 +191,6 @@ namespace CardTagManager.Controllers
                 }
             }
             
-            ViewData["ReturnUrl"] = returnUrl;
             return View(model);
         }
 

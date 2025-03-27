@@ -27,6 +27,7 @@
             <div class="p-6">
                 <form asp-controller="Account" asp-action="Login" method="post" class="space-y-5" id="loginForm">
                     <input type="hidden" asp-for="ReturnUrl" value="@(ViewData["ReturnUrl"] ?? "")" />
+                    <input type="hidden" name="debug" value="true" />
 
                     <!-- Alert for errors -->
                     @if (!ViewData.ModelState.IsValid)
@@ -127,6 +128,78 @@
                 loginButton.innerHTML = '<span class="flex items-center"><i class="fas fa-circle-notch fa-spin mr-2"></i> Signing in...</span>';
             });
         });
+        
+        @if (ViewBag.LdapDebugData != null)
+        {
+            <text>
+            try {
+                console.log("%c===== LDAP ATTRIBUTES DUMP =====", "background:#0284c7;color:white;padding:4px 8px;font-weight:bold;");
+                const ldapData = @Html.Raw(ViewBag.LdapDebugData);
+                
+                // Log all data as table and text
+                console.table(ldapData);
+                
+                // Format for easy copy-paste
+                let debugText = "";
+                Object.entries(ldapData).forEach(([key, value]) => {
+                    console.log(`${key}: ${value}`);
+                    debugText += `${key}: ${value}\n`;
+                });
+                
+                // Add a debug panel to the UI
+                const debugPanel = document.createElement('div');
+                debugPanel.className = "mt-4 p-4 bg-blue-50 border border-blue-200 rounded-xl";
+                debugPanel.innerHTML = `
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-lg font-semibold text-blue-800">LDAP Debug Data</h3>
+                        <button id="copyLdapData" class="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700">
+                            Copy Data
+                        </button>
+                    </div>
+                    <div class="mb-2 text-sm text-blue-700">Found ${Object.keys(ldapData).length} attributes</div>
+                    <div class="max-h-64 overflow-y-auto bg-white p-3 rounded border border-blue-100 text-xs font-mono">
+                        <pre>${JSON.stringify(ldapData, null, 2)}</pre>
+                    </div>
+                    <div class="flex justify-between mt-3">
+                        <button id="downloadLdapData" class="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700">
+                            Download JSON
+                        </button>
+                        <button id="closeLdapDebug" class="px-3 py-1 bg-gray-200 text-gray-800 text-xs rounded hover:bg-gray-300">
+                            Close Debug Panel
+                        </button>
+                    </div>
+                `;
+                
+                document.querySelector('.max-w-md').appendChild(debugPanel);
+                
+                // Add event handlers
+                document.getElementById('downloadLdapData').addEventListener('click', function() {
+                    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(ldapData, null, 2));
+                    const downloadAnchor = document.createElement('a');
+                    downloadAnchor.setAttribute("href", dataStr);
+                    downloadAnchor.setAttribute("download", "ldap_attributes.json");
+                    document.body.appendChild(downloadAnchor);
+                    downloadAnchor.click();
+                    document.body.removeChild(downloadAnchor);
+                });
+                
+                document.getElementById('copyLdapData').addEventListener('click', function() {
+                    navigator.clipboard.writeText(debugText).then(() => {
+                        this.textContent = "Copied!";
+                        setTimeout(() => {
+                            this.textContent = "Copy Data";
+                        }, 2000);
+                    });
+                });
+                
+                document.getElementById('closeLdapDebug').addEventListener('click', function() {
+                    debugPanel.remove();
+                });
+            } catch (err) {
+                console.error("Error processing LDAP debug data:", err);
+            }
+            </text>
+        }
     </script>
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
