@@ -37,7 +37,7 @@ namespace CardTagManager.Services
                     Email = "admin@thaiparker.co.th",
                     FullName = "Administrator",
                     PlantName = "Bangpoo",
-                    UserCode = "1670660",
+                    UserCode = "0000000",
                     RawJsonData = @"{""Detail_TH_FirstName"":""แอดมิน"",""Detail_TH_LastName"":""ทดสอบ"",""Detail_EN_FirstName"":""Admin"",""Detail_EN_LastName"":""Test""}"
                 };
                 // Extract names from JSON
