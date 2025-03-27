@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.Net.Http;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
 
 namespace CardTagManager.Services
 {
@@ -65,11 +68,40 @@ namespace CardTagManager.Services
                                     {
                                         try 
                                         {
+                                            // Log all available properties
+                                            _logger?.LogInformation("All available LDAP attributes for user: " + username);
+                                            foreach (PropertyValueCollection property in dirEntry.Properties)
+                                            {
+                                                string propName = property.PropertyName;
+                                                string propValue = "";
+                                                
+                                                // Handle multi-valued properties
+                                                if (property.Count > 0)
+                                                {
+                                                    if (property.Count == 1)
+                                                    {
+                                                        propValue = property[0]?.ToString() ?? "(null)";
+                                                    }
+                                                    else
+                                                    {
+                                                        // For multi-valued properties, join with commas
+                                                        var values = new List<string>();
+                                                        for (int i = 0; i < property.Count; i++)
+                                                        {
+                                                            values.Add(property[i]?.ToString() ?? "(null)");
+                                                        }
+                                                        propValue = string.Join(", ", values);
+                                                    }
+                                                }
+                                                
+                                                _logger?.LogInformation($"LDAP Attribute: {propName} = {propValue}");
+                                            }
+
                                             userInfo.Department = GetPropertyValue(dirEntry, "department");
                                             userInfo.PlantName = GetPropertyValue(dirEntry, "physicalDeliveryOfficeName");
                                             userInfo.UserCode = GetPropertyValue(dirEntry, "employeeID") ?? 
-                                                               GetPropertyValue(dirEntry, "User_Code") ?? 
-                                                               GetPropertyValue(dirEntry, "employeeNumber");
+                                                              GetPropertyValue(dirEntry, "User_Code") ?? 
+                                                              GetPropertyValue(dirEntry, "employeeNumber");
                                             
                                             // Try to extract first and last name from fullname if not already set
                                             if (!string.IsNullOrEmpty(userInfo.FullName) && 
@@ -81,15 +113,24 @@ namespace CardTagManager.Services
                                                 if (names.Length > 1) userInfo.EnglishLastName = names[1];
                                             }
                                             
-                                            // Extract raw JSON data if available
-                                            string[] possibleJsonProps = new[] { "info", "description", "comment", "notes" };
-                                            foreach (var propName in possibleJsonProps)
+                                            // Check all properties for potential JSON data
+                                            var potentialJsonProps = new[] { 
+                                                "info", "description", "comment", "notes", "extensionAttribute1", 
+                                                "extensionAttribute2", "extensionAttribute3", "extensionAttribute4",
+                                                "extensionAttribute5", "extensionAttribute6", "extensionAttribute7",
+                                                "extensionAttribute8", "extensionAttribute9", "extensionAttribute10",
+                                                "extensionAttribute11", "extensionAttribute12", "extensionAttribute13",
+                                                "extensionAttribute14", "extensionAttribute15", "userParameters" 
+                                            };
+
+                                            foreach (var propName in potentialJsonProps)
                                             {
                                                 var jsonData = GetPropertyValue(dirEntry, propName);
                                                 if (!string.IsNullOrEmpty(jsonData) && 
-                                                    (jsonData.Contains("Detail_TH_FirstName") || 
-                                                     jsonData.Contains("User_Code")))
+                                                    (jsonData.Contains("{") || jsonData.Contains("Detail_TH_FirstName") || 
+                                                    jsonData.Contains("User_Code")))
                                                 {
+                                                    _logger?.LogInformation($"Found potential JSON data in {propName}: {jsonData}");
                                                     userInfo.RawJsonData = jsonData;
                                                     break;
                                                 }
@@ -254,6 +295,140 @@ namespace CardTagManager.Services
                 _logger?.LogWarning($"Error getting property {propertyName}: {ex.Message}");
             }
             return string.Empty;
+        }
+
+        public async Task<Dictionary<string, string>> GetAllLdapAttributesAsync(string username, string password)
+        {
+            var result = new Dictionary<string, string>();
+            
+            try
+            {
+                using (var context = new PrincipalContext(ContextType.Domain, _domain))
+                {
+                    bool isValid = false;
+                    if (password != null)
+                    {
+                        isValid = context.ValidateCredentials(username, password);
+                    }
+                    
+                    // Try to find user even if credentials aren't validated (admin case)
+                    using (var user = UserPrincipal.FindByIdentity(context, username))
+                    {
+                        if (user != null)
+                        {
+                            // Add basic properties
+                            result.Add("SamAccountName", user.SamAccountName ?? "");
+                            result.Add("EmailAddress", user.EmailAddress ?? "");
+                            result.Add("DisplayName", user.DisplayName ?? "");
+                            
+                            // Add more UserPrincipal properties
+                            result.Add("Description", user.Description ?? "");
+                            result.Add("EmployeeId", user.EmployeeId ?? "");
+                            result.Add("GivenName", user.GivenName ?? "");
+                            result.Add("Surname", user.Surname ?? "");
+                            result.Add("MiddleName", user.MiddleName ?? "");
+                            result.Add("HomeDirectory", user.HomeDirectory ?? "");
+                            result.Add("VoiceTelephoneNumber", user.VoiceTelephoneNumber ?? "");
+                            
+                            using (var dirEntry = user.GetUnderlyingObject() as DirectoryEntry)
+                            {
+                                if (dirEntry != null)
+                                {
+                                    // Add all properties from DirectoryEntry
+                                    foreach (PropertyValueCollection property in dirEntry.Properties)
+                                    {
+                                        string propName = property.PropertyName;
+                                        string propValue = "";
+                                        
+                                        // Handle multi-valued properties
+                                        if (property.Count > 0)
+                                        {
+                                            if (property.Count == 1)
+                                            {
+                                                propValue = property[0]?.ToString() ?? "(null)";
+                                            }
+                                            else
+                                            {
+                                                var values = new List<string>();
+                                                for (int i = 0; i < property.Count; i++)
+                                                {
+                                                    values.Add(property[i]?.ToString() ?? "(null)");
+                                                }
+                                                propValue = string.Join(", ", values);
+                                            }
+                                        }
+                                        
+                                        // Some properties might be binary - skip or convert as needed
+                                        if (propValue.Length > 1000 && !propName.ToLower().Contains("json"))
+                                        {
+                                            propValue = $"[Binary data, length: {propValue.Length} characters]";
+                                        }
+                                        
+                                        result[$"LDAP_{propName}"] = propValue;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            result.Add("ERROR", "User not found in directory");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError($"Error retrieving LDAP attributes: {ex.Message}");
+                result.Add("ERROR", ex.Message);
+            }
+            
+            return result;
+        }
+
+        public Dictionary<string, object> ParseJsonData(string jsonData)
+        {
+            var result = new Dictionary<string, object>();
+            if (string.IsNullOrEmpty(jsonData))
+                return result;
+                
+            try
+            {
+                // Try to parse as pure JSON
+                if (jsonData.Trim().StartsWith("{"))
+                {
+                    // Use System.Text.Json for parsing
+                    using (JsonDocument doc = JsonDocument.Parse(jsonData))
+                    {
+                        JsonElement root = doc.RootElement;
+                        foreach (JsonProperty prop in root.EnumerateObject())
+                        {
+                            result[prop.Name] = prop.Value.ToString();
+                        }
+                    }
+                }
+                else
+                {
+                    // Try to extract json-like key-value pairs with regex
+                    var matches = Regex.Matches(jsonData, "\"([^\"]+)\"\\s*:\\s*\"([^\"]*)\"");
+                    foreach (Match match in matches)
+                    {
+                        if (match.Groups.Count >= 3)
+                        {
+                            string key = match.Groups[1].Value;
+                            string value = match.Groups[2].Value;
+                            result[key] = value;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning($"Error parsing JSON data: {ex.Message}");
+                result["ERROR"] = ex.Message;
+                result["RawData"] = jsonData;
+            }
+            
+            return result;
         }
     }
     
