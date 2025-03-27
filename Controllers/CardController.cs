@@ -22,17 +22,23 @@ namespace CardTagManager.Controllers
         private readonly ILogger<CardController> _logger;
         private readonly FileUploadService _fileUploadService;
         private readonly QrCodeService _qrCodeService;
+        private readonly DepartmentAccessService _departmentAccessService;
+        private readonly UserProfileService _userProfileService;
 
         public CardController(
             ApplicationDbContext context,
             ILogger<CardController> logger,
             FileUploadService fileUploadService,
-            QrCodeService qrCodeService)
+            QrCodeService qrCodeService,
+            UserProfileService userProfileService,
+            DepartmentAccessService departmentAccessService)
         {
             _context = context;
             _logger = logger;
             _fileUploadService = fileUploadService;
             _qrCodeService = qrCodeService;
+            _userProfileService = userProfileService;
+            _departmentAccessService = departmentAccessService;
         }
 
         // GET: Card
@@ -43,21 +49,43 @@ namespace CardTagManager.Controllers
                 // Get current user's department from claims
                 string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
                 
-                _logger.LogInformation($"Filtering cards for department: {userDepartment}");
-                
                 // Admin role can see all cards regardless of department
                 bool isAdmin = User.IsInRole("Admin");
+                
+                // Get user ID for department access check
+                var username = User.Identity?.Name;
+                var userProfile = await _userProfileService.GetUserProfileAsync(username);
+                
+                if (userProfile == null)
+                {
+                    _logger.LogWarning($"User profile not found for user: {username}");
+                    return View(new List<Card>());
+                }
                 
                 // Build query based on department access
                 var query = _context.Cards.AsQueryable();
                 
-                if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
+                if (!isAdmin)
                 {
-                    // Join with UserProfiles to filter by department
-                    query = from card in _context.Cards
-                            join profile in _context.UserProfiles on card.CreatedByID equals profile.User_Code
-                            where profile.Department_Name == userDepartment
-                            select card;
+                    // Get all departments this user can access
+                    var accessibleDepartments = await _departmentAccessService.GetUserAccessibleDepartmentsAsync(userProfile.Id);
+                    
+                    // If there are accessible departments, filter by them
+                    if (accessibleDepartments.Any())
+                    {
+                        query = from card in _context.Cards
+                                join profile in _context.UserProfiles on card.CreatedByID equals profile.User_Code
+                                where accessibleDepartments.Contains(profile.Department_Name)
+                                select card;
+                    }
+                    else
+                    {
+                        // Fallback to just user's own department if no additional access
+                        query = from card in _context.Cards
+                                join profile in _context.UserProfiles on card.CreatedByID equals profile.User_Code
+                                where profile.Department_Name == userDepartment
+                                select card;
+                    }
                 }
                 
                 // Order results

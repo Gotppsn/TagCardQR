@@ -1,0 +1,94 @@
+
+@model IEnumerable<CardTagManager.Models.DepartmentAccess>
+@{
+    ViewData["Title"] = "Department Access Management";
+}
+
+<div class="container mx-auto py-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">Department Access Management</h1>
+        <a href="@Url.Action("Manage")" class="btn-primary">
+            <i class="fas fa-plus-circle mr-2"></i> Add Department Access
+        </a>
+    </div>
+    
+    <!-- Success/Error Alerts -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4" role="alert">
+            <p>@TempData["SuccessMessage"]</p>
+        </div>
+    }
+    
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4" role="alert">
+            <p>@TempData["ErrorMessage"]</p>
+        </div>
+    }
+    
+    <div class="bg-white shadow-md rounded-lg overflow-hidden">
+        @if (Model.Any())
+        {
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Granted By</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Granted At</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @foreach (var access in Model)
+                    {
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900">
+                                            @access.User.Username
+                                        </div>
+                                        <div class="text-sm text-gray-500">
+                                            @(access.User.Detail_EN_FirstName) @(access.User.Detail_EN_LastName)
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                    @access.DepartmentName
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                @access.GrantedBy
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                @access.GrantedAt.ToString("g")
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <form asp-action="Revoke" asp-route-id="@access.Id" method="post" class="inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="text-red-600 hover:text-red-900"
+                                            onclick="return confirm('Are you sure you want to revoke this access?');">
+                                        Revoke
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="p-8 text-center text-gray-500">
+                <p>No department access permissions found.</p>
+                <a href="@Url.Action("Manage")" class="mt-4 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700">
+                    <i class="fas fa-plus-circle mr-2"></i> Add Department Access
+                </a>
+            </div>
+        }
+    </div>
+</div>

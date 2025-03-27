@@ -22,6 +22,7 @@ namespace CardTagManager.Data
         public DbSet<UserProfile> UserProfiles { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
+        public DbSet<DepartmentAccess> DepartmentAccesses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -358,6 +359,28 @@ namespace CardTagManager.Data
             modelBuilder.Entity<CardDocument>()
                 .Property(d => d.UploadedBy)
                 .HasMaxLength(100);
+            // Configure DepartmentAccess entity
+            modelBuilder.Entity<DepartmentAccess>()
+                .HasKey(da => da.Id);
+
+            modelBuilder.Entity<DepartmentAccess>()
+                .HasOne(da => da.User)
+                .WithMany()
+                .HasForeignKey(da => da.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<DepartmentAccess>()
+                .Property(da => da.DepartmentName)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            modelBuilder.Entity<DepartmentAccess>()
+                .Property(da => da.GrantedBy)
+                .HasMaxLength(100);
+
+            modelBuilder.Entity<DepartmentAccess>()
+                .Property(da => da.GrantedById)
+                .HasMaxLength(50);
                 
             // Seed default roles with static values
             modelBuilder.Entity<Role>().HasData(

@@ -104,6 +104,13 @@
                         </a>
                     }
                 }
+                @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+                {
+                        <a class="nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "DepartmentAccess" ? "active" : "")"
+                        asp-controller="DepartmentAccess" asp-action="Index">
+                            <i class="fas fa-users mr-2"></i> Department Access
+                        </a>
+                }
                 <!-- Using our custom _LoginPartial with dropdown menu -->
                 @if (User.Identity?.IsAuthenticated == true)
                 {

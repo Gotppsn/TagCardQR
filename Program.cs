@@ -22,7 +22,7 @@ public class Program
 
         // Configuration Management
         ConfigureServices(builder.Services, builder.Configuration, builder.Environment);
-
+        
         var app = builder.Build();
 
         // Middleware Configuration
@@ -35,6 +35,7 @@ public class Program
 
     private static void ConfigureServices(IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)
     {
+        services.AddScoped<DepartmentAccessService>();
         // Database Context Configuration
         services.AddDbContext<ApplicationDbContext>(options =>
         {

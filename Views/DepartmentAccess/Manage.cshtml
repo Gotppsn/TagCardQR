@@ -1,0 +1,66 @@
+<!-- Path: Views/DepartmentAccess/Manage.cshtml -->
+@{
+    ViewData["Title"] = "Manage Department Access";
+    var departments = ViewBag.Departments as List<string>;
+    var users = ViewBag.Users as List<CardTagManager.Models.UserProfile>;
+}
+
+<div class="container mx-auto py-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">Manage Department Access</h1>
+        <a href="@Url.Action("Index")" class="btn-secondary">
+            <i class="fas fa-arrow-left mr-2"></i> Back to List
+        </a>
+    </div>
+    
+    <!-- Success/Error Alerts -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4" role="alert">
+            <p>@TempData["SuccessMessage"]</p>
+        </div>
+    }
+    
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4" role="alert">
+            <p>@TempData["ErrorMessage"]</p>
+        </div>
+    }
+    
+    <div class="bg-white shadow-md rounded-lg overflow-hidden p-6">
+        <form asp-action="Grant" method="post">
+            @Html.AntiForgeryToken()
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="form-group">
+                    <label for="userId" class="form-label">User</label>
+                    <select id="userId" name="userId" class="form-input" required>
+                        <option value="">Select User</option>
+                        @foreach (var user in users)
+                        {
+                            <option value="@user.Id">@user.Username (@user.Detail_EN_FirstName @user.Detail_EN_LastName)</option>
+                        }
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="departmentName" class="form-label">Department</label>
+                    <select id="departmentName" name="departmentName" class="form-input" required>
+                        <option value="">Select Department</option>
+                        @foreach (var department in departments)
+                        {
+                            <option value="@department">@department</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            
+            <div class="mt-6">
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-check-circle mr-2"></i> Grant Access
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
