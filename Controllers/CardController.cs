@@ -46,13 +46,8 @@ namespace CardTagManager.Controllers
         {
             try
             {
-                // Get current user's department from claims
                 string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
-                
-                // Admin role can see all cards regardless of department
                 bool isAdmin = User.IsInRole("Admin");
-                
-                // Get user ID for department access check
                 var username = User.Identity?.Name;
                 var userProfile = await _userProfileService.GetUserProfileAsync(username);
                 
@@ -67,20 +62,24 @@ namespace CardTagManager.Controllers
                 
                 if (!isAdmin)
                 {
-                    // Get all departments this user can access
+                    // Get list of accessible departments first
                     var accessibleDepartments = await _departmentAccessService.GetUserAccessibleDepartmentsAsync(userProfile.Id);
                     
-                    // If there are accessible departments, filter by them
                     if (accessibleDepartments.Any())
                     {
+                        // Use Contains instead of attempting SQL JSON functions
+                        var deptList = accessibleDepartments.Select(d => d.Trim().ToLower()).ToList();
+                        
+                        // Perform join in memory instead of at database
                         query = from card in _context.Cards
                                 join profile in _context.UserProfiles on card.CreatedByID equals profile.User_Code
-                                where accessibleDepartments.Contains(profile.Department_Name)
+                                where profile.Department_Name != null && 
+                                    deptList.Contains(profile.Department_Name.Trim().ToLower())
                                 select card;
                     }
                     else
                     {
-                        // Fallback to just user's own department if no additional access
+                        // Simple equality for just user's department
                         query = from card in _context.Cards
                                 join profile in _context.UserProfiles on card.CreatedByID equals profile.User_Code
                                 where profile.Department_Name == userDepartment
@@ -88,9 +87,7 @@ namespace CardTagManager.Controllers
                     }
                 }
                 
-                // Order results
                 var cards = await query.OrderByDescending(c => c.UpdatedAt).ToListAsync();
-                
                 return View(cards);
             }
             catch (Exception ex)
@@ -99,7 +96,6 @@ namespace CardTagManager.Controllers
                 return View(new List<Card>());
             }
         }
-
         // GET: Card/Create
         public IActionResult Create()
         {
