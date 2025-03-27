@@ -218,71 +218,93 @@ namespace CardTagManager.Services
             }
         }
         
-        public async Task<UserLdapInfo> GetUserDataFromApiAsync(string userCode)
+public async Task<UserLdapInfo> GetUserDataFromApiAsync(string userCode)
+{
+    if (string.IsNullOrEmpty(userCode))
+        return null;
+
+    var userInfo = new UserLdapInfo();
+    try
+    {
+        using (HttpClient client = new HttpClient())
         {
-            if (string.IsNullOrEmpty(userCode))
-                return null;
-
-            var userInfo = new UserLdapInfo();
-            try
+            client.Timeout = TimeSpan.FromSeconds(10);
+            client.DefaultRequestHeaders.Add("Accept", "application/json");
+            
+            string apiUrl = $"https://devsever.thaiparker.co.th/E2E/api/Get/GetUser?userCode={userCode}";
+            _logger?.LogInformation($"Fetching user data from API: {apiUrl}");
+            
+            HttpResponseMessage response = await client.GetAsync(apiUrl);
+            if (response.IsSuccessStatusCode)
             {
-                using (HttpClient client = new HttpClient())
+                string jsonContent = await response.Content.ReadAsStringAsync();
+                _logger?.LogDebug($"API Response: {jsonContent.Substring(0, Math.Min(jsonContent.Length, 100))}...");
+                
+                // Store raw JSON
+                userInfo.RawJsonData = jsonContent;
+                userInfo.UserCode = userCode;
+                
+                // Extract data using regex for direct fields
+                var thFirstNameMatch = Regex.Match(jsonContent, "\"Detail_TH_FirstName\"\\s*:\\s*\"([^\"]+)\"");
+                if (thFirstNameMatch.Success && thFirstNameMatch.Groups.Count > 1)
                 {
-                    client.Timeout = TimeSpan.FromSeconds(10);
-                    client.DefaultRequestHeaders.Add("Accept", "application/json");
-                    
-                    string apiUrl = $"https://devsever.thaiparker.co.th/E2E/api/Get/GetUser?userCode={userCode}";
-                    _logger?.LogInformation($"Fetching user data from API: {apiUrl}");
-                    
-                    HttpResponseMessage response = await client.GetAsync(apiUrl);
-                    if (response.IsSuccessStatusCode)
-                    {
-                        string jsonContent = await response.Content.ReadAsStringAsync();
-                        _logger?.LogDebug($"API Response: {jsonContent.Substring(0, Math.Min(jsonContent.Length, 100))}...");
-                        
-                        // Store raw JSON
-                        userInfo.RawJsonData = jsonContent;
-                        userInfo.UserCode = userCode;
-                        
-                        // Extract data
-                        ExtractNameDataFromJson(userInfo, jsonContent);
-                        
-                        // Extract email
-                        var emailMatch = Regex.Match(jsonContent, "\"User_Email\":\"([^\"]+)\"");
-                        if (emailMatch.Success && emailMatch.Groups.Count > 1)
-                        {
-                            userInfo.Email = emailMatch.Groups[1].Value;
-                        }
-                        
-                        // Extract department
-                        var deptMatch = Regex.Match(jsonContent, "\"Department_Name\":\"([^\"]+)\"");
-                        if (deptMatch.Success && deptMatch.Groups.Count > 1)
-                        {
-                            userInfo.Department = deptMatch.Groups[1].Value;
-                        }
-                        
-                        // Extract plant
-                        var plantMatch = Regex.Match(jsonContent, "\"Plant_Name\":\"([^\"]+)\"");
-                        if (plantMatch.Success && plantMatch.Groups.Count > 1)
-                        {
-                            userInfo.PlantName = plantMatch.Groups[1].Value;
-                        }
-                        
-                        _logger?.LogInformation($"API data retrieved for {userCode}: {userInfo.ThaiFirstName} {userInfo.ThaiLastName}, {userInfo.EnglishFirstName} {userInfo.EnglishLastName}");
-                    }
-                    else
-                    {
-                        _logger?.LogWarning($"API request failed: {response.StatusCode} - {await response.Content.ReadAsStringAsync()}");
-                    }
+                    userInfo.ThaiFirstName = thFirstNameMatch.Groups[1].Value;
                 }
+                
+                var thLastNameMatch = Regex.Match(jsonContent, "\"Detail_TH_LastName\"\\s*:\\s*\"([^\"]+)\"");
+                if (thLastNameMatch.Success && thLastNameMatch.Groups.Count > 1)
+                {
+                    userInfo.ThaiLastName = thLastNameMatch.Groups[1].Value;
+                }
+                
+                var enFirstNameMatch = Regex.Match(jsonContent, "\"Detail_EN_FirstName\"\\s*:\\s*\"([^\"]+)\"");
+                if (enFirstNameMatch.Success && enFirstNameMatch.Groups.Count > 1)
+                {
+                    userInfo.EnglishFirstName = enFirstNameMatch.Groups[1].Value;
+                }
+                
+                var enLastNameMatch = Regex.Match(jsonContent, "\"Detail_EN_LastName\"\\s*:\\s*\"([^\"]+)\"");
+                if (enLastNameMatch.Success && enLastNameMatch.Groups.Count > 1)
+                {
+                    userInfo.EnglishLastName = enLastNameMatch.Groups[1].Value;
+                }
+                
+                // Extract email
+                var emailMatch = Regex.Match(jsonContent, "\"User_Email\"\\s*:\\s*\"([^\"]+)\"");
+                if (emailMatch.Success && emailMatch.Groups.Count > 1)
+                {
+                    userInfo.Email = emailMatch.Groups[1].Value;
+                }
+                
+                // Extract department name from nested structure
+                var deptMatch = Regex.Match(jsonContent, "\"Department_Name\"\\s*:\\s*\"([^\"]+)\"");
+                if (deptMatch.Success && deptMatch.Groups.Count > 1)
+                {
+                    userInfo.Department = deptMatch.Groups[1].Value;
+                }
+                
+                // Extract plant name from Master_Plants
+                var plantMatch = Regex.Match(jsonContent, "\"Plant_Name\"\\s*:\\s*\"([^\"]+)\"");
+                if (plantMatch.Success && plantMatch.Groups.Count > 1)
+                {
+                    userInfo.PlantName = plantMatch.Groups[1].Value;
+                }
+                
+                _logger?.LogInformation($"API data retrieved for {userCode}: {userInfo.ThaiFirstName} {userInfo.ThaiLastName}, Plant: {userInfo.PlantName}");
             }
-            catch (Exception ex)
+            else
             {
-                _logger?.LogError(ex, $"Error fetching user data from API for code {userCode}");
+                _logger?.LogWarning($"API request failed: {response.StatusCode} - {await response.Content.ReadAsStringAsync()}");
             }
-
-            return userInfo;
         }
+    }
+    catch (Exception ex)
+    {
+        _logger?.LogError(ex, $"Error fetching user data from API for code {userCode}");
+    }
+
+    return userInfo;
+}
         
         private string GetPropertyValue(DirectoryEntry entry, string propertyName)
         {

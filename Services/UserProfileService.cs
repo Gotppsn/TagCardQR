@@ -54,84 +54,46 @@ namespace CardTagManager.Services
         {
             try
             {
-                _logger.LogInformation($"Creating/updating profile for {username} with data: " +
-                    $"First={firstName}, Last={lastName}, ThFirst={thaiFirstName}, ThLast={thaiLastName}, " +
-                    $"Code={userCode}, HasJson={!string.IsNullOrEmpty(rawJsonData)}");
-                    
+                _logger.LogInformation($"Creating/updating profile for {username}");
+                _logger.LogInformation($"TH: {thaiFirstName} {thaiLastName}, Plant: {plant}, UserCode: {userCode}");
+                
                 var existingProfile = await GetUserProfileAsync(username);
                 
                 if (existingProfile != null)
                 {
-                    // Always update with new data if it's not empty
-                    bool modified = false;
-                    
-                    if (!string.IsNullOrWhiteSpace(firstName) && existingProfile.Detail_EN_FirstName != firstName)
-                    {
-                        existingProfile.Detail_EN_FirstName = firstName;
-                        modified = true;
-                    }
+                    // Update with new data - direct assignment for critical fields
+                    existingProfile.Detail_EN_FirstName = !string.IsNullOrWhiteSpace(firstName) ? 
+                        firstName : existingProfile.Detail_EN_FirstName;
                         
-                    if (!string.IsNullOrWhiteSpace(lastName) && existingProfile.Detail_EN_LastName != lastName)
-                    {
-                        existingProfile.Detail_EN_LastName = lastName;
-                        modified = true;
-                    }
+                    existingProfile.Detail_EN_LastName = !string.IsNullOrWhiteSpace(lastName) ? 
+                        lastName : existingProfile.Detail_EN_LastName;
                         
-                    if (!string.IsNullOrWhiteSpace(thaiFirstName) && existingProfile.Detail_TH_FirstName != thaiFirstName)
-                    {
-                        existingProfile.Detail_TH_FirstName = thaiFirstName;
-                        modified = true;
-                    }
+                    existingProfile.Detail_TH_FirstName = !string.IsNullOrWhiteSpace(thaiFirstName) ? 
+                        thaiFirstName : existingProfile.Detail_TH_FirstName;
                         
-                    if (!string.IsNullOrWhiteSpace(thaiLastName) && existingProfile.Detail_TH_LastName != thaiLastName)
-                    {
-                        existingProfile.Detail_TH_LastName = thaiLastName;
-                        modified = true;
-                    }
+                    existingProfile.Detail_TH_LastName = !string.IsNullOrWhiteSpace(thaiLastName) ? 
+                        thaiLastName : existingProfile.Detail_TH_LastName;
                         
-                    if (!string.IsNullOrWhiteSpace(email) && existingProfile.User_Email != email)
-                    {
-                        existingProfile.User_Email = email;
-                        modified = true;
-                    }
+                    existingProfile.User_Email = !string.IsNullOrWhiteSpace(email) ? 
+                        email : existingProfile.User_Email;
                         
-                    if (!string.IsNullOrWhiteSpace(department) && existingProfile.Department_Name != department)
-                    {
-                        existingProfile.Department_Name = department;
-                        modified = true;
-                    }
+                    existingProfile.Department_Name = !string.IsNullOrWhiteSpace(department) ? 
+                        department : existingProfile.Department_Name;
                         
-                    if (!string.IsNullOrWhiteSpace(plant) && existingProfile.Plant_Name != plant)
-                    {
-                        existingProfile.Plant_Name = plant;
-                        modified = true;
-                    }
+                    existingProfile.Plant_Name = !string.IsNullOrWhiteSpace(plant) ? 
+                        plant : existingProfile.Plant_Name;
                         
-                    if (!string.IsNullOrWhiteSpace(userCode) && existingProfile.User_Code != userCode)
-                    {
-                        existingProfile.User_Code = userCode;
-                        modified = true;
-                    }
+                    existingProfile.User_Code = !string.IsNullOrWhiteSpace(userCode) ? 
+                        userCode : existingProfile.User_Code;
                         
                     // Always update login time
                     existingProfile.LastLoginAt = DateTime.Now;
                     
-                    if (modified)
-                    {
-                        _logger.LogInformation($"Updated profile data for {username}");
-                    }
+                    _logger.LogInformation("Saving profile with TH names: " +
+                        $"{existingProfile.Detail_TH_FirstName} {existingProfile.Detail_TH_LastName}, " +
+                        $"Plant: {existingProfile.Plant_Name}, UserCode: {existingProfile.User_Code}");
                     
                     await _dbContext.SaveChangesAsync();
-                    
-                    // If raw JSON data is available, try to extract more data
-                    if (!string.IsNullOrEmpty(rawJsonData))
-                    {
-                        bool jsonEnriched = await EnrichUserProfileFromJsonAsync(username, rawJsonData);
-                        if (jsonEnriched)
-                        {
-                            _logger.LogInformation($"Enriched profile for {username} from JSON data");
-                        }
-                    }
                     
                     return existingProfile;
                 }
@@ -156,15 +118,6 @@ namespace CardTagManager.Services
                 _dbContext.UserProfiles.Add(newProfile);
                 await _dbContext.SaveChangesAsync();
                 _logger.LogInformation($"Created new profile for {username} with ID: {newProfile.Id}");
-                
-                // If raw JSON data is available, try to enrich profile further
-                if (!string.IsNullOrEmpty(rawJsonData))
-                {
-                    await EnrichUserProfileFromJsonAsync(username, rawJsonData);
-                }
-                
-                // Assign default User role to new user 
-                await AssignDefaultRoleAsync(newProfile.Id);
                 
                 return newProfile;
             }
@@ -207,87 +160,67 @@ namespace CardTagManager.Services
             }
         }
         
-        public async Task<bool> EnrichUserProfileFromJsonAsync(string username, string jsonData)
+public async Task<bool> EnrichUserProfileFromJsonAsync(string username, string jsonData)
+{
+    try
+    {
+        if (string.IsNullOrEmpty(jsonData))
         {
-            try
-            {
-                if (string.IsNullOrEmpty(jsonData))
-                {
-                    return false;
-                }
-                
-                var userProfile = await GetUserProfileAsync(username);
-                if (userProfile == null)
-                {
-                    return false;
-                }
-                
-                bool modified = false;
-                
-                // Extract Thai first name
-                var thFirstNameMatch = Regex.Match(jsonData, "\"Detail_TH_FirstName\"\\s*:\\s*\"([^\"]+)\"");
-                if (thFirstNameMatch.Success && thFirstNameMatch.Groups.Count > 1 && 
-                    string.IsNullOrWhiteSpace(userProfile.Detail_TH_FirstName))
-                {
-                    userProfile.Detail_TH_FirstName = thFirstNameMatch.Groups[1].Value;
-                    modified = true;
-                    _logger.LogInformation($"Extracted Thai first name: {userProfile.Detail_TH_FirstName}");
-                }
-                
-                // Extract Thai last name
-                var thLastNameMatch = Regex.Match(jsonData, "\"Detail_TH_LastName\"\\s*:\\s*\"([^\"]+)\"");
-                if (thLastNameMatch.Success && thLastNameMatch.Groups.Count > 1 && 
-                    string.IsNullOrWhiteSpace(userProfile.Detail_TH_LastName))
-                {
-                    userProfile.Detail_TH_LastName = thLastNameMatch.Groups[1].Value;
-                    modified = true;
-                    _logger.LogInformation($"Extracted Thai last name: {userProfile.Detail_TH_LastName}");
-                }
-                
-                // Extract English first name
-                var enFirstNameMatch = Regex.Match(jsonData, "\"Detail_EN_FirstName\"\\s*:\\s*\"([^\"]+)\"");
-                if (enFirstNameMatch.Success && enFirstNameMatch.Groups.Count > 1 && 
-                    string.IsNullOrWhiteSpace(userProfile.Detail_EN_FirstName))
-                {
-                    userProfile.Detail_EN_FirstName = enFirstNameMatch.Groups[1].Value;
-                    modified = true;
-                    _logger.LogInformation($"Extracted English first name: {userProfile.Detail_EN_FirstName}");
-                }
-                
-                // Extract English last name
-                var enLastNameMatch = Regex.Match(jsonData, "\"Detail_EN_LastName\"\\s*:\\s*\"([^\"]+)\"");
-                if (enLastNameMatch.Success && enLastNameMatch.Groups.Count > 1 && 
-                    string.IsNullOrWhiteSpace(userProfile.Detail_EN_LastName))
-                {
-                    userProfile.Detail_EN_LastName = enLastNameMatch.Groups[1].Value;
-                    modified = true;
-                    _logger.LogInformation($"Extracted English last name: {userProfile.Detail_EN_LastName}");
-                }
-                
-                // Extract User_Code if not already set
-                var userCodeMatch = Regex.Match(jsonData, "\"User_Code\"\\s*:\\s*\"([^\"]+)\"");
-                if (userCodeMatch.Success && userCodeMatch.Groups.Count > 1 && 
-                    string.IsNullOrWhiteSpace(userProfile.User_Code))
-                {
-                    userProfile.User_Code = userCodeMatch.Groups[1].Value;
-                    modified = true;
-                    _logger.LogInformation($"Extracted User_Code: {userProfile.User_Code}");
-                }
-                
-                if (modified)
-                {
-                    await _dbContext.SaveChangesAsync();
-                    return true;
-                }
-                
-                return false;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error enriching user profile from JSON for {username}");
-                return false;
-            }
+            return false;
         }
+        
+        var userProfile = await GetUserProfileAsync(username);
+        if (userProfile == null)
+        {
+            return false;
+        }
+        
+        bool modified = false;
+        
+        // Extract Thai first name
+        var thFirstNameMatch = Regex.Match(jsonData, "\"Detail_TH_FirstName\"\\s*:\\s*\"([^\"]+)\"");
+        if (thFirstNameMatch.Success && thFirstNameMatch.Groups.Count > 1 && 
+            string.IsNullOrWhiteSpace(userProfile.Detail_TH_FirstName))
+        {
+            userProfile.Detail_TH_FirstName = thFirstNameMatch.Groups[1].Value;
+            modified = true;
+            _logger.LogInformation($"Extracted Thai first name: {userProfile.Detail_TH_FirstName}");
+        }
+        
+        // Extract Thai last name
+        var thLastNameMatch = Regex.Match(jsonData, "\"Detail_TH_LastName\"\\s*:\\s*\"([^\"]+)\"");
+        if (thLastNameMatch.Success && thLastNameMatch.Groups.Count > 1 && 
+            string.IsNullOrWhiteSpace(userProfile.Detail_TH_LastName))
+        {
+            userProfile.Detail_TH_LastName = thLastNameMatch.Groups[1].Value;
+            modified = true;
+            _logger.LogInformation($"Extracted Thai last name: {userProfile.Detail_TH_LastName}");
+        }
+        
+        // Extract User_Code if not already set
+        var userCodeMatch = Regex.Match(jsonData, "\"User_Code\"\\s*:\\s*\"([^\"]+)\"");
+        if (userCodeMatch.Success && userCodeMatch.Groups.Count > 1 && 
+            string.IsNullOrWhiteSpace(userProfile.User_Code))
+        {
+            userProfile.User_Code = userCodeMatch.Groups[1].Value;
+            modified = true;
+            _logger.LogInformation($"Extracted User_Code: {userProfile.User_Code}");
+        }
+        
+        if (modified)
+        {
+            await _dbContext.SaveChangesAsync();
+            return true;
+        }
+        
+        return false;
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, $"Error enriching user profile from JSON for {username}");
+        return false;
+    }
+}
 
         // Role-related methods
         private async Task<bool> AssignDefaultRoleAsync(int userId)
