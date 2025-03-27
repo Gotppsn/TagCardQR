@@ -24,22 +24,21 @@ namespace CardTagManager.Services
                 
                 if (!string.IsNullOrEmpty(baseUrl))
                 {
-                    // Use fully qualified URL to ScanShow page
-                    qrData = $"{baseUrl}/Card/ScanShow/{card.Id}";
+                    // Use fully qualified URL to ScanShow page with correct base path
+                    // Ensure baseUrl doesn't end with slash
+                    baseUrl = baseUrl.TrimEnd('/');
+                    qrData = $"{baseUrl}/tagcardqr/Card/ScanShow/{card.Id}";
                 }
                 else
                 {
-                    // Fallback to relative path if no base URL provided
-                    qrData = $"/Card/ScanShow/{card.Id}";
+                    // Fallback to relative path that includes the base path
+                    qrData = $"/tagcardqr/Card/ScanShow/{card.Id}";
                 }
                 
-                // Rest of the method remains the same...
-                
-                // Parse colors from hex format
+                // Rest of method remains unchanged
                 Color fgColor = ColorTranslator.FromHtml(card.QrFgColor ?? "#000000"); 
                 Color bgColor = ColorTranslator.FromHtml(card.QrBgColor ?? "#FFFFFF");
                 
-                // Generate QR code using QRCoder library
                 using (var qrGenerator = new QRCodeGenerator())
                 {
                     var qrCodeData = qrGenerator.CreateQrCode(qrData, QRCodeGenerator.ECCLevel.Q);
@@ -47,7 +46,6 @@ namespace CardTagManager.Services
                     {
                         var qrBitmap = qrCode.GetGraphic(20, fgColor, bgColor, true);
                         
-                        // Convert to base64 string for direct embedding in HTML
                         using (var ms = new MemoryStream())
                         {
                             qrBitmap.Save(ms, ImageFormat.Png);

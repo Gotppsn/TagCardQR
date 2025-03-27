@@ -125,6 +125,9 @@ public class Program
 
     private static void ConfigureMiddleware(WebApplication app, IWebHostEnvironment environment)
     {
+        // Add this line BEFORE other middleware
+        app.UsePathBase("/tagcardqr");
+
         // Forward Headers for Proxy Support
         app.UseForwardedHeaders(new ForwardedHeadersOptions
         {
@@ -132,7 +135,7 @@ public class Program
             KnownProxies = { IPAddress.Parse("10.0.0.0") } // Update with your proxy IP
         });
 
-        // Error Handling
+        // The rest remains unchanged
         if (environment.IsDevelopment())
         {
             app.UseDeveloperExceptionPage();
@@ -143,7 +146,6 @@ public class Program
             app.UseHsts();
         }
 
-        // Security Middleware
         app.UseHttpsRedirection();
         app.UseStaticFiles(new StaticFileOptions
         {
@@ -151,14 +153,12 @@ public class Program
             DefaultContentType = "application/octet-stream"
         });
 
-        // Middleware Order is Critical
         app.UseCors("ProductionPolicy");
         app.UseRouting();
         
         app.UseAuthentication();
         app.UseAuthorization();
 
-        // Comprehensive Endpoint Routing
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapControllers(); // API Controllers
