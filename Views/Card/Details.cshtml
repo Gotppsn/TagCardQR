@@ -1739,7 +1739,7 @@
                         fileCount: files.length
                     });
                     
-                    fetch('/api/Document/UploadMultiple', {
+                    fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Document/UploadMultiple`, {
                         method: 'POST',
                         headers: {
                             'RequestVerificationToken': token
@@ -2147,7 +2147,7 @@
             historyItems.classList.add('hidden');
             noHistory.classList.add('hidden');
             
-            fetch(`/Card/GetCardHistory/${cardId}`)
+            fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}Card/GetCardHistory/${cardId}`)
                 .then(response => {
                     if (!response.ok) throw new Error(`HTTP error ${response.status}`);
                     return response.json();
@@ -2732,7 +2732,7 @@
             
             try {
                 // Send request
-                const response = await fetch('/api/ScanSettings', {
+                const response = await fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/ScanSettings`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
