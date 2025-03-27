@@ -44,7 +44,7 @@ namespace CardTagManager.Controllers
         }
 
         // Path: Controllers/CardController.cs - Index method
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(bool showArchived = false)
         {
             try
             {
@@ -67,7 +67,14 @@ namespace CardTagManager.Controllers
                 // Admin sees all cards
                 if (isAdmin)
                 {
-                    cards = await _context.Cards
+                    // Filter by archive status
+                    var query = _context.Cards.AsQueryable();
+                    if (!showArchived)
+                    {
+                        query = query.Where(c => !c.IsArchived);
+                    }
+                    
+                    cards = await query
                         .OrderByDescending(c => c.UpdatedAt)
                         .ToListAsync();
                 }
@@ -89,11 +96,15 @@ namespace CardTagManager.Controllers
                     // Process each department separately to avoid complex SQL translation
                     foreach (var department in accessibleDepartments)
                     {
+                        // Fix for FromSqlRaw by ensuring proper parameterization
+                        var query = $@"
+                            SELECT c.* FROM Cards c
+                            INNER JOIN UserProfiles u ON c.CreatedByID = u.User_Code
+                            WHERE u.Department_Name = @p0
+                            {(!showArchived ? "AND c.IsArchived = 0" : "")}";
+                        
                         var deptCards = await _context.Cards
-                            .FromSqlRaw(@"
-                                SELECT c.* FROM Cards c
-                                INNER JOIN UserProfiles u ON c.CreatedByID = u.User_Code
-                                WHERE u.Department_Name = {0}", department)
+                            .FromSqlRaw(query, department)
                             .ToListAsync();
                         
                         cards.AddRange(deptCards);
@@ -103,6 +114,9 @@ namespace CardTagManager.Controllers
                     cards = cards.Distinct().OrderByDescending(c => c.UpdatedAt).ToList();
                 }
                 
+                // Add archive toggle state to ViewBag
+                ViewBag.ShowArchived = showArchived;
+                
                 return View(cards);
             }
             catch (Exception ex)
@@ -111,6 +125,7 @@ namespace CardTagManager.Controllers
                 return View(new List<Card>());
             }
         }
+        
         // GET: Card/Create
         public IActionResult Create()
         {
@@ -344,7 +359,9 @@ namespace CardTagManager.Controllers
                 // Check if QR code is active
                 if (!card.IsQrCodeActive && !preview)
                 {
-                    var qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card);
+                    // Generate QR code with base URL for proper display
+                    string baseUrl = $"{Request.Scheme}://{Request.Host}";
+                    var qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card, baseUrl);
                     ViewBag.QrCodeImage = qrCodeImageData;
                     return View("DeactivatedQR", card);
                 }
@@ -406,8 +423,9 @@ namespace CardTagManager.Controllers
                     await _context.SaveChangesAsync();
                 }
 
-                // Generate QR code for display
-                var qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card);
+                // Generate QR code for display with base URL
+                string baseUrl = $"{Request.Scheme}://{Request.Host}";
+                var qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card, baseUrl);
                 ViewBag.QrCodeImage = qrCodeImageData;
                 
                 // Pass private mode to view
@@ -752,7 +770,8 @@ namespace CardTagManager.Controllers
                 }
 
                 // Generate QR code for display
-                string qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card);
+                string baseUrl = $"{Request.Scheme}://{Request.Host}";
+                string qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card, baseUrl);
                 ViewBag.QrCodeImage = qrCodeImageData;
                 
                 // Get related data for context
@@ -1318,7 +1337,8 @@ namespace CardTagManager.Controllers
                 }
                 
                 // Generate QR code for printing
-                string qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card);
+                string baseUrl = $"{Request.Scheme}://{Request.Host}";
+                string qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card, baseUrl);
                 ViewBag.QrCodeImage = qrCodeImageData;
 
                 return View(card);
@@ -1360,7 +1380,8 @@ namespace CardTagManager.Controllers
                 
                 foreach (var card in cards)
                 {
-                    ViewBag.QrCodeImages[card.Id] = await _qrCodeService.GenerateQrCodeImage(card);
+                    string baseUrl = $"{Request.Scheme}://{Request.Host}";
+                    ViewBag.QrCodeImages[card.Id] = await _qrCodeService.GenerateQrCodeImage(card, baseUrl);
                 }
                 
                 return View(cards);
@@ -1403,7 +1424,8 @@ namespace CardTagManager.Controllers
                 }
                 
                 // Generate QR code image for download
-                var qrCodeBytes = await _qrCodeService.GenerateQrCodeBytes(card);
+                string baseUrl = $"{Request.Scheme}://{Request.Host}";
+                var qrCodeBytes = await _qrCodeService.GenerateQrCodeBytes(card, baseUrl);
                 
                 if (qrCodeBytes == null || qrCodeBytes.Length == 0)
                 {
@@ -1528,6 +1550,234 @@ namespace CardTagManager.Controllers
             {
                 _logger.LogError(ex, "Error updating issue status");
                 return Json(new { success = false, error = "An error occurred while updating the issue status." });
+            }
+        }
+
+        // GET: Card/Archive/5
+        public async Task<IActionResult> Archive(int id)
+        {
+            try
+            {
+                var card = await _context.Cards.FindAsync(id);
+                if (card == null)
+                {
+                    return NotFound();
+                }
+
+                // Check if user has access to archive this card
+                string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
+                bool isAdmin = User.IsInRole("Admin");
+                
+                if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
+                {
+                    bool hasAccess = await (from c in _context.Cards
+                                         join profile in _context.UserProfiles on c.CreatedByID equals profile.User_Code
+                                         where c.Id == id && profile.Department_Name == userDepartment
+                                         select c).AnyAsync();
+                    
+                    if (!hasAccess)
+                    {
+                        TempData["ErrorMessage"] = "You don't have permission to archive this card.";
+                        return RedirectToAction(nameof(Index));
+                    }
+                }
+                
+                // Generate QR code for display
+                string baseUrl = $"{Request.Scheme}://{Request.Host}";
+                string qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card, baseUrl);
+                ViewBag.QrCodeImage = qrCodeImageData;
+
+                return View(card);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error accessing archive page for card ID {id}");
+                TempData["ErrorMessage"] = "An error occurred while accessing the archive page.";
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        // POST: Card/Archive/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ArchiveConfirmed(int id)
+        {
+            try
+            {
+                var card = await _context.Cards.FindAsync(id);
+                if (card == null)
+                {
+                    return NotFound();
+                }
+
+                // Check if user has access to archive this card
+                string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
+                bool isAdmin = User.IsInRole("Admin");
+                
+                if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
+                {
+                    bool hasAccess = await (from c in _context.Cards
+                                         join profile in _context.UserProfiles on c.CreatedByID equals profile.User_Code
+                                         where c.Id == id && profile.Department_Name == userDepartment
+                                         select c).AnyAsync();
+                    
+                    if (!hasAccess)
+                    {
+                        TempData["ErrorMessage"] = "You don't have permission to archive this card.";
+                        return RedirectToAction(nameof(Index));
+                    }
+                }
+
+                // Archive the card
+                card.IsArchived = true;
+                card.UpdatedAt = DateTime.Now;
+                card.UpdatedBy = User.Identity?.Name ?? "system";
+                
+                // Get User_Code from claims if available
+                var userCodeClaim = User.Claims.FirstOrDefault(c => c.Type == "User_Code");
+                if (userCodeClaim != null)
+                {
+                    card.UpdatedByID = userCodeClaim.Value;
+                }
+
+                // Track change in history
+                var archiveHistory = new CardHistory
+                {
+                    CardId = id,
+                    FieldName = "Status",
+                    OldValue = "Active",
+                    NewValue = "Archived",
+                    ChangedAt = DateTime.Now,
+                    ChangedBy = User.Identity?.Name ?? "system"
+                };
+                
+                _context.CardHistories.Add(archiveHistory);
+                _context.Update(card);
+                await _context.SaveChangesAsync();
+                
+                TempData["SuccessMessage"] = $"Product '{card.ProductName}' has been archived.";
+                
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error archiving card {id}");
+                TempData["ErrorMessage"] = "An error occurred while archiving the product.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+        }
+
+        // GET: Card/Deactivate/5
+        public async Task<IActionResult> Deactivate(int id)
+        {
+            try
+            {
+                var card = await _context.Cards.FindAsync(id);
+                if (card == null)
+                {
+                    return NotFound();
+                }
+
+                // Check if user has access to deactivate this card
+                string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
+                bool isAdmin = User.IsInRole("Admin");
+                
+                if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
+                {
+                    bool hasAccess = await (from c in _context.Cards
+                                         join profile in _context.UserProfiles on c.CreatedByID equals profile.User_Code
+                                         where c.Id == id && profile.Department_Name == userDepartment
+                                         select c).AnyAsync();
+                    
+                    if (!hasAccess)
+                    {
+                        TempData["ErrorMessage"] = "You don't have permission to deactivate this card's QR code.";
+                        return RedirectToAction(nameof(Index));
+                    }
+                }
+                
+                // Generate QR code for display
+                string baseUrl = $"{Request.Scheme}://{Request.Host}";
+                string qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card, baseUrl);
+                ViewBag.QrCodeImage = qrCodeImageData;
+
+                return View(card);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error accessing deactivate page for card ID {id}");
+                TempData["ErrorMessage"] = "An error occurred while accessing the deactivate page.";
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        // POST: Card/Deactivate/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeactivateConfirmed(int id)
+        {
+            try
+            {
+                var card = await _context.Cards.FindAsync(id);
+                if (card == null)
+                {
+                    return NotFound();
+                }
+
+                // Check if user has access to deactivate this card
+                string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
+                bool isAdmin = User.IsInRole("Admin");
+                
+                if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
+                {
+                    bool hasAccess = await (from c in _context.Cards
+                                         join profile in _context.UserProfiles on c.CreatedByID equals profile.User_Code
+                                         where c.Id == id && profile.Department_Name == userDepartment
+                                         select c).AnyAsync();
+                    
+                    if (!hasAccess)
+                    {
+                        TempData["ErrorMessage"] = "You don't have permission to deactivate this card's QR code.";
+                        return RedirectToAction(nameof(Index));
+                    }
+                }
+
+                // Deactivate the QR code
+                card.IsQrCodeActive = false;
+                card.UpdatedAt = DateTime.Now;
+                card.UpdatedBy = User.Identity?.Name ?? "system";
+                
+                // Get User_Code from claims if available
+                var userCodeClaim = User.Claims.FirstOrDefault(c => c.Type == "User_Code");
+                if (userCodeClaim != null)
+                {
+                    card.UpdatedByID = userCodeClaim.Value;
+                }
+
+                // Track change in history
+                var deactivateHistory = new CardHistory
+                {
+                    CardId = id,
+                    FieldName = "QR Code Status",
+                    OldValue = "Active",
+                    NewValue = "Deactivated",
+                    ChangedAt = DateTime.Now,
+                    ChangedBy = User.Identity?.Name ?? "system"
+                };
+                
+                _context.CardHistories.Add(deactivateHistory);
+                _context.Update(card);
+                await _context.SaveChangesAsync();
+                
+                TempData["SuccessMessage"] = $"QR code for product '{card.ProductName}' has been deactivated.";
+                
+                return RedirectToAction(nameof(Details), new { id });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error deactivating QR code for card {id}");
+                TempData["ErrorMessage"] = "An error occurred while deactivating the QR code.";
+                return RedirectToAction(nameof(Details), new { id });
             }
         }
         
@@ -1923,313 +2173,6 @@ namespace CardTagManager.Controllers
                 _logger.LogError(ex, "Error retrieving products with issues");
                 return StatusCode(500, new { error = "An error occurred while retrieving products with issues." });
             }
-        } 
-
-        public async Task<IActionResult> Archive(int id)
-{
-    try
-    {
-        var card = await _context.Cards.FindAsync(id);
-        if (card == null)
-        {
-            return NotFound();
         }
-
-        // Check if user has access to archive this card
-        string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
-        bool isAdmin = User.IsInRole("Admin");
-        
-        if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
-        {
-            bool hasAccess = await (from c in _context.Cards
-                                 join profile in _context.UserProfiles on c.CreatedByID equals profile.User_Code
-                                 where c.Id == id && profile.Department_Name == userDepartment
-                                 select c).AnyAsync();
-            
-            if (!hasAccess)
-            {
-                TempData["ErrorMessage"] = "You don't have permission to archive this card.";
-                return RedirectToAction(nameof(Index));
-            }
-        }
-        
-        // Generate QR code for display
-        string qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card);
-        ViewBag.QrCodeImage = qrCodeImageData;
-
-        return View(card);
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, $"Error accessing archive page for card ID {id}");
-        TempData["ErrorMessage"] = "An error occurred while accessing the archive page.";
-        return RedirectToAction(nameof(Index));
-    }
-}
-
-// POST: Card/Archive/5
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> ArchiveConfirmed(int id)
-{
-    try
-    {
-        var card = await _context.Cards.FindAsync(id);
-        if (card == null)
-        {
-            return NotFound();
-        }
-
-        // Check if user has access to archive this card
-        string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
-        bool isAdmin = User.IsInRole("Admin");
-        
-        if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
-        {
-            bool hasAccess = await (from c in _context.Cards
-                                 join profile in _context.UserProfiles on c.CreatedByID equals profile.User_Code
-                                 where c.Id == id && profile.Department_Name == userDepartment
-                                 select c).AnyAsync();
-            
-            if (!hasAccess)
-            {
-                TempData["ErrorMessage"] = "You don't have permission to archive this card.";
-                return RedirectToAction(nameof(Index));
-            }
-        }
-
-        // Archive the card
-        card.IsArchived = true;
-        card.UpdatedAt = DateTime.Now;
-        card.UpdatedBy = User.Identity?.Name ?? "system";
-        
-        // Get User_Code from claims if available
-        var userCodeClaim = User.Claims.FirstOrDefault(c => c.Type == "User_Code");
-        if (userCodeClaim != null)
-        {
-            card.UpdatedByID = userCodeClaim.Value;
-        }
-
-        // Track change in history
-        var archiveHistory = new CardHistory
-        {
-            CardId = id,
-            FieldName = "Status",
-            OldValue = "Active",
-            NewValue = "Archived",
-            ChangedAt = DateTime.Now,
-            ChangedBy = User.Identity?.Name ?? "system"
-        };
-        
-        _context.CardHistories.Add(archiveHistory);
-        _context.Update(card);
-        await _context.SaveChangesAsync();
-        
-        TempData["SuccessMessage"] = $"Product '{card.ProductName}' has been archived.";
-        
-        return RedirectToAction(nameof(Index));
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, $"Error archiving card {id}");
-        TempData["ErrorMessage"] = "An error occurred while archiving the product.";
-        return RedirectToAction(nameof(Details), new { id });
-    }
-}
-
-// GET: Card/Deactivate/5
-public async Task<IActionResult> Deactivate(int id)
-{
-    try
-    {
-        var card = await _context.Cards.FindAsync(id);
-        if (card == null)
-        {
-            return NotFound();
-        }
-
-        // Check if user has access to deactivate this card
-        string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
-        bool isAdmin = User.IsInRole("Admin");
-        
-        if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
-        {
-            bool hasAccess = await (from c in _context.Cards
-                                 join profile in _context.UserProfiles on c.CreatedByID equals profile.User_Code
-                                 where c.Id == id && profile.Department_Name == userDepartment
-                                 select c).AnyAsync();
-            
-            if (!hasAccess)
-            {
-                TempData["ErrorMessage"] = "You don't have permission to deactivate this card's QR code.";
-                return RedirectToAction(nameof(Index));
-            }
-        }
-        
-        // Generate QR code for display
-        string qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card);
-        ViewBag.QrCodeImage = qrCodeImageData;
-
-        return View(card);
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, $"Error accessing deactivate page for card ID {id}");
-        TempData["ErrorMessage"] = "An error occurred while accessing the deactivate page.";
-        return RedirectToAction(nameof(Index));
-    }
-}
-
-// POST: Card/Deactivate/5
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> DeactivateConfirmed(int id)
-{
-    try
-    {
-        var card = await _context.Cards.FindAsync(id);
-        if (card == null)
-        {
-            return NotFound();
-        }
-
-        // Check if user has access to deactivate this card
-        string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
-        bool isAdmin = User.IsInRole("Admin");
-        
-        if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
-        {
-            bool hasAccess = await (from c in _context.Cards
-                                 join profile in _context.UserProfiles on c.CreatedByID equals profile.User_Code
-                                 where c.Id == id && profile.Department_Name == userDepartment
-                                 select c).AnyAsync();
-            
-            if (!hasAccess)
-            {
-                TempData["ErrorMessage"] = "You don't have permission to deactivate this card's QR code.";
-                return RedirectToAction(nameof(Index));
-            }
-        }
-
-        // Deactivate the QR code
-        card.IsQrCodeActive = false;
-        card.UpdatedAt = DateTime.Now;
-        card.UpdatedBy = User.Identity?.Name ?? "system";
-        
-        // Get User_Code from claims if available
-        var userCodeClaim = User.Claims.FirstOrDefault(c => c.Type == "User_Code");
-        if (userCodeClaim != null)
-        {
-            card.UpdatedByID = userCodeClaim.Value;
-        }
-
-        // Track change in history
-        var deactivateHistory = new CardHistory
-        {
-            CardId = id,
-            FieldName = "QR Code Status",
-            OldValue = "Active",
-            NewValue = "Deactivated",
-            ChangedAt = DateTime.Now,
-            ChangedBy = User.Identity?.Name ?? "system"
-        };
-        
-        _context.CardHistories.Add(deactivateHistory);
-        _context.Update(card);
-        await _context.SaveChangesAsync();
-        
-        TempData["SuccessMessage"] = $"QR code for product '{card.ProductName}' has been deactivated.";
-        
-        return RedirectToAction(nameof(Details), new { id });
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, $"Error deactivating QR code for card {id}");
-        TempData["ErrorMessage"] = "An error occurred while deactivating the QR code.";
-        return RedirectToAction(nameof(Details), new { id });
-    }
-}
-
-public async Task<IActionResult> Index(bool showArchived = false)
-{
-    try
-    {
-        // Get current user's department from claims
-        string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
-        bool isAdmin = User.IsInRole("Admin");
-        
-        // Get user ID for department access check
-        var username = User.Identity?.Name;
-        var userProfile = await _userProfileService.GetUserProfileAsync(username);
-        
-        if (userProfile == null)
-        {
-            _logger.LogWarning($"User profile not found for user: {username}");
-            return View(new List<Card>());
-        }
-        
-        List<Card> cards = new List<Card>();
-        
-        // Admin sees all cards
-        if (isAdmin)
-        {
-            // Filter by archive status
-            var query = _context.Cards.AsQueryable();
-            if (!showArchived)
-            {
-                query = query.Where(c => !c.IsArchived);
-            }
-            
-            cards = await query
-                .OrderByDescending(c => c.UpdatedAt)
-                .ToListAsync();
-        }
-        else
-        {
-            // Get all departments this user can access
-            var accessibleDepartments = await _departmentAccessService.GetUserAccessibleDepartmentsAsync(userProfile.Id);
-            
-            if (!accessibleDepartments.Any())
-            {
-                // No departments accessible, return empty list
-                _logger.LogWarning($"No accessible departments found for user: {username}");
-                return View(new List<Card>());
-            }
-            
-            // Log the departments for debugging
-            _logger.LogInformation($"User {username} has access to departments: {string.Join(", ", accessibleDepartments)}");
-            
-            // Process each department separately to avoid complex SQL translation
-            foreach (var department in accessibleDepartments)
-            {
-                // Fix for FromSqlRaw by ensuring proper parameterization
-                var query = $@"
-                    SELECT c.* FROM Cards c
-                    INNER JOIN UserProfiles u ON c.CreatedByID = u.User_Code
-                    WHERE u.Department_Name = @p0
-                    {(!showArchived ? "AND c.IsArchived = 0" : "")}";
-                
-                var deptCards = await _context.Cards
-                    .FromSqlRaw(query, department)
-                    .ToListAsync();
-                
-                cards.AddRange(deptCards);
-            }
-            
-            // Remove duplicates and sort
-            cards = cards.Distinct().OrderByDescending(c => c.UpdatedAt).ToList();
-        }
-        
-        // Add archive toggle state to ViewBag
-        ViewBag.ShowArchived = showArchived;
-        
-        return View(cards);
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, "Error retrieving cards with department filtering: {Message}", ex.Message);
-        return View(new List<Card>());
-    }
-}
     }
 }
