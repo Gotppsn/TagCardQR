@@ -57,7 +57,22 @@ namespace CardTagManager.Services
                 _logger.LogInformation($"Creating/updating profile for {username}");
                 _logger.LogInformation($"TH: {thaiFirstName} {thaiLastName}, Plant: {plant}, UserCode: {userCode}");
                 
+                // First check by username
                 var existingProfile = await GetUserProfileAsync(username);
+                
+                // If not found by username but email is provided, check by email
+                if (existingProfile == null && !string.IsNullOrWhiteSpace(email))
+                {
+                    _logger.LogInformation($"Profile not found by username, checking by email: {email}");
+                    existingProfile = await GetUserProfileByEmailAsync(email);
+                    
+                    // If found by email but username is different, update the username
+                    if (existingProfile != null && existingProfile.Username != username)
+                    {
+                        _logger.LogInformation($"Found profile by email, updating username from {existingProfile.Username} to {username}");
+                        existingProfile.Username = username;
+                    }
+                }
                 
                 if (existingProfile != null)
                 {
@@ -337,5 +352,13 @@ public async Task<bool> EnrichUserProfileFromJsonAsync(string username, string j
                 return false;
             }
         }
+        public async Task<UserProfile> GetUserProfileByEmailAsync(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+                return null;
+                
+            return await _dbContext.UserProfiles
+                .FirstOrDefaultAsync(u => u.User_Email == email && !string.IsNullOrEmpty(u.User_Email));
+        }        
     }
 }

@@ -99,6 +99,17 @@ namespace CardTagManager.Controllers
                             }
                         }
                         
+                        // Check if a user already exists with this email
+                        if (!string.IsNullOrEmpty(userInfo.Email))
+                        {
+                            _logger.LogInformation($"Checking for existing user with email: {userInfo.Email}");
+                            var existingUserByEmail = await _userProfileService.GetUserProfileByEmailAsync(userInfo.Email);
+                            if (existingUserByEmail != null && existingUserByEmail.Username != model.Username)
+                            {
+                                _logger.LogInformation($"Found existing user with email {userInfo.Email}, username: {existingUserByEmail.Username}");
+                            }
+                        }
+                        
                         // Create/update profile in database
                         Console.WriteLine($"[LOGIN] Creating/updating profile with TH: {userInfo.ThaiFirstName} {userInfo.ThaiLastName}");
                         var userProfile = await _userProfileService.CreateUserProfileIfNotExistsAsync(
