@@ -125,17 +125,19 @@ public class Program
             new LdapAuthenticationService(configuration["LdapSettings:Domain"] ?? "thaiparkerizing"));
     }
 
-    private static void ConfigureMiddleware(WebApplication app, IWebHostEnvironment environment)
+private static void ConfigureMiddleware(WebApplication app, IWebHostEnvironment environment)
+{
+    // Only use path base if not deployed as root application
+    if (!string.IsNullOrEmpty(app.Configuration["PathBase"]))
     {
-        // Add this line BEFORE other middleware
-        app.UsePathBase("/tagcardqr");
-
-        // Forward Headers for Proxy Support
-        app.UseForwardedHeaders(new ForwardedHeadersOptions
-        {
-            ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
-            KnownProxies = { IPAddress.Parse("10.0.0.0") } // Update with your proxy IP
-        });
+        app.UsePathBase(app.Configuration["PathBase"]);
+    }
+    
+    app.UseForwardedHeaders(new ForwardedHeadersOptions
+    {
+        ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+        KnownProxies = { IPAddress.Parse("10.0.0.0") }
+    });
 
         // The rest remains unchanged
         if (environment.IsDevelopment())
