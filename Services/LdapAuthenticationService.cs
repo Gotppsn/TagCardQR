@@ -218,113 +218,151 @@ namespace CardTagManager.Services
             }
         }
         
-public async Task<UserLdapInfo> GetUserDataFromApiAsync(string userCode)
-{
-    if (string.IsNullOrEmpty(userCode))
-        return null;
-
-    var userInfo = new UserLdapInfo();
-    try
-    {
-        using (HttpClient client = new HttpClient())
+        public async Task<UserLdapInfo> GetUserDataFromApiAsync(string userCode)
         {
-            client.Timeout = TimeSpan.FromSeconds(10);
-            client.DefaultRequestHeaders.Add("Accept", "application/json");
-            
-            string apiUrl = $"https://devsever.thaiparker.co.th/E2E/api/Get/GetUser?userCode={userCode}";
-            
-            HttpResponseMessage response = await client.GetAsync(apiUrl);
-            if (response.IsSuccessStatusCode)
+            if (string.IsNullOrEmpty(userCode))
+                return null;
+
+            var userInfo = new UserLdapInfo();
+            try
             {
-                string jsonContent = await response.Content.ReadAsStringAsync();
-                
-                // Store raw JSON
-                userInfo.RawJsonData = jsonContent;
-                userInfo.UserCode = userCode;
-                
-                try
+                using (HttpClient client = new HttpClient())
                 {
-                    // Parse with System.Text.Json
-                    using JsonDocument doc = JsonDocument.Parse(jsonContent);
-                    JsonElement root = doc.RootElement;
+                    client.Timeout = TimeSpan.FromSeconds(10);
+                    client.DefaultRequestHeaders.Add("Accept", "application/json");
                     
-                    // Extract fields from deeply nested structure
-                    if (root.TryGetProperty("Users", out JsonElement users))
+                    string apiUrl = $"https://devsever.thaiparker.co.th/E2E/api/Get/GetUser?userCode={userCode}";
+                    Console.WriteLine($"[API-REQUEST] Fetching user data from: {apiUrl}");
+                    
+                    HttpResponseMessage response = await client.GetAsync(apiUrl);
+                    Console.WriteLine($"[API-RESPONSE] Status: {response.StatusCode}");
+                    
+                    if (response.IsSuccessStatusCode)
                     {
-                        // Extract direct user properties
-                        if (users.TryGetProperty("Detail_TH_FirstName", out JsonElement thFirstName))
-                            userInfo.ThaiFirstName = thFirstName.GetString();
+                        string jsonContent = await response.Content.ReadAsStringAsync();
+                        Console.WriteLine($"[API-DATA] Raw response: {jsonContent}");
                         
-                        if (users.TryGetProperty("Detail_TH_LastName", out JsonElement thLastName))
-                            userInfo.ThaiLastName = thLastName.GetString();
+                        // Store raw JSON
+                        userInfo.RawJsonData = jsonContent;
+                        userInfo.UserCode = userCode;
                         
-                        if (users.TryGetProperty("Detail_EN_FirstName", out JsonElement enFirstName))
-                            userInfo.EnglishFirstName = enFirstName.GetString();
-                        
-                        if (users.TryGetProperty("Detail_EN_LastName", out JsonElement enLastName))
-                            userInfo.EnglishLastName = enLastName.GetString();
-                            
-                        if (users.TryGetProperty("User_Code", out JsonElement userCodeElem))
-                            userInfo.UserCode = userCodeElem.GetString();
-                            
-                        if (users.TryGetProperty("User_Email", out JsonElement userEmail))
-                            userInfo.Email = userEmail.GetString();
-                        
-                        // Extract department from nested structure
-                        if (users.TryGetProperty("Master_Processes", out JsonElement processes))
+                        try
                         {
-                            if (processes.TryGetProperty("Master_Sections", out JsonElement sections))
+                            // Parse with direct string search to debug
+                            string[] jsonLines = jsonContent.Split('\n');
+                            Console.WriteLine("[API-PARSE] Line-by-line analysis:");
+                            foreach (var line in jsonLines)
                             {
-                                if (sections.TryGetProperty("Master_Departments", out JsonElement departments))
+                                if (line.Contains("FirstName") || line.Contains("LastName") || 
+                                    line.Contains("Plant_Name") || line.Contains("Department_Name") ||
+                                    line.Contains("User_Code") || line.Contains("User_Email"))
                                 {
-                                    if (departments.TryGetProperty("Department_Name", out JsonElement deptName))
-                                        userInfo.Department = deptName.GetString();
+                                    Console.WriteLine($"[API-FIELD] {line.Trim()}");
                                 }
                             }
+                            
+                            // Try simple regex extraction first and log results
+                            var patterns = new Dictionary<string, string>
+                            {
+                                {"Detail_TH_FirstName", "\"Detail_TH_FirstName\"\\s*:\\s*\"([^\"]+)\""},
+                                {"Detail_TH_LastName", "\"Detail_TH_LastName\"\\s*:\\s*\"([^\"]+)\""},
+                                {"Detail_EN_FirstName", "\"Detail_EN_FirstName\"\\s*:\\s*\"([^\"]+)\""},
+                                {"Detail_EN_LastName", "\"Detail_EN_LastName\"\\s*:\\s*\"([^\"]+)\""},
+                                {"Plant_Name", "\"Plant_Name\"\\s*:\\s*\"([^\"]+)\""},
+                                {"Department_Name", "\"Department_Name\"\\s*:\\s*\"([^\"]+)\""},
+                                {"User_Code", "\"User_Code\"\\s*:\\s*\"([^\"]+)\""},
+                                {"User_Email", "\"User_Email\"\\s*:\\s*\"([^\"]+)\""}
+                            };
+                            
+                            Console.WriteLine("[API-EXTRACT] Regex extraction results:");
+                            foreach (var pattern in patterns)
+                            {
+                                var match = Regex.Match(jsonContent, pattern.Value);
+                                if (match.Success && match.Groups.Count > 1)
+                                {
+                                    Console.WriteLine($"[API-FOUND] {pattern.Key}: {match.Groups[1].Value}");
+                                    
+                                    // Update userInfo based on pattern
+                                    switch (pattern.Key)
+                                    {
+                                        case "Detail_TH_FirstName": userInfo.ThaiFirstName = match.Groups[1].Value; break;
+                                        case "Detail_TH_LastName": userInfo.ThaiLastName = match.Groups[1].Value; break;
+                                        case "Detail_EN_FirstName": userInfo.EnglishFirstName = match.Groups[1].Value; break;
+                                        case "Detail_EN_LastName": userInfo.EnglishLastName = match.Groups[1].Value; break;
+                                        case "Plant_Name": userInfo.PlantName = match.Groups[1].Value; break;
+                                        case "Department_Name": userInfo.Department = match.Groups[1].Value; break;
+                                        case "User_Code": userInfo.UserCode = match.Groups[1].Value; break;
+                                        case "User_Email": userInfo.Email = match.Groups[1].Value; break;
+                                    }
+                                }
+                            }
+                            
+                            // Try JsonDocument parsing as fallback
+                            Console.WriteLine("[API-JSON] Attempting JsonDocument parse");
+                            using (JsonDocument doc = JsonDocument.Parse(jsonContent))
+                            {
+                                JsonElement root = doc.RootElement;
+                                Console.WriteLine($"[API-JSON] Root element properties: {string.Join(", ", root.EnumerateObject().Select(p => p.Name))}");
+                                
+                                // Recursively print all nested properties with values
+                                void PrintJsonProperties(JsonElement element, string path = "")
+                                {
+                                    if (element.ValueKind == JsonValueKind.Object)
+                                    {
+                                        foreach (var property in element.EnumerateObject())
+                                        {
+                                            string newPath = string.IsNullOrEmpty(path) ? property.Name : $"{path}.{property.Name}";
+                                            if (property.Value.ValueKind == JsonValueKind.String || 
+                                                property.Value.ValueKind == JsonValueKind.Number ||
+                                                property.Value.ValueKind == JsonValueKind.True ||
+                                                property.Value.ValueKind == JsonValueKind.False)
+                                            {
+                                                Console.WriteLine($"[API-JSON-PROP] {newPath}: {property.Value}");
+                                            }
+                                            PrintJsonProperties(property.Value, newPath);
+                                        }
+                                    }
+                                    else if (element.ValueKind == JsonValueKind.Array)
+                                    {
+                                        int index = 0;
+                                        foreach (var item in element.EnumerateArray())
+                                        {
+                                            PrintJsonProperties(item, $"{path}[{index}]");
+                                            index++;
+                                        }
+                                    }
+                                }
+                                
+                                PrintJsonProperties(root);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"[API-ERROR] JSON parsing failed: {ex.Message}");
                         }
                         
-                        // Extract plant name
-                        if (users.TryGetProperty("Master_Plants", out JsonElement plants))
-                        {
-                            if (plants.TryGetProperty("Plant_Name", out JsonElement plantName))
-                                userInfo.PlantName = plantName.GetString();
-                        }
+                        // Log final extracted values
+                        Console.WriteLine("[API-RESULTS] Final extracted values:");
+                        Console.WriteLine($"UserCode: {userInfo.UserCode}");
+                        Console.WriteLine($"ThaiFirstName: {userInfo.ThaiFirstName}");
+                        Console.WriteLine($"ThaiLastName: {userInfo.ThaiLastName}");
+                        Console.WriteLine($"EnglishFirstName: {userInfo.EnglishFirstName}");
+                        Console.WriteLine($"EnglishLastName: {userInfo.EnglishLastName}");
+                        Console.WriteLine($"Department: {userInfo.Department}");
+                        Console.WriteLine($"PlantName: {userInfo.PlantName}");
+                        Console.WriteLine($"Email: {userInfo.Email}");
                     }
                 }
-                catch
-                {
-                    // Fallback to regex if JSON parsing fails
-                    var thFirstNameMatch = Regex.Match(jsonContent, "\"Detail_TH_FirstName\"\\s*:\\s*\"([^\"]+)\"");
-                    if (thFirstNameMatch.Success && thFirstNameMatch.Groups.Count > 1)
-                        userInfo.ThaiFirstName = thFirstNameMatch.Groups[1].Value;
-                    
-                    var thLastNameMatch = Regex.Match(jsonContent, "\"Detail_TH_LastName\"\\s*:\\s*\"([^\"]+)\"");
-                    if (thLastNameMatch.Success && thLastNameMatch.Groups.Count > 1)
-                        userInfo.ThaiLastName = thLastNameMatch.Groups[1].Value;
-                    
-                    var plantMatch = Regex.Match(jsonContent, "\"Plant_Name\"\\s*:\\s*\"([^\"]+)\"");
-                    if (plantMatch.Success && plantMatch.Groups.Count > 1)
-                        userInfo.PlantName = plantMatch.Groups[1].Value;
-                    
-                    var userCodeMatch = Regex.Match(jsonContent, "\"User_Code\"\\s*:\\s*\"([^\"]+)\"");
-                    if (userCodeMatch.Success && userCodeMatch.Groups.Count > 1)
-                        userInfo.UserCode = userCodeMatch.Groups[1].Value;
-                    
-                    var deptMatch = Regex.Match(jsonContent, "\"Department_Name\"\\s*:\\s*\"([^\"]+)\"");
-                    if (deptMatch.Success && deptMatch.Groups.Count > 1)
-                        userInfo.Department = deptMatch.Groups[1].Value;
-                }
             }
-        }
-    }
-    catch (Exception ex)
-    {
-        _logger?.LogError(ex, $"Error fetching user data from API for code {userCode}");
-    }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[API-EXCEPTION] {ex.GetType().Name}: {ex.Message}");
+                Console.WriteLine($"[API-EXCEPTION] Stack: {ex.StackTrace}");
+            }
 
-    return userInfo;
-}
-        
+            return userInfo;
+        }
+                
         private string GetPropertyValue(DirectoryEntry entry, string propertyName)
         {
             try

@@ -1,12 +1,15 @@
+// Path: Controllers/AccountController.cs
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using CardTagManager.Models;
 using CardTagManager.Services;
+using CardTagManager.Data;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System;
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using System.DirectoryServices.AccountManagement;
 using System.DirectoryServices;
@@ -48,7 +51,7 @@ namespace CardTagManager.Controllers
             {
                 try
                 {
-                    _logger.LogInformation($"Login attempt for user: {model.Username}");
+                    Console.WriteLine($"[LOGIN] Authenticating user: {model.Username}");
                     
                     // Get LDAP attributes for debugging if needed
                     Dictionary<string, string> ldapAttributes = await _authService.GetAllLdapAttributesAsync(model.Username, model.Password);
@@ -56,18 +59,26 @@ namespace CardTagManager.Controllers
                     
                     // Validate credentials
                     var (isValid, userInfo) = _authService.ValidateCredentials(model.Username, model.Password);
-
+                    Console.WriteLine($"[LOGIN] Authentication result: {isValid}, UserCode: {userInfo.UserCode}");
+                    
                     if (isValid)
                     {
-                        _logger.LogInformation($"User authenticated: {model.Username}, UserCode: {userInfo.UserCode}");
+                        // Check for UserCode in Description if not found directly
+                        if (string.IsNullOrEmpty(userInfo.UserCode) && ldapAttributes.ContainsKey("Description"))
+                        {
+                            userInfo.UserCode = ldapAttributes["Description"].Trim();
+                            Console.WriteLine($"[LOGIN] Extracted UserCode from Description: {userInfo.UserCode}");
+                        }
                         
                         // Get additional data from API if user code exists
                         if (!string.IsNullOrEmpty(userInfo.UserCode))
                         {
+                            Console.WriteLine($"[LOGIN] Fetching API data for UserCode: {userInfo.UserCode}");
                             var apiUserInfo = await _authService.GetUserDataFromApiAsync(userInfo.UserCode);
+                            
                             if (apiUserInfo != null)
                             {
-                                // Force all values from API
+                                // Merge API data with LDAP data
                                 if (!string.IsNullOrWhiteSpace(apiUserInfo.ThaiFirstName)) 
                                     userInfo.ThaiFirstName = apiUserInfo.ThaiFirstName;
                                 if (!string.IsNullOrWhiteSpace(apiUserInfo.ThaiLastName)) 
@@ -82,17 +93,14 @@ namespace CardTagManager.Controllers
                                     userInfo.Department = apiUserInfo.Department;
                                 if (!string.IsNullOrWhiteSpace(apiUserInfo.PlantName)) 
                                     userInfo.PlantName = apiUserInfo.PlantName;
-                                if (!string.IsNullOrWhiteSpace(apiUserInfo.UserCode)) 
-                                    userInfo.UserCode = apiUserInfo.UserCode;
                                 
                                 // Preserve raw JSON
                                 userInfo.RawJsonData = apiUserInfo.RawJsonData;
                             }
                         }
                         
-                        _logger.LogInformation($"Creating profile with TH names: {userInfo.ThaiFirstName} {userInfo.ThaiLastName}, Plant: {userInfo.PlantName}");
-                        
                         // Create/update profile in database
+                        Console.WriteLine($"[LOGIN] Creating/updating profile with TH: {userInfo.ThaiFirstName} {userInfo.ThaiLastName}");
                         var userProfile = await _userProfileService.CreateUserProfileIfNotExistsAsync(
                             username: model.Username,
                             firstName: userInfo.EnglishFirstName,
@@ -106,7 +114,7 @@ namespace CardTagManager.Controllers
                             rawJsonData: userInfo.RawJsonData
                         );
                         
-                        // Force direct database update for critical fields
+                        // Force update with direct SQL to ensure all fields are set
                         await _userProfileService.ForceUpdateUserProfileAsync(model.Username, userInfo);
                         
                         // Create authentication claims with user data
@@ -165,6 +173,21 @@ namespace CardTagManager.Controllers
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return Redirect("/Account/Login?ReturnUrl=/");
+        }
+        
+        [HttpGet]
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
+        
+        private IActionResult RedirectToLocal(string returnUrl)
+        {
+            if (Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+            return RedirectToAction("Index", "Card");
         }
     }
 }

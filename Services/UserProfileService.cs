@@ -267,47 +267,75 @@ public async Task<bool> EnrichUserProfileFromJsonAsync(string username, string j
             }
         }
         public async Task<bool> ForceUpdateUserProfileAsync(string username, UserLdapInfo userInfo)
-{
-    if (string.IsNullOrEmpty(username) || userInfo == null)
-        return false;
-        
-    try
-    {
-        var profile = await GetUserProfileAsync(username);
-        if (profile == null)
-            return false;
-            
-        // Force update critical fields directly in the database
-        string sql = @"
-            UPDATE UserProfiles 
-            SET Detail_TH_FirstName = @thaiFirstName,
-                Detail_TH_LastName = @thaiLastName,
-                Plant_Name = @plantName,
-                User_Code = @userCode,
-                Department_Name = @department,
-                LastLoginAt = @lastLogin
-            WHERE Username = @username";
-            
-        var parameters = new 
         {
-            thaiFirstName = userInfo.ThaiFirstName,
-            thaiLastName = userInfo.ThaiLastName,
-            plantName = userInfo.PlantName,
-            userCode = userInfo.UserCode,
-            department = userInfo.Department,
-            lastLogin = DateTime.Now,
-            username = username
-        };
-        
-        await _dbContext.Database.ExecuteSqlRawAsync(sql, parameters);
-        
-        return true;
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, $"Error force updating profile for {username}");
-        return false;
-    }
-}
+            if (string.IsNullOrEmpty(username) || userInfo == null)
+                return false;
+                
+            try
+            {
+                Console.WriteLine($"[DB-UPDATE] Updating profile for {username}");
+                Console.WriteLine($"[DB-UPDATE] TH: {userInfo.ThaiFirstName} {userInfo.ThaiLastName}");
+                Console.WriteLine($"[DB-UPDATE] EN: {userInfo.EnglishFirstName} {userInfo.EnglishLastName}");
+                Console.WriteLine($"[DB-UPDATE] Plant: {userInfo.PlantName}, Dept: {userInfo.Department}");
+                Console.WriteLine($"[DB-UPDATE] Code: {userInfo.UserCode}, Email: {userInfo.Email}");
+                
+                var profile = await GetUserProfileAsync(username);
+                if (profile == null)
+                {
+                    Console.WriteLine($"[DB-UPDATE] Profile not found for {username}");
+                    return false;
+                }
+                
+                Console.WriteLine($"[DB-UPDATE] Current DB values:");
+                Console.WriteLine($"[DB-UPDATE] DB TH: {profile.Detail_TH_FirstName} {profile.Detail_TH_LastName}");
+                Console.WriteLine($"[DB-UPDATE] DB Plant: {profile.Plant_Name}, Dept: {profile.Department_Name}");
+                
+                // Direct SQL update to bypass any EF Core issues
+                string sql = @"
+                    UPDATE UserProfiles 
+                    SET Detail_TH_FirstName = @thaiFirstName,
+                        Detail_TH_LastName = @thaiLastName,
+                        Detail_EN_FirstName = @enFirstName,
+                        Detail_EN_LastName = @enLastName,
+                        Plant_Name = @plantName,
+                        User_Code = @userCode,
+                        Department_Name = @department,
+                        User_Email = @email,
+                        LastLoginAt = @lastLogin
+                    WHERE Username = @username";
+                    
+                var parameters = new List<object> 
+                {
+                    new Microsoft.Data.SqlClient.SqlParameter("@thaiFirstName", userInfo.ThaiFirstName ?? (object)DBNull.Value),
+                    new Microsoft.Data.SqlClient.SqlParameter("@thaiLastName", userInfo.ThaiLastName ?? (object)DBNull.Value),
+                    new Microsoft.Data.SqlClient.SqlParameter("@enFirstName", userInfo.EnglishFirstName ?? (object)DBNull.Value),
+                    new Microsoft.Data.SqlClient.SqlParameter("@enLastName", userInfo.EnglishLastName ?? (object)DBNull.Value),
+                    new Microsoft.Data.SqlClient.SqlParameter("@plantName", userInfo.PlantName ?? (object)DBNull.Value),
+                    new Microsoft.Data.SqlClient.SqlParameter("@userCode", userInfo.UserCode ?? (object)DBNull.Value),
+                    new Microsoft.Data.SqlClient.SqlParameter("@department", userInfo.Department ?? (object)DBNull.Value),
+                    new Microsoft.Data.SqlClient.SqlParameter("@email", userInfo.Email ?? (object)DBNull.Value),
+                    new Microsoft.Data.SqlClient.SqlParameter("@lastLogin", DateTime.Now),
+                    new Microsoft.Data.SqlClient.SqlParameter("@username", username)
+                };
+                
+                Console.WriteLine($"[DB-UPDATE] Executing SQL update");
+                int rowsAffected = await _dbContext.Database.ExecuteSqlRawAsync(sql, parameters.ToArray());
+                Console.WriteLine($"[DB-UPDATE] Rows affected: {rowsAffected}");
+                
+                // Verify update
+                var updatedProfile = await GetUserProfileAsync(username);
+                Console.WriteLine($"[DB-UPDATE] Updated values:");
+                Console.WriteLine($"[DB-UPDATE] Updated TH: {updatedProfile.Detail_TH_FirstName} {updatedProfile.Detail_TH_LastName}");
+                Console.WriteLine($"[DB-UPDATE] Updated Plant: {updatedProfile.Plant_Name}, Dept: {updatedProfile.Department_Name}");
+                
+                return rowsAffected > 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[DB-UPDATE-ERROR] {ex.GetType().Name}: {ex.Message}");
+                Console.WriteLine($"[DB-UPDATE-ERROR] Stack: {ex.StackTrace}");
+                return false;
+            }
+        }
     }
 }
