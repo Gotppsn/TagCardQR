@@ -266,5 +266,48 @@ public async Task<bool> EnrichUserProfileFromJsonAsync(string username, string j
                 return false;
             }
         }
+        public async Task<bool> ForceUpdateUserProfileAsync(string username, UserLdapInfo userInfo)
+{
+    if (string.IsNullOrEmpty(username) || userInfo == null)
+        return false;
+        
+    try
+    {
+        var profile = await GetUserProfileAsync(username);
+        if (profile == null)
+            return false;
+            
+        // Force update critical fields directly in the database
+        string sql = @"
+            UPDATE UserProfiles 
+            SET Detail_TH_FirstName = @thaiFirstName,
+                Detail_TH_LastName = @thaiLastName,
+                Plant_Name = @plantName,
+                User_Code = @userCode,
+                Department_Name = @department,
+                LastLoginAt = @lastLogin
+            WHERE Username = @username";
+            
+        var parameters = new 
+        {
+            thaiFirstName = userInfo.ThaiFirstName,
+            thaiLastName = userInfo.ThaiLastName,
+            plantName = userInfo.PlantName,
+            userCode = userInfo.UserCode,
+            department = userInfo.Department,
+            lastLogin = DateTime.Now,
+            username = username
+        };
+        
+        await _dbContext.Database.ExecuteSqlRawAsync(sql, parameters);
+        
+        return true;
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, $"Error force updating profile for {username}");
+        return false;
+    }
+}
     }
 }

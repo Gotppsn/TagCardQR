@@ -1,4 +1,3 @@
-// Path: Controllers/AccountController.cs
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
@@ -68,25 +67,26 @@ namespace CardTagManager.Controllers
                             var apiUserInfo = await _authService.GetUserDataFromApiAsync(userInfo.UserCode);
                             if (apiUserInfo != null)
                             {
-                                // Merge data prioritizing API values
-                                userInfo.ThaiFirstName = !string.IsNullOrWhiteSpace(apiUserInfo.ThaiFirstName) 
-                                    ? apiUserInfo.ThaiFirstName : userInfo.ThaiFirstName;
-                                userInfo.ThaiLastName = !string.IsNullOrWhiteSpace(apiUserInfo.ThaiLastName) 
-                                    ? apiUserInfo.ThaiLastName : userInfo.ThaiLastName;
-                                userInfo.EnglishFirstName = !string.IsNullOrWhiteSpace(apiUserInfo.EnglishFirstName) 
-                                    ? apiUserInfo.EnglishFirstName : userInfo.EnglishFirstName;
-                                userInfo.EnglishLastName = !string.IsNullOrWhiteSpace(apiUserInfo.EnglishLastName) 
-                                    ? apiUserInfo.EnglishLastName : userInfo.EnglishLastName;
-                                userInfo.Email = !string.IsNullOrWhiteSpace(apiUserInfo.Email) 
-                                    ? apiUserInfo.Email : userInfo.Email;
-                                userInfo.Department = !string.IsNullOrWhiteSpace(apiUserInfo.Department) 
-                                    ? apiUserInfo.Department : userInfo.Department;
-                                userInfo.PlantName = !string.IsNullOrWhiteSpace(apiUserInfo.PlantName) 
-                                    ? apiUserInfo.PlantName : userInfo.PlantName;
+                                // Force all values from API
+                                if (!string.IsNullOrWhiteSpace(apiUserInfo.ThaiFirstName)) 
+                                    userInfo.ThaiFirstName = apiUserInfo.ThaiFirstName;
+                                if (!string.IsNullOrWhiteSpace(apiUserInfo.ThaiLastName)) 
+                                    userInfo.ThaiLastName = apiUserInfo.ThaiLastName;
+                                if (!string.IsNullOrWhiteSpace(apiUserInfo.EnglishFirstName)) 
+                                    userInfo.EnglishFirstName = apiUserInfo.EnglishFirstName;
+                                if (!string.IsNullOrWhiteSpace(apiUserInfo.EnglishLastName)) 
+                                    userInfo.EnglishLastName = apiUserInfo.EnglishLastName;
+                                if (!string.IsNullOrWhiteSpace(apiUserInfo.Email)) 
+                                    userInfo.Email = apiUserInfo.Email;
+                                if (!string.IsNullOrWhiteSpace(apiUserInfo.Department)) 
+                                    userInfo.Department = apiUserInfo.Department;
+                                if (!string.IsNullOrWhiteSpace(apiUserInfo.PlantName)) 
+                                    userInfo.PlantName = apiUserInfo.PlantName;
+                                if (!string.IsNullOrWhiteSpace(apiUserInfo.UserCode)) 
+                                    userInfo.UserCode = apiUserInfo.UserCode;
                                 
-                                // Preserve raw JSON for extraction
-                                if (!string.IsNullOrWhiteSpace(apiUserInfo.RawJsonData))
-                                    userInfo.RawJsonData = apiUserInfo.RawJsonData;
+                                // Preserve raw JSON
+                                userInfo.RawJsonData = apiUserInfo.RawJsonData;
                             }
                         }
                         
@@ -105,6 +105,9 @@ namespace CardTagManager.Controllers
                             thaiLastName: userInfo.ThaiLastName,
                             rawJsonData: userInfo.RawJsonData
                         );
+                        
+                        // Force direct database update for critical fields
+                        await _userProfileService.ForceUpdateUserProfileAsync(model.Username, userInfo);
                         
                         // Create authentication claims with user data
                         var claims = new List<Claim>
