@@ -13,6 +13,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
 
+using System.Diagnostics;
+
 namespace CardTagManager.Controllers
 {
     [Authorize]
@@ -328,46 +330,94 @@ namespace CardTagManager.Controllers
         }
 
         // GET: Card/ScanShow/5
-        public async Task<IActionResult> ScanShow(int id)
+        [AllowAnonymous] 
+        public async Task<IActionResult> ScanShow(int id, bool preview = false)
         {
-            var card = await _context.Cards.FindAsync(id);
-            if (card == null)
+            try
             {
-                return NotFound();
-            }
+                var card = await _context.Cards.FindAsync(id);
+                if (card == null)
+                {
+                    return NotFound();
+                }
 
-            // Record this scan event
-            var scanResult = new ScanResult
-            {
-                CardId = card.Id,
-                ScanTime = DateTime.Now,
-                DeviceInfo = Request.Headers["User-Agent"].ToString(),
-                Location = Request.Headers["Referer"].ToString() ?? "Direct Access",
-                Result = "Success",
-                ScannedBy = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Anonymous",
-                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown"
-            };
-            
-            // Extract additional useful information if possible
-            if (Request.Headers.ContainsKey("X-Forwarded-For"))
-            {
-                scanResult.IpAddress = Request.Headers["X-Forwarded-For"].ToString();
-            }
-            
-            // Try to extract more meaningful location if available
-            if (Request.Headers.ContainsKey("Sec-Ch-Ua-Platform"))
-            {
-                scanResult.DeviceInfo += " | " + Request.Headers["Sec-Ch-Ua-Platform"].ToString();
-            }
-            
-            _context.ScanResults.Add(scanResult);
-            await _context.SaveChangesAsync();
+                // Check if this card has private mode enabled
+                var scanSettings = await _context.ScanSettings
+                    .FirstOrDefaultAsync(s => s.CardId == id);
+                    
+                bool privateMode = scanSettings?.PrivateMode ?? false;
 
-            // Generate QR code for display
-            string qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card);
-            ViewBag.QrCodeImage = qrCodeImageData;
+                // If preview mode, pass requested fields from query string
+                if (preview)
+                {
+                    ViewBag.PreviewMode = true;
+                    ViewBag.RequestedFields = Request.Query["field"].ToList();
+                    ViewBag.UIElements = Request.Query["ui"].ToList();
+                    
+                    // Override private mode from query string for preview
+                    if (Request.Query.ContainsKey("private"))
+                    {
+                        privateMode = bool.Parse(Request.Query["private"].ToString());
+                    }
+                }
+                
+                // Check access control - if private and not authenticated, redirect to login
+                if (privateMode && !User.Identity.IsAuthenticated && !preview)
+                {
+                    // Store the return URL to redirect back after login
+                    string returnUrl = $"{Request.Path}";
+                    
+                    // Add Scan context for analytics
+                    TempData["ScanRedirect"] = "PrivateAccess";
+                    
+                    return RedirectToAction("Login", "Account", new { returnUrl });
+                }
 
-            return View(card);
+                // Record this scan event if not in preview mode
+                if (!preview)
+                {
+                    var scanResult = new ScanResult
+                    {
+                        CardId = card.Id,
+                        ScanTime = DateTime.Now,
+                        DeviceInfo = Request.Headers["User-Agent"].ToString(),
+                        Location = Request.Headers["Referer"].ToString() ?? "Direct Access",
+                        Result = privateMode && User.Identity.IsAuthenticated ? "AuthenticatedAccess" : "PublicAccess",
+                        ScannedBy = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Anonymous",
+                        IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
+                        ScanContext = TempData["ScanRedirect"]?.ToString() ?? "Direct"
+                    };
+                    
+                    // Extract additional useful information if possible
+                    if (Request.Headers.ContainsKey("X-Forwarded-For"))
+                    {
+                        scanResult.IpAddress = Request.Headers["X-Forwarded-For"].ToString();
+                    }
+                    
+                    _context.ScanResults.Add(scanResult);
+                    await _context.SaveChangesAsync();
+                }
+
+                // Generate QR code for display
+                string qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card);
+                ViewBag.QrCodeImage = qrCodeImageData;
+                
+                // Pass private mode to view
+                ViewBag.PrivateMode = privateMode;
+                
+                // Pass scan settings to view if they exist
+                if (scanSettings != null)
+                {
+                    ViewBag.ScanSettings = scanSettings;
+                }
+
+                return View(card);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error in ScanShow for card ID: {id}");
+                return View("Error", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            }
         }
 
         // GET: Card/QrCode/5
@@ -990,24 +1040,40 @@ namespace CardTagManager.Controllers
         
         // GET: Card/GetCardHistory/5
         [HttpGet]
+        [AllowAnonymous] // Add this attribute
         public async Task<IActionResult> GetCardHistory(int id)
         {
             try 
             {
-                // Department check - only allow access if admin or same department
-                string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
-                bool isAdmin = User.IsInRole("Admin");
+                // Get the scan settings to check if this card is private
+                var scanSettings = await _context.ScanSettings
+                    .FirstOrDefaultAsync(s => s.CardId == id);
                 
-                if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
+                bool privateMode = scanSettings?.PrivateMode ?? false;
+                
+                // If private mode and user not authenticated, return limited data or error
+                if (privateMode && !User.Identity.IsAuthenticated)
                 {
-                    bool hasAccess = await (from card in _context.Cards
-                                         join profile in _context.UserProfiles on card.CreatedByID equals profile.User_Code
-                                         where card.Id == id && profile.Department_Name == userDepartment
-                                         select card).AnyAsync();
+                    return Json(new { error = "Authentication required", requiresAuth = true });
+                }
+                
+                // Department check only for authenticated users
+                if (User.Identity.IsAuthenticated)
+                {
+                    string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
+                    bool isAdmin = User.IsInRole("Admin");
                     
-                    if (!hasAccess)
+                    if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
                     {
-                        return Json(new { error = "You don't have permission to view history for this card." });
+                        bool hasAccess = await (from card in _context.Cards
+                                            join profile in _context.UserProfiles on card.CreatedByID equals profile.User_Code
+                                            where card.Id == id && profile.Department_Name == userDepartment
+                                            select card).AnyAsync();
+                        
+                        if (!hasAccess)
+                        {
+                            return Json(new { error = "You don't have permission to view history for this card." });
+                        }
                     }
                 }
                 
@@ -1024,6 +1090,38 @@ namespace CardTagManager.Controllers
             {
                 _logger.LogError(ex, $"Error retrieving history for card {id}");
                 return Json(new { error = "An error occurred while retrieving card history." });
+            }
+        }
+
+        [HttpGet("card/{cardId}")]
+        [AllowAnonymous] // Add this attribute
+        public async Task<ActionResult<IEnumerable<MaintenanceReminder>>> GetCardReminders(int cardId)
+        {
+            try
+            {
+                // Check if this card is private
+                var scanSettings = await _context.ScanSettings
+                    .FirstOrDefaultAsync(s => s.CardId == cardId);
+                
+                bool privateMode = scanSettings?.PrivateMode ?? false;
+                
+                // If private mode and user not authenticated, return limited data or error
+                if (privateMode && !User.Identity.IsAuthenticated)
+                {
+                    return StatusCode(401, new { error = "Authentication required", requiresAuth = true });
+                }
+                
+                var reminders = await _context.MaintenanceReminders
+                    .Where(r => r.CardId == cardId)
+                    .OrderBy(r => r.DueDate)
+                    .ToListAsync();
+                
+                return Ok(reminders);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving reminders for card {cardId}");
+                return StatusCode(500, new { error = "An error occurred while retrieving reminders." });
             }
         }
 

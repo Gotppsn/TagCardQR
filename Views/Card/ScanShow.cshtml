@@ -1,9 +1,31 @@
 @model CardTagManager.Models.Card
-
 @{
-    ViewData["Title"] = "Product Information";
-    Layout = "_Layout";
+    ViewData["Title"] = Model.ProductName;
+    Layout = "_Layout"; // Assuming you have a special layout for scanned views
+    bool privateMode = ViewBag.PrivateMode ?? false;
+    bool isAuthenticated = User.Identity?.IsAuthenticated ?? false;
+    bool previewMode = ViewBag.PreviewMode ?? false;
 }
+
+@if (privateMode && !isAuthenticated && !previewMode)
+{
+    <!-- This shouldn't happen because we redirect in controller, but just in case -->
+    <div class="flex flex-col items-center justify-center h-screen bg-gray-100 p-4">
+        <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full text-center">
+            <div class="mb-6 text-red-600">
+                <i class="fas fa-lock text-5xl"></i>
+            </div>
+            <h1 class="text-2xl font-bold mb-4">Private Content</h1>
+            <p class="text-gray-600 mb-6">This product information requires authentication to view.</p>
+            <a href="@Url.Action("Login", "Account", new { returnUrl = Context.Request.Path })" 
+               class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 inline-block">
+                <i class="fas fa-sign-in-alt mr-2"></i> Login to View
+            </a>
+        </div>
+    </div>
+    return;
+}
+
 
 <div class="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 flex flex-col">
     <!-- Header Banner -->

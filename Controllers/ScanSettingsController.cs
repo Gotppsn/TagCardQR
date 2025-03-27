@@ -43,55 +43,55 @@ namespace CardTagManager.Controllers
             }
         }
 
-[HttpPost]
-public async Task<IActionResult> SaveScanSettings([FromBody] dynamic requestData)
-{
-    try
-    {
-        // Extract values from dynamic request
-        int cardId = Convert.ToInt32(requestData.GetProperty("cardId").GetInt32());
-        string fieldsJson = requestData.GetProperty("fieldsJson").GetString();
-        string uiElementsJson = requestData.GetProperty("uiElementsJson").GetString(); 
-        bool privateMode = requestData.GetProperty("privateMode").GetBoolean();
-        
-        _logger.LogInformation($"Parsed data: CardId={cardId}, Fields={fieldsJson}, UI={uiElementsJson}, Private={privateMode}");
-        
-        // Find existing or create new
-        var existingSettings = await _context.ScanSettings
-            .FirstOrDefaultAsync(s => s.CardId == cardId);
-        
-        if (existingSettings != null)
+        [HttpPost]
+        public async Task<IActionResult> SaveScanSettings([FromBody] dynamic requestData)
         {
-            existingSettings.FieldsJson = fieldsJson;
-            existingSettings.UiElementsJson = uiElementsJson;
-            existingSettings.PrivateMode = privateMode;
-            existingSettings.UpdatedAt = DateTime.Now;
-            _context.ScanSettings.Update(existingSettings);
-        }
-        else
-        {
-            var newSettings = new ScanSettings
+            try
             {
-                CardId = cardId,
-                FieldsJson = fieldsJson,
-                UiElementsJson = uiElementsJson,
-                PrivateMode = privateMode,
-                CreatedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now,
-                CreatedBy = User.Identity?.Name ?? string.Empty
-            };
-            _context.ScanSettings.Add(newSettings);
+                // Extract values from dynamic request
+                int cardId = Convert.ToInt32(requestData.GetProperty("cardId").GetInt32());
+                string fieldsJson = requestData.GetProperty("fieldsJson").GetString();
+                string uiElementsJson = requestData.GetProperty("uiElementsJson").GetString(); 
+                bool privateMode = requestData.GetProperty("privateMode").GetBoolean();
+                
+                _logger.LogInformation($"Saving scan settings: CardId={cardId}, Fields={fieldsJson}, UI={uiElementsJson}, Private={privateMode}");
+                
+                // Find existing or create new
+                var existingSettings = await _context.ScanSettings
+                    .FirstOrDefaultAsync(s => s.CardId == cardId);
+                
+                if (existingSettings != null)
+                {
+                    existingSettings.FieldsJson = fieldsJson;
+                    existingSettings.UiElementsJson = uiElementsJson;
+                    existingSettings.PrivateMode = privateMode;
+                    existingSettings.UpdatedAt = DateTime.Now;
+                    _context.ScanSettings.Update(existingSettings);
+                }
+                else
+                {
+                    var newSettings = new ScanSettings
+                    {
+                        CardId = cardId,
+                        FieldsJson = fieldsJson,
+                        UiElementsJson = uiElementsJson,
+                        PrivateMode = privateMode,
+                        CreatedAt = DateTime.Now,
+                        UpdatedAt = DateTime.Now,
+                        CreatedBy = User.Identity?.Name ?? string.Empty
+                    };
+                    _context.ScanSettings.Add(newSettings);
+                }
+                
+                await _context.SaveChangesAsync();
+                return Ok(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error saving scan settings");
+                return StatusCode(500, new { error = ex.Message });
+            }
         }
-        
-        await _context.SaveChangesAsync();
-        return Ok(new { success = true });
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, "Error saving scan settings");
-        return StatusCode(500, new { error = ex.Message });
-    }
-}
 
         [AllowAnonymous]
         [HttpGet("public/card/{cardId}")]
