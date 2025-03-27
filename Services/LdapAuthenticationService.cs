@@ -62,6 +62,9 @@ namespace CardTagManager.Services
                                 userInfo.Email = user.EmailAddress;
                                 userInfo.FullName = user.DisplayName;
                                 
+                                // This is the userID from LDAP Description field
+                                userInfo.UserCode = user.Description;
+                                
                                 using (var dirEntry = user.GetUnderlyingObject() as DirectoryEntry)
                                 {
                                     if (dirEntry != null)
@@ -101,7 +104,8 @@ namespace CardTagManager.Services
                                             userInfo.PlantName = GetPropertyValue(dirEntry, "physicalDeliveryOfficeName");
                                             userInfo.UserCode = GetPropertyValue(dirEntry, "employeeID") ?? 
                                                               GetPropertyValue(dirEntry, "User_Code") ?? 
-                                                              GetPropertyValue(dirEntry, "employeeNumber");
+                                                              GetPropertyValue(dirEntry, "employeeNumber") ??
+                                                              user.Description;
                                             
                                             // Try to extract first and last name from fullname if not already set
                                             if (!string.IsNullOrEmpty(userInfo.FullName) && 
