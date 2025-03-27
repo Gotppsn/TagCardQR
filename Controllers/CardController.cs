@@ -330,105 +330,103 @@ namespace CardTagManager.Controllers
         }
 
         // GET: Card/ScanShow/5
-[AllowAnonymous] 
-public async Task<IActionResult> ScanShow(int id, bool preview = false)
-{
-    try
-    {
-        var card = await _context.Cards.FindAsync(id);
-        if (card == null)
+        [AllowAnonymous]
+        public async Task<IActionResult> ScanShow(int id, bool preview = false)
         {
-            return NotFound();
-        }
-
-        // Check if QR code is active
-        if (!card.IsQrCodeActive && !preview)
-        {
-            // Generate QR code for display
-            string qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card);
-            ViewBag.QrCodeImage = qrCodeImageData;
-            return View("DeactivatedQR", card);
-        }
-
-        // Rest of the method remains the same...
-        // Check if this card has private mode enabled
-        var scanSettings = await _context.ScanSettings
-            .FirstOrDefaultAsync(s => s.CardId == id);
-            
-        bool privateMode = scanSettings?.PrivateMode ?? false;
-
-        // If preview mode, pass requested fields from query string
-        if (preview)
-        {
-            ViewBag.PreviewMode = true;
-            ViewBag.RequestedFields = Request.Query["field"].ToList();
-            ViewBag.UIElements = Request.Query["ui"].ToList();
-            
-            // Override private mode from query string for preview
-            if (Request.Query.ContainsKey("private"))
+            try
             {
-                privateMode = bool.Parse(Request.Query["private"].ToString());
+                var card = await _context.Cards.FindAsync(id);
+                if (card == null)
+                {
+                    return NotFound();
+                }
+
+                // Check if QR code is active
+                if (!card.IsQrCodeActive && !preview)
+                {
+                    var qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card);
+                    ViewBag.QrCodeImage = qrCodeImageData;
+                    return View("DeactivatedQR", card);
+                }
+
+                // Check if this card has private mode enabled
+                var scanSettings = await _context.ScanSettings
+                    .FirstOrDefaultAsync(s => s.CardId == id);
+                    
+                bool privateMode = scanSettings?.PrivateMode ?? false;
+
+                // If preview mode, pass requested fields from query string
+                if (preview)
+                {
+                    ViewBag.PreviewMode = true;
+                    ViewBag.RequestedFields = Request.Query["field"].ToList();
+                    ViewBag.UIElements = Request.Query["ui"].ToList();
+                    
+                    // Override private mode from query string for preview
+                    if (Request.Query.ContainsKey("private"))
+                    {
+                        privateMode = bool.Parse(Request.Query["private"]);
+                    }
+                }
+                
+                // Check access control - if private and not authenticated, redirect to login
+                if (privateMode && !User.Identity.IsAuthenticated && !preview)
+                {
+                    // Store the return URL to redirect back after login
+                    string returnUrl = $"{Request.Path}";
+                    
+                    // Add Scan context for analytics
+                    TempData["ScanRedirect"] = "PrivateAccess";
+                    
+                    return RedirectToAction("Login", "Account", new { returnUrl });
+                }
+
+                // Record this scan event if not in preview mode
+                if (!preview)
+                {
+                    var scanResult = new ScanResult
+                    {
+                        CardId = card.Id,
+                        ScanTime = DateTime.Now,
+                        DeviceInfo = Request.Headers["User-Agent"].ToString(),
+                        Location = Request.Headers["Referer"].ToString() ?? "Direct Access",
+                        Result = privateMode && User.Identity.IsAuthenticated ? "AuthenticatedAccess" : "PublicAccess",
+                        ScannedBy = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Anonymous",
+                        IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
+                        ScanContext = TempData["ScanRedirect"]?.ToString() ?? "Direct"
+                    };
+                    
+                    // Extract additional useful information if possible
+                    if (Request.Headers.ContainsKey("X-Forwarded-For"))
+                    {
+                        scanResult.IpAddress = Request.Headers["X-Forwarded-For"].ToString();
+                    }
+                    
+                    _context.ScanResults.Add(scanResult);
+                    await _context.SaveChangesAsync();
+                }
+
+                // Generate QR code for display
+                var qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card);
+                ViewBag.QrCodeImage = qrCodeImageData;
+                
+                // Pass private mode to view
+                ViewBag.PrivateMode = privateMode;
+                
+                // Pass scan settings to view if they exist
+                if (scanSettings != null)
+                {
+                    ViewBag.ScanSettings = scanSettings;
+                }
+
+                return View(card);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error in ScanShow for card ID: {id}");
+                return View("Error", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
             }
         }
-        
-        // Check access control - if private and not authenticated, redirect to login
-        if (privateMode && !User.Identity.IsAuthenticated && !preview)
-        {
-            // Store the return URL to redirect back after login
-            string returnUrl = $"{Request.Path}";
-            
-            // Add Scan context for analytics
-            TempData["ScanRedirect"] = "PrivateAccess";
-            
-            return RedirectToAction("Login", "Account", new { returnUrl });
-        }
-
-        // Record this scan event if not in preview mode
-        if (!preview)
-        {
-            var scanResult = new ScanResult
-            {
-                CardId = card.Id,
-                ScanTime = DateTime.Now,
-                DeviceInfo = Request.Headers["User-Agent"].ToString(),
-                Location = Request.Headers["Referer"].ToString() ?? "Direct Access",
-                Result = privateMode && User.Identity.IsAuthenticated ? "AuthenticatedAccess" : "PublicAccess",
-                ScannedBy = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Anonymous",
-                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
-                ScanContext = TempData["ScanRedirect"]?.ToString() ?? "Direct"
-            };
-            
-            // Extract additional useful information if possible
-            if (Request.Headers.ContainsKey("X-Forwarded-For"))
-            {
-                scanResult.IpAddress = Request.Headers["X-Forwarded-For"].ToString();
-            }
-            
-            _context.ScanResults.Add(scanResult);
-            await _context.SaveChangesAsync();
-        }
-
-        // Generate QR code for display
-        string qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card);
-        ViewBag.QrCodeImage = qrCodeImageData;
-        
-        // Pass private mode to view
-        ViewBag.PrivateMode = privateMode;
-        
-        // Pass scan settings to view if they exist
-        if (scanSettings != null)
-        {
-            ViewBag.ScanSettings = scanSettings;
-        }
-
-        return View(card);
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, $"Error in ScanShow for card ID: {id}");
-        return View("Error", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-    }
-}
 
         // GET: Card/QrCode/5
         public async Task<IActionResult> QrCode(int id)
@@ -2204,12 +2202,15 @@ public async Task<IActionResult> Index(bool showArchived = false)
             // Process each department separately to avoid complex SQL translation
             foreach (var department in accessibleDepartments)
             {
+                // Fix for FromSqlRaw by ensuring proper parameterization
+                var query = $@"
+                    SELECT c.* FROM Cards c
+                    INNER JOIN UserProfiles u ON c.CreatedByID = u.User_Code
+                    WHERE u.Department_Name = @p0
+                    {(!showArchived ? "AND c.IsArchived = 0" : "")}";
+                
                 var deptCards = await _context.Cards
-                    .Where(c => !c.IsArchived || showArchived)
-                    .FromSqlRaw(@"
-                        SELECT c.* FROM Cards c
-                        INNER JOIN UserProfiles u ON c.CreatedByID = u.User_Code
-                        WHERE u.Department_Name = {0}", department)
+                    .FromSqlRaw(query, department)
                     .ToListAsync();
                 
                 cards.AddRange(deptCards);
