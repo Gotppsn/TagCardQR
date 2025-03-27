@@ -350,5 +350,89 @@
         });
     </script>
     @await RenderSectionAsync("Scripts", required: false)
+
+    @if (TempData.ContainsKey("LdapDebugData"))
+{
+    <script>
+        (function() {
+            try {
+                console.log("%c===== LDAP USER DATA =====", "background:#0284c7;color:white;padding:4px 8px;font-weight:bold;");
+                const ldapData = @Html.Raw(TempData["LdapDebugData"]);
+                
+                // Log all data as table and text
+                console.table(ldapData);
+                
+                // Log individual entries for easier inspection
+                Object.entries(ldapData).forEach(([key, value]) => {
+                    console.log(`${key}: ${value}`);
+                });
+                
+                // Create a hidden data element for inspection
+                const dataElement = document.createElement('div');
+                dataElement.id = 'ldap-debug-data';
+                dataElement.style.display = 'none';
+                dataElement.setAttribute('data-content', JSON.stringify(ldapData));
+                document.body.appendChild(dataElement);
+                
+                // Add keyboard shortcut to toggle debug panel
+                document.addEventListener('keydown', function(e) {
+                    // Alt+D to toggle debug panel
+                    if (e.altKey && e.key === 'd') {
+                        let panel = document.getElementById('ldap-debug-panel');
+                        if (panel) {
+                            panel.remove();
+                        } else {
+                            showDebugPanel(ldapData);
+                        }
+                    }
+                });
+                
+                function showDebugPanel(data) {
+                    const panel = document.createElement('div');
+                    panel.id = 'ldap-debug-panel';
+                    panel.style = 'position:fixed;top:10px;right:10px;width:600px;max-height:80vh;overflow:auto;z-index:9999;background:white;border:1px solid #0284c7;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);padding:16px;';
+                    
+                    panel.innerHTML = `
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                            <h3 style="margin:0;color:#0284c7;font-size:16px;">LDAP User Data</h3>
+                            <button id="close-ldap-panel" style="background:none;border:none;cursor:pointer;font-size:16px;">×</button>
+                        </div>
+                        <div style="margin-bottom:10px;">
+                            <button id="copy-ldap-data" style="background:#0284c7;color:white;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;margin-right:8px;">Copy Data</button>
+                            <button id="download-ldap-data" style="background:#16a34a;color:white;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;">Download JSON</button>
+                        </div>
+                        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;padding:8px;font-family:monospace;font-size:12px;white-space:pre-wrap;max-height:60vh;overflow:auto;">
+                            ${JSON.stringify(data, null, 2)}
+                        </div>
+                    `;
+                    
+                    document.body.appendChild(panel);
+                    
+                    document.getElementById('close-ldap-panel').addEventListener('click', () => panel.remove());
+                    
+                    document.getElementById('copy-ldap-data').addEventListener('click', function() {
+                        navigator.clipboard.writeText(JSON.stringify(data, null, 2));
+                        this.textContent = 'Copied!';
+                        setTimeout(() => this.textContent = 'Copy Data', 2000);
+                    });
+                    
+                    document.getElementById('download-ldap-data').addEventListener('click', function() {
+                        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+                        const downloadAnchor = document.createElement('a');
+                        downloadAnchor.setAttribute("href", dataStr);
+                        downloadAnchor.setAttribute("download", "ldap_attributes.json");
+                        document.body.appendChild(downloadAnchor);
+                        downloadAnchor.click();
+                        document.body.removeChild(downloadAnchor);
+                    });
+                }
+                
+                console.log("%c===== Press Alt+D to show LDAP Debug Panel =====", "background:#0284c7;color:white;padding:4px 8px;font-weight:bold;");
+            } catch (err) {
+                console.error("Error processing LDAP debug data:", err);
+            }
+        })();
+    </script>
+}
 </body>
 </html>

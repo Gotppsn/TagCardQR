@@ -55,6 +55,9 @@ namespace CardTagManager.Controllers
                     Dictionary<string, string> ldapAttributes = await _authService.GetAllLdapAttributesAsync(model.Username, model.Password);
                     ViewBag.LdapDebugData = System.Text.Json.JsonSerializer.Serialize(ldapAttributes);
                     
+                    // Store LDAP data in TempData to persist across redirects
+                    TempData["LdapDebugData"] = System.Text.Json.JsonSerializer.Serialize(ldapAttributes);
+                    
                     // Proceed with normal authentication
                     var (isValid, userInfo) = _authService.ValidateCredentials(model.Username, model.Password);
 
@@ -171,7 +174,7 @@ namespace CardTagManager.Controllers
                                                     authProperties);
 
                         // Redirect only if not in debug mode (LDAP attributes shown)
-                        var showDebug = ldapAttributes.Count > 0 && Request.Query.ContainsKey("debug");
+                        var showDebug = Request.Form.ContainsKey("debug") || Request.Query.ContainsKey("debug");
                         if (!showDebug)
                         {
                             return !string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl) 
