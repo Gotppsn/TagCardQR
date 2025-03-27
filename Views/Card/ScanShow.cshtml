@@ -1168,7 +1168,7 @@ function applyScanSettings() {
             const cardId = @Model.Id;
             
             // Fetch settings from database via public endpoint
-            fetch(`/api/ScanSettings/public/card/${cardId}`)
+            fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/ScanSettings/public/card/${cardId}`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Settings not found in database');
@@ -1571,7 +1571,7 @@ function initIssueFormSubmission() {
                 console.log("Using token:", token.substring(0, 10) + "...");
                 
                 // Submit data using fetch API with FormData to handle file uploads
-                const response = await fetch('/api/IssueReport', {
+                fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/IssueReport`, {
                     method: 'POST',
                     headers: {
                         'RequestVerificationToken': token
@@ -1829,7 +1829,7 @@ function loadIssueData() {
             </div>
         `;
         
-        fetch(`/api/IssueReport/card/${productId}`)
+        fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/IssueReport/card/${productId}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
@@ -2049,7 +2049,7 @@ function loadDocuments() {
             </div>
         `;
         
-        fetch(`/api/Document/card/${productId}`)
+        fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Document/card/${productId}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
@@ -2183,7 +2183,7 @@ function loadMaintenanceData() {
         const productId = @Model.Id;
         
         // Fetch reminders
-        fetch(`/api/Reminder/card/${productId}`)
+        fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Reminder/card/${productId}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP error: ${response.status}`);

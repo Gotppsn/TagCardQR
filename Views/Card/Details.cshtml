@@ -1484,7 +1484,7 @@
                     
                     console.log('Sending reminder data:', data);
                     
-                    fetch('/api/Reminder', {
+                    fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Reminder`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -1529,7 +1529,7 @@
                     const button = e.target.closest('.reminder-edit');
                     const reminderId = button.getAttribute('data-id');
                     
-                    fetch(`/api/Reminder/${reminderId}`)
+                    fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Reminder/${reminderId}`)
                         .then(response => {
                             if (!response.ok) throw new Error(`HTTP error ${response.status}`);
                             return response.json();
@@ -1572,7 +1572,7 @@
             // Show loading indicator
             remindersList.innerHTML = '<div class="p-3 text-center"><i class="fas fa-spinner fa-spin mr-2"></i> Loading reminders...</div>';
             
-            fetch(`/api/Reminder/card/${cardId}`)
+            fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Reminder/card/${cardId}`)
                 .then(response => {
                     if (!response.ok) throw new Error(`HTTP error ${response.status}`);
                     return response.json();
@@ -1925,7 +1925,7 @@
             documentItems.classList.add('hidden');
             noDocuments.classList.add('hidden');
             
-            fetch(`/api/Document/card/${cardId}`)
+            fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Document/card/${cardId}`)
                 .then(response => {
                     if (!response.ok) throw new Error(`HTTP error ${response.status}`);
                     return response.json();
@@ -2421,7 +2421,7 @@
         function deleteReminder(id) {
             const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
             
-            fetch(`/api/Reminder/${id}`, {
+            fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Reminder/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -2454,7 +2454,7 @@
         function deleteDocument(id) {
             const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
             
-            fetch(`/api/Document/${id}`, {
+            fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Document/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -2627,7 +2627,7 @@
             
             try {
                 // Try to load settings from database first
-                const response = await fetch(`/api/ScanSettings/card/${cardId}`);
+                const response = await fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/ScanSettings/card/${cardId}`);
                 
                 if (!response.ok) {
                     throw new Error('Settings not found in database');

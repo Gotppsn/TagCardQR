@@ -1124,7 +1124,7 @@ async function findAndSelectTemplateByCategory(category) {
     
     try {
         // Get all templates
-        const response = await fetch('/api/Template');
+        const response = await fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Template`);
         if (!response.ok) throw new Error('Failed to fetch templates');
         
         const templates = await response.json();
@@ -1267,7 +1267,7 @@ async function updateFieldVisibility(category) {
     // Handle template ID vs category name
     if (isNumeric) {
         try {
-            const response = await fetch(`/api/Template/${category}`);
+            const response = await fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Template/${category}`);
             if (!response.ok) throw new Error('Failed to fetch template');
             const template = await response.json();
             
@@ -1436,7 +1436,7 @@ async function applyTemplate(templateId) {
     document.getElementById('templateTypeHidden').value = templateId;
     
     try {
-        const response = await fetch(`/api/Template/${templateId}`);
+        const response = await fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Template/${templateId}`);
         if (!response.ok) throw new Error(`API error: ${response.status}`);
         
         const template = await response.json();
@@ -1924,7 +1924,7 @@ window.hideUpdateToast = function() {
 // Initialize categories
 async function initializeCategories() {
     try {
-        const response = await fetch('/api/Template/Categories');
+        const response = await fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Template/${category}`);
         if (!response.ok) throw new Error('Failed to fetch categories');
         
         const categories = await response.json();
@@ -2543,7 +2543,7 @@ function initializeTemplateModal() {
     // Populate template form with data
     async function populateTemplateForm(templateId) {
         try {
-            const response = await fetch(`/api/Template/${templateId}`);
+            const response = await fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Template/${templateId}`);
             if (!response.ok) throw new Error('Failed to fetch template');
             
             const template = await response.json();
@@ -2851,7 +2851,7 @@ async function saveTemplate(template) {
 async function deleteTemplate(templateId) {
     try {
         const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
-        const response = await fetch(`/api/Template/${templateId}`, {
+        const response = await fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Template/${templateId}`);
             method: 'DELETE',
             headers: {
                 'RequestVerificationToken': token
@@ -2976,7 +2976,7 @@ async function initializeTemplates() {
 // Get templates from API
 async function getTemplates() {
     try {
-        const response = await fetch('/api/Template');
+        const response = await fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Template`);
         if (!response.ok) {
             throw new Error('Failed to fetch templates');
         }
