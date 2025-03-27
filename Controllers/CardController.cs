@@ -1093,38 +1093,6 @@ namespace CardTagManager.Controllers
             }
         }
 
-        [HttpGet("card/{cardId}")]
-        [AllowAnonymous] // Add this attribute
-        public async Task<ActionResult<IEnumerable<MaintenanceReminder>>> GetCardReminders(int cardId)
-        {
-            try
-            {
-                // Check if this card is private
-                var scanSettings = await _context.ScanSettings
-                    .FirstOrDefaultAsync(s => s.CardId == cardId);
-                
-                bool privateMode = scanSettings?.PrivateMode ?? false;
-                
-                // If private mode and user not authenticated, return limited data or error
-                if (privateMode && !User.Identity.IsAuthenticated)
-                {
-                    return StatusCode(401, new { error = "Authentication required", requiresAuth = true });
-                }
-                
-                var reminders = await _context.MaintenanceReminders
-                    .Where(r => r.CardId == cardId)
-                    .OrderBy(r => r.DueDate)
-                    .ToListAsync();
-                
-                return Ok(reminders);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error retrieving reminders for card {cardId}");
-                return StatusCode(500, new { error = "An error occurred while retrieving reminders." });
-            }
-        }
-
         // Helper method to check if a card exists
         private bool CardExists(int id)
         {

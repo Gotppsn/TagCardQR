@@ -35,11 +35,24 @@ namespace CardTagManager.Controllers
         }
 
         // GET: api/Document/card/5
+        [AllowAnonymous]
         [HttpGet("card/{cardId}")]
         public async Task<ActionResult<IEnumerable<CardDocument>>> GetCardDocuments(int cardId)
         {
             try
             {
+                // Check if this card is private
+                var scanSettings = await _context.ScanSettings
+                    .FirstOrDefaultAsync(s => s.CardId == cardId);
+                
+                bool privateMode = scanSettings?.PrivateMode ?? false;
+                
+                // If private mode and user not authenticated, return limited data or error
+                if (privateMode && !User.Identity.IsAuthenticated)
+                {
+                    return StatusCode(401, new { error = "Authentication required", requiresAuth = true });
+                }
+                
                 var documents = await _context.CardDocuments
                     .Where(d => d.CardId == cardId)
                     .OrderByDescending(d => d.UploadedAt)

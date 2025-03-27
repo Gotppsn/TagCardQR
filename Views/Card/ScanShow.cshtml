@@ -1853,6 +1853,17 @@ function loadIssueData() {
         
         fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/IssueReport/card/${productId}`)
             .then(response => {
+                // Check for auth error
+                if (response.status === 401) {
+                    // Handle auth required case
+                    return response.json().then(authError => {
+                        if (authError.requiresAuth) {
+                            throw new Error('Authentication required to view this content');
+                        }
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    });
+                }
+                
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
@@ -1968,13 +1979,17 @@ function loadIssueData() {
                 console.error('Error loading issues:', error);
                 if (!issuesContainer) return;
                 
+                // Check if it's an auth error
+                const isAuthError = error.message.includes('Authentication required');
+                
                 issuesContainer.innerHTML = `
-                    <div class="text-center py-8 bg-red-50 rounded-lg">
-                        <div class="w-16 h-16 mx-auto rounded-full bg-red-100 flex items-center justify-center text-red-500 mb-3">
-                            <i class="fas fa-exclamation-triangle text-2xl"></i>
+                    <div class="text-center py-8 ${isAuthError ? 'bg-blue-50' : 'bg-red-50'} rounded-lg">
+                        <div class="w-16 h-16 mx-auto rounded-full ${isAuthError ? 'bg-blue-100' : 'bg-red-100'} flex items-center justify-center ${isAuthError ? 'text-blue-500' : 'text-red-500'} mb-3">
+                            <i class="fas ${isAuthError ? 'fa-lock' : 'fa-exclamation-triangle'} text-2xl"></i>
                         </div>
-                        <p class="text-red-600 font-medium">Failed to load issues</p>
-                        <p class="text-sm text-red-500 mt-2">${error.message || 'Please try again later.'}</p>
+                        <p class="${isAuthError ? 'text-blue-600 font-medium' : 'text-red-600 font-medium'}">${isAuthError ? 'Login required to view issues' : 'Failed to load issues'}</p>
+                        ${!isAuthError ? `<p class="text-sm text-red-500 mt-2">${error.message || 'Please try again later.'}</p>` : ''}
+                        ${isAuthError ? '<a href="/Account/Login" class="mt-3 inline-block text-sm text-blue-600 hover:text-blue-800 font-medium"><i class="fas fa-sign-in-alt mr-1"></i> Login to view</a>' : ''}
                     </div>
                 `;
             });
@@ -2073,6 +2088,17 @@ function loadDocuments() {
         
         fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Document/card/${productId}`)
             .then(response => {
+                // Check for auth error
+                if (response.status === 401) {
+                    // Handle auth required case
+                    return response.json().then(authError => {
+                        if (authError.requiresAuth) {
+                            throw new Error('Authentication required to view this content');
+                        }
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    });
+                }
+                
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
@@ -2140,13 +2166,17 @@ function loadDocuments() {
                 console.error('Error loading documents:', error);
                 if (!documentsContainer) return;
                 
+                // Check if it's an auth error
+                const isAuthError = error.message.includes('Authentication required');
+                
                 documentsContainer.innerHTML = `
-                    <div class="text-center py-8 bg-red-50 rounded-lg">
-                        <div class="w-16 h-16 mx-auto rounded-full bg-red-100 flex items-center justify-center text-red-500 mb-3">
-                            <i class="fas fa-exclamation-triangle text-2xl"></i>
+                    <div class="text-center py-8 ${isAuthError ? 'bg-blue-50' : 'bg-red-50'} rounded-lg">
+                        <div class="w-16 h-16 mx-auto rounded-full ${isAuthError ? 'bg-blue-100' : 'bg-red-100'} flex items-center justify-center ${isAuthError ? 'text-blue-500' : 'text-red-500'} mb-3">
+                            <i class="fas ${isAuthError ? 'fa-lock' : 'fa-exclamation-triangle'} text-2xl"></i>
                         </div>
-                        <p class="text-red-600 font-medium">Failed to load documents</p>
-                        <p class="text-sm text-red-500 mt-2">${error.message || 'Please try again later.'}</p>
+                        <p class="${isAuthError ? 'text-blue-600 font-medium' : 'text-red-600 font-medium'}">${isAuthError ? 'Login required to view documents' : 'Failed to load documents'}</p>
+                        ${!isAuthError ? `<p class="text-sm text-red-500 mt-2">${error.message || 'Please try again later.'}</p>` : ''}
+                        ${isAuthError ? '<a href="/Account/Login" class="mt-3 inline-block text-sm text-blue-600 hover:text-blue-800 font-medium"><i class="fas fa-sign-in-alt mr-1"></i> Login to view</a>' : ''}
                     </div>
                 `;
             });
@@ -2207,6 +2237,17 @@ function loadMaintenanceData() {
         // Fetch reminders
         fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Reminder/card/${productId}`)
             .then(response => {
+                // Check for auth error
+                if (response.status === 401) {
+                    // Handle auth required case
+                    return response.json().then(authError => {
+                        if (authError.requiresAuth) {
+                            throw new Error('Authentication required to view this content');
+                        }
+                        throw new Error(`HTTP error: ${response.status}`);
+                    });
+                }
+                
                 if (!response.ok) {
                     throw new Error(`HTTP error: ${response.status}`);
                 }
@@ -2324,25 +2365,29 @@ ${isPastDue ? `${getDaysDiff(dueDate, new Date())} days overdue` : `${getDaysDif
                 console.error('Error fetching maintenance data:', error);
                 if (!remindersContainer || !historyContainer) return;
                 
+                // Show appropriate message for auth errors
+                const isAuthError = error.message.includes('Authentication required');
+                
                 remindersContainer.innerHTML = `
-                    <div class="p-4 bg-red-50 border-red-200 rounded-lg border shadow-sm">
+                    <div class="p-4 ${isAuthError ? 'bg-blue-50 border-blue-200' : 'bg-red-50 border-red-200'} rounded-lg border shadow-sm">
                         <div class="text-center">
-                            <div class="w-12 h-12 mx-auto rounded-full bg-red-100 flex items-center justify-center text-red-400 mb-2">
-                                <i class="fas fa-exclamation-triangle text-xl"></i>
+                            <div class="w-12 h-12 mx-auto rounded-full ${isAuthError ? 'bg-blue-100 text-blue-400' : 'bg-red-100 text-red-400'} flex items-center justify-center mb-2">
+                                <i class="fas ${isAuthError ? 'fa-lock' : 'fa-exclamation-triangle'} text-xl"></i>
                             </div>
-                            <p class="text-red-600">Failed to load maintenance data</p>
-                            <p class="text-sm text-red-500 mt-1">Please try refreshing the page.</p>
+                            <p class="${isAuthError ? 'text-blue-600' : 'text-red-600'}">${isAuthError ? 'Login required to view maintenance data' : 'Failed to load maintenance data'}</p>
+                            ${!isAuthError ? '<p class="text-sm text-red-500 mt-1">Please try refreshing the page.</p>' : ''}
+                            ${isAuthError ? '<a href="/Account/Login" class="mt-2 inline-block text-sm text-blue-600 hover:text-blue-800 font-medium"><i class="fas fa-sign-in-alt mr-1"></i> Login to view</a>' : ''}
                         </div>
                     </div>
                 `;
                 
                 historyContainer.innerHTML = `
-                    <div class="text-center py-6 bg-red-50 rounded-lg">
-                        <div class="w-12 h-12 mx-auto rounded-full bg-red-100 flex items-center justify-center text-red-400 mb-2">
-                            <i class="fas fa-exclamation-triangle text-xl"></i>
+                    <div class="text-center py-6 ${isAuthError ? 'bg-blue-50' : 'bg-red-50'} rounded-lg">
+                        <div class="w-12 h-12 mx-auto rounded-full ${isAuthError ? 'bg-blue-100 text-blue-400' : 'bg-red-100 text-red-400'} flex items-center justify-center mb-2">
+                            <i class="fas ${isAuthError ? 'fa-lock' : 'fa-exclamation-triangle'} text-xl"></i>
                         </div>
-                        <p class="text-red-600">Failed to load maintenance history</p>
-                        <p class="text-sm text-red-500 mt-1">Please try refreshing the page.</p>
+                        <p class="${isAuthError ? 'text-blue-600' : 'text-red-600'}">${isAuthError ? 'Login required to view maintenance history' : 'Failed to load maintenance history'}</p>
+                        ${!isAuthError ? '<p class="text-sm text-red-500 mt-1">Please try refreshing the page.</p>' : ''}
                     </div>
                 `;
             });
