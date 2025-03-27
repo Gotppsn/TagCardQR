@@ -24,18 +24,17 @@ namespace CardTagManager.Services
                 
                 if (!string.IsNullOrEmpty(baseUrl))
                 {
-                    // Use fully qualified URL to ScanShow page with correct base path
-                    // Ensure baseUrl doesn't end with slash
+                    // Use fully qualified URL to ScanShow page
                     baseUrl = baseUrl.TrimEnd('/');
-                    qrData = $"{baseUrl}/tagcardqr/Card/ScanShow/{card.Id}";
+                    qrData = $"{baseUrl}/Card/ScanShow/{card.Id}";
                 }
                 else
                 {
-                    // Fallback to relative path that includes the base path
-                    qrData = $"/tagcardqr/Card/ScanShow/{card.Id}";
+                    // Fallback to relative path without duplicating the path base
+                    qrData = $"/Card/ScanShow/{card.Id}";
                 }
                 
-                // Rest of method remains unchanged
+                // Rest of the method remains unchanged
                 Color fgColor = ColorTranslator.FromHtml(card.QrFgColor ?? "#000000"); 
                 Color bgColor = ColorTranslator.FromHtml(card.QrBgColor ?? "#FFFFFF");
                 
