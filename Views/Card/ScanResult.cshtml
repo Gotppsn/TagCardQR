@@ -1246,7 +1246,7 @@
         `;
         
         // Fetch from API
-        fetch('/api/Card/GetScanResults')
+        fetch(document.querySelector('base')?.getAttribute('href') + 'api/Card/GetScanResults' || '/api/Card/GetScanResults')
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
@@ -1510,7 +1510,7 @@
                     const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
                     
                     // Send delete request
-                    fetch('/Card/DeleteScanResult', {
+                    fetch(document.querySelector('base')?.getAttribute('href') + 'Card/DeleteScanResult' || '/Card/DeleteScanResult', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded',
@@ -1965,7 +1965,7 @@
         `;
         
         // Fetch from API
-        fetch('/api/Card/GetAllIssues')
+        fetch(document.querySelector('base')?.getAttribute('href') + 'api/Card/GetAllIssues' || '/api/Card/GetAllIssues')
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
@@ -2215,7 +2215,7 @@
                     };
                     
                     // Send update request
-                    fetch('/Card/UpdateIssueStatus', {
+                    fetch(document.querySelector('base')?.getAttribute('href') + 'Card/UpdateIssueStatus' || '/Card/UpdateIssueStatus', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -2325,7 +2325,7 @@
         `;
         
         // Fetch scan activity data
-        fetch(`/api/Card/GetScanAnalytics?period=${period}`)
+        fetch(document.querySelector('base')?.getAttribute('href') + 'api/Card/GetScanAnalytics?period=' + period || '/api/Card/GetScanAnalytics?period=' + period)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Failed to fetch scan analytics');
@@ -2381,7 +2381,7 @@
             });
         
         // Fetch top products with issues
-        fetch('/api/Card/GetTopProductsWithIssues')
+        fetch(document.querySelector('base')?.getAttribute('href') + 'api/Card/GetTopProductsWithIssues' || '/api/Card/GetTopProductsWithIssues')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Failed to fetch products with issues');
@@ -2528,7 +2528,7 @@
 
     function loadIssueAnalyticsCharts() {
         // Fetch issue analytics data
-        fetch('/api/Card/GetIssueAnalytics')
+        fetch(document.querySelector('base')?.getAttribute('href') + 'api/Card/GetIssueAnalytics' || '/api/Card/GetIssueAnalytics')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Failed to fetch issue analytics');
@@ -3363,7 +3363,7 @@
         const token = document.querySelector('meta[name="RequestVerificationToken"]')?.content;
         
         // Send to server endpoint for export processing
-        fetch('/api/Export/ScanResults', {
+        fetch(document.querySelector('base')?.getAttribute('href') + 'api/Export/ScanResults' || '/api/Export/ScanResults', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

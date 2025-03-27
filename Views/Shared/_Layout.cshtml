@@ -3,6 +3,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <base href="@(Context.Request.PathBase)/" />
     @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
     @{
         var requestToken = Antiforgery.GetAndStoreTokens(Context).RequestToken;
@@ -253,6 +254,8 @@
 
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script>
+        fetch(document.querySelector('base')?.getAttribute('href') + 'api/EndpointPath' || '/api/EndpointPath')
+        window.appPathBase = '@(Context.Request.PathBase)';
         // Mobile menu toggle
         document.addEventListener('DOMContentLoaded', function() {
             const mobileMenuButton = document.getElementById('mobile-menu-button');

@@ -13,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpOverrides;
 using System.Net;
+using Microsoft.Extensions.Logging;
 
 public class Program
 {
@@ -30,8 +31,6 @@ public class Program
 
         app.Run();
     }
-
-    
 
     private static void ConfigureServices(IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)
     {
@@ -125,32 +124,41 @@ public class Program
             new LdapAuthenticationService(configuration["LdapSettings:Domain"] ?? "thaiparkerizing"));
     }
 
-private static void ConfigureMiddleware(WebApplication app, IWebHostEnvironment environment)
-{
-    // Only use path base if not deployed as root application
-    if (!string.IsNullOrEmpty(app.Configuration["PathBase"]))
+    private static void ConfigureMiddleware(WebApplication app, IWebHostEnvironment environment)
     {
-        app.UsePathBase(app.Configuration["PathBase"]);
-    }
-    
-    app.UseForwardedHeaders(new ForwardedHeadersOptions
-    {
-        ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
-        KnownProxies = { IPAddress.Parse("10.0.0.0") }
-    });
+        // Set up logging for debugging
+        var logger = app.Services.GetRequiredService<ILogger<Program>>();
+        
+        // Configure PathBase from appsettings.json
+        var pathBase = app.Configuration["PathBase"];
+        if (!string.IsNullOrEmpty(app.Configuration["PathBase"]))
+        {
+            app.UsePathBase(app.Configuration["PathBase"]);
+        }
+        
+        // Configure forwarded headers to handle proxy scenarios
+        app.UseForwardedHeaders(new ForwardedHeadersOptions
+        {
+            ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+        });
 
-        // The rest remains unchanged
+        // Configure environment-specific middleware
         if (environment.IsDevelopment())
         {
             app.UseDeveloperExceptionPage();
+            logger.LogInformation("Running in Development mode");
         }
         else
         {
             app.UseExceptionHandler("/Home/Error");
             app.UseHsts();
+            logger.LogInformation("Running in Production mode");
         }
 
+        // Standard middleware pipeline
         app.UseHttpsRedirection();
+        
+        // Static files with detailed options
         app.UseStaticFiles(new StaticFileOptions
         {
             ServeUnknownFileTypes = true,
@@ -163,6 +171,11 @@ private static void ConfigureMiddleware(WebApplication app, IWebHostEnvironment 
         app.UseAuthentication();
         app.UseAuthorization();
 
+        // Log routing information
+        logger.LogInformation($"Default Controller: Card, Default Action: Index");
+        logger.LogInformation($"Application Root Path: {app.Environment.ContentRootPath}");
+        
+        // Configure endpoints
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapControllers(); // API Controllers
@@ -170,7 +183,6 @@ private static void ConfigureMiddleware(WebApplication app, IWebHostEnvironment 
                 name: "default",
                 pattern: "{controller=Card}/{action=Index}/{id?}"
             );
-            endpoints.MapFallbackToController("Index", "Card");
         });
     }
 }

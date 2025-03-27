@@ -1678,7 +1678,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize Categories
     async function initializeCategories() {
         try {
-            const response = await fetch('/api/Template/Categories');
+            const response = await fetch(document.querySelector('base')?.getAttribute('href') + 'api/Template/Categories' || '/api/Template/Categories');
             if (!response.ok) throw new Error('Failed to fetch categories');
             
             const categories = await response.json();
@@ -1712,7 +1712,7 @@ document.addEventListener('DOMContentLoaded', function() {
     async function addNewCategory(categoryName) {
         try {
             const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
-            const response = await fetch('/api/Template/Categories', {
+            const response = await fetch(document.querySelector('base')?.getAttribute('href') + 'api/Template/Categories' || '/api/Template/Categories', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1746,7 +1746,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Get templates from API
     async function getTemplates() {
         try {
-            const response = await fetch('/api/Template');
+            const response = await fetch(document.querySelector('base')?.getAttribute('href') + 'api/Template' || '/api/Template');
             if (!response.ok) {
                 throw new Error('Failed to fetch templates');
             }
@@ -1763,7 +1763,9 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
             const method = template.id > 0 ? 'PUT' : 'POST';
-            const url = template.id > 0 ? `/api/Template/${template.id}` : '/api/Template';
+            const url = template.id > 0 ? 
+                `${document.querySelector('base')?.getAttribute('href') || '/'}api/Template/${template.id}` : 
+                `${document.querySelector('base')?.getAttribute('href') || '/'}api/Template`;
             
             const response = await fetch(url, {
                 method: method,
@@ -1795,7 +1797,7 @@ document.addEventListener('DOMContentLoaded', function() {
     async function deleteTemplate(templateId) {
         try {
             const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
-            const response = await fetch(`/api/Template/${templateId}`, {
+            const response = await fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Template/${templateId}`, {
                 method: 'DELETE',
                 headers: {
                     'RequestVerificationToken': token
@@ -1878,7 +1880,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('templateTypeHidden').value = templateId;
         
         try {
-            const response = await fetch(`/api/Template/${templateId}`);
+            const response = await fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Template/${templateId}`);
             if (!response.ok) throw new Error(`API error: ${response.status}`);
             
             const template = await response.json();

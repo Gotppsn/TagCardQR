@@ -153,3 +153,22 @@ function copyContactInfo(contactInfo) {
         alert('Failed to copy contact information');
     });
 }
+
+function buildApiUrl(endpoint) {
+    // Ensure endpoint starts with '/' and remove it if the path base is not empty
+    if (!endpoint.startsWith('/')) endpoint = '/' + endpoint;
+    return (window.appPathBase || '') + endpoint;
+}
+
+// Use this function for all API calls
+async function apiRequest(endpoint, options = {}) {
+    const url = buildApiUrl(endpoint);
+    try {
+        const response = await fetch(url, options);
+        if (!response.ok) throw new Error(`API error: ${response.status}`);
+        return await response.json();
+    } catch (error) {
+        console.error(`API request failed: ${url}`, error);
+        throw error;
+    }
+}

@@ -1,0 +1,1111 @@
+[
+  {
+    "ContainingType": "CardTagManager.Controllers.DocumentController",
+    "Method": "UploadDocument",
+    "RelativePath": "api/Document",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "CardId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.Id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.ProductName",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.Category",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.Location",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.ManufactureDate",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.PurchaseDate",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.WarrantyExpiration",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.MaintenanceInfo",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.BackgroundColor",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.TextColor",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.AccentColor",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.QrFgColor",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.QrBgColor",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.ImagePath",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.ImageFile",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.CustomFieldsData",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.CreatedByID",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.UpdatedByID",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.CreatedAt",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.UpdatedAt",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.CreatedBy",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.UpdatedBy",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Title",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "DocumentType",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Description",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "FilePath",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "FileName",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "FileSize",
+        "Type": "System.Int64",
+        "IsRequired": false
+      },
+      {
+        "Name": "FileType",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "UploadedAt",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      },
+      {
+        "Name": "UploadedBy",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "DocumentFile",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "CardTagManager.Models.CardDocument",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "CardTagManager.Controllers.DocumentController",
+    "Method": "GetDocument",
+    "RelativePath": "api/Document/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "CardTagManager.Models.CardDocument",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "CardTagManager.Controllers.DocumentController",
+    "Method": "DeleteDocument",
+    "RelativePath": "api/Document/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CardTagManager.Controllers.DocumentController",
+    "Method": "GetCardDocuments",
+    "RelativePath": "api/Document/card/{cardId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "cardId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[CardTagManager.Models.CardDocument, CardTagManager, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "CardTagManager.Controllers.DocumentController",
+    "Method": "DownloadDocument",
+    "RelativePath": "api/Document/download/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CardTagManager.Controllers.DocumentController",
+    "Method": "UploadMultiple",
+    "RelativePath": "api/Document/UploadMultiple",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "cardId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "title",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "documentType",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "description",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "documentFiles",
+        "Type": "System.Collections.Generic.List\u00601[[Microsoft.AspNetCore.Http.IFormFile, Microsoft.AspNetCore.Http.Features, Version=9.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60]]",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "CardTagManager.Models.CardDocument",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "CardTagManager.Controllers.IssueReportController",
+    "Method": "CreateIssue",
+    "RelativePath": "api/IssueReport",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "CardId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.Id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.ProductName",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.Category",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.Location",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.ManufactureDate",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.PurchaseDate",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.WarrantyExpiration",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.MaintenanceInfo",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.BackgroundColor",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.TextColor",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.AccentColor",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.QrFgColor",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.QrBgColor",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.ImagePath",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.ImageFile",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.CustomFieldsData",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.CreatedByID",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.UpdatedByID",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.CreatedAt",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.UpdatedAt",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.CreatedBy",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.UpdatedBy",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "IssueType",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Priority",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Description",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "ReportDate",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      },
+      {
+        "Name": "ReporterName",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "ReporterEmail",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "ReporterPhone",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Status",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Resolution",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "ImagePath",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "ImageFile",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      },
+      {
+        "Name": "CreatedAt",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      },
+      {
+        "Name": "ResolvedAt",
+        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "CardTagManager.Models.IssueReport",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "CardTagManager.Controllers.IssueReportController",
+    "Method": "GetIssue",
+    "RelativePath": "api/IssueReport/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "CardTagManager.Models.IssueReport",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "CardTagManager.Controllers.IssueReportController",
+    "Method": "UpdateIssue",
+    "RelativePath": "api/IssueReport/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "CardId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.Id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.ProductName",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.Category",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.Location",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.ManufactureDate",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.PurchaseDate",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.WarrantyExpiration",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.MaintenanceInfo",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.BackgroundColor",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.TextColor",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.AccentColor",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.QrFgColor",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.QrBgColor",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.ImagePath",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.ImageFile",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.CustomFieldsData",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.CreatedByID",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.UpdatedByID",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.CreatedAt",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.UpdatedAt",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.CreatedBy",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Card.UpdatedBy",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "IssueType",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Priority",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Description",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "ReportDate",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      },
+      {
+        "Name": "ReporterName",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "ReporterEmail",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "ReporterPhone",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Status",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Resolution",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "ImagePath",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "ImageFile",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      },
+      {
+        "Name": "CreatedAt",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      },
+      {
+        "Name": "ResolvedAt",
+        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CardTagManager.Controllers.IssueReportController",
+    "Method": "DeleteIssue",
+    "RelativePath": "api/IssueReport/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CardTagManager.Controllers.IssueReportController",
+    "Method": "GetCardIssues",
+    "RelativePath": "api/IssueReport/card/{cardId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "cardId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[CardTagManager.Models.IssueReport, CardTagManager, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "CardTagManager.Controllers.ReminderController",
+    "Method": "CreateReminder",
+    "RelativePath": "api/Reminder",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "reminder",
+        "Type": "CardTagManager.Models.MaintenanceReminder",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "CardTagManager.Models.MaintenanceReminder",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "CardTagManager.Controllers.ReminderController",
+    "Method": "GetReminder",
+    "RelativePath": "api/Reminder/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "CardTagManager.Models.MaintenanceReminder",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "CardTagManager.Controllers.ReminderController",
+    "Method": "UpdateReminder",
+    "RelativePath": "api/Reminder/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "reminder",
+        "Type": "CardTagManager.Models.MaintenanceReminder",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CardTagManager.Controllers.ReminderController",
+    "Method": "DeleteReminder",
+    "RelativePath": "api/Reminder/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CardTagManager.Controllers.ReminderController",
+    "Method": "GetCardReminders",
+    "RelativePath": "api/Reminder/card/{cardId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "cardId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[CardTagManager.Models.MaintenanceReminder, CardTagManager, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "CardTagManager.Controllers.ScanSettingsController",
+    "Method": "SaveScanSettings",
+    "RelativePath": "api/ScanSettings",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "requestData",
+        "Type": "System.Object",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CardTagManager.Controllers.ScanSettingsController",
+    "Method": "GetCardScanSettings",
+    "RelativePath": "api/ScanSettings/card/{cardId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "cardId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CardTagManager.Controllers.ScanSettingsController",
+    "Method": "GetPublicCardScanSettings",
+    "RelativePath": "api/ScanSettings/public/card/{cardId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "cardId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CardTagManager.Controllers.TemplateController",
+    "Method": "GetTemplates",
+    "RelativePath": "api/Template",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[CardTagManager.Models.Template, CardTagManager, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "CardTagManager.Controllers.TemplateController",
+    "Method": "CreateTemplate",
+    "RelativePath": "api/Template",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "template",
+        "Type": "CardTagManager.Models.Template",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "CardTagManager.Models.Template",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "CardTagManager.Controllers.TemplateController",
+    "Method": "GetTemplate",
+    "RelativePath": "api/Template/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "CardTagManager.Models.Template",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "CardTagManager.Controllers.TemplateController",
+    "Method": "UpdateTemplate",
+    "RelativePath": "api/Template/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "template",
+        "Type": "CardTagManager.Models.Template",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CardTagManager.Controllers.TemplateController",
+    "Method": "DeleteTemplate",
+    "RelativePath": "api/Template/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CardTagManager.Controllers.TemplateController",
+    "Method": "GetCategories",
+    "RelativePath": "api/Template/Categories",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "CardTagManager.Controllers.TemplateController",
+    "Method": "AddCategory",
+    "RelativePath": "api/Template/Categories",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "categoryName",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.String",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  }
+]
