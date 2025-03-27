@@ -35,7 +35,9 @@ public class Program
 
     private static void ConfigureServices(IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)
     {
+        services.AddHttpContextAccessor();
         services.AddScoped<DepartmentAccessService>();
+        
         // Database Context Configuration
         services.AddDbContext<ApplicationDbContext>(options =>
         {

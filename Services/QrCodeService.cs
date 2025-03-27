@@ -6,11 +6,19 @@ using CardTagManager.Models;
 using QRCoder;
 using System.Drawing;
 using System.Drawing.Imaging;
+using Microsoft.AspNetCore.Http;
 
 namespace CardTagManager.Services
 {
     public class QrCodeService
     {
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public QrCodeService(IHttpContextAccessor httpContextAccessor)
+        {
+            _httpContextAccessor = httpContextAccessor;
+        }
+
         // Generate QR code as a base64 encoded image string for inline display
         public Task<string> GenerateQrCodeImage(Card card, string baseUrl = null)
         {
@@ -22,19 +30,34 @@ namespace CardTagManager.Services
                 // Create QR code data with absolute URL to ScanShow page
                 string qrData;
                 
+                // Get path base from current request
+                string pathBase = _httpContextAccessor?.HttpContext?.Request.PathBase.Value ?? "";
+                
                 if (!string.IsNullOrEmpty(baseUrl))
                 {
-                    // Use fully qualified URL to ScanShow page
+                    // Use fully qualified URL with path base
                     baseUrl = baseUrl.TrimEnd('/');
-                    qrData = $"{baseUrl}/Card/ScanShow/{card.Id}";
+                    qrData = $"{baseUrl}{pathBase}/Card/ScanShow/{card.Id}";
                 }
                 else
                 {
-                    // Fallback to relative path without duplicating the path base
-                    qrData = $"/Card/ScanShow/{card.Id}";
+                    // Get current request details
+                    var httpContext = _httpContextAccessor?.HttpContext;
+                    if (httpContext != null)
+                    {
+                        var scheme = httpContext.Request.Scheme;
+                        var host = httpContext.Request.Host.Value;
+                        
+                        // Generate absolute URL with path base
+                        qrData = $"{scheme}://{host}{pathBase}/Card/ScanShow/{card.Id}";
+                    }
+                    else
+                    {
+                        // Fallback with path base included
+                        qrData = $"{pathBase}/Card/ScanShow/{card.Id}";
+                    }
                 }
                 
-                // Rest of the method remains unchanged
                 Color fgColor = ColorTranslator.FromHtml(card.QrFgColor ?? "#000000"); 
                 Color bgColor = ColorTranslator.FromHtml(card.QrBgColor ?? "#FFFFFF");
                 
@@ -73,15 +96,32 @@ namespace CardTagManager.Services
                 // Create QR code data with URL to ScanShow page
                 string qrData;
                 
+                // Get path base from current request
+                string pathBase = _httpContextAccessor?.HttpContext?.Request.PathBase.Value ?? "";
+                
                 if (!string.IsNullOrEmpty(baseUrl))
                 {
-                    // Use URL format for scanning - direct to ScanShow page
-                    qrData = $"{baseUrl}/Card/ScanShow/{card.Id}";
+                    // Use fully qualified URL with path base
+                    baseUrl = baseUrl.TrimEnd('/');
+                    qrData = $"{baseUrl}{pathBase}/Card/ScanShow/{card.Id}";
                 }
                 else
                 {
-                    // Fallback to structured format if no base URL provided
-                    qrData = $"PRODUCT:{card.ProductName}:CAT:{card.Category}:ID:{card.Id}";
+                    // Get current request details
+                    var httpContext = _httpContextAccessor?.HttpContext;
+                    if (httpContext != null)
+                    {
+                        var scheme = httpContext.Request.Scheme;
+                        var host = httpContext.Request.Host.Value;
+                        
+                        // Generate absolute URL with path base
+                        qrData = $"{scheme}://{host}{pathBase}/Card/ScanShow/{card.Id}";
+                    }
+                    else
+                    {
+                        // Fallback with structured format
+                        qrData = $"PRODUCT:{card.ProductName}:CAT:{card.Category}:ID:{card.Id}";
+                    }
                 }
                 
                 // Parse colors
