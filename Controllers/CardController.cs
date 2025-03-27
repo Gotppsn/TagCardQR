@@ -41,13 +41,16 @@ namespace CardTagManager.Controllers
             _departmentAccessService = departmentAccessService;
         }
 
-        // GET: Card
+        // Path: Controllers/CardController.cs - Index method
         public async Task<IActionResult> Index()
         {
             try
             {
+                // Get current user's department from claims
                 string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
                 bool isAdmin = User.IsInRole("Admin");
+                
+                // Get user ID for department access check
                 var username = User.Identity?.Name;
                 var userProfile = await _userProfileService.GetUserProfileAsync(username);
                 
@@ -57,42 +60,52 @@ namespace CardTagManager.Controllers
                     return View(new List<Card>());
                 }
                 
-                // Build query based on department access
-                var query = _context.Cards.AsQueryable();
+                List<Card> cards = new List<Card>();
                 
-                if (!isAdmin)
+                // Admin sees all cards
+                if (isAdmin)
                 {
-                    // Get list of accessible departments first
+                    cards = await _context.Cards
+                        .OrderByDescending(c => c.UpdatedAt)
+                        .ToListAsync();
+                }
+                else
+                {
+                    // Get all departments this user can access
                     var accessibleDepartments = await _departmentAccessService.GetUserAccessibleDepartmentsAsync(userProfile.Id);
                     
-                    if (accessibleDepartments.Any())
+                    if (!accessibleDepartments.Any())
                     {
-                        // Use Contains instead of attempting SQL JSON functions
-                        var deptList = accessibleDepartments.Select(d => d.Trim().ToLower()).ToList();
+                        // No departments accessible, return empty list
+                        _logger.LogWarning($"No accessible departments found for user: {username}");
+                        return View(new List<Card>());
+                    }
+                    
+                    // Log the departments for debugging
+                    _logger.LogInformation($"User {username} has access to departments: {string.Join(", ", accessibleDepartments)}");
+                    
+                    // Process each department separately to avoid complex SQL translation
+                    foreach (var department in accessibleDepartments)
+                    {
+                        var deptCards = await _context.Cards
+                            .FromSqlRaw(@"
+                                SELECT c.* FROM Cards c
+                                INNER JOIN UserProfiles u ON c.CreatedByID = u.User_Code
+                                WHERE u.Department_Name = {0}", department)
+                            .ToListAsync();
                         
-                        // Perform join in memory instead of at database
-                        query = from card in _context.Cards
-                                join profile in _context.UserProfiles on card.CreatedByID equals profile.User_Code
-                                where profile.Department_Name != null && 
-                                    deptList.Contains(profile.Department_Name.Trim().ToLower())
-                                select card;
+                        cards.AddRange(deptCards);
                     }
-                    else
-                    {
-                        // Simple equality for just user's department
-                        query = from card in _context.Cards
-                                join profile in _context.UserProfiles on card.CreatedByID equals profile.User_Code
-                                where profile.Department_Name == userDepartment
-                                select card;
-                    }
+                    
+                    // Remove duplicates and sort
+                    cards = cards.Distinct().OrderByDescending(c => c.UpdatedAt).ToList();
                 }
                 
-                var cards = await query.OrderByDescending(c => c.UpdatedAt).ToListAsync();
                 return View(cards);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving cards with department filtering");
+                _logger.LogError(ex, "Error retrieving cards with department filtering: {Message}", ex.Message);
                 return View(new List<Card>());
             }
         }

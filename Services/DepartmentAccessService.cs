@@ -28,24 +28,23 @@ namespace CardTagManager.Services
                 .ToListAsync();
         }
 
-  public async Task<List<string>> GetUserAccessibleDepartmentsAsync(int userId)
-{
-    // Get departments from access table
-    var accesses = await _context.DepartmentAccesses
-        .Where(da => da.UserId == userId && da.IsActive)
-        .Select(da => da.DepartmentName)
-        .ToListAsync();
-    
-    // Add user's own department
-    var userProfile = await _context.UserProfiles.FindAsync(userId);
-    if (userProfile != null && !string.IsNullOrEmpty(userProfile.Department_Name) && 
-        !accesses.Contains(userProfile.Department_Name))
-    {
-        accesses.Add(userProfile.Department_Name);
-    }
-    
-    return accesses;
-}
+        public async Task<List<string>> GetUserAccessibleDepartmentsAsync(int userId)
+        {
+            var accesses = await _context.DepartmentAccesses
+                .Where(da => da.UserId == userId && da.IsActive)
+                .Select(da => da.DepartmentName)
+                .ToListAsync();
+                
+            // Also include the user's own department
+            var userProfile = await _context.UserProfiles.FindAsync(userId);
+            if (userProfile != null && !string.IsNullOrEmpty(userProfile.Department_Name) && 
+                !accesses.Contains(userProfile.Department_Name))
+            {
+                accesses.Add(userProfile.Department_Name);
+            }
+            
+            return accesses;
+        }
 
         public async Task<List<DepartmentAccess>> GetAllDepartmentAccessesAsync()
         {
