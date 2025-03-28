@@ -1823,24 +1823,42 @@ async function deleteTemplate(templateId) {
             headers: {
                 'RequestVerificationToken': token,
                 'Content-Type': 'application/json'
-            }
+            },
+            body: JSON.stringify({}) // Send empty JSON object
         });
         
-        console.log(`Delete POST response status: ${response.status}`);
+        console.log(`Delete response status: ${response.status}`);
         
-        // Check if the response is JSON
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-            console.error('Received non-JSON response:', await response.text());
-            throw new Error('Server returned non-JSON response');
+        // First try to get the response as text
+        const responseText = await response.text();
+        console.log("Raw response:", responseText);
+        
+        // Then try to parse as JSON if possible
+        let result;
+        try {
+            // Only try to parse as JSON if there's content
+            if (responseText && responseText.trim().length > 0) {
+                result = JSON.parse(responseText);
+            } else {
+                // Empty response is also considered successful
+                result = { success: true };
+            }
+        } catch (parseError) {
+            console.error("Error parsing JSON:", parseError);
+            
+            // Non-JSON response with status OK is still considered success
+            if (response.ok) {
+                return true;
+            } else {
+                throw new Error(`Server returned invalid response format (Status: ${response.status})`);
+            }
         }
         
+        // Check for error in JSON response
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || `Failed to delete template: Status ${response.status}`);
+            throw new Error(result.error || `Failed to delete template: Status ${response.status}`);
         }
         
-        const result = await response.json();
         console.log('Delete success:', result);
         return true;
     } catch (error) {
@@ -2954,7 +2972,6 @@ confirmDeleteBtn.addEventListener('click', async function() {
         confirmDeleteBtn.disabled = false;
     }
 });
-
         
         // Save template button
         saveBtn.addEventListener('click', async function() {

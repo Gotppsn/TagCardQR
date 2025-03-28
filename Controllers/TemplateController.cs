@@ -281,11 +281,9 @@ public async Task<IActionResult> DeleteTemplate(int id)
                 return StatusCode(500, new { error = "An error occurred while creating the category." });
             }
         }
-        // Path: Controllers/TemplateController.cs
-// Add this new method - a dedicated POST endpoint for deletion
 [HttpPost("Delete/{id}")]
 [ValidateAntiForgeryToken]
-public async Task<ActionResult> DeleteTemplatePost(int id)
+public async Task<IActionResult> DeleteTemplatePost(int id)
 {
     _logger.LogInformation($"Received POST delete request for template ID: {id}");
     
@@ -296,6 +294,14 @@ public async Task<ActionResult> DeleteTemplatePost(int id)
         {
             _logger.LogWarning($"Template not found for deletion: {id}");
             return NotFound(new { error = "Template not found" });
+        }
+
+        // Check if template is being used by any cards before deletion
+        bool isTemplateInUse = await _context.Cards.AnyAsync(c => c.CustomFieldsData.Contains($"\"templateId\":{id}"));
+        if (isTemplateInUse)
+        {
+            _logger.LogWarning($"Cannot delete template {id} as it is in use");
+            return BadRequest(new { error = "This template is currently being used by one or more cards and cannot be deleted." });
         }
 
         // Log template details before deletion
@@ -313,6 +319,5 @@ public async Task<ActionResult> DeleteTemplatePost(int id)
         _logger.LogError(ex, $"Error deleting template {id}");
         return StatusCode(500, new { error = ex.Message });
     }
-}
-    }
+}    }
 }
