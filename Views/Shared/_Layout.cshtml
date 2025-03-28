@@ -89,9 +89,6 @@
                 <a asp-controller="Card" asp-action="Create" class="px-3 py-2 text-gray-600 hover:text-blue-600 flex items-center">
                     <i class="fas fa-plus-circle mr-2"></i> New Product
                 </a>
-                <a asp-controller="Card" asp-action="PrintAll" class="px-3 py-2 text-gray-600 hover:text-blue-600 flex items-center">
-                    <i class="fas fa-print mr-2"></i> Print All
-                </a>
                 @if (User.Identity.IsAuthenticated)
                 {
                     <a asp-controller="Card" asp-action="ScanResult" class="px-3 py-2 text-gray-600 hover:text-blue-600 flex items-center">
@@ -172,9 +169,6 @@
             </a>
             <a asp-controller="Card" asp-action="Create" class="nav-item">
                 <i class="fas fa-plus-circle mr-2 w-5 text-center"></i> New Product
-            </a>
-            <a asp-controller="Card" asp-action="PrintAll" class="nav-item">
-                <i class="fas fa-print mr-2 w-5 text-center"></i> Print All
             </a>
             @if (User.Identity.IsAuthenticated)
             {

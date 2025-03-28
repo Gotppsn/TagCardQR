@@ -1920,11 +1920,11 @@ window.hideUpdateToast = function() {
     }, 300);
 };
 
-// Additional functions required by the page (these are referenced above)
 // Initialize categories
 async function initializeCategories() {
     try {
-        const response = await fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Template/${category}`);
+        // Change from using undefined 'category' variable to the Categories endpoint
+        const response = await fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Template/Categories`);
         if (!response.ok) throw new Error('Failed to fetch categories');
         
         const categories = await response.json();
