@@ -23,7 +23,7 @@ public class Program
 
         // Configuration Management
         ConfigureServices(builder.Services, builder.Configuration, builder.Environment);
-        
+
         var app = builder.Build();
 
         // Middleware Configuration
@@ -36,7 +36,7 @@ public class Program
     {
         services.AddHttpContextAccessor();
         services.AddScoped<DepartmentAccessService>();
-        
+
         // Database Context Configuration
         services.AddDbContext<ApplicationDbContext>(options =>
         {
@@ -48,7 +48,7 @@ public class Program
                         maxRetryCount: 5,
                         maxRetryDelay: TimeSpan.FromSeconds(30),
                         errorNumbersToAdd: null);
-                    
+
                     // Additional SQL Server configuration
                     sqlOptions.CommandTimeout(120); // 2-minute timeout
                     sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
@@ -122,7 +122,7 @@ public class Program
         services.AddScoped<FileUploadService>();
         services.AddScoped<UserProfileService>();
         services.AddScoped<RoleService>();
-        services.AddSingleton<LdapAuthenticationService>(provider => 
+        services.AddSingleton<LdapAuthenticationService>(provider =>
             new LdapAuthenticationService(configuration["LdapSettings:Domain"] ?? "thaiparkerizing"));
     }
 
@@ -130,14 +130,14 @@ public class Program
     {
         // Set up logging for debugging
         var logger = app.Services.GetRequiredService<ILogger<Program>>();
-        
+
         // Configure PathBase from appsettings.json
         var pathBase = app.Configuration["PathBase"];
         if (!string.IsNullOrEmpty(app.Configuration["PathBase"]))
         {
             app.UsePathBase(app.Configuration["PathBase"]);
         }
-        
+
         // Configure forwarded headers to handle proxy scenarios
         app.UseForwardedHeaders(new ForwardedHeadersOptions
         {
@@ -159,7 +159,7 @@ public class Program
 
         // Standard middleware pipeline
         app.UseHttpsRedirection();
-        
+
         // Static files with detailed options
         app.UseStaticFiles(new StaticFileOptions
         {
@@ -169,14 +169,14 @@ public class Program
 
         app.UseCors("ProductionPolicy");
         app.UseRouting();
-        
+
         // Add antiforgery middleware - new addition
         app.Use(async (context, next) =>
         {
             var antiforgery = context.RequestServices.GetRequiredService<IAntiforgery>();
             // Send the token in the response cookies for JavaScript to use
             var tokens = antiforgery.GetAndStoreTokens(context);
-            
+
             if (context.Request.Path.Value?.StartsWith("/api/") == true)
             {
                 // For API requests, respond to token requests
@@ -185,17 +185,17 @@ public class Program
                     context.Response.Headers.Append("X-CSRF-TOKEN", tokens.RequestToken);
                 }
             }
-            
+
             await next();
         });
-        
+
         app.UseAuthentication();
         app.UseAuthorization();
 
         // Log routing information
         logger.LogInformation($"Default Controller: Card, Default Action: Index");
         logger.LogInformation($"Application Root Path: {app.Environment.ContentRootPath}");
-        
+
         // Configure endpoints
         app.UseEndpoints(endpoints =>
         {
@@ -205,7 +205,7 @@ public class Program
                 pattern: "Card/UpdateIssueStatus",
                 defaults: new { controller = "Card", action = "UpdateIssueStatus" }
             );
-            
+
             endpoints.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Card}/{action=Index}/{id?}"
@@ -218,12 +218,12 @@ public class Program
 public class MemoryCacheTicketStore : ITicketStore
 {
     private readonly IMemoryCache _cache;
-    
+
     public MemoryCacheTicketStore(IMemoryCache memoryCache)
     {
         _cache = memoryCache;
     }
-    
+
     public Task<string> StoreAsync(AuthenticationTicket ticket)
     {
         var key = Guid.NewGuid().ToString();
@@ -231,11 +231,11 @@ public class MemoryCacheTicketStore : ITicketStore
         {
             AbsoluteExpiration = ticket.Properties.ExpiresUtc
         };
-        
+
         _cache.Set(key, ticket, options);
         return Task.FromResult(key);
     }
-    
+
     public Task RenewAsync(string key, AuthenticationTicket ticket)
     {
         _cache.Set(key, ticket, new MemoryCacheEntryOptions
@@ -244,13 +244,13 @@ public class MemoryCacheTicketStore : ITicketStore
         });
         return Task.CompletedTask;
     }
-    
+
     public Task<AuthenticationTicket> RetrieveAsync(string key)
     {
         _cache.TryGetValue(key, out AuthenticationTicket ticket);
         return Task.FromResult(ticket);
     }
-    
+
     public Task RemoveAsync(string key)
     {
         _cache.Remove(key);

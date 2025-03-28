@@ -30,7 +30,7 @@ public class HomeController : Controller
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
-    
+
     [AllowAnonymous]
     [Route("test-path")]
     public IActionResult TestPath()
@@ -40,7 +40,7 @@ public class HomeController : Controller
         var queryString = HttpContext.Request.QueryString;
         var scheme = HttpContext.Request.Scheme;
         var host = HttpContext.Request.Host;
-        
+
         return Content($"PathBase: {pathBase}, Path: {path}, QueryString: {queryString}, Scheme: {scheme}, Host: {host}");
     }
 }

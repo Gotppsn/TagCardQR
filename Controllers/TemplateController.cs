@@ -28,35 +28,35 @@ namespace CardTagManager.Controllers
         }
 
         // GET: api/Template
-[HttpGet]
-public async Task<ActionResult<IEnumerable<Template>>> GetTemplates()
-{
-    try
-    {
-        // Get current user's department from claims
-        string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
-        bool isAdmin = User.IsInRole("Admin");
-        
-        // Start with all templates
-        var query = _context.Templates.AsQueryable();
-        
-        // Filter by department for non-admin users
-        if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Template>>> GetTemplates()
         {
-            query = from template in query
-                    join profile in _context.UserProfiles on template.CreatedByID equals profile.User_Code
-                    where profile.Department_Name == userDepartment
-                    select template;
+            try
+            {
+                // Get current user's department from claims
+                string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
+                bool isAdmin = User.IsInRole("Admin");
+
+                // Start with all templates
+                var query = _context.Templates.AsQueryable();
+
+                // Filter by department for non-admin users
+                if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
+                {
+                    query = from template in query
+                            join profile in _context.UserProfiles on template.CreatedByID equals profile.User_Code
+                            where profile.Department_Name == userDepartment
+                            select template;
+                }
+
+                return await query.ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving templates with department filtering");
+                return StatusCode(500, new { error = "An error occurred while retrieving templates." });
+            }
         }
-        
-        return await query.ToListAsync();
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, "Error retrieving templates with department filtering");
-        return StatusCode(500, new { error = "An error occurred while retrieving templates." });
-    }
-}
 
         // GET: api/Template/5
         [HttpGet("{id}")]
@@ -94,7 +94,7 @@ public async Task<ActionResult<IEnumerable<Template>>> GetTemplates()
                 // Get user info from claims
                 string username = User.Identity?.Name ?? "system";
                 string userCode = User.Claims.FirstOrDefault(c => c.Type == "User_Code")?.Value ?? "";
-                
+
                 _logger.LogInformation($"Creating template with user: {username}, code: {userCode}");
 
                 template.CreatedBy = username;
@@ -134,7 +134,7 @@ public async Task<ActionResult<IEnumerable<Template>>> GetTemplates()
             try
             {
                 var existingTemplate = await _context.Templates.FindAsync(id);
-                
+
                 if (existingTemplate == null)
                 {
                     return NotFound();
@@ -143,7 +143,7 @@ public async Task<ActionResult<IEnumerable<Template>>> GetTemplates()
                 // Get user info from claims
                 string username = User.Identity?.Name ?? "system";
                 string userCode = User.Claims.FirstOrDefault(c => c.Type == "User_Code")?.Value ?? "";
-                
+
                 _logger.LogInformation($"Updating template with user: {username}, code: {userCode}");
 
                 existingTemplate.Name = template.Name;
@@ -196,42 +196,42 @@ public async Task<ActionResult<IEnumerable<Template>>> GetTemplates()
             }
         }
 
-[HttpGet("Categories")]
-public async Task<ActionResult<IEnumerable<string>>> GetCategories()
-{
-    try
-    {
-        // Get current user's department from claims
-        string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
-        bool isAdmin = User.IsInRole("Admin");
-        
-        // Start with all templates
-        var query = _context.Templates.AsQueryable();
-        
-        // Filter by department for non-admin users
-        if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
+        [HttpGet("Categories")]
+        public async Task<ActionResult<IEnumerable<string>>> GetCategories()
         {
-            query = from template in query
-                    join profile in _context.UserProfiles on template.CreatedByID equals profile.User_Code
-                    where profile.Department_Name == userDepartment
-                    select template;
+            try
+            {
+                // Get current user's department from claims
+                string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
+                bool isAdmin = User.IsInRole("Admin");
+
+                // Start with all templates
+                var query = _context.Templates.AsQueryable();
+
+                // Filter by department for non-admin users
+                if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
+                {
+                    query = from template in query
+                            join profile in _context.UserProfiles on template.CreatedByID equals profile.User_Code
+                            where profile.Department_Name == userDepartment
+                            select template;
+                }
+
+                // Get distinct categories from filtered templates
+                var categories = await query
+                    .Select(t => t.Category)
+                    .Distinct()
+                    .OrderBy(c => c)
+                    .ToListAsync();
+
+                return categories;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving categories");
+                return StatusCode(500, new { error = "An error occurred while retrieving categories." });
+            }
         }
-        
-        // Get distinct categories from filtered templates
-        var categories = await query
-            .Select(t => t.Category)
-            .Distinct()
-            .OrderBy(c => c)
-            .ToListAsync();
-        
-        return categories;
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, "Error retrieving categories");
-        return StatusCode(500, new { error = "An error occurred while retrieving categories." });
-    }
-}
 
         // POST: api/Template/Categories
         [HttpPost("Categories")]
@@ -243,19 +243,19 @@ public async Task<ActionResult<IEnumerable<string>>> GetCategories()
                 {
                     return BadRequest(new { error = "Category name cannot be empty." });
                 }
-                
+
                 // Check if category already exists
                 var categoryExists = await _context.Templates
                     .AnyAsync(t => t.Category == categoryName);
-                    
+
                 if (!categoryExists)
                 {
                     // Get user info from claims
                     string username = User.Identity?.Name ?? "system";
                     string userCode = User.Claims.FirstOrDefault(c => c.Type == "UserCode")?.Value ?? "";
-                    
+
                     _logger.LogInformation($"Adding category with user: {username}, code: {userCode}");
-                    
+
                     // Create a basic template with this category to ensure it exists
                     var template = new Template
                     {
@@ -272,11 +272,11 @@ public async Task<ActionResult<IEnumerable<string>>> GetCategories()
                         UpdatedAt = DateTime.Now,
                         FieldsJson = "[]"
                     };
-                    
+
                     _context.Templates.Add(template);
                     await _context.SaveChangesAsync();
                 }
-                
+
                 return Ok(categoryName);
             }
             catch (Exception ex)

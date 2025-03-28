@@ -30,10 +30,10 @@ namespace CardTagManager.Controllers
             {
                 var settings = await _context.ScanSettings
                     .FirstOrDefaultAsync(s => s.CardId == cardId);
-                
+
                 if (settings == null)
                     return NotFound(new { error = "No scan settings found for this card." });
-                
+
                 return Ok(settings);
             }
             catch (Exception ex)
@@ -51,15 +51,15 @@ namespace CardTagManager.Controllers
                 // Extract values from dynamic request
                 int cardId = Convert.ToInt32(requestData.GetProperty("cardId").GetInt32());
                 string fieldsJson = requestData.GetProperty("fieldsJson").GetString();
-                string uiElementsJson = requestData.GetProperty("uiElementsJson").GetString(); 
+                string uiElementsJson = requestData.GetProperty("uiElementsJson").GetString();
                 bool privateMode = requestData.GetProperty("privateMode").GetBoolean();
-                
+
                 _logger.LogInformation($"Saving scan settings: CardId={cardId}, Fields={fieldsJson}, UI={uiElementsJson}, Private={privateMode}");
-                
+
                 // Find existing or create new
                 var existingSettings = await _context.ScanSettings
                     .FirstOrDefaultAsync(s => s.CardId == cardId);
-                
+
                 if (existingSettings != null)
                 {
                     existingSettings.FieldsJson = fieldsJson;
@@ -82,7 +82,7 @@ namespace CardTagManager.Controllers
                     };
                     _context.ScanSettings.Add(newSettings);
                 }
-                
+
                 await _context.SaveChangesAsync();
                 return Ok(new { success = true });
             }
@@ -101,10 +101,10 @@ namespace CardTagManager.Controllers
             {
                 var settings = await _context.ScanSettings
                     .FirstOrDefaultAsync(s => s.CardId == cardId);
-                
+
                 if (settings == null)
                     return NotFound(new { error = "No scan settings found for this card." });
-                
+
                 return Ok(new
                 {
                     fields = settings.FieldsJson,

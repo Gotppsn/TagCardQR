@@ -44,20 +44,20 @@ namespace CardTagManager.Controllers
                 // Check if this card is private
                 var scanSettings = await _context.ScanSettings
                     .FirstOrDefaultAsync(s => s.CardId == cardId);
-                
+
                 bool privateMode = scanSettings?.PrivateMode ?? false;
-                
+
                 // If private mode and user not authenticated, return limited data or error
                 if (privateMode && !User.Identity.IsAuthenticated)
                 {
                     return StatusCode(401, new { error = "Authentication required", requiresAuth = true });
                 }
-                
+
                 var documents = await _context.CardDocuments
                     .Where(d => d.CardId == cardId)
                     .OrderByDescending(d => d.UploadedAt)
                     .ToListAsync();
-                
+
                 return Ok(documents);
             }
             catch (Exception ex)
@@ -88,12 +88,12 @@ namespace CardTagManager.Controllers
             try
             {
                 var document = await _context.CardDocuments.FindAsync(id);
-                
+
                 if (document == null)
                 {
                     return NotFound();
                 }
-                
+
                 // In a real implementation, you would use the document.FilePath to retrieve the file
                 // For demo purposes, we'll just return a 404
                 return NotFound("File download functionality not implemented yet.");
@@ -123,12 +123,12 @@ namespace CardTagManager.Controllers
             {
                 // Upload file using FileUploadService
                 var fileResponse = await _fileUploadService.UploadFile(document.DocumentFile, "CardDocuments");
-                
+
                 if (!fileResponse.IsSuccess)
                 {
                     return BadRequest(new { error = fileResponse.ErrorMessage });
                 }
-                
+
                 // Create new document record
                 var newDocument = new CardDocument
                 {
@@ -143,10 +143,10 @@ namespace CardTagManager.Controllers
                     UploadedAt = DateTime.Now,
                     UploadedBy = User.Identity.Name
                 };
-                
+
                 _context.CardDocuments.Add(newDocument);
                 await _context.SaveChangesAsync();
-                
+
                 return CreatedAtAction(nameof(GetDocument), new { id = newDocument.Id }, newDocument);
             }
             catch (Exception ex)
@@ -163,12 +163,12 @@ namespace CardTagManager.Controllers
             try
             {
                 var document = await _context.CardDocuments.FindAsync(id);
-                
+
                 if (document == null)
                 {
                     return NotFound();
                 }
-                
+
                 // Delete file using FileUploadService
                 if (!string.IsNullOrEmpty(document.FilePath))
                 {
@@ -181,10 +181,10 @@ namespace CardTagManager.Controllers
                         _logger.LogWarning(ex, $"Failed to delete file: {document.FilePath}");
                     }
                 }
-                
+
                 _context.CardDocuments.Remove(document);
                 await _context.SaveChangesAsync();
-                
+
                 return NoContent();
             }
             catch (Exception ex)
@@ -194,113 +194,115 @@ namespace CardTagManager.Controllers
             }
         }
 
-[HttpPost("UploadMultiple")]
-public async Task<ActionResult<CardDocument>> UploadMultiple(
-    [FromForm] int cardId, 
-    [FromForm] string title, 
-    [FromForm] string documentType, 
-    [FromForm] string description, 
-    [FromForm] List<IFormFile> documentFiles)
-{
-    try
-    {
-        // Ensure description is never null
-        description = description ?? string.Empty;
-        
-        if (documentFiles == null || !documentFiles.Any())
+        [HttpPost("UploadMultiple")]
+        public async Task<ActionResult<CardDocument>> UploadMultiple(
+            [FromForm] int cardId,
+            [FromForm] string title,
+            [FromForm] string documentType,
+            [FromForm] string description,
+            [FromForm] List<IFormFile> documentFiles)
         {
-            return BadRequest(new { error = "No files were uploaded." });
-        }
-
-        var card = await _context.Cards.FindAsync(cardId);
-        if (card == null)
-        {
-            return NotFound(new { error = "Card not found." });
-        }
-
-        int successCount = 0;
-        List<string> errors = new List<string>();
-
-        foreach (var file in documentFiles)
-        {
-            if (file.Length == 0)
-            {
-                errors.Add($"Empty file: {file.FileName}");
-                continue;
-            }
-
             try
             {
-                // Debug logging
-                _logger.LogInformation($"Attempting to upload file: {file.FileName}, size: {file.Length}");
-                
-                // Upload file using FileUploadService
-                var fileResponse = await _fileUploadService.UploadFile(file, "CardDocuments");
-                
-                if (!fileResponse.IsSuccess)
+                // Ensure description is never null
+                description = description ?? string.Empty;
+
+                if (documentFiles == null || !documentFiles.Any())
                 {
-                    _logger.LogError($"Upload failed for {file.FileName}: {fileResponse.ErrorMessage}");
-                    errors.Add($"Failed to upload {file.FileName}: {fileResponse.ErrorMessage}");
-                    continue;
+                    return BadRequest(new { error = "No files were uploaded." });
                 }
-                
-                // Generate unique title for each file if multiple files
-                string fileTitle = documentFiles.Count > 1 
-                    ? $"{title} - {file.FileName}"
-                    : title;
-                
-                // Create new document record
-// Create new document record
-var newDocument = new CardDocument
-{
-    CardId = cardId,
-    Title = fileTitle,
-    DocumentType = documentType,
-    Description = description,
-    FilePath = fileResponse.FileUrl,
-    FileName = file.FileName, // Store original filename for display
-    FileSize = file.Length,
-    FileType = file.ContentType,
-    UploadedAt = DateTime.Now,
-    UploadedBy = User.Identity?.Name ?? "unknown"
-};
-                
-                _context.CardDocuments.Add(newDocument);
-                successCount++;
-                _logger.LogInformation($"Successfully added document record for {file.FileName}");
+
+                var card = await _context.Cards.FindAsync(cardId);
+                if (card == null)
+                {
+                    return NotFound(new { error = "Card not found." });
+                }
+
+                int successCount = 0;
+                List<string> errors = new List<string>();
+
+                foreach (var file in documentFiles)
+                {
+                    if (file.Length == 0)
+                    {
+                        errors.Add($"Empty file: {file.FileName}");
+                        continue;
+                    }
+
+                    try
+                    {
+                        // Debug logging
+                        _logger.LogInformation($"Attempting to upload file: {file.FileName}, size: {file.Length}");
+
+                        // Upload file using FileUploadService
+                        var fileResponse = await _fileUploadService.UploadFile(file, "CardDocuments");
+
+                        if (!fileResponse.IsSuccess)
+                        {
+                            _logger.LogError($"Upload failed for {file.FileName}: {fileResponse.ErrorMessage}");
+                            errors.Add($"Failed to upload {file.FileName}: {fileResponse.ErrorMessage}");
+                            continue;
+                        }
+
+                        // Generate unique title for each file if multiple files
+                        string fileTitle = documentFiles.Count > 1
+                            ? $"{title} - {file.FileName}"
+                            : title;
+
+                        // Create new document record
+                        // Create new document record
+                        var newDocument = new CardDocument
+                        {
+                            CardId = cardId,
+                            Title = fileTitle,
+                            DocumentType = documentType,
+                            Description = description,
+                            FilePath = fileResponse.FileUrl,
+                            FileName = file.FileName, // Store original filename for display
+                            FileSize = file.Length,
+                            FileType = file.ContentType,
+                            UploadedAt = DateTime.Now,
+                            UploadedBy = User.Identity?.Name ?? "unknown"
+                        };
+
+                        _context.CardDocuments.Add(newDocument);
+                        successCount++;
+                        _logger.LogInformation($"Successfully added document record for {file.FileName}");
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, $"Error uploading file: {file.FileName}");
+                        errors.Add($"Error: {file.FileName} - {ex.Message}");
+                    }
+                }
+
+                if (successCount > 0)
+                {
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation($"Successfully saved {successCount} document records");
+
+                    return Ok(new
+                    {
+                        success = true,
+                        count = successCount,
+                        errors = errors.Any() ? errors : null
+                    });
+                }
+                else
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        error = "All uploads failed",
+                        errors = errors
+                    });
+                }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error uploading file: {file.FileName}");
-                errors.Add($"Error: {file.FileName} - {ex.Message}");
+                _logger.LogError(ex, "Error uploading multiple documents");
+                return StatusCode(500, new { error = $"An error occurred while uploading the documents: {ex.Message}" });
             }
         }
-
-        if (successCount > 0)
-        {
-            await _context.SaveChangesAsync();
-            _logger.LogInformation($"Successfully saved {successCount} document records");
-            
-            return Ok(new { 
-                success = true, 
-                count = successCount,
-                errors = errors.Any() ? errors : null
-            });
-        }
-        else
-        {
-            return BadRequest(new { 
-                success = false, 
-                error = "All uploads failed", 
-                errors = errors 
-            });
-        }
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, "Error uploading multiple documents");
-        return StatusCode(500, new { error = $"An error occurred while uploading the documents: {ex.Message}" });
-    }
-}
     }
 }

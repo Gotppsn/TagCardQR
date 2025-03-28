@@ -194,15 +194,15 @@ namespace CardTagManager.Controllers
             {
                 var users = await _userProfileService.GetAllUserProfilesAsync();
                 var roles = await _roleService.GetAllRolesAsync();
-                
+
                 ViewBag.Roles = roles;
-                
+
                 // For each user, get their roles
                 foreach (var user in users)
                 {
                     ViewData[$"UserRoles_{user.Id}"] = await _roleService.GetUserRolesAsync(user.Id);
                 }
-                
+
                 return View(users);
             }
             catch (Exception ex)
@@ -221,13 +221,13 @@ namespace CardTagManager.Controllers
             {
                 return NotFound();
             }
-            
+
             var allRoles = await _roleService.GetAllRolesAsync();
             var userRoles = await _roleService.GetUserRolesAsync(id);
-            
+
             ViewBag.AllRoles = allRoles;
             ViewBag.UserRoles = userRoles;
-            
+
             return View(user);
         }
 
@@ -243,10 +243,10 @@ namespace CardTagManager.Controllers
                 {
                     return NotFound();
                 }
-                
+
                 var allRoles = await _roleService.GetAllRolesAsync();
                 var userRoles = await _roleService.GetUserRolesAsync(userId);
-                
+
                 // Remove roles that are no longer selected
                 foreach (var role in userRoles)
                 {
@@ -255,7 +255,7 @@ namespace CardTagManager.Controllers
                         await _roleService.RemoveRoleFromUserAsync(userId, role.Id);
                     }
                 }
-                
+
                 // Add newly selected roles
                 foreach (var roleId in selectedRoles)
                 {
@@ -265,7 +265,7 @@ namespace CardTagManager.Controllers
                         await _roleService.AssignRoleToUserAsync(userId, roleId, User.Identity.Name);
                     }
                 }
-                
+
                 TempData["SuccessMessage"] = $"Roles for user '{user.Username}' updated successfully.";
                 return RedirectToAction(nameof(Users));
             }
@@ -289,7 +289,7 @@ namespace CardTagManager.Controllers
                 {
                     var user = await _userProfileService.GetUserProfileByIdAsync(userId);
                     var role = await _roleService.GetRoleByIdAsync(roleId);
-                    
+
                     TempData["SuccessMessage"] = $"Role '{role.Name}' assigned to '{user.Username}' successfully.";
                 }
                 else
@@ -302,7 +302,7 @@ namespace CardTagManager.Controllers
                 _logger.LogError(ex, $"Error assigning role {roleId} to user {userId}");
                 TempData["ErrorMessage"] = "An error occurred while assigning the role.";
             }
-            
+
             return RedirectToAction(nameof(Users));
         }
 
@@ -318,7 +318,7 @@ namespace CardTagManager.Controllers
                 {
                     var user = await _userProfileService.GetUserProfileByIdAsync(userId);
                     var role = await _roleService.GetRoleByIdAsync(roleId);
-                    
+
                     TempData["SuccessMessage"] = $"Role '{role.Name}' removed from '{user.Username}' successfully.";
                 }
                 else
@@ -331,7 +331,7 @@ namespace CardTagManager.Controllers
                 _logger.LogError(ex, $"Error removing role {roleId} from user {userId}");
                 TempData["ErrorMessage"] = "An error occurred while removing the role.";
             }
-            
+
             return RedirectToAction(nameof(Users));
         }
     }

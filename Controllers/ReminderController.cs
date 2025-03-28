@@ -37,20 +37,20 @@ namespace CardTagManager.Controllers
                 // Check if this card is private
                 var scanSettings = await _context.ScanSettings
                     .FirstOrDefaultAsync(s => s.CardId == cardId);
-                
+
                 bool privateMode = scanSettings?.PrivateMode ?? false;
-                
+
                 // If private mode and user not authenticated, return limited data or error
                 if (privateMode && !User.Identity.IsAuthenticated)
                 {
                     return StatusCode(401, new { error = "Authentication required", requiresAuth = true });
                 }
-                
+
                 var reminders = await _context.MaintenanceReminders
                     .Where(r => r.CardId == cardId)
                     .OrderBy(r => r.DueDate)
                     .ToListAsync();
-                
+
                 return Ok(reminders);
             }
             catch (Exception ex)
@@ -78,9 +78,9 @@ namespace CardTagManager.Controllers
         [HttpPost]
         public async Task<ActionResult<MaintenanceReminder>> CreateReminder([FromBody] MaintenanceReminder reminder)
         {
-            _logger.LogInformation("Received reminder request with data: {Title}, {DueDate}", 
+            _logger.LogInformation("Received reminder request with data: {Title}, {DueDate}",
                 reminder?.Title, reminder?.DueDate);
-                
+
             try
             {
                 // Explicitly remove Card validation to prevent navigation property validation errors
@@ -88,14 +88,14 @@ namespace CardTagManager.Controllers
                 {
                     ModelState.Remove("Card");
                 }
-                
+
                 if (!ModelState.IsValid)
                 {
                     var errors = ModelState.Values
                         .SelectMany(v => v.Errors)
                         .Select(e => e.ErrorMessage)
                         .ToList();
-                        
+
                     _logger.LogWarning("Model validation failed: {Errors}", string.Join(", ", errors));
                     return BadRequest(new { errors });
                 }
@@ -106,24 +106,24 @@ namespace CardTagManager.Controllers
                 {
                     return NotFound(new { error = "Card not found" });
                 }
-                
+
                 // Set metadata on the reminder
                 reminder.CreatedAt = DateTime.Now;
                 reminder.UpdatedAt = DateTime.Now;
-                
+
                 // Set creator info with user identity for audit trail
                 reminder.CreatedBy = User.Identity?.Name ?? "system";
-                
+
                 // Add User_Code for better tracking
                 var userCodeClaim = User.Claims.FirstOrDefault(c => c.Type == "User_Code");
                 if (userCodeClaim != null)
                 {
                     reminder.CreatedBy += $" (ID: {userCodeClaim.Value})";
                 }
-                
+
                 _context.MaintenanceReminders.Add(reminder);
                 await _context.SaveChangesAsync();
-                
+
                 _logger.LogInformation("Reminder created successfully with ID: {Id}", reminder.Id);
 
                 return CreatedAtAction(nameof(GetReminder), new { id = reminder.Id }, reminder);
@@ -158,21 +158,21 @@ namespace CardTagManager.Controllers
             try
             {
                 var existingReminder = await _context.MaintenanceReminders.FindAsync(id);
-                
+
                 if (existingReminder == null)
                 {
                     return NotFound();
                 }
-                
+
                 // Update only the fields that should be modifiable
                 existingReminder.Title = reminder.Title;
                 existingReminder.DueDate = reminder.DueDate;
                 existingReminder.Notes = reminder.Notes;
                 existingReminder.RepeatFrequency = reminder.RepeatFrequency;
                 existingReminder.UpdatedAt = DateTime.Now;
-                
+
                 await _context.SaveChangesAsync();
-                
+
                 return NoContent();
             }
             catch (Exception ex)
@@ -189,15 +189,15 @@ namespace CardTagManager.Controllers
             try
             {
                 var reminder = await _context.MaintenanceReminders.FindAsync(id);
-                
+
                 if (reminder == null)
                 {
                     return NotFound();
                 }
-                
+
                 _context.MaintenanceReminders.Remove(reminder);
                 await _context.SaveChangesAsync();
-                
+
                 return NoContent();
             }
             catch (Exception ex)
