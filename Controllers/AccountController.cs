@@ -186,7 +186,12 @@ public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = 
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return Redirect("/Account/Login?ReturnUrl=/");
+            
+            // Use the path base from the request to construct the correct URL
+            string pathBase = HttpContext.Request.PathBase.Value;
+            
+            // Redirect to login page with correct path base
+            return Redirect($"{pathBase}/Account/Login?ReturnUrl={pathBase}/");
         }
         
         [HttpGet]
