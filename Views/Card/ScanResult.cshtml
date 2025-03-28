@@ -430,7 +430,16 @@
                                                 <div class="flex items-center">
                                                     <i class="fas fa-map-marker-alt text-primary-500 mr-2"></i>
                                                     <span class="text-sm text-gray-700">
-                                                        @(string.IsNullOrEmpty(item.Location) ? "Unknown Location" : item.Location)
+                                                        @if(string.IsNullOrEmpty(item.Location))
+                                                        {
+                                                            <span>Unknown Location</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span title="@item.Location">
+                                                                @(item.Location.Length > 40 ? item.Location.Substring(0, 37) + "..." : item.Location)
+                                                            </span>
+                                                        }
                                                     </span>
                                                 </div>
                                             </td>
@@ -563,8 +572,15 @@
                                             </div>
                                             <div class="flex items-center text-sm">
                                                 <i class="fas fa-map-marker-alt w-5 text-primary-500"></i>
-                                                <span class="ml-2">
-                                                    @(string.IsNullOrEmpty(item.Location) ? "Unknown Location" : item.Location)
+                                                <span class="ml-2 text-gray-700 truncate" title="@item.Location">
+                                                    @if(string.IsNullOrEmpty(item.Location))
+                                                    {
+                                                        <span>Unknown Location</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span>@(item.Location.Length > 30 ? item.Location.Substring(0, 27) + "..." : item.Location)</span>
+                                                    }
                                                 </span>
                                             </div>
                                         </div>

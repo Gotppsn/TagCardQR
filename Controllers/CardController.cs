@@ -391,12 +391,34 @@ namespace CardTagManager.Controllers
                 // Record this scan event if not in preview mode
                 if (!preview)
                 {
+                    // Get a more meaningful location value
+                    string locationValue;
+                    
+                    // Try to get from Referer first
+                    var referer = Request.Headers["Referer"].ToString();
+                    
+                    if (!string.IsNullOrEmpty(referer))
+                    {
+                        locationValue = referer;
+                    }
+                    else
+                    {
+                        // Use request path as fallback
+                        locationValue = $"{Request.Scheme}://{Request.Host}{Request.Path}";
+                    }
+                    
+                    // For additional context, try to get query parameters if any
+                    if (Request.QueryString.HasValue)
+                    {
+                        locationValue += Request.QueryString.Value;
+                    }
+                    
                     var scanResult = new ScanResult
                     {
                         CardId = card.Id,
                         ScanTime = DateTime.Now,
                         DeviceInfo = Request.Headers["User-Agent"].ToString(),
-                        Location = Request.Headers["Referer"].ToString() ?? "Direct Access",
+                        Location = locationValue, // Updated location value
                         Result = privateMode && User.Identity.IsAuthenticated ? "AuthenticatedAccess" : "PublicAccess",
                         ScannedBy = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Anonymous",
                         IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
@@ -426,6 +448,7 @@ namespace CardTagManager.Controllers
                 {
                     ViewBag.ScanSettings = scanSettings;
                 }
+                
 
                 return View(card);
             }
