@@ -1744,78 +1744,111 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Get templates from API
-    async function getTemplates() {
-        try {
-            const response = await fetch(document.querySelector('base')?.getAttribute('href') + 'api/Template' || '/api/Template');
-            if (!response.ok) {
-                throw new Error('Failed to fetch templates');
-            }
-            return await response.json();
-        } catch (error) {
-            console.error('Error fetching templates:', error);
-            showNotification('Error loading templates', 'error');
-            return [];
+async function getTemplates() {
+    try {
+        const baseUrl = document.querySelector('base')?.getAttribute('href') || '/';
+        const response = await fetch(`${baseUrl}api/Template`);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch templates: ${response.status}`);
         }
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching templates:', error);
+        showNotification('Error loading templates: ' + error.message, 'error');
+        return [];
     }
+}
 
     // Save template to API
-    async function saveTemplate(template) {
-        try {
-            const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
-            const method = template.id > 0 ? 'PUT' : 'POST';
-            const url = template.id > 0 ? 
-                `${document.querySelector('base')?.getAttribute('href') || '/'}api/Template/${template.id}` : 
-                `${document.querySelector('base')?.getAttribute('href') || '/'}api/Template`;
-            
-            const response = await fetch(url, {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'RequestVerificationToken': token
-                },
-                body: JSON.stringify(template)
-            });
-            
-            if (!response.ok) {
-                throw new Error(`Failed to save template - Status: ${response.status}`);
-            }
-            
-            // For successful POST responses, parse the JSON response
-            if (method === 'POST' && response.status !== 204) {
-                return await response.json();
-            } else {
-                return template; // For PUT, just return the original object
-            }
-        } catch (error) {
-            console.error('Error saving template:', error);
-            showNotification('Error saving template: ' + error.message, 'error');
-            throw error;
+async function saveTemplate(template) {
+    try {
+        const token = document.querySelector('meta[name="RequestVerificationToken"]')?.content;
+        if (!token) {
+            throw new Error('CSRF token not found');
         }
+        
+        const method = template.id > 0 ? 'PUT' : 'POST';
+        const baseUrl = document.querySelector('base')?.getAttribute('href') || '/';
+        const url = template.id > 0 ? 
+            `${baseUrl}api/Template/${template.id}` : 
+            `${baseUrl}api/Template`;
+        
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': token
+            },
+            body: JSON.stringify(template)
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(`Failed to save template - Status: ${response.status}${errorData.error ? ': ' + errorData.error : ''}`);
+        }
+        
+        // For successful POST responses, parse the JSON response
+        if (method === 'POST' && response.status !== 204) {
+            return await response.json();
+        } else {
+            return template; // For PUT, just return the original object
+        }
+    } catch (error) {
+        console.error('Error saving template:', error);
+        showNotification('Error saving template: ' + error.message, 'error');
+        throw error;
     }
+}
 
     // Delete template from API
-    async function deleteTemplate(templateId) {
-        try {
-            const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
-            const response = await fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Template/${templateId}`, {
-                method: 'DELETE',
-                headers: {
-                    'RequestVerificationToken': token
-                }
-            });
-            
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to delete template');
-            }
-            
-            return true;
-        } catch (error) {
-            console.error('Error deleting template:', error);
-            showNotification('Error deleting template: ' + error.message, 'error');
-            return false;
+async function deleteTemplate(templateId) {
+    try {
+        if (!templateId) {
+            throw new Error('No template ID provided');
         }
+        
+        const token = document.querySelector('meta[name="RequestVerificationToken"]')?.content;
+        if (!token) {
+            throw new Error('CSRF token not found');
+        }
+        
+        console.log(`Attempting to delete template ID: ${templateId} via POST method`);
+        
+        const baseUrl = document.querySelector('base')?.getAttribute('href') || '/';
+        // Use a dedicated POST endpoint for deletion
+        const url = `${baseUrl}api/Template/Delete/${templateId}`;
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'RequestVerificationToken': token,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        console.log(`Delete POST response status: ${response.status}`);
+        
+        // Check if the response is JSON
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            console.error('Received non-JSON response:', await response.text());
+            throw new Error('Server returned non-JSON response');
+        }
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `Failed to delete template: Status ${response.status}`);
+        }
+        
+        const result = await response.json();
+        console.log('Delete success:', result);
+        return true;
+    } catch (error) {
+        console.error('Template deletion error:', error);
+        showNotification('Error deleting template: ' + error.message, 'error');
+        return false;
     }
+}
 
     // Initialize templates
     async function initializeTemplates() {
@@ -2140,7 +2173,7 @@ function displayCustomTemplateFields(template, container) {
         // Handle template ID vs category name
         if (isNumeric) {
             try {
-                const response = await fetch(`/api/Template/${category}`);
+                const response = await fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Template/${category}`);
                 if (!response.ok) throw new Error('Failed to fetch template');
                 const template = await response.json();
                 
@@ -2715,68 +2748,79 @@ function validateForm() {
         }
         
         // Populate template form with data
-        async function populateTemplateForm(templateId) {
-            try {
-                const response = await fetch(`/api/Template/${templateId}`);
-                if (!response.ok) throw new Error('Failed to fetch template');
-                
-                const template = await response.json();
-                
-                // Set template ID and delete ID
-                document.getElementById('template-edit-id').value = template.id;
-                document.getElementById('delete-template-id').value = template.id;
-                document.getElementById('delete-template-name').textContent = template.name;
-                
-                // Populate basic fields
-                document.getElementById('template-name').value = template.name || '';
-                document.getElementById('template-category').value = template.category || '';
-                document.getElementById('template-bg-color').value = template.bgColor || '#f0f9ff';
-                document.getElementById('template-bg-color-text').value = template.bgColor || '#f0f9ff';
-                
-                // Set icon color values
-                document.getElementById('template-icon-color-picker').value = template.iconColor || '#0284c7';
-                document.getElementById('template-icon-color-text').value = template.iconColor || '#0284c7';
-                document.getElementById('template-icon-color').value = template.iconColor || '#0284c7';
-                
-                // Select icon
-                const iconElement = document.querySelector(`.icon-option[data-icon="${template.icon}"]`);
-                if (iconElement) {
-                    document.querySelectorAll('.icon-option').forEach(opt => {
-                        opt.classList.remove('border-primary-500', 'active');
-                        opt.querySelector('i').classList.remove('text-primary-500');
-                        opt.querySelector('i').classList.add('text-gray-500');
-                    });
-                    
-                    iconElement.classList.add('border-primary-500', 'active');
-                    iconElement.querySelector('i').classList.remove('text-gray-500');
-                    iconElement.querySelector('i').style.color = template.iconColor || '#0284c7';
-                    document.getElementById('template-icon').value = template.icon;
-                }
-
-                // Parse fields
-                let fields = [];
-                try {
-                    if (template.fieldsJson) {
-                        fields = JSON.parse(template.fieldsJson);
-                    }
-                } catch (e) {
-                    console.error('Error parsing fields JSON:', e);
-                }
-                
-                // Clear existing fields
-                customFields.innerHTML = '';
-                
-                // Add field rows
-                if (fields && fields.length > 0) {
-                    fields.forEach(field => addCustomField(field));
-                } else {
-                    addCustomField(); // Add an empty field
-                }
-            } catch (error) {
-                console.error('Error populating template form:', error);
-                showNotification('Error loading template', 'error');
-            }
+async function populateTemplateForm(templateId) {
+    try {
+        // Fix the API URL by using the base URL
+        const response = await fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Template/${templateId}`);
+        if (!response.ok) throw new Error(`Failed to fetch template: ${response.status}`);
+        
+        const template = await response.json();
+        console.log("Template data loaded:", template); // Add logging
+        
+        // Set template ID and delete ID
+        document.getElementById('template-edit-id').value = template.id;
+        document.getElementById('delete-template-id').value = template.id;
+        document.getElementById('delete-template-name').textContent = template.name;
+        
+        // Populate basic fields
+        document.getElementById('template-name').value = template.name || '';
+        document.getElementById('template-category').value = template.category || '';
+        document.getElementById('template-bg-color').value = template.bgColor || '#f0f9ff';
+        document.getElementById('template-bg-color-text').value = template.bgColor || '#f0f9ff';
+        
+        // Set icon color values
+        document.getElementById('template-icon-color-picker').value = template.iconColor || '#0284c7';
+        document.getElementById('template-icon-color-text').value = template.iconColor || '#0284c7';
+        document.getElementById('template-icon-color').value = template.iconColor || '#0284c7';
+        
+        // Select icon
+        const iconElement = document.querySelector(`.icon-option[data-icon="${template.icon}"]`);
+        if (iconElement) {
+            document.querySelectorAll('.icon-option').forEach(opt => {
+                opt.classList.remove('border-primary-500', 'active');
+                opt.querySelector('i').classList.remove('text-primary-500');
+                opt.querySelector('i').classList.add('text-gray-500');
+            });
+            
+            iconElement.classList.add('border-primary-500', 'active');
+            iconElement.querySelector('i').classList.remove('text-gray-500');
+            iconElement.querySelector('i').style.color = template.iconColor || '#0284c7';
+            document.getElementById('template-icon').value = template.icon;
         }
+
+        // Parse fields with improved error handling
+        let fields = [];
+        try {
+            if (template.fieldsJson) {
+                if (typeof template.fieldsJson === 'string') {
+                    fields = JSON.parse(template.fieldsJson);
+                } else if (Array.isArray(template.fieldsJson)) {
+                    fields = template.fieldsJson;
+                }
+            } else if (template.fields && Array.isArray(template.fields)) {
+                fields = template.fields;
+            }
+            console.log("Parsed fields:", fields);
+        } catch (e) {
+            console.error('Error parsing fields JSON:', e);
+            // Show specific error
+            showNotification('Error parsing template fields: ' + e.message, 'error');
+        }
+        
+        // Clear existing fields
+        customFields.innerHTML = '';
+        
+        // Add field rows
+        if (fields && fields.length > 0) {
+            fields.forEach(field => addCustomField(field));
+        } else {
+            addCustomField(); // Add an empty field
+        }
+    } catch (error) {
+        console.error('Error populating template form:', error);
+        showNotification('Error loading template: ' + error.message, 'error');
+    }
+}
         
         // Close modal functions
         function closeModal() {
@@ -2872,34 +2916,45 @@ function validateForm() {
         });
         
         // Confirm delete button
-        confirmDeleteBtn.addEventListener('click', async function() {
-            const templateId = document.getElementById('delete-template-id').value;
+confirmDeleteBtn.addEventListener('click', async function() {
+    const templateId = document.getElementById('delete-template-id').value;
+    const templateName = document.getElementById('delete-template-name').textContent;
+    
+    if (!templateId) {
+        showNotification('Invalid template ID', 'error');
+        return;
+    }
+    
+    try {
+        // Show loading state
+        confirmDeleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Deleting...';
+        confirmDeleteBtn.disabled = true;
+        
+        console.log(`Initiating deletion for template ${templateId}: ${templateName}`);
+        
+        // Delete template
+        const success = await deleteTemplate(templateId);
+        
+        if (success) {
+            // Close modal
+            closeDeleteModal();
             
-            if (!templateId) return;
+            // Refresh templates list
+            await initializeTemplates();
             
-            // Delete template from API
-            const success = await deleteTemplate(templateId);
-            
-            if (success) {
-                // Get template name for notification
-                const templateName = document.getElementById('delete-template-name').textContent;
-                
-                // Remove template card from UI
-                const templateCard = document.querySelector(`.template-card[data-template="${templateId}"]`);
-                if (templateCard) {
-                    templateCard.remove();
-                }
-                
-                // Close modal
-                closeDeleteModal();
-                
-                // Refresh template list
-                initializeTemplates();
-                
-                // Show success notification
-                showNotification(`Template "${templateName}" deleted successfully`, 'success');
-            }
-        });
+            // Show success message
+            showNotification(`Template "${templateName}" deleted successfully`, 'success');
+        }
+    } catch (error) {
+        console.error('Error in delete confirmation:', error);
+        showNotification(`Delete error: ${error.message}`, 'error');
+    } finally {
+        // Reset button
+        confirmDeleteBtn.innerHTML = '<i class="fas fa-trash mr-2"></i> Delete Template';
+        confirmDeleteBtn.disabled = false;
+    }
+});
+
         
         // Save template button
         saveBtn.addEventListener('click', async function() {
