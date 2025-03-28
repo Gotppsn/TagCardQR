@@ -2408,7 +2408,6 @@
         container.appendChild(issueItem);
     }
 
-// Path: Views/Card/ScanResult.cshtml - initUpdateStatusModal function
 function initUpdateStatusModal() {
     const updateStatusModal = document.getElementById('update-status-modal');
     const cancelStatusUpdateBtn = document.getElementById('cancel-status-update');
@@ -2435,7 +2434,7 @@ function initUpdateStatusModal() {
             });
         }
         
-        // Handle status update submission
+        // Handle status update submission - replace AJAX with form submission
         if (confirmStatusUpdateBtn) {
             confirmStatusUpdateBtn.addEventListener('click', function() {
                 const issueId = this.getAttribute('data-issue-id');
@@ -2447,39 +2446,63 @@ function initUpdateStatusModal() {
                     return;
                 }
                 
-                // Show loading indicator
+                // Get the form in the modal or create it if it doesn't exist
+                let form = document.getElementById('issue-status-form');
+                if (!form) {
+                    form = document.createElement('form');
+                    form.id = 'issue-status-form';
+                    form.method = 'post';
+                    form.style.display = 'none';
+                    document.body.appendChild(form);
+                }
+                
+                // Set the action URL - use the full path to avoid any routing issues
+                form.action = '/Card/UpdateIssueStatus';
+                
+                // Clear existing form content
+                form.innerHTML = '';
+                
+                // Add the CSRF token - get it from any existing form on the page
+                const csrfToken = document.querySelector('input[name="__RequestVerificationToken"]');
+                if (csrfToken) {
+                    const tokenInput = document.createElement('input');
+                    tokenInput.type = 'hidden';
+                    tokenInput.name = '__RequestVerificationToken';
+                    tokenInput.value = csrfToken.value;
+                    form.appendChild(tokenInput);
+                }
+                
+                // Add the issue ID
+                const idInput = document.createElement('input');
+                idInput.type = 'hidden';
+                idInput.name = 'id';
+                idInput.value = issueId;
+                form.appendChild(idInput);
+                
+                // Add the status
+                const statusInput = document.createElement('input');
+                statusInput.type = 'hidden';
+                statusInput.name = 'status';
+                statusInput.value = newStatus;
+                form.appendChild(statusInput);
+                
+                // Add the resolution notes
+                const resolutionInput = document.createElement('input');
+                resolutionInput.type = 'hidden';
+                resolutionInput.name = 'resolution';
+                resolutionInput.value = resolutionNotes;
+                form.appendChild(resolutionInput);
+                
+                // Add a return URL so we can redirect back to scan results
+                const returnUrlInput = document.createElement('input');
+                returnUrlInput.type = 'hidden';
+                returnUrlInput.name = 'returnUrl';
+                returnUrlInput.value = window.location.href;
+                form.appendChild(returnUrlInput);
+                
+                // Submit the form
                 showToast('Processing', 'Updating issue status...', 'info');
-                
-                // Get the CSRF token
-                const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
-                
-                // Use fetch API instead of form submission to avoid page navigation
-                fetch(document.querySelector('base')?.getAttribute('href') + 'Card/UpdateIssueStatus' || '/Card/UpdateIssueStatus', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'RequestVerificationToken': token
-                    },
-                    body: `id=${issueId}&status=${encodeURIComponent(newStatus)}&resolution=${encodeURIComponent(resolutionNotes)}`
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    
-                    // Reload issue data
-                    loadIssueData();
-                    
-                    // Show success message
-                    showToast('Success', 'Issue status updated successfully', 'success');
-                    
-                    // Close the modal
-                    updateStatusModal.classList.add('hidden');
-                })
-                .catch(error => {
-                    console.error('Error updating issue status:', error);
-                    showToast('Error', 'Failed to update issue status', 'error');
-                });
+                form.submit();
             });
         }
         

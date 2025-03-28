@@ -1514,19 +1514,21 @@ namespace CardTagManager.Controllers
         // POST: UpdateIssueStatus endpoint
 [HttpPost]
 [ValidateAntiForgeryToken]
-public async Task<IActionResult> UpdateIssueStatus(int id, string status, string resolution)
+public async Task<IActionResult> UpdateIssueStatus(int id, string status, string resolution, string returnUrl = null)
 {
     try
     {
         if (id <= 0 || string.IsNullOrEmpty(status))
         {
-            return BadRequest("Invalid issue data");
+            TempData["ErrorMessage"] = "Invalid issue data.";
+            return !string.IsNullOrEmpty(returnUrl) ? Redirect(returnUrl) : RedirectToAction(nameof(ScanResult));
         }
         
         var issue = await _context.IssueReports.FindAsync(id);
         if (issue == null)
         {
-            return NotFound(new { error = "Issue not found" });
+            TempData["ErrorMessage"] = "Issue not found.";
+            return !string.IsNullOrEmpty(returnUrl) ? Redirect(returnUrl) : RedirectToAction(nameof(ScanResult));
         }
         
         // Update the issue status
@@ -1540,12 +1542,18 @@ public async Task<IActionResult> UpdateIssueStatus(int id, string status, string
         
         await _context.SaveChangesAsync();
         
-        return Ok(new { success = true, message = "Issue updated successfully" });
+        TempData["SuccessMessage"] = $"Issue status updated successfully to {status}.";
+        
+        // Redirect back to where we came from or to the ScanResult action
+        return !string.IsNullOrEmpty(returnUrl) ? Redirect(returnUrl) : RedirectToAction(nameof(ScanResult));
     }
     catch (Exception ex)
     {
-        _logger.LogError(ex, "Error updating issue status");
-        return StatusCode(500, new { error = "An error occurred while updating the issue status" });
+        _logger.LogError(ex, $"Error updating issue status for ID={id}");
+        TempData["ErrorMessage"] = $"An error occurred while updating the issue: {ex.Message}";
+        
+        // Redirect back to where we came from or to the ScanResult action
+        return !string.IsNullOrEmpty(returnUrl) ? Redirect(returnUrl) : RedirectToAction(nameof(ScanResult));
     }
 }
 

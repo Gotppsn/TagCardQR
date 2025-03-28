@@ -176,14 +176,20 @@ public class Program
         logger.LogInformation($"Application Root Path: {app.Environment.ContentRootPath}");
         
         // Configure endpoints
-        app.UseEndpoints(endpoints =>
-        {
-            endpoints.MapControllers(); // API Controllers
-            endpoints.MapControllerRoute(
-                name: "default",
-                pattern: "{controller=Card}/{action=Index}/{id?}"
-            );
-        });
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers(); // This ensures API controller routes are registered
+    endpoints.MapControllerRoute(
+        name: "updateIssueStatus",
+        pattern: "Card/UpdateIssueStatus",
+        defaults: new { controller = "Card", action = "UpdateIssueStatus" }
+    );
+    
+    endpoints.MapControllerRoute(
+        name: "default",
+        pattern: "{controller=Card}/{action=Index}/{id?}"
+    );
+});
     }
 }
 
