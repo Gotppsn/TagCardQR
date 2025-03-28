@@ -2851,7 +2851,7 @@ async function saveTemplate(template) {
 async function deleteTemplate(templateId) {
     try {
         const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
-        const response = await fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Template/${templateId}`);
+        const response = await fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Template/${templateId}`, {
             method: 'DELETE',
             headers: {
                 'RequestVerificationToken': token

@@ -173,41 +173,28 @@ public async Task<ActionResult<IEnumerable<Template>>> GetTemplates()
         }
 
         // DELETE: api/Template/5
-[HttpDelete("{id}")]
-public async Task<IActionResult> DeleteTemplate(int id)
-{
-    try
-    {
-        _logger.LogInformation($"Received delete request for template ID: {id}");
-        
-        var template = await _context.Templates.FindAsync(id);
-        if (template == null)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteTemplate(int id)
         {
-            _logger.LogWarning($"Template not found for deletion: {id}");
-            return NotFound(new { error = "Template not found" });
-        }
-        
-        // Check if template is being used by any cards before deletion
-        bool isTemplateInUse = await _context.Cards.AnyAsync(c => c.CustomFieldsData.Contains($"\"templateId\":{id}"));
-        if (isTemplateInUse)
-        {
-            _logger.LogWarning($"Cannot delete template {id} as it is in use");
-            return BadRequest(new { error = "This template is currently being used by one or more cards and cannot be deleted." });
-        }
+            try
+            {
+                var template = await _context.Templates.FindAsync(id);
+                if (template == null)
+                {
+                    return NotFound();
+                }
 
-        // Proceed with deletion if template exists and is not in use
-        _context.Templates.Remove(template);
-        await _context.SaveChangesAsync();
-        
-        _logger.LogInformation($"Successfully deleted template ID: {id}");
-        return NoContent();
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, $"Error deleting template {id}");
-        return StatusCode(500, new { error = $"An error occurred while deleting the template: {ex.Message}" });
-    }
-}
+                _context.Templates.Remove(template);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error deleting template {id}");
+                return StatusCode(500, new { error = "An error occurred while deleting the template." });
+            }
+        }
 
         [HttpGet("Categories")]
         public async Task<ActionResult<IEnumerable<string>>> GetCategories()
@@ -281,44 +268,5 @@ public async Task<IActionResult> DeleteTemplate(int id)
                 return StatusCode(500, new { error = "An error occurred while creating the category." });
             }
         }
-[HttpPost("Delete/{id}")]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> DeleteTemplatePost(int id)
-{
-    _logger.LogInformation($"Received POST delete request for template ID: {id}");
-    
-    try
-    {
-        var template = await _context.Templates.FindAsync(id);
-        if (template == null)
-        {
-            _logger.LogWarning($"Template not found for deletion: {id}");
-            return NotFound(new { error = "Template not found" });
-        }
-
-        // Check if template is being used by any cards before deletion
-        bool isTemplateInUse = await _context.Cards.AnyAsync(c => c.CustomFieldsData.Contains($"\"templateId\":{id}"));
-        if (isTemplateInUse)
-        {
-            _logger.LogWarning($"Cannot delete template {id} as it is in use");
-            return BadRequest(new { error = "This template is currently being used by one or more cards and cannot be deleted." });
-        }
-
-        // Log template details before deletion
-        _logger.LogInformation($"Deleting template: {template.Name}, Category: {template.Category}");
-        
-        // Attempt to delete the template
-        _context.Templates.Remove(template);
-        await _context.SaveChangesAsync();
-        
-        _logger.LogInformation($"Successfully deleted template ID: {id}");
-        return Ok(new { success = true, message = $"Template '{template.Name}' deleted successfully" });
     }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, $"Error deleting template {id}");
-        return StatusCode(500, new { error = ex.Message });
-    }
-}    
-}
 }
