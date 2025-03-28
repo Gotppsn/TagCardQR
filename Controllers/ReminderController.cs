@@ -144,10 +144,15 @@ namespace CardTagManager.Controllers
                 return BadRequest();
             }
 
-            // Remove Card validation to avoid navigation property issues
+            // Remove Card validation to avoid the same navigation property issue
             if (ModelState.ContainsKey("Card"))
             {
                 ModelState.Remove("Card");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
             }
 
             try
@@ -166,36 +171,17 @@ namespace CardTagManager.Controllers
                 existingReminder.RepeatFrequency = reminder.RepeatFrequency;
                 existingReminder.UpdatedAt = DateTime.Now;
                 
-                // Use a different approach to save the changes
-                _context.Entry(existingReminder).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
                 
                 return NoContent();
             }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!await ReminderExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error updating reminder {id}: {ex.Message}");
-                // Return more detailed error info
-                return StatusCode(500, new { error = "An error occurred while updating the reminder.", details = ex.InnerException?.Message ?? ex.Message });
+                _logger.LogError(ex, $"Error updating reminder {id}");
+                return StatusCode(500, new { error = "An error occurred while updating the reminder." });
             }
         }
 
-        // Helper method to check if reminder exists
-        private async Task<bool> ReminderExists(int id)
-        {
-            return await _context.MaintenanceReminders.AnyAsync(e => e.Id == id);
-        }
         // DELETE: api/Reminder/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteReminder(int id)
@@ -220,62 +206,5 @@ namespace CardTagManager.Controllers
                 return StatusCode(500, new { error = "An error occurred while deleting the reminder." });
             }
         }
-        [HttpPost]
-public async Task<IActionResult> SaveReminder(MaintenanceReminder reminder)
-{
-    try
-    {
-        if (ModelState.ContainsKey("Card"))
-        {
-            ModelState.Remove("Card");
-        }
-
-        // IMPORTANT: This is the key fix
-        if (reminder.Id > 0)
-        {
-            // This is an EDIT - must use Update approach, not Insert
-            var existingReminder = await _context.MaintenanceReminders
-                .AsNoTracking() // This prevents tracking conflicts
-                .FirstOrDefaultAsync(r => r.Id == reminder.Id);
-                
-            if (existingReminder == null)
-            {
-                return NotFound($"Reminder with ID {reminder.Id} not found.");
-            }
-            
-            // Update fields
-            existingReminder = reminder;
-            existingReminder.UpdatedAt = DateTime.Now;
-            
-            // Detach any existing entity with this ID
-            var tracked = _context.MaintenanceReminders.Local.FirstOrDefault(e => e.Id == reminder.Id);
-            if (tracked != null)
-            {
-                _context.Entry(tracked).State = EntityState.Detached;
-            }
-            
-            // Update the entity
-            _context.Entry(existingReminder).State = EntityState.Modified;
-            
-            // Don't modify the ID field
-            _context.Entry(existingReminder).Property(x => x.Id).IsModified = false;
-        }
-        else
-        {
-            // This is a NEW reminder - use regular Add
-            reminder.CreatedAt = DateTime.Now;
-            reminder.UpdatedAt = DateTime.Now;
-            _context.MaintenanceReminders.Add(reminder);
-        }
-
-        await _context.SaveChangesAsync();
-        return Ok(reminder);
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, "Error saving reminder: {Message}", ex.Message);
-        return StatusCode(500, new { error = ex.Message, innerError = ex.InnerException?.Message });
-    }
-}
     }
 }
