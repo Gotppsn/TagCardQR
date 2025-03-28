@@ -2140,7 +2140,7 @@ function displayCustomTemplateFields(template, container) {
         // Handle template ID vs category name
         if (isNumeric) {
             try {
-                const response = await fetch(`/api/Template/${category}`);
+                const response = await fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Template/${category}`);
                 if (!response.ok) throw new Error('Failed to fetch template');
                 const template = await response.json();
                 
@@ -2717,7 +2717,7 @@ function validateForm() {
         // Populate template form with data
         async function populateTemplateForm(templateId) {
             try {
-                const response = await fetch(`/api/Template/${templateId}`);
+                const response = await fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Template/${templateId}`);
                 if (!response.ok) throw new Error('Failed to fetch template');
                 
                 const template = await response.json();

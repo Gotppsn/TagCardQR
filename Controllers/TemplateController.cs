@@ -196,25 +196,42 @@ public async Task<ActionResult<IEnumerable<Template>>> GetTemplates()
             }
         }
 
-        [HttpGet("Categories")]
-        public async Task<ActionResult<IEnumerable<string>>> GetCategories()
+[HttpGet("Categories")]
+public async Task<ActionResult<IEnumerable<string>>> GetCategories()
+{
+    try
+    {
+        // Get current user's department from claims
+        string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
+        bool isAdmin = User.IsInRole("Admin");
+        
+        // Start with all templates
+        var query = _context.Templates.AsQueryable();
+        
+        // Filter by department for non-admin users
+        if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
         {
-            try
-            {
-                var categories = await _context.Templates
-                    .Select(t => t.Category)
-                    .Distinct()
-                    .OrderBy(c => c)
-                    .ToListAsync();
-                
-                return categories;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving categories");
-                return StatusCode(500, new { error = "An error occurred while retrieving categories." });
-            }
+            query = from template in query
+                    join profile in _context.UserProfiles on template.CreatedByID equals profile.User_Code
+                    where profile.Department_Name == userDepartment
+                    select template;
         }
+        
+        // Get distinct categories from filtered templates
+        var categories = await query
+            .Select(t => t.Category)
+            .Distinct()
+            .OrderBy(c => c)
+            .ToListAsync();
+        
+        return categories;
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error retrieving categories");
+        return StatusCode(500, new { error = "An error occurred while retrieving categories." });
+    }
+}
 
         // POST: api/Template/Categories
         [HttpPost("Categories")]
