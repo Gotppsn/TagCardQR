@@ -1548,7 +1548,7 @@ function initReportIssueModal() {
     }
 }
 
-// Issue form submission handling - UPDATED VERSION
+
 function initIssueFormSubmission() {
     try {
         const issueForm = document.getElementById('issue-report-form');
@@ -1593,7 +1593,7 @@ function initIssueFormSubmission() {
                 console.log("Using token:", token.substring(0, 10) + "...");
                 
                 // Submit data using fetch API with FormData to handle file uploads
-                fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/IssueReport`, {
+                const response = await fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/IssueReport`, {
                     method: 'POST',
                     headers: {
                         'RequestVerificationToken': token
