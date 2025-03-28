@@ -1514,55 +1514,38 @@ namespace CardTagManager.Controllers
         // POST: UpdateIssueStatus endpoint
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateIssueStatus([FromBody] IssueStatusUpdateModel model)
+        public async Task<IActionResult> UpdateIssueStatus(int id, string status, string resolution)
         {
             try
             {
-                if (!ModelState.IsValid)
+                if (id <= 0 || string.IsNullOrEmpty(status))
                 {
-                    return BadRequest(ModelState);
+                    return BadRequest("Invalid issue data");
                 }
                 
-                var issue = await _context.IssueReports.FindAsync(model.Id);
+                var issue = await _context.IssueReports.FindAsync(id);
                 if (issue == null)
                 {
                     return NotFound(new { error = "Issue not found" });
                 }
                 
-                // Department check - only allow access if admin or same department
-                string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
-                bool isAdmin = User.IsInRole("Admin");
+                // Update the issue status
+                issue.Status = status;
                 
-                if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
+                if (status == "Resolved" || status == "Closed")
                 {
-                    bool hasAccess = await (from i in _context.IssueReports
-                                         join card in _context.Cards on i.CardId equals card.Id
-                                         join profile in _context.UserProfiles on card.CreatedByID equals profile.User_Code
-                                         where i.Id == model.Id && profile.Department_Name == userDepartment
-                                         select i).AnyAsync();
-                    
-                    if (!hasAccess)
-                    {
-                        return Json(new { success = false, error = "You don't have permission to update this issue." });
-                    }
-                }
-                
-                issue.Status = model.Status;
-                
-                if (model.Status == "Resolved" || model.Status == "Closed")
-                {
-                    issue.Resolution = model.Resolution ?? string.Empty;
+                    issue.Resolution = resolution ?? string.Empty;
                     issue.ResolvedAt = DateTime.Now;
                 }
                 
                 await _context.SaveChangesAsync();
                 
-                return Ok(new { success = true });
+                return Ok("Issue updated successfully");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating issue status");
-                return StatusCode(500, new { error = ex.Message });
+                return StatusCode(500, "An error occurred while updating the issue status");
             }
         }
 
