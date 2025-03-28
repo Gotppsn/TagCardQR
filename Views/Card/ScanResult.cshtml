@@ -1329,8 +1329,12 @@
             </div>
         `;
         
+        // Get the base URL with proper ending slash
+        const baseUrl = document.querySelector('base')?.getAttribute('href') || '/';
+        const apiUrl = baseUrl + (baseUrl.endsWith('/') ? '' : '/') + 'api/Card/GetScanResults';
+        
         // Fetch from API
-        fetch(document.querySelector('base')?.getAttribute('href') + 'api/Card/GetScanResults' || '/api/Card/GetScanResults')
+        fetch(apiUrl)
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
@@ -1338,26 +1342,20 @@
                 return response.json();
             })
             .then(scanResults => {
-                // Update counters
-                document.getElementById('total-scans-counter').querySelector('.animate-counter').setAttribute('data-count', scanResults.length);
+                // Update counters and displays
+                updateCounters(scanResults);
                 
-                // Today's scans counter
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                const todayScans = scanResults.filter(s => new Date(s.scanTime) >= today).length;
-                document.getElementById('today-scans-counter').querySelector('.animate-counter').setAttribute('data-count', todayScans);
+                // Update showing results text
+                const showing = document.getElementById('showing-results');
+                if (showing) {
+                    showing.textContent = `Showing ${scanResults.length} results`;
+                }
                 
-                // Locations counter
-                const uniqueLocations = new Set(scanResults.map(s => s.location)).size;
-                document.getElementById('locations-counter').querySelector('.animate-counter').setAttribute('data-count', uniqueLocations);
-                
-                // Success rate counter
-                const successRate = scanResults.length > 0 ? 
-                    Math.round((scanResults.filter(s => s.scanResult === "Success").length / scanResults.length) * 100) : 0;
-                document.getElementById('success-rate-counter').querySelector('.animate-counter').setAttribute('data-count', successRate);
-                
-                // Refresh animated counters
-                initAnimatedCounters();
+                // Update result count in other places
+                const resultCount = document.getElementById('result-count');
+                if (resultCount) {
+                    resultCount.innerHTML = `Showing <span class="font-medium text-gray-700">${scanResults.length}</span> results`;
+                }
                 
                 if (scanResults && scanResults.length > 0) {
                     // Populate table view
@@ -1397,33 +1395,23 @@
                                 <div class="text-xs text-gray-400">${formatTimeAgo(new Date(item.scanTime))}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-500">${item.deviceInfo}</div>
-                                ${item.deviceInfo.includes("iPhone") ?
-                                    `<div class="text-xs text-blue-500"><i class="fab fa-apple mr-1"></i> iOS Device</div>` :
-                                    item.deviceInfo.includes("Android") ?
-                                    `<div class="text-xs text-green-500"><i class="fab fa-android mr-1"></i> Android Device</div>` :
-                                    `<div class="text-xs text-gray-400"><i class="fas fa-mobile-alt mr-1"></i> Other Device</div>`
-                                }
+                                <div class="text-sm text-gray-700">
+                                    ${getDeviceDisplay(item.deviceInfo)}
+                                </div>
+                                <div class="text-xs text-gray-500 mt-1 line-clamp-1" title="${item.deviceInfo}">
+                                    ${item.deviceInfo?.length > 50 ? item.deviceInfo.substring(0, 50) + "..." : item.deviceInfo}
+                                </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                    <i class="fas fa-map-marker-alt mr-1 text-primary-500"></i>
-                                    ${item.location}
-                                </span>
+                                <div class="flex items-center">
+                                    <i class="fas fa-map-marker-alt text-primary-500 mr-2"></i>
+                                    <span class="text-sm text-gray-700">
+                                        ${item.location?.length > 40 ? item.location.substring(0, 37) + "..." : item.location || "Unknown Location"}
+                                    </span>
+                                </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                ${item.scanResult === "Success" ?
-                                    `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                        <i class="fas fa-check-circle mr-1"></i> Success
-                                    </span>` :
-                                    item.scanResult === "Failed" ?
-                                    `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                        <i class="fas fa-times-circle mr-1"></i> Failed
-                                    </span>` :
-                                    `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                        <i class="fas fa-exclamation-circle mr-1"></i> ${item.scanResult}
-                                    </span>`
-                                }
+                                ${getScanResultBadge(item.scanResult)}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex justify-end space-x-2">
@@ -1444,84 +1432,13 @@
                     });
                     
                     // Populate card view
-                    cardView.innerHTML = '';
-                    const cardGrid = document.createElement('div');
-                    cardGrid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4';
-                    
-                    scanResults.forEach(item => {
-                        const card = document.createElement('div');
-                        card.className = 'scan-result-card bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all overflow-hidden';
-                        card.setAttribute('data-id', item.cardId);
-                        card.setAttribute('data-product', item.cardName);
-                        card.setAttribute('data-time', new Date(item.scanTime).toISOString());
-                        card.setAttribute('data-device', item.deviceInfo);
-                        card.setAttribute('data-location', item.location);
-                        card.setAttribute('data-result', item.scanResult);
-                        
-                        // Build card HTML
-                        card.innerHTML = `
-                            <div class="p-4 border-b border-gray-100 flex justify-between items-center">
-                                <div class="flex items-center">
-                                    <div class="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center text-primary-600 mr-3">
-                                        <i class="fas fa-tag"></i>
-                                    </div>
-                                    <div>
-                                        <h4 class="font-medium text-gray-900">${item.cardName}</h4>
-                                        <p class="text-xs text-gray-500">ID: ${item.cardId}</p>
-                                    </div>
-                                </div>
-                                ${item.scanResult === "Success" ?
-                                    `<span class="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                        <i class="fas fa-check-circle mr-1"></i> Success
-                                    </span>` :
-                                    item.scanResult === "Failed" ?
-                                    `<span class="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                        <i class="fas fa-times-circle mr-1"></i> Failed
-                                    </span>` :
-                                    `<span class="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                        <i class="fas fa-exclamation-circle mr-1"></i> ${item.scanResult}
-                                    </span>`
-                                }
-                            </div>
-                            <div class="p-4 space-y-3">
-                                <div class="flex items-center text-sm">
-                                    <i class="fas fa-clock w-5 text-gray-400"></i>
-                                    <span class="ml-2">
-                                        ${new Date(item.scanTime).toLocaleString()}
-                                        <span class="text-xs text-gray-500 ml-1">
-                                            (${formatTimeAgo(new Date(item.scanTime))})
-                                        </span>
-                                    </span>
-                                </div>
-                                <div class="flex items-center text-sm">
-                                    <i class="fas fa-mobile-alt w-5 text-gray-400"></i>
-                                    <span class="ml-2">${item.deviceInfo}</span>
-                                </div>
-                                <div class="flex items-center text-sm">
-                                    <i class="fas fa-map-marker-alt w-5 text-gray-400"></i>
-                                    <span class="ml-2">${item.location}</span>
-                                </div>
-                            </div>
-                            <div class="px-4 py-3 bg-gray-50 border-t border-gray-100 flex justify-end space-x-2">
-                                <a href="/Card/Details/${item.cardId}" class="px-3 py-1 text-xs bg-primary-50 text-primary-600 rounded hover:bg-primary-100 transition-colors">
-                                    <i class="fas fa-eye mr-1"></i> View Card
-                                </a>
-                                <a href="/Card/ScanShow/${item.cardId}" class="px-3 py-1 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors">
-                                    <i class="fas fa-info-circle mr-1"></i> Details
-                                </a>
-                            </div>
-                        `;
-                        
-                        cardGrid.appendChild(card);
-                    });
-                    
-                    cardView.appendChild(cardGrid);
-                    
-                    // Update result count
-                    document.getElementById('result-count').innerHTML = `Showing <span class="font-medium text-gray-700">${scanResults.length}</span> results`;
+                    renderCardView(scanResults, cardView);
                     
                     // Initialize delete functionality
                     initializeDeleteFunctionality();
+                    
+                    // Initialize pagination
+                    initializePagination(scanResults.length);
                 } else {
                     // No scan results
                     showNoScansMessage();
@@ -1552,6 +1469,197 @@
                     retryButton.addEventListener('click', loadScanResults);
                 }
             });
+    }
+    
+    // Helper function to update counters
+    function updateCounters(scanResults) {
+        // Update total scans counter
+        const totalScansElement = document.querySelector('#total-scans-counter .animate-counter');
+        if (totalScansElement) {
+            totalScansElement.setAttribute('data-count', scanResults.length);
+        }
+        
+        // Update today's scans counter
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const todayScans = scanResults.filter(s => new Date(s.scanTime) >= today).length;
+        const todayScansElement = document.querySelector('#today-scans-counter .animate-counter');
+        if (todayScansElement) {
+            todayScansElement.setAttribute('data-count', todayScans);
+        }
+        
+        // Update locations counter
+        const uniqueLocations = new Set(scanResults.map(s => s.location)).size;
+        const locationsElement = document.querySelector('#locations-counter .animate-counter');
+        if (locationsElement) {
+            locationsElement.setAttribute('data-count', uniqueLocations);
+        }
+        
+        // Update success rate counter
+        const successRate = scanResults.length > 0 ? 
+            Math.round((scanResults.filter(s => s.scanResult === "Success").length / scanResults.length) * 100) : 0;
+        const successRateElement = document.querySelector('#success-rate-counter .animate-counter');
+        if (successRateElement) {
+            successRateElement.setAttribute('data-count', successRate);
+        }
+        
+        // Refresh animated counters
+        initAnimatedCounters();
+    }
+    
+    // Helper function to render card view
+    function renderCardView(scanResults, container) {
+        container.innerHTML = '';
+        const cardGrid = document.createElement('div');
+        cardGrid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4';
+        
+        scanResults.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'scan-result-card bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all overflow-hidden';
+            card.setAttribute('data-id', item.cardId);
+            card.setAttribute('data-product', item.cardName);
+            card.setAttribute('data-time', new Date(item.scanTime).toISOString());
+            card.setAttribute('data-device', item.deviceInfo);
+            card.setAttribute('data-location', item.location);
+            card.setAttribute('data-result', item.scanResult);
+            
+            // Build card HTML
+            card.innerHTML = `
+                <div class="p-4 border-b border-gray-100 flex justify-between items-center">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center text-primary-600 mr-3">
+                            <i class="fas fa-tag"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-gray-900">${item.cardName}</h4>
+                            <p class="text-xs text-gray-500">ID: ${item.cardId}</p>
+                        </div>
+                    </div>
+                    ${getScanResultBadge(item.scanResult)}
+                </div>
+                <div class="p-4 space-y-3">
+                    <div class="flex items-center text-sm">
+                        <i class="fas fa-clock w-5 text-gray-400"></i>
+                        <span class="ml-2">
+                            ${new Date(item.scanTime).toLocaleString()}
+                            <span class="text-xs text-gray-500 ml-1">
+                                (${formatTimeAgo(new Date(item.scanTime))})
+                            </span>
+                        </span>
+                    </div>
+                    <div class="flex items-center text-sm">
+                        ${getDeviceIconHTML(item.deviceInfo)}
+                        <span class="ml-2">${getDeviceName(item.deviceInfo)}</span>
+                    </div>
+                    <div class="flex items-center text-sm">
+                        <i class="fas fa-map-marker-alt w-5 text-primary-500"></i>
+                        <span class="ml-2 truncate" title="${item.location || 'Unknown Location'}">
+                            ${item.location?.length > 30 ? item.location.substring(0, 27) + "..." : item.location || "Unknown Location"}
+                        </span>
+                    </div>
+                </div>
+                <div class="px-4 py-3 bg-gray-50 border-t border-gray-100 flex justify-end space-x-2">
+                    <a href="/Card/Details/${item.cardId}" class="px-3 py-1 text-xs bg-primary-50 text-primary-600 rounded hover:bg-primary-100 transition-colors">
+                        <i class="fas fa-eye mr-1"></i> View Card
+                    </a>
+                    <a href="/Card/ScanShow/${item.cardId}" class="px-3 py-1 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors">
+                        <i class="fas fa-info-circle mr-1"></i> Details
+                    </a>
+                </div>
+            `;
+            
+            cardGrid.appendChild(card);
+        });
+        
+        container.appendChild(cardGrid);
+    }
+    
+    // Helper function to generate scan result badge
+    function getScanResultBadge(result) {
+        if (result === "Success") {
+            return `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                <i class="fas fa-check-circle mr-1"></i> Success
+            </span>`;
+        } else if (result === "Failed") {
+            return `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                <i class="fas fa-times-circle mr-1"></i> Failed
+            </span>`;
+        } else {
+            return `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                <i class="fas fa-exclamation-circle mr-1"></i> ${result}
+            </span>`;
+        }
+    }
+    
+    // Helper function to get device icon and name
+    function getDeviceDisplay(deviceInfo) {
+        const deviceName = getDeviceName(deviceInfo);
+        const iconHTML = getDeviceIconHTML(deviceInfo);
+        
+        return `<div class="flex items-center">
+            ${iconHTML}
+            <span>${deviceName}</span>
+        </div>`;
+    }
+    
+    function getDeviceName(deviceInfo) {
+        if (!deviceInfo) return "Unknown Device";
+        
+        if (deviceInfo.includes("iPhone")) return "iPhone";
+        if (deviceInfo.includes("iPad")) return "iPad";
+        if (deviceInfo.includes("Android")) return "Android Device";
+        if (deviceInfo.includes("Windows")) return "Windows Device";
+        
+        return "Browser";
+    }
+    
+    function getDeviceIconHTML(deviceInfo) {
+        let deviceIcon = "fas fa-question-circle";
+        let deviceColor = "text-gray-500";
+        
+        if (!deviceInfo) {
+            return `<i class="${deviceIcon} w-5 ${deviceColor}"></i>`;
+        }
+        
+        if (deviceInfo.includes("iPhone") || deviceInfo.includes("iPad")) {
+            deviceIcon = "fab fa-apple";
+            deviceColor = "text-blue-500";
+        } else if (deviceInfo.includes("Android")) {
+            deviceIcon = "fab fa-android";
+            deviceColor = "text-green-500";
+        } else if (deviceInfo.includes("Windows")) {
+            deviceIcon = "fab fa-windows";
+            deviceColor = "text-blue-600";
+        } else {
+            deviceIcon = "fas fa-globe";
+            deviceColor = "text-blue-400";
+        }
+        
+        return `<i class="${deviceIcon} w-5 ${deviceColor}"></i>`;
+    }
+    
+    // Initialize pagination
+    function initializePagination(totalResults) {
+        // Get values from page elements
+        const perPage = parseInt(document.getElementById('results-per-page')?.value || 10);
+        const totalPages = Math.ceil(totalResults / perPage);
+        
+        // Update per page display
+        const perPageDisplay = document.querySelector('.per-page-display');
+        if (perPageDisplay) {
+            perPageDisplay.textContent = `${perPage} per page`;
+        }
+        
+        // Update showing results text
+        const showingElement = document.querySelector('#showing-results');
+        if (showingElement) {
+            showingElement.textContent = `Showing ${totalResults} results`;
+        }
+        
+        // If total results found, update the count in multiple places
+        if (document.getElementById('showing-results')) {
+            document.getElementById('showing-results').textContent = `Showing ${totalResults} results`;
+        }
     }
     
     // Add or update the delete scan functionality:
@@ -1690,6 +1798,18 @@
                     </div>
                 </div>
             `;
+        }
+        
+        // Update showing count to 0
+        const resultCount = document.getElementById('result-count');
+        if (resultCount) {
+            resultCount.innerHTML = `Showing <span class="font-medium text-gray-700">0</span> results`;
+        }
+        
+        // Update showing results element
+        const showingResults = document.getElementById('showing-results');
+        if (showingResults) {
+            showingResults.textContent = `Showing 0 results`;
         }
     }
     
@@ -1914,6 +2034,29 @@
         
         // Export menu toggle
         initializeExportMenu();
+        
+        // Initialize per-page dropdown functionality
+        initializePerPageDropdown();
+    }
+    
+    // Initialize per-page dropdown functionality
+    function initializePerPageDropdown() {
+        const perPageDropdown = document.getElementById('results-per-page');
+        if (perPageDropdown) {
+            perPageDropdown.addEventListener('change', function() {
+                // Update per-page display element
+                const perPageDisplay = document.querySelector('.per-page-display');
+                if (perPageDisplay) {
+                    perPageDisplay.textContent = `${this.value} per page`;
+                }
+                
+                // Show Toast notification
+                showToast('Page size updated', `Showing ${this.value} results per page`, 'info');
+                
+                // Reload data with new page size
+                loadScanResults();
+            });
+        }
     }
     
     // Initialize issue reports tab functionality
@@ -2900,6 +3043,12 @@
             resultCount.innerHTML = `Showing <span class="font-medium text-gray-700">${visibleCount}</span> results`;
         }
         
+        // Update the showing results display
+        const showingResults = document.getElementById('showing-results');
+        if (showingResults) {
+            showingResults.textContent = `Showing ${visibleCount} results`;
+        }
+        
         // Show toast notification
         let filterText = 'All time';
         if (filter === 'today') filterText = 'Today only';
@@ -2974,6 +3123,12 @@
         if (resultCount) {
             resultCount.innerHTML = `Showing <span class="font-medium text-gray-700">${visibleCount}</span> results`;
         }
+        
+        // Update the showing results display
+        const showingResults = document.getElementById('showing-results');
+        if (showingResults) {
+            showingResults.textContent = `Showing ${visibleCount} results`;
+        }
     }
     
     function filterIssues(searchTerm) {
@@ -3014,6 +3169,12 @@
         const resultCount = document.getElementById('result-count');
         if (resultCount) {
             resultCount.innerHTML = `Showing <span class="font-medium text-gray-700">${tableRows.length}</span> results`;
+        }
+        
+        // Update the showing results display
+        const showingResults = document.getElementById('showing-results');
+        if (showingResults) {
+            showingResults.textContent = `Showing ${tableRows.length} results`;
         }
         
         // Update time filter buttons
@@ -3198,6 +3359,12 @@
         const resultCount = document.getElementById('result-count');
         if (resultCount) {
             resultCount.innerHTML = `Showing <span class="font-medium text-gray-700">${visibleCount}</span> results`;
+        }
+        
+        // Update the showing results display
+        const showingResults = document.getElementById('showing-results');
+        if (showingResults) {
+            showingResults.textContent = `Showing ${visibleCount} results`;
         }
         
         // Show toast notification
