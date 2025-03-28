@@ -1512,42 +1512,42 @@ namespace CardTagManager.Controllers
         }
 
         // POST: UpdateIssueStatus endpoint
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateIssueStatus(int id, string status, string resolution)
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> UpdateIssueStatus(int id, string status, string resolution)
+{
+    try
+    {
+        if (id <= 0 || string.IsNullOrEmpty(status))
         {
-            try
-            {
-                if (id <= 0 || string.IsNullOrEmpty(status))
-                {
-                    return BadRequest("Invalid issue data");
-                }
-                
-                var issue = await _context.IssueReports.FindAsync(id);
-                if (issue == null)
-                {
-                    return NotFound(new { error = "Issue not found" });
-                }
-                
-                // Update the issue status
-                issue.Status = status;
-                
-                if (status == "Resolved" || status == "Closed")
-                {
-                    issue.Resolution = resolution ?? string.Empty;
-                    issue.ResolvedAt = DateTime.Now;
-                }
-                
-                await _context.SaveChangesAsync();
-                
-                return Ok("Issue updated successfully");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error updating issue status");
-                return StatusCode(500, "An error occurred while updating the issue status");
-            }
+            return BadRequest("Invalid issue data");
         }
+        
+        var issue = await _context.IssueReports.FindAsync(id);
+        if (issue == null)
+        {
+            return NotFound(new { error = "Issue not found" });
+        }
+        
+        // Update the issue status
+        issue.Status = status;
+        
+        if (status == "Resolved" || status == "Closed")
+        {
+            issue.Resolution = resolution ?? string.Empty;
+            issue.ResolvedAt = DateTime.Now;
+        }
+        
+        await _context.SaveChangesAsync();
+        
+        return Ok(new { success = true, message = "Issue updated successfully" });
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error updating issue status");
+        return StatusCode(500, new { error = "An error occurred while updating the issue status" });
+    }
+}
 
         // GET: Card/Archive/5
         public async Task<IActionResult> Archive(int id)
