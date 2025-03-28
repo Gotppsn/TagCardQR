@@ -78,6 +78,15 @@ public class Program
             options.JsonSerializerOptions.WriteIndented = environment.IsDevelopment();
         });
 
+        // Antiforgery Configuration - Updated for CSRF handling
+        services.AddAntiforgery(options =>
+        {
+            options.HeaderName = "X-CSRF-TOKEN";
+            options.Cookie.Name = "XSRF-TOKEN";
+            options.FormFieldName = "__RequestVerificationToken";
+            options.SuppressXFrameOptionsHeader = false;
+        });
+
         // Authentication Configuration
         services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
             .AddCookie(options =>
@@ -103,13 +112,6 @@ public class Program
                     .AllowAnyHeader()
                     .AllowCredentials();
             });
-        });
-
-        // Anti-Forgery Configuration
-        services.AddAntiforgery(options =>
-        {
-            options.HeaderName = "X-CSRF-TOKEN";
-            options.SuppressXFrameOptionsHeader = false;
         });
 
         // Memory Caching
@@ -168,6 +170,25 @@ public class Program
         app.UseCors("ProductionPolicy");
         app.UseRouting();
         
+        // Add antiforgery middleware - new addition
+        app.Use(async (context, next) =>
+        {
+            var antiforgery = context.RequestServices.GetRequiredService<IAntiforgery>();
+            // Send the token in the response cookies for JavaScript to use
+            var tokens = antiforgery.GetAndStoreTokens(context);
+            
+            if (context.Request.Path.Value?.StartsWith("/api/") == true)
+            {
+                // For API requests, respond to token requests
+                if (context.Request.Method == "GET" && context.Request.Headers.ContainsKey("X-Request-CSRF-Token"))
+                {
+                    context.Response.Headers.Append("X-CSRF-TOKEN", tokens.RequestToken);
+                }
+            }
+            
+            await next();
+        });
+        
         app.UseAuthentication();
         app.UseAuthorization();
 
@@ -176,20 +197,20 @@ public class Program
         logger.LogInformation($"Application Root Path: {app.Environment.ContentRootPath}");
         
         // Configure endpoints
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers(); // This ensures API controller routes are registered
-    endpoints.MapControllerRoute(
-        name: "updateIssueStatus",
-        pattern: "Card/UpdateIssueStatus",
-        defaults: new { controller = "Card", action = "UpdateIssueStatus" }
-    );
-    
-    endpoints.MapControllerRoute(
-        name: "default",
-        pattern: "{controller=Card}/{action=Index}/{id?}"
-    );
-});
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapControllers(); // This ensures API controller routes are registered
+            endpoints.MapControllerRoute(
+                name: "updateIssueStatus",
+                pattern: "Card/UpdateIssueStatus",
+                defaults: new { controller = "Card", action = "UpdateIssueStatus" }
+            );
+            
+            endpoints.MapControllerRoute(
+                name: "default",
+                pattern: "{controller=Card}/{action=Index}/{id?}"
+            );
+        });
     }
 }
 
