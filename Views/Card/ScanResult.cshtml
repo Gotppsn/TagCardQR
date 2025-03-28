@@ -1443,6 +1443,8 @@
                     // No scan results
                     showNoScansMessage();
                 }
+                const pageSize = parseInt(document.getElementById('results-per-page').value) || 25;
+                applyPagination(pageSize, 1);
             })
             .catch(error => {
                 console.error('Error loading scan results:', error);
@@ -1877,6 +1879,17 @@
         // Search functionality
         const searchInput = document.getElementById('scan-search');
         const clearSearch = document.getElementById('clear-search');
+
+        const resultsPerPageSelect = document.getElementById('results-per-page');
+        if (resultsPerPageSelect) {
+            resultsPerPageSelect.addEventListener('change', function() {
+                const pageSize = parseInt(document.getElementById('results-per-page').value) || 25;
+                applyPagination(pageSize, 1);
+                
+                // Show toast notification
+                showToast('Page size updated', `Showing ${pageSize} results per page`, 'info');
+            });
+        }
         
         if (searchInput) {
             searchInput.addEventListener('input', function() {
@@ -3863,5 +3876,99 @@
             }, 300);
         }, 5000);
     }
+
+    function applyPagination(pageSize, currentPage) {
+    const tableRows = document.querySelectorAll('.scan-result-row');
+    const cardItems = document.querySelectorAll('.scan-result-card');
+    const totalItems = tableRows.length;
+    
+    // Calculate pagination values
+    const totalPages = Math.ceil(totalItems / pageSize);
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = Math.min(startIndex + pageSize, totalItems);
+    
+    // Update table rows visibility
+    tableRows.forEach((row, index) => {
+        if (index >= startIndex && index < endIndex) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+    
+    // Update card items visibility (for card view)
+    cardItems.forEach((card, index) => {
+        if (index >= startIndex && index < endIndex) {
+            card.style.display = '';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+    
+    // Update pagination controls
+    updatePaginationControls(currentPage, totalPages, pageSize);
+    
+    // Update result count text
+    const resultCount = document.getElementById('result-count');
+    if (resultCount) {
+        resultCount.innerHTML = `Showing <span class="font-medium text-gray-700">${Math.min(totalItems, pageSize)}</span> of ${totalItems} results`;
+    }
+    
+    // Update pagination info text
+    const paginationInfo = document.querySelector('.px-4.py-3.bg-gray-50 p.text-sm.text-gray-700');
+    if (paginationInfo) {
+        paginationInfo.innerHTML = `Showing <span class="font-medium">${startIndex + 1}</span> to <span class="font-medium">${endIndex}</span> of <span class="font-medium">${totalItems}</span> results`;
+    }
+}
+
+// Add this function to update pagination controls
+function updatePaginationControls(currentPage, totalPages, pageSize) {
+    const paginationNav = document.querySelector('nav[aria-label="Pagination"]');
+    if (!paginationNav) return;
+    
+    let paginationHTML = `
+        <a href="#" class="page-link relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50" data-page="${Math.max(1, currentPage - 1)}">
+            <span class="sr-only">Previous</span>
+            <i class="fas fa-chevron-left"></i>
+        </a>
+    `;
+    
+    // Create page numbers
+    for (let i = 1; i <= totalPages; i++) {
+        if (totalPages <= 7 || i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+            // Always show first, last, current and adjacent pages
+            paginationHTML += `
+                <a href="#" class="page-link relative inline-flex items-center px-4 py-2 border border-gray-300 ${i === currentPage ? 'bg-primary-50 text-primary-600' : 'bg-white text-gray-700'} text-sm font-medium hover:bg-gray-50" data-page="${i}">
+                    ${i}
+                </a>
+            `;
+        } else if (i === currentPage - 2 || i === currentPage + 2) {
+            // Show ellipsis for ranges
+            paginationHTML += `
+                <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                    ...
+                </span>
+            `;
+        }
+    }
+    
+    paginationHTML += `
+        <a href="#" class="page-link relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50" data-page="${Math.min(totalPages, currentPage + 1)}">
+            <span class="sr-only">Next</span>
+            <i class="fas fa-chevron-right"></i>
+        </a>
+    `;
+    
+    paginationNav.innerHTML = paginationHTML;
+    
+    // Add event listeners to the new pagination links
+    document.querySelectorAll('.page-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const page = parseInt(this.getAttribute('data-page'));
+            applyPagination(pageSize, page);
+        });
+    });
+}
 </script>
 }
