@@ -2446,61 +2446,49 @@ function initUpdateStatusModal() {
                     return;
                 }
                 
-                // Get the CSRF token from form field instead of meta tag
-                const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
-                
-                // Create form data instead of JSON
-                const formData = new FormData();
-                formData.append('Id', issueId);
-                formData.append('Status', newStatus);
-                formData.append('Resolution', resolutionNotes);
-                
-                // Get base URL with proper path
-                const pathBase = document.querySelector('base')?.getAttribute('href') || '/';
-                
                 // Show loading indicator
                 showToast('Processing', 'Updating issue status...', 'info');
                 
-                // Send update request as form data
-                fetch(`${pathBase}Card/UpdateIssueStatus`, {
-                    method: 'POST',
-                    headers: {
-                        'RequestVerificationToken': token || ''
-                    },
-                    body: formData
-                })
-                .then(response => {
-                    console.log('Response status:', response.status);
-                    
-                    if (!response.ok) {
-                        return response.text().then(text => {
-                            console.error('Error response:', text);
-                            throw new Error(`Server error (${response.status}): ${text || 'Unknown error'}`);
-                        });
-                    }
-                    
-                    return response.text().then(text => {
-                        try {
-                            return text ? JSON.parse(text) : { success: true };
-                        } catch (e) {
-                            return { success: true };
-                        }
-                    });
-                })
-                .then(result => {
-                    // Close the modal
-                    updateStatusModal.classList.add('hidden');
-                    
-                    // Show success toast
-                    showToast('Status updated', `Issue status changed to ${newStatus}`, 'success');
-                    
-                    // Reload the issues data
-                    loadIssueData();
-                })
-                .catch(error => {
-                    console.error('Error updating status:', error);
-                    showToast('Error', error.message || 'Failed to update status', 'error');
-                });
+                // Create a hidden form and submit it - this is the most reliable way
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/Card/UpdateIssueStatus';
+                form.style.display = 'none';
+                
+                // Add CSRF token
+                const tokenField = document.createElement('input');
+                tokenField.type = 'hidden';
+                tokenField.name = '__RequestVerificationToken';
+                tokenField.value = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+                form.appendChild(tokenField);
+                
+                // Add data fields
+                const idField = document.createElement('input');
+                idField.type = 'hidden';
+                idField.name = 'Id';
+                idField.value = issueId;
+                form.appendChild(idField);
+                
+                const statusField = document.createElement('input');
+                statusField.type = 'hidden';
+                statusField.name = 'Status';
+                statusField.value = newStatus;
+                form.appendChild(statusField);
+                
+                const resolutionField = document.createElement('input');
+                resolutionField.type = 'hidden';
+                resolutionField.name = 'Resolution';
+                resolutionField.value = resolutionNotes;
+                form.appendChild(resolutionField);
+                
+                // Add form to document and submit
+                document.body.appendChild(form);
+                
+                // Submit the form
+                form.submit();
+                
+                // Close the modal
+                updateStatusModal.classList.add('hidden');
             });
         }
         
@@ -2511,6 +2499,53 @@ function initUpdateStatusModal() {
             }
         });
     }
+    
+    // Delegate click event for issue status update buttons
+    document.addEventListener('click', function(e) {
+        const updateStatusBtn = e.target.closest('.update-status-btn');
+        if (!updateStatusBtn) return;
+        
+        const issueId = updateStatusBtn.getAttribute('data-id');
+        const issueItem = updateStatusBtn.closest('.issue-item');
+        
+        if (issueItem && issueId) {
+            // Populate issue details
+            const issueDetails = document.getElementById('issue-details');
+            const issueType = issueItem.getAttribute('data-type');
+            const issuePriority = issueItem.getAttribute('data-priority');
+            const issueStatus = issueItem.getAttribute('data-status');
+            
+            issueDetails.innerHTML = `
+                <p><strong>Issue Type:</strong> ${issueType}</p>
+                <p><strong>Priority:</strong> ${issuePriority}</p>
+                <p><strong>Current Status:</strong> ${issueStatus}</p>
+            `;
+            
+            // Set current status
+            if (newStatusSelect) {
+                newStatusSelect.value = issueStatus;
+                
+                // Trigger change event to show/hide resolution notes
+                const event = new Event('change');
+                newStatusSelect.dispatchEvent(event);
+            }
+            
+            // Set issue ID for submission
+            confirmStatusUpdateBtn.setAttribute('data-issue-id', issueId);
+            
+            // Show the modal
+            updateStatusModal.classList.remove('hidden');
+        }
+    });
+
+        
+        // Close modal when clicking outside
+        updateStatusModal.addEventListener('click', function(e) {
+            if (e.target === updateStatusModal) {
+                updateStatusModal.classList.add('hidden');
+            }
+        });
+    
     
     // Delegate click event for issue status update buttons
     document.addEventListener('click', function(e) {
