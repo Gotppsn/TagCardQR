@@ -1520,13 +1520,13 @@ namespace CardTagManager.Controllers
             {
                 if (!ModelState.IsValid)
                 {
-                    return Json(new { success = false, error = "Invalid model state" });
+                    return BadRequest(ModelState);
                 }
                 
                 var issue = await _context.IssueReports.FindAsync(model.Id);
                 if (issue == null)
                 {
-                    return Json(new { success = false, error = "Issue not found" });
+                    return NotFound(new { error = "Issue not found" });
                 }
                 
                 // Department check - only allow access if admin or same department
@@ -1557,12 +1557,12 @@ namespace CardTagManager.Controllers
                 
                 await _context.SaveChangesAsync();
                 
-                return Json(new { success = true });
+                return Ok(new { success = true });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating issue status");
-                return Json(new { success = false, error = "An error occurred while updating the issue status." });
+                return StatusCode(500, new { error = ex.Message });
             }
         }
 

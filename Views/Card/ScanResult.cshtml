@@ -2406,138 +2406,169 @@
         container.appendChild(issueItem);
     }
 
-    function initUpdateStatusModal() {
-        const updateStatusModal = document.getElementById('update-status-modal');
-        const cancelStatusUpdateBtn = document.getElementById('cancel-status-update');
-        const confirmStatusUpdateBtn = document.getElementById('confirm-status-update');
-        const newStatusSelect = document.getElementById('new-status');
-        const resolutionContainer = document.getElementById('resolution-container');
+function initUpdateStatusModal() {
+    const updateStatusModal = document.getElementById('update-status-modal');
+    const cancelStatusUpdateBtn = document.getElementById('cancel-status-update');
+    const confirmStatusUpdateBtn = document.getElementById('confirm-status-update');
+    const newStatusSelect = document.getElementById('new-status');
+    const resolutionContainer = document.getElementById('resolution-container');
+    
+    if (updateStatusModal) {
+        // Close modal handlers
+        if (cancelStatusUpdateBtn) {
+            cancelStatusUpdateBtn.addEventListener('click', function() {
+                updateStatusModal.classList.add('hidden');
+            });
+        }
         
-        if (updateStatusModal) {
-            // Close modal handlers
-            if (cancelStatusUpdateBtn) {
-                cancelStatusUpdateBtn.addEventListener('click', function() {
-                    updateStatusModal.classList.add('hidden');
-                });
-            }
-            
-            // Show/hide resolution notes based on status
-            if (newStatusSelect && resolutionContainer) {
-                newStatusSelect.addEventListener('change', function() {
-                    if (this.value === 'Resolved' || this.value === 'Closed') {
-                        resolutionContainer.classList.remove('hidden');
-                    } else {
-                        resolutionContainer.classList.add('hidden');
-                    }
-                });
-            }
-            
-            // Handle status update submission
-            if (confirmStatusUpdateBtn) {
-                confirmStatusUpdateBtn.addEventListener('click', function() {
-                    const issueId = this.getAttribute('data-issue-id');
-                    const newStatus = newStatusSelect.value;
-                    const resolutionNotes = document.getElementById('resolution-notes').value;
-                    
-                    if (!issueId) {
-                        showToast('Error', 'No issue selected for update', 'error');
-                        return;
-                    }
-                    
-                    // Get the CSRF token
-                    const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
-                    
-                    // Create request data
-                    const data = {
-                        id: parseInt(issueId),
-                        status: newStatus,
-                        resolution: resolutionNotes
-                    };
-                    
-                    // Send update request
-                    fetch(document.querySelector('base')?.getAttribute('href') + 'Card/UpdateIssueStatus' || '/Card/UpdateIssueStatus', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'RequestVerificationToken': token
-                        },
-                        body: JSON.stringify(data)
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            return response.json().then(errorData => {
-                                throw new Error(errorData.error || 'Server error');
-                            });
-                        }
-                        return response.json();
-                    })
-                    .then(result => {
-                        if (result.success) {
-                            // Close the modal
-                            updateStatusModal.classList.add('hidden');
-                            
-                            // Show success toast
-                            showToast('Status updated', `Issue status changed to ${newStatus}`, 'success');
-                            
-                            // Reload the issues data
-                            loadIssueData();
-                        } else {
-                            showToast('Error', result.error || 'Failed to update status', 'error');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error updating status:', error);
-                        showToast('Error', error.message || 'Failed to update status', 'error');
-                    });
-                });
-            }
-            
-            // Close modal when clicking outside
-            updateStatusModal.addEventListener('click', function(e) {
-                if (e.target === updateStatusModal) {
-                    updateStatusModal.classList.add('hidden');
+        // Show/hide resolution notes based on status
+        if (newStatusSelect && resolutionContainer) {
+            newStatusSelect.addEventListener('change', function() {
+                if (this.value === 'Resolved' || this.value === 'Closed') {
+                    resolutionContainer.classList.remove('hidden');
+                } else {
+                    resolutionContainer.classList.add('hidden');
                 }
             });
         }
         
-        // Delegate click event for issue status update buttons
-        document.addEventListener('click', function(e) {
-            const updateStatusBtn = e.target.closest('.update-status-btn');
-            if (!updateStatusBtn) return;
+        // Handle status update submission
+        if (confirmStatusUpdateBtn) {
+        confirmStatusUpdateBtn.addEventListener('click', function() {
+            const issueId = this.getAttribute('data-issue-id');
+            const newStatus = newStatusSelect.value;
+            const resolutionNotes = document.getElementById('resolution-notes').value || '';
             
-            const issueId = updateStatusBtn.getAttribute('data-id');
-            const issueItem = updateStatusBtn.closest('.issue-item');
+            if (!issueId) {
+                showToast('Error', 'No issue selected for update', 'error');
+                return;
+            }
             
-            if (issueItem && issueId) {
-                // Populate issue details
-                const issueDetails = document.getElementById('issue-details');
-                const issueType = issueItem.getAttribute('data-type');
-                const issuePriority = issueItem.getAttribute('data-priority');
-                const issueStatus = issueItem.getAttribute('data-status');
+            // Get the CSRF token
+            const token = document.querySelector('meta[name="RequestVerificationToken"]')?.content;
+            
+            // Create request data - match the model expected by the controller
+            const data = {
+                Id: parseInt(issueId),
+                Status: newStatus,
+                Resolution: resolutionNotes
+            };
+            
+            // Log what we're sending for debugging
+            console.log('Sending update data:', data);
+            
+            // Get base URL path correctly
+            const baseUrl = document.querySelector('base')?.getAttribute('href') || '/';
+            const updateUrl = `${baseUrl}Card/UpdateIssueStatus`;
+            
+            // Show loading indicator
+            showToast('Processing', 'Updating issue status...', 'info');
+            
+            // Send update request
+            fetch(updateUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token || ''
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                // Log the response status for debugging
+                console.log('Response status:', response.status);
                 
-                issueDetails.innerHTML = `
-                    <p><strong>Issue Type:</strong> ${issueType}</p>
-                    <p><strong>Priority:</strong> ${issuePriority}</p>
-                    <p><strong>Current Status:</strong> ${issueStatus}</p>
-                `;
-                
-                // Set current status
-                if (newStatusSelect) {
-                    newStatusSelect.value = issueStatus;
-                    
-                    // Trigger change event to show/hide resolution notes
-                    const event = new Event('change');
-                    newStatusSelect.dispatchEvent(event);
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        console.error('Error response:', text);
+                        let errorMessage = `Server error: ${response.status}`;
+                        try {
+                            const errorData = JSON.parse(text);
+                            errorMessage = errorData.error || errorMessage;
+                        } catch (e) {
+                            // If parsing fails, use the text or status code
+                            errorMessage = text || errorMessage;
+                        }
+                        throw new Error(errorMessage);
+                    });
                 }
                 
-                // Set issue ID for submission
-                confirmStatusUpdateBtn.setAttribute('data-issue-id', issueId);
+                return response.text().then(text => {
+                    console.log('Success response:', text);
+                    if (!text || text.trim() === '') {
+                        return { success: true };
+                    }
+                    
+                    try {
+                        return JSON.parse(text);
+                    } catch (e) {
+                        console.warn('Invalid JSON response:', text);
+                        return { success: true };
+                    }
+                });
+            })
+            .then(result => {
+                // Close the modal
+                updateStatusModal.classList.add('hidden');
                 
-                // Show the modal
-                updateStatusModal.classList.remove('hidden');
+                // Show success toast
+                showToast('Status updated', `Issue status changed to ${newStatus}`, 'success');
+                
+                // Reload the issues data
+                loadIssueData();
+            })
+            .catch(error => {
+                console.error('Error updating status:', error);
+                showToast('Error', error.message || 'Failed to update status', 'error');
+            });
+        });
+        }
+        
+        // Close modal when clicking outside
+        updateStatusModal.addEventListener('click', function(e) {
+            if (e.target === updateStatusModal) {
+                updateStatusModal.classList.add('hidden');
             }
         });
     }
+    
+    // Delegate click event for issue status update buttons
+    document.addEventListener('click', function(e) {
+        const updateStatusBtn = e.target.closest('.update-status-btn');
+        if (!updateStatusBtn) return;
+        
+        const issueId = updateStatusBtn.getAttribute('data-id');
+        const issueItem = updateStatusBtn.closest('.issue-item');
+        
+        if (issueItem && issueId) {
+            // Populate issue details
+            const issueDetails = document.getElementById('issue-details');
+            const issueType = issueItem.getAttribute('data-type');
+            const issuePriority = issueItem.getAttribute('data-priority');
+            const issueStatus = issueItem.getAttribute('data-status');
+            
+            issueDetails.innerHTML = `
+                <p><strong>Issue Type:</strong> ${issueType}</p>
+                <p><strong>Priority:</strong> ${issuePriority}</p>
+                <p><strong>Current Status:</strong> ${issueStatus}</p>
+            `;
+            
+            // Set current status
+            if (newStatusSelect) {
+                newStatusSelect.value = issueStatus;
+                
+                // Trigger change event to show/hide resolution notes
+                const event = new Event('change');
+                newStatusSelect.dispatchEvent(event);
+            }
+            
+            // Set issue ID for submission
+            confirmStatusUpdateBtn.setAttribute('data-issue-id', issueId);
+            
+            // Show the modal
+            updateStatusModal.classList.remove('hidden');
+        }
+    });
+}
 
     // Load analytics data from API
     function loadAnalyticsData(period = 'week') {
