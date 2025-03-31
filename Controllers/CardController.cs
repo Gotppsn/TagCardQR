@@ -493,58 +493,75 @@ namespace CardTagManager.Controllers
         }
 
         // GET: Card/Edit/5
-        [Authorize(Roles = "Admin,Manager,User,Edit")]
-        public async Task<IActionResult> Edit(int id)
+[Authorize(Roles = "Admin,Manager,User,Edit")]
+public async Task<IActionResult> Edit(int id)
+{
+    try
+    {
+        // Get current user's department from claims
+        string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
+        bool isAdmin = User.IsInRole("Admin");
+
+        var card = await _context.Cards.FindAsync(id);
+        if (card == null)
         {
-            try
+            return NotFound();
+        }
+
+        // Get user ID for department access check
+        var username = User.Identity?.Name;
+        var userProfile = await _userProfileService.GetUserProfileAsync(username);
+        
+        if (userProfile == null)
+        {
+            TempData["ErrorMessage"] = "User profile not found.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // We need to find the department for this card by looking at the creator's department
+        var cardDepartment = await (from c in _context.Cards
+                                    join profile in _context.UserProfiles on c.CreatedByID equals profile.User_Code
+                                    where c.Id == id
+                                    select profile.Department_Name).FirstOrDefaultAsync();
+
+        // Check if user has access to edit this card (admin, same department, or Edit access)
+        if (!isAdmin && userDepartment != cardDepartment)
+        {
+            // Check if user has Edit access to the department
+            bool hasEditAccess = await _departmentAccessService.HasAccessLevelToDepartmentAsync(
+                userProfile.Id, 
+                cardDepartment, 
+                "Edit");
+                
+            if (!hasEditAccess)
             {
-                // Get current user's department from claims
-                string userDepartment = User.Claims.FirstOrDefault(c => c.Type == "Department")?.Value ?? string.Empty;
-                bool isAdmin = User.IsInRole("Admin");
-
-                var card = await _context.Cards.FindAsync(id);
-                if (card == null)
-                {
-                    return NotFound();
-                }
-
-                // Check if user has access to edit this card (admin or same department)
-                if (!isAdmin && !string.IsNullOrEmpty(userDepartment))
-                {
-                    bool hasAccess = await (from c in _context.Cards
-                                            join profile in _context.UserProfiles on c.CreatedByID equals profile.User_Code
-                                            where c.Id == id && profile.Department_Name == userDepartment
-                                            select c).AnyAsync();
-
-                    if (!hasAccess)
-                    {
-                        TempData["ErrorMessage"] = "You don't have permission to edit this card.";
-                        return RedirectToAction(nameof(Index));
-                    }
-                }
-
-                // Get card history for display
-                var history = await _context.CardHistories
-                    .Where(h => h.CardId == id)
-                    .OrderByDescending(h => h.ChangedAt)
-                    .Take(10) // Get the most recent 10 changes
-                    .ToListAsync();
-
-                ViewBag.History = history;
-
-                // Generate QR code for display
-                string qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card);
-                ViewBag.QrCodeImage = qrCodeImageData;
-
-                return View(card);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error accessing edit page for card ID {id}");
-                TempData["ErrorMessage"] = "An error occurred while accessing the edit page.";
+                TempData["ErrorMessage"] = "You don't have permission to edit this card.";
                 return RedirectToAction(nameof(Index));
             }
         }
+
+        // Get card history for display
+        var history = await _context.CardHistories
+            .Where(h => h.CardId == id)
+            .OrderByDescending(h => h.ChangedAt)
+            .Take(10) // Get the most recent 10 changes
+            .ToListAsync();
+
+        ViewBag.History = history;
+
+        // Generate QR code for display
+        string qrCodeImageData = await _qrCodeService.GenerateQrCodeImage(card);
+        ViewBag.QrCodeImage = qrCodeImageData;
+
+        return View(card);
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, $"Error accessing edit page for card ID {id}");
+        TempData["ErrorMessage"] = "An error occurred while accessing the edit page.";
+        return RedirectToAction(nameof(Index));
+    }
+}
 
         // POST: Card/Edit/5
         [HttpPost]

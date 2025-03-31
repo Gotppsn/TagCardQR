@@ -375,6 +375,12 @@ namespace CardTagManager.Data
                 .HasMaxLength(100);
 
             modelBuilder.Entity<DepartmentAccess>()
+                .Property(da => da.AccessLevel)
+                .IsRequired()
+                .HasMaxLength(20)
+                .HasDefaultValue("View");
+
+            modelBuilder.Entity<DepartmentAccess>()
                 .Property(da => da.GrantedBy)
                 .HasMaxLength(100);
 
@@ -432,6 +438,7 @@ namespace CardTagManager.Data
                     ConcurrencyStamp = "7b81d6c1-3e7f-48d3-9c2b-1b7ba4582c9d"
                 }
             );
+
         }
     }
 }

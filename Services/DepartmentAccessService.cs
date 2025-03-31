@@ -45,6 +45,22 @@ namespace CardTagManager.Services
             
             return accesses;
         }
+        
+        // Check if user has specific access level to a department
+        public async Task<bool> HasAccessLevelToDepartmentAsync(int userId, string departmentName, string accessLevel)
+        {
+            // User's own department always has full access
+            var userProfile = await _context.UserProfiles.FindAsync(userId);
+            if (userProfile != null && userProfile.Department_Name == departmentName)
+                return true;
+                
+            // Check for specific access level
+            return await _context.DepartmentAccesses
+                .AnyAsync(da => da.UserId == userId && 
+                          da.DepartmentName == departmentName && 
+                          da.IsActive && 
+                          (da.AccessLevel == accessLevel || da.AccessLevel == "Edit"));
+        }
 
         public async Task<List<DepartmentAccess>> GetAllDepartmentAccessesAsync()
         {
@@ -64,12 +80,18 @@ namespace CardTagManager.Services
                 .ToListAsync();
         }
 
-        public async Task<bool> GrantDepartmentAccessAsync(int userId, string departmentName, string grantedBy, string grantedById)
+        public async Task<bool> GrantDepartmentAccessAsync(int userId, string departmentName, string accessLevel, string grantedBy, string grantedById)
         {
             try
             {
                 // Normalize department name
                 departmentName = departmentName.Trim();
+                
+                // Validate access level
+                if (string.IsNullOrEmpty(accessLevel))
+                {
+                    accessLevel = "View"; // Default to View if not specified
+                }
                 
                 // Check if access already exists (case-insensitive)
                 var existingAccess = await _context.DepartmentAccesses
@@ -85,12 +107,18 @@ namespace CardTagManager.Services
                         existingAccess.GrantedAt = DateTime.Now;
                         existingAccess.GrantedBy = grantedBy;
                         existingAccess.GrantedById = grantedById;
-                        
-                        await _context.SaveChangesAsync();
-                        _logger.LogInformation($"Reactivated department access for user {userId} to department {departmentName}");
                     }
                     
-                    return true; // Already exists
+                    // Update access level if it's different
+                    if (existingAccess.AccessLevel != accessLevel)
+                    {
+                        existingAccess.AccessLevel = accessLevel;
+                    }
+                    
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation($"Updated department access for user {userId} to department {departmentName} with access level {accessLevel}");
+                    
+                    return true;
                 }
                 
                 // Create new access
@@ -98,6 +126,7 @@ namespace CardTagManager.Services
                 {
                     UserId = userId,
                     DepartmentName = departmentName,
+                    AccessLevel = accessLevel,
                     GrantedAt = DateTime.Now,
                     GrantedBy = grantedBy,
                     GrantedById = grantedById,
@@ -107,7 +136,7 @@ namespace CardTagManager.Services
                 _context.DepartmentAccesses.Add(newAccess);
                 await _context.SaveChangesAsync();
                 
-                _logger.LogInformation($"Granted department access for user {userId} to department {departmentName}");
+                _logger.LogInformation($"Granted department access for user {userId} to department {departmentName} with access level {accessLevel}");
                 
                 return true;
             }

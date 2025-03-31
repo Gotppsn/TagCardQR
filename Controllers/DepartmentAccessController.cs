@@ -86,6 +86,9 @@ namespace CardTagManager.Controllers
 
                 ViewBag.Departments = departments;
                 ViewBag.Users = users;
+                
+                // Add access levels for the dropdown
+                ViewBag.AccessLevels = new List<string> { "View", "Edit" };
 
                 return View();
             }
@@ -100,7 +103,7 @@ namespace CardTagManager.Controllers
         // POST: DepartmentAccess/Grant
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Grant(int userId, string departmentName)
+        public async Task<IActionResult> Grant(int userId, string departmentName, string accessLevel)
         {
             try
             {
@@ -119,12 +122,12 @@ namespace CardTagManager.Controllers
                 string grantedBy = User.Identity?.Name ?? "system";
                 string grantedById = User.Claims.FirstOrDefault(c => c.Type == "User_Code")?.Value ?? string.Empty;
 
-                // Grant access
-                var result = await _departmentAccessService.GrantDepartmentAccessAsync(userId, departmentName, grantedBy, grantedById);
+                // Grant access with specified access level
+                var result = await _departmentAccessService.GrantDepartmentAccessAsync(userId, departmentName, accessLevel, grantedBy, grantedById);
 
                 if (result)
                 {
-                    TempData["SuccessMessage"] = "Department access granted successfully.";
+                    TempData["SuccessMessage"] = $"Department access granted successfully with {accessLevel} permission.";
                 }
                 else
                 {
@@ -170,7 +173,9 @@ namespace CardTagManager.Controllers
                     await _context.SaveChangesAsync();
 
                     // Also try direct SQL delete as fallback
-                    await _context.Database.ExecuteSqlRawAsync("DELETE FROM DepartmentAccesses WHERE Id = {0}", id);
+                    await _context.Database.ExecuteSqlRawAsync(
+                        "SET COMMAND TIMEOUT 120; DELETE FROM DepartmentAccesses WHERE Id = @p0", 
+                        id);
 
                     TempData["SuccessMessage"] = "Department access revoked successfully.";
                     _logger.LogInformation($"Successfully deleted access ID: {id}");

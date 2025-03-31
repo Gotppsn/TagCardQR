@@ -1,4 +1,3 @@
-// Path: Models/DepartmentAccess.cs
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -18,6 +17,11 @@ namespace CardTagManager.Models
         [Required]
         [StringLength(100)]
         public string DepartmentName { get; set; }
+        
+        // Added AccessLevel property
+        [Required]
+        [StringLength(20)]
+        public string AccessLevel { get; set; } = "View"; // Default to View access
         
         public DateTime GrantedAt { get; set; } = DateTime.Now;
         
