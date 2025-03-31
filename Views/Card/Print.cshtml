@@ -10,7 +10,7 @@
         <nav class="flex" aria-label="Breadcrumb">
             <ol class="inline-flex items-center space-x-1 md:space-x-3">
                 <li class="inline-flex items-center">
-                    <a href="/" class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-primary-600">
+                    <a href="@(Context.Request.PathBase)/" class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-primary-600">
                         <i class="fas fa-home mr-2"></i>
                         Home
                     </a>
@@ -56,17 +56,17 @@
                                 </div>
                                 <p class="text-xs text-center font-medium">PNG Image</p>
                             </div>
-                            <div class="format-option border border-gray-300 rounded-lg p-3 cursor-pointer hover:border-primary-500 transition-all" data-format="svg">
-                                <div class="flex items-center justify-center bg-gray-50 rounded mb-2 p-3">
-                                    <i class="fas fa-bezier-curve text-gray-500 text-xl"></i>
-                                </div>
-                                <p class="text-xs text-center font-medium">SVG Vector</p>
-                            </div>
                             <div class="format-option border border-gray-300 rounded-lg p-3 cursor-pointer hover:border-primary-500 transition-all" data-format="pdf">
                                 <div class="flex items-center justify-center bg-gray-50 rounded mb-2 p-3">
                                     <i class="fas fa-file-pdf text-gray-500 text-xl"></i>
                                 </div>
                                 <p class="text-xs text-center font-medium">PDF Document</p>
+                            </div>
+                            <div class="format-option border border-gray-300 rounded-lg p-3 cursor-pointer hover:border-primary-500 transition-all" data-format="print">
+                                <div class="flex items-center justify-center bg-gray-50 rounded mb-2 p-3">
+                                    <i class="fas fa-print text-gray-500 text-xl"></i>
+                                </div>
+                                <p class="text-xs text-center font-medium">Print</p>
                             </div>
                         </div>
                     </div>
@@ -228,8 +228,17 @@
                                     </div>
                                     
                                     <div class="card-qr">
-                                        <img src="@ViewBag.QrCodeImage" alt="QR Code" class="qr-code-image" />
-                                        <p class="scan-text">Scan for Product Info</p>
+                                        @if (!string.IsNullOrEmpty(ViewBag.QrCodeImage))
+                                        {
+                                            <img src="@ViewBag.QrCodeImage" alt="QR Code" class="qr-code-image" />
+                                            <p class="scan-text">Scan for Product Info</p>
+                                        }
+                                        else
+                                        {
+                                            <div class="text-center text-red-500 p-2 border border-red-200 rounded bg-red-50">
+                                                <i class="fas fa-exclamation-triangle"></i> QR code not available
+                                            </div>
+                                        }
                                     </div>
                                 </div>
                             </div>
@@ -258,7 +267,17 @@
                 </div>
                 <div class="p-8 flex items-center justify-center bg-gray-100">
                     <div class="qr-code-container bg-white p-6 rounded-lg shadow-sm">
-                        <img src="@ViewBag.QrCodeImage" alt="QR Code" class="max-w-full max-h-[300px]" id="qr-only-image" />
+                        @if (!string.IsNullOrEmpty(ViewBag.QrCodeImage))
+                        {
+                            <img src="@ViewBag.QrCodeImage" alt="QR Code" class="max-w-full max-h-[300px]" id="qr-only-image" />
+                        }
+                        else
+                        {
+                            <div class="text-center text-red-500 p-8 border border-red-200 rounded bg-red-50">
+                                <i class="fas fa-exclamation-triangle text-3xl mb-2"></i>
+                                <p>QR code not available</p>
+                            </div>
+                        }
                     </div>
                 </div>
                 <div class="card-footer flex justify-between items-center p-4 bg-gray-50 rounded-b-xl">
@@ -269,18 +288,33 @@
             </div>
         </div>
     </div>
+    
+    <!-- Error notification -->
+    <div id="error-toast" class="fixed bottom-4 right-4 bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-lg hidden transform transition-all duration-500 z-50">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <i class="fas fa-exclamation-circle text-red-500"></i>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm font-medium" id="error-message">Error message here</p>
+            </div>
+            <div class="ml-auto pl-3">
+                <button type="button" class="inline-flex text-red-500 focus:outline-none focus:text-red-600" onclick="closeErrorToast()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Styles {
 <style>
     /* Toggle Switch Styles */
     .toggle-checkbox:checked {
-        @@apply: right-0 border-primary-600;
         right: 0;
         border-color: #0284c7;
     }
     .toggle-checkbox:checked + .toggle-label {
-        @@apply: bg-primary-600;
         background-color: #0284c7;
     }
 
@@ -375,11 +409,44 @@
         border-color: #0284c7;
         background-color: #f0f9ff;
     }
+
+    /* Animation for download button */
+    @@keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
+    }
+    .group-hover\:animate-bounce:hover {
+        animation: bounce 0.5s infinite;
+    }
+
+    /* Print-specific styles */
+    @@media print {
+        body * {
+            visibility: hidden;
+        }
+        #tag-preview, #tag-preview * {
+            visibility: visible;
+        }
+        #tag-preview {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 3.5in !important;
+            height: 2in !important;
+            margin: 0;
+            padding: 0.25in;
+            box-shadow: none;
+        }
+        .card-preview {
+            margin: 0;
+            padding: 0;
+        }
+    }
 </style>
 }
 
 @section Scripts {
-<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -420,48 +487,88 @@
         const toggleMaintenance = document.getElementById('toggle-maintenance');
         const applyOptionsBtn = document.getElementById('apply-options');
         const errorCorrection = document.getElementById('error-correction');
+        const errorToast = document.getElementById('error-toast');
+        const errorMessage = document.getElementById('error-message');
+        
+        // Check if QR code is available
+        const qrCodeImg = document.querySelector('.qr-code-image');
+        const qrCodeAvailable = !!qrCodeImg;
+        
+        if (!qrCodeAvailable) {
+            showError("QR code could not be generated. Please try again.");
+        }
+        
+        // Error handling function
+        function showError(message) {
+            if (errorToast && errorMessage) {
+                errorMessage.textContent = message;
+                errorToast.classList.remove('hidden');
+                setTimeout(() => {
+                    closeErrorToast();
+                }, 5000);
+            } else {
+                console.error(message);
+                alert(message);
+            }
+        }
+        
+        function closeErrorToast() {
+            if (errorToast) {
+                errorToast.classList.add('hidden');
+            }
+        }
         
         // Zoom functionality
-        zoomIn.addEventListener('click', function() {
-            if (zoomLevel < 1.5) {
-                zoomLevel += 0.1;
-                updateZoom();
-            }
-        });
+        if (zoomIn) {
+            zoomIn.addEventListener('click', function() {
+                if (zoomLevel < 1.5) {
+                    zoomLevel += 0.1;
+                    updateZoom();
+                }
+            });
+        }
         
-        zoomOut.addEventListener('click', function() {
-            if (zoomLevel > 0.5) {
-                zoomLevel -= 0.1;
-                updateZoom();
-            }
-        });
+        if (zoomOut) {
+            zoomOut.addEventListener('click', function() {
+                if (zoomLevel > 0.5) {
+                    zoomLevel -= 0.1;
+                    updateZoom();
+                }
+            });
+        }
         
         function updateZoom() {
-            zoomContainer.style.transform = `scale(${zoomLevel})`;
-            zoomLevelDisplay.textContent = `Zoom: ${Math.round(zoomLevel * 100)}%`;
+            if (zoomContainer && zoomLevelDisplay) {
+                zoomContainer.style.transform = `scale(${zoomLevel})`;
+                zoomLevelDisplay.textContent = `Zoom: ${Math.round(zoomLevel * 100)}%`;
+            }
         }
         
         // Rotate functionality
-        rotatePreview.addEventListener('click', function() {
-            isRotated = !isRotated;
-            tagPreview.style.transform = isRotated ? 'rotate(90deg)' : 'rotate(0deg)';
-        });
+        if (rotatePreview && tagPreview) {
+            rotatePreview.addEventListener('click', function() {
+                isRotated = !isRotated;
+                tagPreview.style.transform = isRotated ? 'rotate(90deg)' : 'rotate(0deg)';
+            });
+        }
         
         // Dark mode toggle
-        toggleDarkMode.addEventListener('click', function() {
-            isDarkMode = !isDarkMode;
-            if (isDarkMode) {
-                previewContainer.classList.add('bg-gray-800');
-                this.innerHTML = '<i class="fas fa-sun"></i>';
-                this.classList.add('text-yellow-500');
-                this.classList.remove('text-gray-700');
-            } else {
-                previewContainer.classList.remove('bg-gray-800');
-                this.innerHTML = '<i class="fas fa-moon"></i>';
-                this.classList.remove('text-yellow-500');
-                this.classList.add('text-gray-700');
-            }
-        });
+        if (toggleDarkMode && previewContainer) {
+            toggleDarkMode.addEventListener('click', function() {
+                isDarkMode = !isDarkMode;
+                if (isDarkMode) {
+                    previewContainer.classList.add('bg-gray-800');
+                    this.innerHTML = '<i class="fas fa-sun"></i>';
+                    this.classList.add('text-yellow-500');
+                    this.classList.remove('text-gray-700');
+                } else {
+                    previewContainer.classList.remove('bg-gray-800');
+                    this.innerHTML = '<i class="fas fa-moon"></i>';
+                    this.classList.remove('text-yellow-500');
+                    this.classList.add('text-gray-700');
+                }
+            });
+        }
         
         // Format options
         formatOptions.forEach(option => {
@@ -472,7 +579,9 @@
                 
                 this.classList.add('active');
                 currentFormat = this.getAttribute('data-format');
-                formatLabel.textContent = currentFormat.toUpperCase();
+                if (formatLabel) {
+                    formatLabel.textContent = currentFormat === 'print' ? 'PRINT' : currentFormat.toUpperCase();
+                }
             });
         });
         
@@ -487,43 +596,59 @@
                 currentSize = this.getAttribute('data-size');
                 
                 if (currentSize === 'custom') {
-                    customSizeControls.classList.remove('hidden');
-                    sizeLabel.textContent = 'Custom Size';
+                    if (customSizeControls) {
+                        customSizeControls.classList.remove('hidden');
+                    }
+                    if (sizeLabel) {
+                        sizeLabel.textContent = 'Custom Size';
+                    }
                 } else {
-                    customSizeControls.classList.add('hidden');
-                    sizeLabel.textContent = currentSize === 'standard' ? 'Standard Size' : 'Large Size';
+                    if (customSizeControls) {
+                        customSizeControls.classList.add('hidden');
+                    }
+                    if (sizeLabel) {
+                        sizeLabel.textContent = currentSize === 'standard' ? 'Standard Size' : 'Large Size';
+                    }
                     updateCardSize(currentSize);
                 }
             });
         });
         
         // QR Code Only toggle
-        qrOnlyToggle.addEventListener('change', function() {
-            qrOnly = this.checked;
-            
-            if (qrOnly) {
-                qrOnlyPreview.classList.remove('hidden');
-                updateQrCodeSize();
-            } else {
-                qrOnlyPreview.classList.add('hidden');
-            }
-        });
+        if (qrOnlyToggle && qrOnlyPreview) {
+            qrOnlyToggle.addEventListener('change', function() {
+                qrOnly = this.checked;
+                
+                if (qrOnly) {
+                    qrOnlyPreview.classList.remove('hidden');
+                    updateQrCodeSize();
+                } else {
+                    qrOnlyPreview.classList.add('hidden');
+                }
+            });
+        }
         
         // QR Size slider
-        qrSizeSlider.addEventListener('input', function() {
-            qrSize = this.value;
-            qrSizeValue.textContent = `${qrSize}px`;
-            updateQrCodeSize();
-        });
+        if (qrSizeSlider && qrSizeValue) {
+            qrSizeSlider.addEventListener('input', function() {
+                qrSize = this.value;
+                qrSizeValue.textContent = `${qrSize}px`;
+                updateQrCodeSize();
+            });
+        }
         
         function updateQrCodeSize() {
-            qrOnlyImage.style.width = `${qrSize}px`;
-            qrOnlyImage.style.height = `${qrSize}px`;
-            qrOnlySize.textContent = `${qrSize}px × ${qrSize}px`;
+            if (qrOnlyImage && qrOnlySize) {
+                qrOnlyImage.style.width = `${qrSize}px`;
+                qrOnlyImage.style.height = `${qrSize}px`;
+                qrOnlySize.textContent = `${qrSize}px × ${qrSize}px`;
+            }
         }
         
         // Update card size
         function updateCardSize(size) {
+            if (!tagPreview) return;
+            
             // Reset classes
             tagPreview.classList.remove('size-standard', 'size-large');
             
@@ -537,84 +662,117 @@
                 tagPreview.style.width = '4in';
                 tagPreview.style.height = '2.5in';
             } else if (size === 'custom') {
-                const width = customWidth.value;
-                const height = customHeight.value;
+                const width = customWidth?.value || 600;
+                const height = customHeight?.value || 350;
                 
                 tagPreview.style.width = `${width}px`;
                 tagPreview.style.height = `${height}px`;
-                sizeLabel.textContent = `${width}px × ${height}px`;
+                if (sizeLabel) {
+                    sizeLabel.textContent = `${width}px × ${height}px`;
+                }
             }
         }
         
         // Custom size controls
-        customWidth.addEventListener('change', function() {
-            if (currentSize === 'custom') {
-                updateCardSize('custom');
-            }
-        });
+        if (customWidth) {
+            customWidth.addEventListener('change', function() {
+                if (currentSize === 'custom') {
+                    updateCardSize('custom');
+                }
+            });
+        }
         
-        customHeight.addEventListener('change', function() {
-            if (currentSize === 'custom') {
-                updateCardSize('custom');
-            }
-        });
+        if (customHeight) {
+            customHeight.addEventListener('change', function() {
+                if (currentSize === 'custom') {
+                    updateCardSize('custom');
+                }
+            });
+        }
         
         // Content toggles
-        toggleCategory.addEventListener('change', function() {
-            const categoryBadge = document.querySelector('.category-badge');
-            if (categoryBadge) {
-                categoryBadge.style.display = this.checked ? 'inline-block' : 'none';
-            }
-        });
+        if (toggleCategory) {
+            toggleCategory.addEventListener('change', function() {
+                const categoryBadge = document.querySelector('.category-badge');
+                if (categoryBadge) {
+                    categoryBadge.style.display = this.checked ? 'inline-block' : 'none';
+                }
+            });
+        }
         
-        toggleWarranty.addEventListener('change', function() {
-            const warrantyInfo = document.querySelector('.warranty-info');
-            if (warrantyInfo) {
-                warrantyInfo.style.display = this.checked ? 'flex' : 'none';
-            }
-        });
+        if (toggleWarranty) {
+            toggleWarranty.addEventListener('change', function() {
+                const warrantyInfo = document.querySelector('.warranty-info');
+                if (warrantyInfo) {
+                    warrantyInfo.style.display = this.checked ? 'flex' : 'none';
+                }
+            });
+        }
         
-        toggleMaintenance.addEventListener('change', function() {
-            const maintenanceInfo = document.querySelector('.maintenance-info');
-            if (maintenanceInfo) {
-                maintenanceInfo.style.display = this.checked ? 'flex' : 'none';
-            }
-        });
+        if (toggleMaintenance) {
+            toggleMaintenance.addEventListener('change', function() {
+                const maintenanceInfo = document.querySelector('.maintenance-info');
+                if (maintenanceInfo) {
+                    maintenanceInfo.style.display = this.checked ? 'flex' : 'none';
+                }
+            });
+        }
         
         // Apply options button
-        applyOptionsBtn.addEventListener('click', function() {
-            // Apply all settings at once
-            updateCardSize(currentSize);
-            
-            // Show success feedback
-            this.innerHTML = '<i class="fas fa-check-circle mr-2"></i> Settings Applied';
-            this.classList.add('bg-green-600');
-            this.classList.remove('bg-primary-600');
-            
-            setTimeout(() => {
-                this.innerHTML = '<i class="fas fa-check mr-2"></i> Apply Settings';
-                this.classList.remove('bg-green-600');
-                this.classList.add('bg-primary-600');
-            }, 2000);
-        });
+        if (applyOptionsBtn) {
+            applyOptionsBtn.addEventListener('click', function() {
+                // Apply all settings at once
+                updateCardSize(currentSize);
+                
+                // Show success feedback
+                this.innerHTML = '<i class="fas fa-check-circle mr-2"></i> Settings Applied';
+                this.classList.add('bg-green-600');
+                this.classList.remove('bg-primary-600');
+                
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fas fa-check mr-2"></i> Apply Settings';
+                    this.classList.remove('bg-green-600');
+                    this.classList.add('bg-primary-600');
+                }, 2000);
+            });
+        }
         
         // Download functionality
-        downloadBtn.addEventListener('click', function() {
-            // Different export methods depending on format
-            if (qrOnly) {
-                // For QR code only export
-                exportQrCodeOnly();
-            } else {
-                // For full card export
-                exportFullCard();
-            }
-        });
+        if (downloadBtn) {
+            downloadBtn.addEventListener('click', function() {
+                if (!qrCodeAvailable) {
+                    showError("QR code is not available. Cannot export card.");
+                    return;
+                }
+                
+                try {
+                    // Different export methods depending on format
+                    if (currentFormat === 'print') {
+                        // For print, open print dialog
+                        window.print();
+                    } else if (qrOnly) {
+                        // For QR code only export
+                        exportQrCodeOnly();
+                    } else {
+                        // For full card export
+                        exportFullCard();
+                    }
+                } catch (error) {
+                    console.error("Export error:", error);
+                    showError(`Export failed: ${error.message || "Unknown error"}`);
+                }
+            });
+        }
         
         function exportQrCodeOnly() {
-            const qrCodeImg = document.querySelector('.qr-code-image');
+            if (!qrCodeImg) {
+                showError("QR code image not available");
+                return;
+            }
+            
             const cardName = "@Model.ProductName".replace(/[^a-z0-9]/gi, '_').toLowerCase();
             
-            if (qrCodeImg) {
+            try {
                 // Create a canvas element
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
@@ -630,90 +788,127 @@
                 
                 // Once the image is loaded, draw it on the canvas and export
                 img.onload = function() {
-                    ctx.drawImage(img, 0, 0, qrSize, qrSize);
-                    
-                    if (currentFormat === 'png') {
-                        // PNG export
-                        const pngUrl = canvas.toDataURL('image/png');
-                        downloadImage(pngUrl, `${cardName}_qrcode.png`);
-                    } else if (currentFormat === 'svg') {
-                        // Create SVG for QR
-                        const svgUrl = qrCodeImg.src; // If original source is SVG
-                        downloadImage(svgUrl, `${cardName}_qrcode.svg`);
-                    } else if (currentFormat === 'pdf') {
-                        // PDF export
-                        const { jsPDF } = window.jspdf;
-                        const pdf = new jsPDF({
-                            orientation: 'portrait',
-                            unit: 'mm',
-                            format: [100, 100]
-                        });
+                    try {
+                        ctx.drawImage(img, 0, 0, qrSize, qrSize);
                         
-                        const imgData = canvas.toDataURL('image/png');
-                        pdf.addImage(imgData, 'PNG', 10, 10, 80, 80);
-                        pdf.save(`${cardName}_qrcode.pdf`);
+                        if (currentFormat === 'png') {
+                            // PNG export
+                            const pngUrl = canvas.toDataURL('image/png');
+                            downloadImage(pngUrl, `${cardName}_qrcode.png`);
+                        } else if (currentFormat === 'pdf') {
+                            // PDF export
+                            const { jsPDF } = window.jspdf;
+                            if (!jsPDF) {
+                                throw new Error("PDF library not loaded");
+                            }
+                            
+                            const pdf = new jsPDF({
+                                orientation: 'portrait',
+                                unit: 'mm',
+                                format: [100, 100]
+                            });
+                            
+                            const imgData = canvas.toDataURL('image/png');
+                            pdf.addImage(imgData, 'PNG', 10, 10, 80, 80);
+                            pdf.save(`${cardName}_qrcode.pdf`);
+                        }
+                    } catch (error) {
+                        console.error("Error creating QR export:", error);
+                        showError(`Failed to create QR export: ${error.message}`);
                     }
                 };
+                
+                img.onerror = function() {
+                    showError("Failed to load QR code image");
+                };
+            } catch (error) {
+                console.error("Error in QR code export:", error);
+                showError(`QR code export failed: ${error.message}`);
             }
         }
         
         function exportFullCard() {
             const cardName = "@Model.ProductName".replace(/[^a-z0-9]/gi, '_').toLowerCase();
             
+            // Check if HTML2Canvas is loaded
+            if (typeof html2canvas !== 'function') {
+                showError("Required libraries not loaded. Please refresh the page and try again.");
+                return;
+            }
+            
             // Use html2canvas to capture the card
             html2canvas(document.getElementById('tag-preview'), {
                 scale: 2, // Higher quality
                 allowTaint: true,
-                useCORS: true
+                useCORS: true,
+                logging: false
             }).then(canvas => {
-                if (currentFormat === 'png') {
-                    // PNG export
-                    const pngUrl = canvas.toDataURL('image/png');
-                    downloadImage(pngUrl, `${cardName}_card.png`);
-                } else if (currentFormat === 'svg') {
-                    // For SVG, we'll still export PNG as SVG conversion is complex
-                    const pngUrl = canvas.toDataURL('image/png');
-                    downloadImage(pngUrl, `${cardName}_card.png`);
-                    
-                    // Notify user about SVG limitation
-                    alert('SVG export is limited to PNG format for full cards. If you need SVG, please use the QR code only option.');
-                } else if (currentFormat === 'pdf') {
-                    // PDF export
-                    const { jsPDF } = window.jspdf;
-                    
-                    let width, height;
-                    if (currentSize === 'standard') {
-                        width = 88.9; // 3.5 inches in mm
-                        height = 50.8; // 2 inches in mm
-                    } else if (currentSize === 'large') {
-                        width = 101.6; // 4 inches in mm
-                        height = 63.5; // 2.5 inches in mm
-                    } else if (currentSize === 'custom') {
-                        // Convert pixels to mm (approximate)
-                        width = customWidth.value * 0.26;
-                        height = customHeight.value * 0.26;
+                try {
+                    if (currentFormat === 'png') {
+                        // PNG export
+                        const pngUrl = canvas.toDataURL('image/png');
+                        downloadImage(pngUrl, `${cardName}_card.png`);
+                    } else if (currentFormat === 'pdf') {
+                        // PDF export
+                        const { jsPDF } = window.jspdf;
+                        if (!jsPDF) {
+                            throw new Error("PDF library not loaded");
+                        }
+                        
+                        let width, height;
+                        if (currentSize === 'standard') {
+                            width = 88.9; // 3.5 inches in mm
+                            height = 50.8; // 2 inches in mm
+                        } else if (currentSize === 'large') {
+                            width = 101.6; // 4 inches in mm
+                            height = 63.5; // 2.5 inches in mm
+                        } else if (currentSize === 'custom') {
+                            // Convert pixels to mm (approximate)
+                            width = (customWidth?.value || 600) * 0.26;
+                            height = (customHeight?.value || 350) * 0.26;
+                        }
+                        
+                        const pdf = new jsPDF({
+                            orientation: width > height ? 'landscape' : 'portrait',
+                            unit: 'mm',
+                            format: [width + 20, height + 20]
+                        });
+                        
+                        const imgData = canvas.toDataURL('image/png');
+                        pdf.addImage(imgData, 'PNG', 10, 10, width, height);
+                        pdf.save(`${cardName}_card.pdf`);
                     }
-                    
-                    const pdf = new jsPDF({
-                        orientation: width > height ? 'landscape' : 'portrait',
-                        unit: 'mm',
-                        format: [width + 20, height + 20]
-                    });
-                    
-                    const imgData = canvas.toDataURL('image/png');
-                    pdf.addImage(imgData, 'PNG', 10, 10, width, height);
-                    pdf.save(`${cardName}_card.pdf`);
+                } catch (error) {
+                    console.error("Error in card export:", error);
+                    showError(`Card export failed: ${error.message}`);
                 }
+            }).catch(error => {
+                console.error("Error capturing card:", error);
+                showError(`Failed to capture card: ${error.message}`);
             });
         }
         
         function downloadImage(dataUrl, filename) {
-            const link = document.createElement('a');
-            link.href = dataUrl;
-            link.download = filename;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            try {
+                const link = document.createElement('a');
+                link.href = dataUrl;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (error) {
+                console.error("Download error:", error);
+                showError(`Download failed: ${error.message}`);
+            }
+        }
+        
+        // Check if libraries are loaded
+        if (typeof html2canvas !== 'function') {
+            console.warn("html2canvas library not loaded");
+        }
+        
+        if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF !== 'function') {
+            console.warn("jsPDF library not loaded");
         }
         
         // Initialize preview
