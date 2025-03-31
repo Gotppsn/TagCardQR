@@ -70,6 +70,7 @@
             @@apply bg-white bg-opacity-70 backdrop-blur-sm border border-gray-100 shadow-lg rounded-xl;
         }
     </style>
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body class="bg-gray-50 min-h-screen flex flex-col font-inter">
 <header class="bg-white border-b border-gray-100 py-3 sticky top-0 z-10 shadow-sm">
@@ -93,6 +94,11 @@
                 {
                     <a asp-controller="Card" asp-action="ScanResult" class="px-3 py-2 text-gray-600 hover:text-blue-600 flex items-center">
                         <i class="fas fa-qrcode mr-2"></i> Scan Results
+                    </a>
+                    
+                    <!-- Add Print All menu item here -->
+                    <a asp-controller="Card" asp-action="PrintAll" class="px-3 py-2 text-gray-600 hover:text-blue-600 flex items-center">
+                        <i class="fas fa-print mr-2"></i> Print All
                     </a>
                     
                     @if (User.IsInRole("Admin"))
@@ -174,6 +180,11 @@
             {
                 <a asp-controller="Card" asp-action="ScanResult" class="nav-item">
                     <i class="fas fa-qrcode mr-2 w-5 text-center"></i> Scan Results
+                </a>
+                
+                <!-- Add Print All menu item in mobile menu -->
+                <a asp-controller="Card" asp-action="PrintAll" class="nav-item">
+                    <i class="fas fa-print mr-2 w-5 text-center"></i> Print All
                 </a>
                 
                 @if (User.IsInRole("Admin"))
