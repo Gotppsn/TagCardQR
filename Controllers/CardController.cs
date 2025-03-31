@@ -361,7 +361,7 @@ namespace CardTagManager.Controllers
         }
 
         // GET: Card/ScanShow/5
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin,Manager,User,Edit,View")]
         public async Task<IActionResult> ScanShow(int id, bool preview = false)
         {
             try
@@ -476,6 +476,7 @@ namespace CardTagManager.Controllers
         }
 
         // GET: Card/QrCode/5
+        [Authorize(Roles = "Admin,Manager,User,Edit,View")]
         public async Task<IActionResult> QrCode(int id)
         {
             var card = await _context.Cards.FindAsync(id);
@@ -492,6 +493,7 @@ namespace CardTagManager.Controllers
         }
 
         // GET: Card/Edit/5
+        [Authorize(Roles = "Admin,Manager,User,Edit")]
         public async Task<IActionResult> Edit(int id)
         {
             try
@@ -546,6 +548,7 @@ namespace CardTagManager.Controllers
 
         // POST: Card/Edit/5
         [HttpPost]
+        [Authorize(Roles = "Admin,Manager,User,Edit")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Card card)
         {
@@ -954,6 +957,7 @@ namespace CardTagManager.Controllers
         }
 
         // GET: Card/ScanResult
+        [Authorize(Roles = "Admin,Manager,Edit,User")]
         public async Task<IActionResult> ScanResult()
         {
             try

@@ -384,32 +384,52 @@ namespace CardTagManager.Data
 
             // Seed default roles with static values
             modelBuilder.Entity<Role>().HasData(
+                // Existing roles remain unchanged (1-3)
                 new Role
                 {
                     Id = 1,
                     Name = "Admin",
                     NormalizedName = "ADMIN",
                     Description = "Administrator with full system access",
-                    CreatedAt = new DateTime(2023, 1, 1), // Fixed static date
-                    ConcurrencyStamp = "8f9460e9-0637-4c21-8002-3048e67fc674" // Fixed static GUID
+                    CreatedAt = new DateTime(2023, 1, 1),
+                    ConcurrencyStamp = "8f9460e9-0637-4c21-8002-3048e67fc674"
                 },
                 new Role
                 {
                     Id = 2,
                     Name = "Manager",
                     NormalizedName = "MANAGER",
-                    Description = "Manager with limited administrative access",
-                    CreatedAt = new DateTime(2023, 1, 1), // Fixed static date
-                    ConcurrencyStamp = "c2d6d1e4-4f50-40de-9d12-849722d39b27" // Fixed static GUID
+                    Description = "Manager with limited administrative access, Department Access menu and Scan results",
+                    CreatedAt = new DateTime(2023, 1, 1),
+                    ConcurrencyStamp = "c2d6d1e4-4f50-40de-9d12-849722d39b27"
                 },
                 new Role
                 {
                     Id = 3,
                     Name = "User",
                     NormalizedName = "USER",
-                    Description = "Standard user with basic access",
-                    CreatedAt = new DateTime(2023, 1, 1), // Fixed static date
-                    ConcurrencyStamp = "3f36708b-6b0e-4630-b31b-51d0d8f3956d" // Fixed static GUID
+                    Description = "Standard user with departmental access, can't access Department Access menu",
+                    CreatedAt = new DateTime(2023, 1, 1),
+                    ConcurrencyStamp = "3f36708b-6b0e-4630-b31b-51d0d8f3956d"
+                },
+                // Add new roles
+                new Role
+                {
+                    Id = 4,
+                    Name = "Edit",
+                    NormalizedName = "EDIT",
+                    Description = "Can access Scan results and edit departmental data with authorized access",
+                    CreatedAt = new DateTime(2023, 1, 1),
+                    ConcurrencyStamp = "5a92f40b-7c2e-4ec9-a637-d7d3c8e9f8a0"
+                },
+                new Role
+                {
+                    Id = 5,
+                    Name = "View",
+                    NormalizedName = "VIEW",
+                    Description = "Limited access to view QR codes only",
+                    CreatedAt = new DateTime(2023, 1, 1),
+                    ConcurrencyStamp = "7b81d6c1-3e7f-48d3-9c2b-1b7ba4582c9d"
                 }
             );
         }

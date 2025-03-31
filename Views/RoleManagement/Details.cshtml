@@ -157,6 +157,59 @@
                         </div>
                     </div>
                 }
+
+                @if (Model.Name == "Edit")
+                {
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <div class="h-5 w-5 rounded-full bg-green-500 flex-shrink-0 mt-1"></div>
+                            <div class="ml-3">
+                                <p class="font-medium text-gray-800">Access Scan Results</p>
+                                <p class="text-sm text-gray-600">View and analyze scan data</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="h-5 w-5 rounded-full bg-green-500 flex-shrink-0 mt-1"></div>
+                            <div class="ml-3">
+                                <p class="font-medium text-gray-800">Edit Department Data</p>
+                                <p class="text-sm text-gray-600">Edit all data within authorized departments</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="h-5 w-5 rounded-full bg-red-500 flex-shrink-0 mt-1"></div>
+                            <div class="ml-3">
+                                <p class="font-medium text-gray-800">No Department Access Management</p>
+                                <p class="text-sm text-gray-600">Cannot access department access settings</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else if (Model.Name == "View")
+                {
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <div class="h-5 w-5 rounded-full bg-green-500 flex-shrink-0 mt-1"></div>
+                            <div class="ml-3">
+                                <p class="font-medium text-gray-800">View QR Codes</p>
+                                <p class="text-sm text-gray-600">Access to view and scan QR codes</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="h-5 w-5 rounded-full bg-red-500 flex-shrink-0 mt-1"></div>
+                            <div class="ml-3">
+                                <p class="font-medium text-gray-800">Limited Access</p>
+                                <p class="text-sm text-gray-600">Cannot edit or modify data</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="h-5 w-5 rounded-full bg-red-500 flex-shrink-0 mt-1"></div>
+                            <div class="ml-3">
+                                <p class="font-medium text-gray-800">No Administrative Access</p>
+                                <p class="text-sm text-gray-600">Cannot access system settings or management features</p>
+                            </div>
+                        </div>
+                    </div>
+                }
             </div>
         </div>
     </div>
