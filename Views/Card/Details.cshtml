@@ -2622,9 +2622,12 @@
             const cardId = document.getElementById('card-id').value;
             const settingsLoading = true;
             
+            // Get the base URL from the base tag or default to '/'
+            const baseUrl = document.querySelector('base')?.getAttribute('href') || '/';
+            
             try {
-                // Try to load settings from database first
-                const response = await fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/ScanSettings/card/${cardId}`);
+                // Try to load settings from database first with correct base path
+                const response = await fetch(`${baseUrl}api/ScanSettings/card/${cardId}`);
                 
                 if (!response.ok) {
                     throw new Error('Settings not found in database');
@@ -2727,9 +2730,12 @@
             // Get CSRF token
             const token = document.querySelector('meta[name="RequestVerificationToken"]')?.getAttribute('content');
             
+            // Get the base URL from the base tag or default to '/'
+            const baseUrl = document.querySelector('base')?.getAttribute('href') || '/';
+            
             try {
-                // Send request
-                const response = await fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/ScanSettings`, {
+                // Send request with correct base path
+                const response = await fetch(`${baseUrl}api/ScanSettings`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -2746,7 +2752,8 @@
                 const data = await response.json();
                 
                 // Ensure we test settings as soon as they're saved
-                const previewUrl = `/Card/ScanShow/${cardId}?preview=true&t=${Date.now()}`;
+                const baseHref = document.querySelector('base')?.getAttribute('href') || '/';
+                const previewUrl = `${baseHref}Card/ScanShow/${cardId}?preview=true&t=${Date.now()}`;
                 console.log("Preview available at:", previewUrl);
                 
                 // Save to localStorage as backup with explicit conversion
@@ -2801,15 +2808,11 @@
             
             const privateMode = document.getElementById('private-mode-toggle')?.checked || false;
             
-            // Log what we're previewing
-            console.log("Preview settings:", {
-                fields: selectedFields,
-                uiElements: selectedUIElements,
-                privateMode: privateMode
-            });
+            // Get the base URL from the base tag or default to '/'
+            const baseUrl = document.querySelector('base')?.getAttribute('href') || '/';
             
-            // Build the preview URL with correct parameters
-            let previewUrl = `/Card/ScanShow/${cardId}?preview=true`;
+            // Build the preview URL with correct parameters and base path
+            let previewUrl = `${baseUrl}Card/ScanShow/${cardId}?preview=true`;
             
             // Add field parameters
             selectedFields.forEach(field => {
@@ -2852,7 +2855,7 @@
             previewElement.innerHTML = '';
             previewElement.appendChild(iframe);
         }
-        
+
         // Helper functions
         function formatDate(date) {
             if (!(date instanceof Date) || isNaN(date)) {
