@@ -27,7 +27,6 @@
             <div class="p-6">
                 <form asp-controller="Account" asp-action="Login" method="post" class="space-y-5" id="loginForm">
                     <input type="hidden" asp-for="ReturnUrl" value="@(ViewData["ReturnUrl"] ?? "")" />
-                    <input type="hidden" name="debug" value="true" />
 
                     <!-- Alert for errors -->
                     @if (!ViewData.ModelState.IsValid)
@@ -63,17 +62,6 @@
                         <span asp-validation-for="Password" class="text-sm text-red-600"></span>
                     </div>
 
-                    <!-- Remember Me -->
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <input asp-for="RememberMe" type="checkbox" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded transition" />
-                            <label asp-for="RememberMe" class="ml-2 block text-sm text-gray-700">Remember me</label>
-                        </div>
-                        <div class="text-sm">
-                            <a href="#" class="text-primary-600 hover:text-primary-800 font-medium transition-colors">Forgot password?</a>
-                        </div>
-                    </div>
-
                     <!-- Submit Button -->
                     <div>
                         <button type="submit" id="loginButton" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors">
@@ -83,11 +71,6 @@
                         </button>
                     </div>
                 </form>
-            </div>
-
-            <!-- Card Footer -->
-            <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 text-center text-sm text-gray-600">
-                <p>For testing, use username: <span class="font-mono bg-gray-100 px-2 py-1 rounded">admin</span> and password: <span class="font-mono bg-gray-100 px-2 py-1 rounded">admin</span></p>
             </div>
         </div>
 
@@ -128,78 +111,6 @@
                 loginButton.innerHTML = '<span class="flex items-center"><i class="fas fa-circle-notch fa-spin mr-2"></i> Signing in...</span>';
             });
         });
-        
-        @if (ViewBag.LdapDebugData != null)
-        {
-            <text>
-            try {
-                console.log("%c===== LDAP ATTRIBUTES DUMP =====", "background:#0284c7;color:white;padding:4px 8px;font-weight:bold;");
-                const ldapData = @Html.Raw(ViewBag.LdapDebugData);
-                
-                // Log all data as table and text
-                console.table(ldapData);
-                
-                // Format for easy copy-paste
-                let debugText = "";
-                Object.entries(ldapData).forEach(([key, value]) => {
-                    console.log(`${key}: ${value}`);
-                    debugText += `${key}: ${value}\n`;
-                });
-                
-                // Add a debug panel to the UI
-                const debugPanel = document.createElement('div');
-                debugPanel.className = "mt-4 p-4 bg-blue-50 border border-blue-200 rounded-xl";
-                debugPanel.innerHTML = `
-                    <div class="flex justify-between items-center mb-3">
-                        <h3 class="text-lg font-semibold text-blue-800">LDAP Debug Data</h3>
-                        <button id="copyLdapData" class="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700">
-                            Copy Data
-                        </button>
-                    </div>
-                    <div class="mb-2 text-sm text-blue-700">Found ${Object.keys(ldapData).length} attributes</div>
-                    <div class="max-h-64 overflow-y-auto bg-white p-3 rounded border border-blue-100 text-xs font-mono">
-                        <pre>${JSON.stringify(ldapData, null, 2)}</pre>
-                    </div>
-                    <div class="flex justify-between mt-3">
-                        <button id="downloadLdapData" class="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700">
-                            Download JSON
-                        </button>
-                        <button id="closeLdapDebug" class="px-3 py-1 bg-gray-200 text-gray-800 text-xs rounded hover:bg-gray-300">
-                            Close Debug Panel
-                        </button>
-                    </div>
-                `;
-                
-                document.querySelector('.max-w-md').appendChild(debugPanel);
-                
-                // Add event handlers
-                document.getElementById('downloadLdapData').addEventListener('click', function() {
-                    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(ldapData, null, 2));
-                    const downloadAnchor = document.createElement('a');
-                    downloadAnchor.setAttribute("href", dataStr);
-                    downloadAnchor.setAttribute("download", "ldap_attributes.json");
-                    document.body.appendChild(downloadAnchor);
-                    downloadAnchor.click();
-                    document.body.removeChild(downloadAnchor);
-                });
-                
-                document.getElementById('copyLdapData').addEventListener('click', function() {
-                    navigator.clipboard.writeText(debugText).then(() => {
-                        this.textContent = "Copied!";
-                        setTimeout(() => {
-                            this.textContent = "Copy Data";
-                        }, 2000);
-                    });
-                });
-                
-                document.getElementById('closeLdapDebug').addEventListener('click', function() {
-                    debugPanel.remove();
-                });
-            } catch (err) {
-                console.error("Error processing LDAP debug data:", err);
-            }
-            </text>
-        }
     </script>
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }

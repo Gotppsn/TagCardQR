@@ -2434,7 +2434,7 @@ function initUpdateStatusModal() {
             });
         }
         
-        // Handle status update submission - replace AJAX with form submission
+        // Handle status update submission
         if (confirmStatusUpdateBtn) {
             confirmStatusUpdateBtn.addEventListener('click', function() {
                 const issueId = this.getAttribute('data-issue-id');
@@ -2456,13 +2456,16 @@ function initUpdateStatusModal() {
                     document.body.appendChild(form);
                 }
                 
-                // Set the action URL - use the full path to avoid any routing issues
-                form.action = '/Card/UpdateIssueStatus';
+                // Important fix: Get the base path from the base tag in the document
+                const basePath = document.querySelector('base')?.getAttribute('href') || '/';
+                
+                // Set the action URL with the proper base path
+                form.action = basePath + (basePath.endsWith('/') ? '' : '/') + 'Card/UpdateIssueStatus';
                 
                 // Clear existing form content
                 form.innerHTML = '';
                 
-                // Add the CSRF token - get it from any existing form on the page
+                // Add the CSRF token
                 const csrfToken = document.querySelector('input[name="__RequestVerificationToken"]');
                 if (csrfToken) {
                     const tokenInput = document.createElement('input');

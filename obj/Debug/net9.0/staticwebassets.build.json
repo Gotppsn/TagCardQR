@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "CMIpPry59G9equ8FHLa14sf+8QJ0So7YC4T3H5xVyCU=",
+  "Hash": "zCpDAZ/L9OW5Ozkh7M5f0YhlCFFQil0OBG3QIFfjnkI=",
   "Source": "CardTagManager",
   "BasePath": "_content/CardTagManager",
   "Mode": "Default",
@@ -1025,12 +1025,12 @@
       "OriginalItemSpec": "C:\\Users\\panupol\\Desktop\\TagCardQR\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.min.js"
     },
     {
-      "Identity": "C:\\Users\\panupol\\Desktop\\TagCardQR\\obj\\Debug\\net9.0\\compressed\\pkjinzgcmq-ioqcbe4moi.gz",
+      "Identity": "C:\\Users\\panupol\\Desktop\\TagCardQR\\obj\\Debug\\net9.0\\compressed\\pkjinzgcmq-raiv93icgj.gz",
       "SourceId": "CardTagManager",
       "SourceType": "Discovered",
       "ContentRoot": "C:\\Users\\panupol\\Desktop\\TagCardQR\\obj\\Debug\\net9.0\\compressed\\",
       "BasePath": "_content/CardTagManager",
-      "RelativePath": "css/tailwind#[.{fingerprint=ioqcbe4moi}]?.css.gz",
+      "RelativePath": "css/tailwind#[.{fingerprint=raiv93icgj}]?.css.gz",
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Alternative",
@@ -1039,8 +1039,8 @@
       "RelatedAsset": "C:\\Users\\panupol\\Desktop\\TagCardQR\\wwwroot\\css\\tailwind.css",
       "AssetTraitName": "Content-Encoding",
       "AssetTraitValue": "gzip",
-      "Fingerprint": "bc2kpx2xdo",
-      "Integrity": "JXqg6u7A6w/yHnexDbh73aMdjBoMr8iK/sUMKRy7rys=",
+      "Fingerprint": "ddt6nzjxm0",
+      "Integrity": "z9J+dlqBQ4n114gohtylS0QWUBdAYCra/5BHf+0w5Rs=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "C:\\Users\\panupol\\Desktop\\TagCardQR\\wwwroot\\css\\tailwind.css"
@@ -1501,8 +1501,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "ioqcbe4moi",
-      "Integrity": "ErUNPZKtvjg+KrVu9X4jLDgSXCxXQD1XOvfELDYSBP0=",
+      "Fingerprint": "raiv93icgj",
+      "Integrity": "YyMTagZK1rM5ihwcak0fn4o9N825yh8NAhCdTeee6dU=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\css\\tailwind.css"
@@ -4005,12 +4005,12 @@
     },
     {
       "Route": "css/tailwind.css",
-      "AssetFile": "C:\\Users\\panupol\\Desktop\\TagCardQR\\obj\\Debug\\net9.0\\compressed\\pkjinzgcmq-ioqcbe4moi.gz",
+      "AssetFile": "C:\\Users\\panupol\\Desktop\\TagCardQR\\obj\\Debug\\net9.0\\compressed\\pkjinzgcmq-raiv93icgj.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000078622533"
+          "Quality": "0.000078976465"
         }
       ],
       "ResponseHeaders": [
@@ -4020,15 +4020,15 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "12718"
+          "Value": "12661"
         },
         {
           "Name": "ETag",
-          "Value": "\"JXqg6u7A6w/yHnexDbh73aMdjBoMr8iK/sUMKRy7rys=\""
+          "Value": "\"z9J+dlqBQ4n114gohtylS0QWUBdAYCra/5BHf+0w5Rs=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 28 Mar 2025 01:52:19 GMT"
+          "Value": "Mon, 31 Mar 2025 05:23:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4048,13 +4048,13 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"ErUNPZKtvjg+KrVu9X4jLDgSXCxXQD1XOvfELDYSBP0=\""
+          "Value": "W/\"YyMTagZK1rM5ihwcak0fn4o9N825yh8NAhCdTeee6dU=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-ErUNPZKtvjg+KrVu9X4jLDgSXCxXQD1XOvfELDYSBP0="
+          "Value": "sha256-YyMTagZK1rM5ihwcak0fn4o9N825yh8NAhCdTeee6dU="
         }
       ]
     },
@@ -4069,7 +4069,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "82891"
+          "Value": "82228"
         },
         {
           "Name": "Content-Type",
@@ -4077,11 +4077,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"ErUNPZKtvjg+KrVu9X4jLDgSXCxXQD1XOvfELDYSBP0=\""
+          "Value": "\"YyMTagZK1rM5ihwcak0fn4o9N825yh8NAhCdTeee6dU=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 28 Mar 2025 01:52:19 GMT"
+          "Value": "Mon, 31 Mar 2025 05:23:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4091,13 +4091,13 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-ErUNPZKtvjg+KrVu9X4jLDgSXCxXQD1XOvfELDYSBP0="
+          "Value": "sha256-YyMTagZK1rM5ihwcak0fn4o9N825yh8NAhCdTeee6dU="
         }
       ]
     },
     {
       "Route": "css/tailwind.css.gz",
-      "AssetFile": "C:\\Users\\panupol\\Desktop\\TagCardQR\\obj\\Debug\\net9.0\\compressed\\pkjinzgcmq-ioqcbe4moi.gz",
+      "AssetFile": "C:\\Users\\panupol\\Desktop\\TagCardQR\\obj\\Debug\\net9.0\\compressed\\pkjinzgcmq-raiv93icgj.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -4106,7 +4106,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "12718"
+          "Value": "12661"
         },
         {
           "Name": "Content-Type",
@@ -4114,11 +4114,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"JXqg6u7A6w/yHnexDbh73aMdjBoMr8iK/sUMKRy7rys=\""
+          "Value": "\"z9J+dlqBQ4n114gohtylS0QWUBdAYCra/5BHf+0w5Rs=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 28 Mar 2025 01:52:19 GMT"
+          "Value": "Mon, 31 Mar 2025 05:23:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4136,18 +4136,18 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-JXqg6u7A6w/yHnexDbh73aMdjBoMr8iK/sUMKRy7rys="
+          "Value": "sha256-z9J+dlqBQ4n114gohtylS0QWUBdAYCra/5BHf+0w5Rs="
         }
       ]
     },
     {
-      "Route": "css/tailwind.ioqcbe4moi.css",
-      "AssetFile": "C:\\Users\\panupol\\Desktop\\TagCardQR\\obj\\Debug\\net9.0\\compressed\\pkjinzgcmq-ioqcbe4moi.gz",
+      "Route": "css/tailwind.raiv93icgj.css",
+      "AssetFile": "C:\\Users\\panupol\\Desktop\\TagCardQR\\obj\\Debug\\net9.0\\compressed\\pkjinzgcmq-raiv93icgj.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000078622533"
+          "Quality": "0.000078976465"
         }
       ],
       "ResponseHeaders": [
@@ -4157,15 +4157,15 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "12718"
+          "Value": "12661"
         },
         {
           "Name": "ETag",
-          "Value": "\"JXqg6u7A6w/yHnexDbh73aMdjBoMr8iK/sUMKRy7rys=\""
+          "Value": "\"z9J+dlqBQ4n114gohtylS0QWUBdAYCra/5BHf+0w5Rs=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 28 Mar 2025 01:52:19 GMT"
+          "Value": "Mon, 31 Mar 2025 05:23:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4185,13 +4185,13 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"ErUNPZKtvjg+KrVu9X4jLDgSXCxXQD1XOvfELDYSBP0=\""
+          "Value": "W/\"YyMTagZK1rM5ihwcak0fn4o9N825yh8NAhCdTeee6dU=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "ioqcbe4moi"
+          "Value": "raiv93icgj"
         },
         {
           "Name": "label",
@@ -4199,12 +4199,12 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-ErUNPZKtvjg+KrVu9X4jLDgSXCxXQD1XOvfELDYSBP0="
+          "Value": "sha256-YyMTagZK1rM5ihwcak0fn4o9N825yh8NAhCdTeee6dU="
         }
       ]
     },
     {
-      "Route": "css/tailwind.ioqcbe4moi.css",
+      "Route": "css/tailwind.raiv93icgj.css",
       "AssetFile": "C:\\Users\\panupol\\Desktop\\TagCardQR\\wwwroot\\css\\tailwind.css",
       "Selectors": [],
       "ResponseHeaders": [
@@ -4214,7 +4214,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "82891"
+          "Value": "82228"
         },
         {
           "Name": "Content-Type",
@@ -4222,11 +4222,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"ErUNPZKtvjg+KrVu9X4jLDgSXCxXQD1XOvfELDYSBP0=\""
+          "Value": "\"YyMTagZK1rM5ihwcak0fn4o9N825yh8NAhCdTeee6dU=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 28 Mar 2025 01:52:19 GMT"
+          "Value": "Mon, 31 Mar 2025 05:23:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4236,7 +4236,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "ioqcbe4moi"
+          "Value": "raiv93icgj"
         },
         {
           "Name": "label",
@@ -4244,13 +4244,13 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-ErUNPZKtvjg+KrVu9X4jLDgSXCxXQD1XOvfELDYSBP0="
+          "Value": "sha256-YyMTagZK1rM5ihwcak0fn4o9N825yh8NAhCdTeee6dU="
         }
       ]
     },
     {
-      "Route": "css/tailwind.ioqcbe4moi.css.gz",
-      "AssetFile": "C:\\Users\\panupol\\Desktop\\TagCardQR\\obj\\Debug\\net9.0\\compressed\\pkjinzgcmq-ioqcbe4moi.gz",
+      "Route": "css/tailwind.raiv93icgj.css.gz",
+      "AssetFile": "C:\\Users\\panupol\\Desktop\\TagCardQR\\obj\\Debug\\net9.0\\compressed\\pkjinzgcmq-raiv93icgj.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -4259,7 +4259,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "12718"
+          "Value": "12661"
         },
         {
           "Name": "Content-Type",
@@ -4267,11 +4267,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"JXqg6u7A6w/yHnexDbh73aMdjBoMr8iK/sUMKRy7rys=\""
+          "Value": "\"z9J+dlqBQ4n114gohtylS0QWUBdAYCra/5BHf+0w5Rs=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 28 Mar 2025 01:52:19 GMT"
+          "Value": "Mon, 31 Mar 2025 05:23:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4289,7 +4289,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "ioqcbe4moi"
+          "Value": "raiv93icgj"
         },
         {
           "Name": "label",
@@ -4297,7 +4297,7 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-JXqg6u7A6w/yHnexDbh73aMdjBoMr8iK/sUMKRy7rys="
+          "Value": "sha256-z9J+dlqBQ4n114gohtylS0QWUBdAYCra/5BHf+0w5Rs="
         }
       ]
     },
