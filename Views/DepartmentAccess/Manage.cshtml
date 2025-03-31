@@ -41,13 +41,23 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">User</label>
-                    <select name="userId" class="form-input w-full" required>
+                    <div class="mb-2">
+                        <div class="relative">
+                            <input type="text" id="userSearch" placeholder="Search users..." class="form-input w-full pl-10" autocomplete="off" />
+                            <div class="absolute inset-y-0 left-0 flex items-center pl-3">
+                                <i class="fas fa-search text-gray-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <select name="userId" id="userSelect" class="form-input w-full" required>
                         <option value="">Select User</option>
                         @if (users != null)
                         {
                             foreach (var user in users)
                             {
-                                <option value="@user.Id">@user.Username (@(string.IsNullOrEmpty(user.Department_Name) ? "No Department" : user.Department_Name))</option>
+                                <option value="@user.Id" data-username="@user.Username.ToLower()" data-department="@(user.Department_Name?.ToLower() ?? "")">
+                                    @user.Username (@(string.IsNullOrEmpty(user.Department_Name) ? "No Department" : user.Department_Name))
+                                </option>
                             }
                         }
                     </select>
@@ -108,3 +118,38 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const userSearch = document.getElementById('userSearch');
+            const userSelect = document.getElementById('userSelect');
+            
+            userSearch.addEventListener('input', function() {
+                const searchText = this.value.toLowerCase().trim();
+                const options = userSelect.options;
+                
+                for (let i = 0; i < options.length; i++) {
+                    if (i === 0) continue; // Skip the placeholder option
+                    
+                    const option = options[i];
+                    const username = option.getAttribute('data-username');
+                    const department = option.getAttribute('data-department');
+                    
+                    // Match against username or department
+                    const matchesSearch = 
+                        username.includes(searchText) || 
+                        department.includes(searchText);
+                    
+                    option.style.display = matchesSearch ? '' : 'none';
+                }
+                
+                // Reset selection only if the search would hide the currently selected option
+                const selectedOption = userSelect.options[userSelect.selectedIndex];
+                if (selectedOption && selectedOption.style.display === 'none') {
+                    userSelect.selectedIndex = 0;
+                }
+            });
+        });
+    </script>
+}
