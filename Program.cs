@@ -197,16 +197,16 @@ public class Program
         var pathBase = app.Configuration["PathBase"];
         if (!string.IsNullOrEmpty(pathBase))
         {
+            // Ensure path starts with /
+            if (!pathBase.StartsWith("/"))
+                pathBase = "/" + pathBase;
+                
             logger.LogInformation($"Setting PathBase to: {pathBase}");
             app.UsePathBase(pathBase);
             
-            // Add middleware to ensure path base is correctly applied
+            // Make sure all middleware sees the correct PathBase
             app.Use((context, next) => {
-                // Ensure the path base is correctly set
-                if (!context.Request.PathBase.HasValue)
-                {
-                    context.Request.PathBase = new PathString(pathBase);
-                }
+                context.Request.PathBase = pathBase;
                 return next();
             });
         }
