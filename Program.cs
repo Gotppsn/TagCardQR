@@ -1,3 +1,4 @@
+// Path: Program.cs
 using CardTagManager.Data;
 using CardTagManager.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -14,6 +15,10 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpOverrides;
 using System.Net;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Server.IIS;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 public class Program
 {
@@ -36,6 +41,26 @@ public class Program
     {
         services.AddHttpContextAccessor();
         services.AddScoped<DepartmentAccessService>();
+
+        // Configure form options for file uploads
+        services.Configure<FormOptions>(options =>
+        {
+            options.ValueLengthLimit = int.MaxValue;
+            options.MultipartBodyLengthLimit = int.MaxValue;
+            options.MultipartHeadersLengthLimit = int.MaxValue;
+        });
+
+        // Configure IIS server options
+        services.Configure<IISServerOptions>(options =>
+        {
+            options.MaxRequestBodySize = int.MaxValue;
+        });
+
+        // Configure Kestrel server options
+        services.Configure<KestrelServerOptions>(options =>
+        {
+            options.Limits.MaxRequestBodySize = int.MaxValue;
+        });
 
         // Database Context Configuration
         services.AddDbContext<ApplicationDbContext>(options =>
@@ -85,6 +110,8 @@ public class Program
             options.Cookie.Name = "XSRF-TOKEN";
             options.FormFieldName = "__RequestVerificationToken";
             options.SuppressXFrameOptionsHeader = false;
+            options.Cookie.Path = "/"; // Ensure cookie applies to all paths
+            options.Cookie.SameSite = SameSiteMode.Lax; // Changed from Strict to Lax
         });
 
         // Authentication Configuration
@@ -97,8 +124,10 @@ public class Program
                 options.ExpireTimeSpan = TimeSpan.FromHours(12);
                 options.SlidingExpiration = true;
                 options.Cookie.HttpOnly = true;
-                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                options.Cookie.SameSite = SameSiteMode.Strict;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest; // Changed from Always
+                options.Cookie.SameSite = SameSiteMode.Lax; // Changed from Strict
+                options.Cookie.IsEssential = true;
+                options.Cookie.MaxAge = TimeSpan.FromDays(30);
             });
 
         // CORS Configuration
@@ -123,7 +152,8 @@ public class Program
         services.AddScoped<UserProfileService>();
         services.AddScoped<RoleService>();
         services.AddSingleton<LdapAuthenticationService>(provider =>
-            new LdapAuthenticationService(configuration["LdapSettings:Domain"] ?? "thaiparkerizing"));
+            new LdapAuthenticationService(configuration["LdapSettings:Domain"] ?? "thaiparkerizing",
+            provider.GetRequiredService<ILogger<LdapAuthenticationService>>()));
     }
 
     private static void ConfigureMiddleware(WebApplication app, IWebHostEnvironment environment)
@@ -131,11 +161,39 @@ public class Program
         // Set up logging for debugging
         var logger = app.Services.GetRequiredService<ILogger<Program>>();
 
+        // Global Exception Handler
+        app.UseExceptionHandler(appBuilder =>
+        {
+            appBuilder.Run(async context =>
+            {
+                context.Response.StatusCode = 500;
+                context.Response.ContentType = "text/html";
+                
+                var exceptionHandlerPathFeature = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerPathFeature>();
+                var exception = exceptionHandlerPathFeature?.Error;
+                
+                if (exception != null)
+                {
+                    logger.LogError(exception, "Unhandled exception");
+                }
+                
+                await context.Response.WriteAsync("<html><body><h2>An error occurred. Please try again.</h2></body></html>");
+            });
+        });
+
         // Configure PathBase from appsettings.json
         var pathBase = app.Configuration["PathBase"];
-        if (!string.IsNullOrEmpty(app.Configuration["PathBase"]))
+        if (!string.IsNullOrEmpty(pathBase))
         {
-            app.UsePathBase(app.Configuration["PathBase"]);
+            // Log the path base
+            logger.LogInformation($"Setting PathBase to: {pathBase}");
+            app.UsePathBase(pathBase);
+            
+            // Add this line to pass the PathBase value to forwarded headers middleware
+            app.Use((context, next) => {
+                context.Request.PathBase = pathBase;
+                return next();
+            });
         }
 
         // Configure forwarded headers to handle proxy scenarios
@@ -152,10 +210,31 @@ public class Program
         }
         else
         {
-            app.UseExceptionHandler("/Home/Error");
-            app.UseHsts();
             logger.LogInformation("Running in Production mode");
         }
+
+        // Antiforgery middleware - placed earlier in the pipeline
+        app.Use(async (context, next) =>
+        {
+            var antiforgery = context.RequestServices.GetRequiredService<IAntiforgery>();
+            
+            // Always generate tokens for GET requests
+            if (context.Request.Method == "GET")
+            {
+                antiforgery.GetAndStoreTokens(context);
+            }
+            
+            // For API requests, respond to token requests
+            if (context.Request.Path.Value?.StartsWith("/api/") == true &&
+                context.Request.Method == "GET" && 
+                context.Request.Headers.ContainsKey("X-Request-CSRF-Token"))
+            {
+                var tokens = antiforgery.GetAndStoreTokens(context);
+                context.Response.Headers.Append("X-CSRF-TOKEN", tokens.RequestToken);
+            }
+            
+            await next();
+        });
 
         // Standard middleware pipeline
         app.UseHttpsRedirection();
@@ -169,26 +248,6 @@ public class Program
 
         app.UseCors("ProductionPolicy");
         app.UseRouting();
-
-        // Add antiforgery middleware - new addition
-        app.Use(async (context, next) =>
-        {
-            var antiforgery = context.RequestServices.GetRequiredService<IAntiforgery>();
-            // Send the token in the response cookies for JavaScript to use
-            var tokens = antiforgery.GetAndStoreTokens(context);
-
-            if (context.Request.Path.Value?.StartsWith("/api/") == true)
-            {
-                // For API requests, respond to token requests
-                if (context.Request.Method == "GET" && context.Request.Headers.ContainsKey("X-Request-CSRF-Token"))
-                {
-                    context.Response.Headers.Append("X-CSRF-TOKEN", tokens.RequestToken);
-                }
-            }
-
-            await next();
-        });
-
         app.UseAuthentication();
         app.UseAuthorization();
 
