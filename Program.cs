@@ -45,21 +45,21 @@ public class Program
         // Configure form options for file uploads
         services.Configure<FormOptions>(options =>
         {
-            options.ValueLengthLimit = int.MaxValue;
-            options.MultipartBodyLengthLimit = int.MaxValue;
-            options.MultipartHeadersLengthLimit = int.MaxValue;
+            options.ValueLengthLimit = 30 * 1024 * 1024; // 30MB
+            options.MultipartBodyLengthLimit = 30 * 1024 * 1024; // 30MB
+            options.MultipartHeadersLengthLimit = 8192; // 8KB
         });
 
         // Configure IIS server options
         services.Configure<IISServerOptions>(options =>
         {
-            options.MaxRequestBodySize = int.MaxValue;
+            options.MaxRequestBodySize = 30 * 1024 * 1024; // 30MB
         });
 
         // Configure Kestrel server options
         services.Configure<KestrelServerOptions>(options =>
         {
-            options.Limits.MaxRequestBodySize = int.MaxValue;
+            options.Limits.MaxRequestBodySize = 30 * 1024 * 1024; // 30MB
         });
 
         // Database Context Configuration
@@ -175,66 +175,41 @@ public class Program
                 if (exception != null)
                 {
                     logger.LogError(exception, "Unhandled exception");
+                    
+                    // In development, show more details
+                    if (environment.IsDevelopment())
+                    {
+                        await context.Response.WriteAsync($"<html><body><h2>An error occurred:</h2><div>{exception.Message}</div><pre>{exception.StackTrace}</pre></body></html>");
+                    }
+                    else
+                    {
+                        await context.Response.WriteAsync("<html><body><h2>An error occurred. Please try again.</h2></body></html>");
+                    }
                 }
-                
-                await context.Response.WriteAsync("<html><body><h2>An error occurred. Please try again.</h2></body></html>");
+                else
+                {
+                    await context.Response.WriteAsync("<html><body><h2>An error occurred. Please try again.</h2></body></html>");
+                }
             });
         });
 
-        // Configure PathBase from appsettings.json
+        // Configure PathBase from appsettings.json - IMPORTANT!
         var pathBase = app.Configuration["PathBase"];
         if (!string.IsNullOrEmpty(pathBase))
         {
-            // Log the path base
             logger.LogInformation($"Setting PathBase to: {pathBase}");
             app.UsePathBase(pathBase);
             
-            // Add this line to pass the PathBase value to forwarded headers middleware
+            // Add middleware to ensure path base is correctly applied
             app.Use((context, next) => {
-                context.Request.PathBase = pathBase;
+                // Ensure the path base is correctly set
+                if (!context.Request.PathBase.HasValue)
+                {
+                    context.Request.PathBase = new PathString(pathBase);
+                }
                 return next();
             });
         }
-
-        // Configure forwarded headers to handle proxy scenarios
-        app.UseForwardedHeaders(new ForwardedHeadersOptions
-        {
-            ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-        });
-
-        // Configure environment-specific middleware
-        if (environment.IsDevelopment())
-        {
-            app.UseDeveloperExceptionPage();
-            logger.LogInformation("Running in Development mode");
-        }
-        else
-        {
-            logger.LogInformation("Running in Production mode");
-        }
-
-        // Antiforgery middleware - placed earlier in the pipeline
-        app.Use(async (context, next) =>
-        {
-            var antiforgery = context.RequestServices.GetRequiredService<IAntiforgery>();
-            
-            // Always generate tokens for GET requests
-            if (context.Request.Method == "GET")
-            {
-                antiforgery.GetAndStoreTokens(context);
-            }
-            
-            // For API requests, respond to token requests
-            if (context.Request.Path.Value?.StartsWith("/api/") == true &&
-                context.Request.Method == "GET" && 
-                context.Request.Headers.ContainsKey("X-Request-CSRF-Token"))
-            {
-                var tokens = antiforgery.GetAndStoreTokens(context);
-                context.Response.Headers.Append("X-CSRF-TOKEN", tokens.RequestToken);
-            }
-            
-            await next();
-        });
 
         // Standard middleware pipeline
         app.UseHttpsRedirection();

@@ -139,7 +139,17 @@ namespace CardTagManager.Controllers
         {
             try
             {
-                _logger.LogInformation($"Create POST called for product: {card.ProductName}");
+                _logger.LogInformation($"Create POST called for product: {card?.ProductName ?? "null"}");
+                
+                // Log the entire ModelState for debugging
+                _logger.LogInformation("ModelState validation status: " + ModelState.IsValid);
+                foreach (var state in ModelState)
+                {
+                    if (state.Value.Errors.Count > 0)
+                    {
+                        _logger.LogWarning($"Field: {state.Key}, Errors: {string.Join(", ", state.Value.Errors.Select(e => e.ErrorMessage))}");
+                    }
+                }
 
                 // Remove validation errors for fields we'll handle ourselves
                 if (ModelState.ContainsKey("CreatedBy"))
@@ -169,7 +179,6 @@ namespace CardTagManager.Controllers
                     }
                     else
                     {
-                        // Try to get it from LDAP service if available
                         try
                         {
                             var username = User.Identity?.Name;
@@ -191,15 +200,18 @@ namespace CardTagManager.Controllers
                         catch (Exception ex)
                         {
                             _logger.LogWarning($"Failed to retrieve User_Code from LDAP: {ex.Message}");
+                            // Continue without failing
                         }
                     }
 
-                    // Handle file upload if provided
+                    // Handle file upload if provided - using try/catch for each step
                     if (card.ImageFile != null && card.ImageFile.Length > 0)
                     {
                         try
                         {
+                            _logger.LogInformation($"Uploading image: {card.ImageFile.FileName}, Size: {card.ImageFile.Length}");
                             var uploadResult = await _fileUploadService.UploadFile(card.ImageFile);
+                            
                             if (uploadResult.IsSuccess)
                             {
                                 card.ImagePath = uploadResult.FileUrl;
@@ -208,54 +220,48 @@ namespace CardTagManager.Controllers
                             else
                             {
                                 _logger.LogWarning($"Image upload failed: {uploadResult.ErrorMessage}");
-                                // Continue without image rather than failing
+                                // Continue without image
                                 ModelState.AddModelError("ImageFile", $"Upload failed: {uploadResult.ErrorMessage}");
                             }
                         }
                         catch (Exception ex)
                         {
                             _logger.LogError(ex, "Error uploading image");
-                            // Continue without image rather than failing
+                            // Continue without image
                             ModelState.AddModelError("ImageFile", $"Upload error: {ex.Message}");
                         }
                     }
 
-                    // Validate and sanitize CustomFieldsData
-                    if (string.IsNullOrEmpty(card.CustomFieldsData))
+                    // Validate and sanitize CustomFieldsData - with proper error handling
+                    try
                     {
-                        card.CustomFieldsData = "{}";
-                    }
-                    else
-                    {
-                        try
+                        if (string.IsNullOrEmpty(card.CustomFieldsData))
                         {
+                            card.CustomFieldsData = "{}";
+                        }
+                        else
+                        {
+                            _logger.LogInformation($"Raw CustomFieldsData: {card.CustomFieldsData}");
                             // Validate JSON by parsing and re-serializing
-                            // This ensures proper JSON structure and fixes any malformed input
                             var customFields = JsonSerializer.Deserialize<Dictionary<string, string>>(card.CustomFieldsData);
-
-                            // Log the field names for debugging
-                            _logger.LogInformation($"Custom fields: {string.Join(", ", customFields.Keys)}");
-
-                            // Re-serialize with sanitized data
+                            _logger.LogInformation($"Parsed custom fields: {string.Join(", ", customFields.Keys)}");
                             card.CustomFieldsData = JsonSerializer.Serialize(customFields);
                         }
-                        catch (Exception ex)
-                        {
-                            // If invalid JSON, set to empty object
-                            card.CustomFieldsData = "{}";
-                            _logger.LogWarning($"Invalid CustomFieldsData JSON - reset to empty object. Error: {ex.Message}");
-                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error processing custom fields");
+                        card.CustomFieldsData = "{}"; // Reset to empty object on error
                     }
 
                     // Set timestamps
                     card.CreatedAt = DateTime.Now;
                     card.UpdatedAt = DateTime.Now;
 
-                    // Add to database
-                    _context.Cards.Add(card);
-
                     try
                     {
+                        // Add to database
+                        _context.Cards.Add(card);
                         await _context.SaveChangesAsync();
                         _logger.LogInformation($"Product created successfully, ID: {card.Id}");
 
@@ -265,10 +271,16 @@ namespace CardTagManager.Controllers
                         // Redirect to the detail page
                         return RedirectToAction(nameof(Details), new { id = card.Id });
                     }
-                    catch (Exception dbEx)
+                    catch (DbUpdateException dbEx)
                     {
-                        _logger.LogError(dbEx, "Database save error");
-                        ModelState.AddModelError("", $"Database error: {dbEx.Message}");
+                        _logger.LogError(dbEx, $"Database save error: {dbEx.InnerException?.Message}");
+                        ModelState.AddModelError("", $"Database error: {dbEx.InnerException?.Message ?? dbEx.Message}");
+                        return View(card);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Unexpected database error");
+                        ModelState.AddModelError("", $"Error: {ex.Message}");
                         return View(card);
                     }
                 }

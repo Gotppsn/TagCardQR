@@ -12,12 +12,12 @@ namespace CardTagManager.Models
 
         [Required(ErrorMessage = "Product name is required")]
         [StringLength(100)]
-        public string ProductName { get; set; }
+        public string ProductName { get; set; } = string.Empty; // Default value
 
         [StringLength(100)]
-        public string Category { get; set; }
+        public string Category { get; set; } = string.Empty; // Default value
 
-        public string Location { get; set; }
+        public string Location { get; set; } = string.Empty; // Default value
 
         [Required]
         [DataType(DataType.Date)]
@@ -31,7 +31,7 @@ namespace CardTagManager.Models
         [DataType(DataType.Date)]
         public DateTime WarrantyExpiration { get; set; } = DateTime.Now.AddYears(1);
 
-        public string MaintenanceInfo { get; set; }
+        public string MaintenanceInfo { get; set; } = string.Empty; // Default value
 
         [StringLength(20)]
         public string BackgroundColor { get; set; } = "#ffffff";
@@ -51,7 +51,7 @@ namespace CardTagManager.Models
         public string ImagePath { get; set; } = string.Empty;
 
         [NotMapped]
-        public IFormFile ImageFile { get; set; }
+        public IFormFile? ImageFile { get; set; } // Make nullable
 
         // Store custom fields as JSON
         [Column(TypeName = "nvarchar(max)")]

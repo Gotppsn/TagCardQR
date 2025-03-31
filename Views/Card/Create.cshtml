@@ -130,7 +130,7 @@
                 </div>
             </div>
             
-        <form asp-action="Create" method="post" id="product-form" enctype="multipart/form-data" class="relative">
+        <form asp-action="Create" asp-controller="Card" method="post" id="product-form" enctype="multipart/form-data" class="relative">
             @Html.AntiForgeryToken()
             <!-- Add hidden fields for QR colors -->
             <input type="hidden" name="QrFgColor" id="qrFgColorHidden" value="#000000" />
@@ -846,39 +846,60 @@
 <script>
 // Function to process custom fields before form submission
 document.getElementById('product-form').addEventListener('submit', function(e) {
-    // Process custom fields and update hidden input
-    const customFields = {};
-    const customInputs = document.querySelectorAll('[name^="custom-"]');
-    
-    customInputs.forEach(input => {
-        if (input.value) {
-            // Extract the original field name from the input name attribute
-            const fieldName = input.name.replace('custom-', '');
-            customFields[fieldName] = input.value;
-        }
-    });
-    
-    // Update CustomFieldsData hidden input
-    document.getElementById('customFieldsDataHidden').value = JSON.stringify(customFields);
-    
-    // Update QR colors before submission
-    updateQrColors();
-    
-    // Don't prevent form submission by default - only if validation clearly fails
     try {
-        const isValid = validateForm();
-        if (!isValid) {
-            console.error('Form validation failed');
+        console.log("Form submission started");
+        
+        // Process custom fields and update hidden input
+        const customFields = {};
+        const customInputs = document.querySelectorAll('[name^="custom-"]');
+        
+        customInputs.forEach(input => {
+            if (input.value) {
+                // Extract the original field name from the input name attribute
+                const fieldName = input.name.replace('custom-', '');
+                customFields[fieldName] = input.value;
+            }
+        });
+        
+        // Update CustomFieldsData hidden input with safe JSON
+        const customFieldsData = JSON.stringify(customFields);
+        console.log("Custom fields data:", customFieldsData);
+        document.getElementById('customFieldsDataHidden').value = customFieldsData;
+        
+        // Update QR colors before submission
+        const qrFgColor = document.getElementById('qr-fg-color').value || '#000000';
+        const qrBgColor = document.getElementById('qr-bg-color').value || '#FFFFFF';
+        console.log("QR colors:", qrFgColor, qrBgColor);
+        document.getElementById('qrFgColorHidden').value = qrFgColor;
+        document.getElementById('qrBgColorHidden').value = qrBgColor;
+        
+        // Basic validation
+        const productName = document.getElementById('ProductName').value.trim();
+        const category = document.getElementById('Category').value.trim();
+        
+        if (!productName || !category) {
+            console.error("Required fields missing:", !productName ? "ProductName" : "", !category ? "Category" : "");
+            alert("Please fill in all required fields");
             e.preventDefault();
             return false;
         }
-        // Continue with submission if validation passes
-        console.log('Form submission proceeding');
+        
+        // Ensure file size is within limits if uploading
+        const imageFile = document.getElementById('product-image').files[0];
+        if (imageFile && imageFile.size > 10 * 1024 * 1024) { // 10MB limit
+            console.error("File too large:", imageFile.size);
+            alert("Image file is too large. Maximum allowed size is 10MB.");
+            e.preventDefault();
+            return false;
+        }
+        
+        console.log("Form submission proceeding with valid data");
         return true;
     } catch (error) {
-        console.error('Validation error:', error);
-        // Continue with submission if validation function throws an error
-        return true;
+        console.error('Form submission error:', error);
+        alert("An error occurred while preparing the form. Please try again.");
+        e.preventDefault();
+        return false;
     }
 });
 

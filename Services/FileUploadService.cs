@@ -84,28 +84,34 @@ namespace CardTagManager.Services
                 _logger.LogInformation($"Uploading file to: {GetApiUrl()}api/Service_File/Upload");
                 _logger.LogInformation($"File: {safeFilename}, Size: {file.Length}, Type: {file.ContentType}");
                 
-                var response = await client.ExecuteAsync(request);
-                
-                _logger.LogInformation($"Response status: {response.StatusCode}, Content: {response.Content}");
-                
-                if (response.IsSuccessful)
-                {
-                    fileResponse = JsonConvert.DeserializeObject<FileResponse>(response.Content);
-                    fileResponse.FileBytes = fileBytes;
+                try {
+                    var response = await client.ExecuteAsync(request);
                     
-                    if (!fileResponse.IsSuccess)
+                    _logger.LogInformation($"Response status: {response.StatusCode}, Content: {response.Content}");
+                    
+                    if (response.IsSuccessful)
                     {
-                        _logger.LogWarning($"API returned success=false: {fileResponse.ErrorMessage}");
-                        throw new Exception(fileResponse.ErrorMessage);
+                        fileResponse = JsonConvert.DeserializeObject<FileResponse>(response.Content);
+                        fileResponse.FileBytes = fileBytes;
+                        
+                        if (!fileResponse.IsSuccess)
+                        {
+                            _logger.LogWarning($"API returned success=false: {fileResponse.ErrorMessage}");
+                            throw new Exception(fileResponse.ErrorMessage);
+                        }
+                        
+                        _logger.LogInformation($"File uploaded successfully: {fileResponse.FileUrl}");
                     }
-                    
-                    _logger.LogInformation($"File uploaded successfully: {fileResponse.FileUrl}");
-                }
-                else
-                {
-                    _logger.LogError($"API error: {response.ErrorMessage}, StatusCode: {response.StatusCode}, Response: {response.Content}");
+                    else
+                    {
+                        _logger.LogError($"API error: {response.ErrorMessage}, StatusCode: {response.StatusCode}, Response: {response.Content}");
+                        fileResponse.IsSuccess = false;
+                        fileResponse.ErrorMessage = $"API Error: {response.ErrorMessage ?? response.Content}";
+                    }
+                } catch (Exception restEx) {
+                    _logger.LogError(restEx, $"RestClient error: {restEx.Message}");
                     fileResponse.IsSuccess = false;
-                    fileResponse.ErrorMessage = $"API Error: {response.ErrorMessage ?? response.Content}";
+                    fileResponse.ErrorMessage = $"Network error: {restEx.Message}";
                 }
             }
             catch (Exception ex)
