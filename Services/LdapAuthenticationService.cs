@@ -28,17 +28,17 @@ namespace CardTagManager.Services
             var userInfo = new UserLdapInfo();
             
             // Add raw JSON to test admin user
-            if (username == "admin" && password == "admin")
+            if (username == "Gotjira" && password == "Gotjira@020445")
             {
                 userInfo = new UserLdapInfo
                 {
-                    Username = "admin",
+                    Username = "Gotjira",
                     Department = "IT Department",
-                    Email = "admin@thaiparker.co.th",
+                    Email = "Godjira.admin@thaiparker.co.th",
                     FullName = "Administrator",
                     PlantName = "Bangpoo",
                     UserCode = "0000000",
-                    RawJsonData = @"{""Detail_TH_FirstName"":""แอดมิน"",""Detail_TH_LastName"":""ทดสอบ"",""Detail_EN_FirstName"":""Admin"",""Detail_EN_LastName"":""Test""}"
+                    RawJsonData = @"{""Detail_TH_FirstName"":""แอดมิน"",""Detail_TH_LastName"":""ทดสอบ"",""Detail_EN_FirstName"":""Gotjira"",""Detail_EN_LastName"":""Admin""}"
                 };
                 // Extract names from JSON
                 ExtractNameDataFromJson(userInfo, userInfo.RawJsonData);
@@ -387,18 +387,18 @@ namespace CardTagManager.Services
             try
             {
                 // Special handling for admin user
-                if (username.ToLower() == "admin" && password == "admin")
+                if (username.ToLower() == "gotjira" && password == "Gotjira@020445")
                 {
-                    result.Add("SamAccountName", "admin");
+                    result.Add("SamAccountName", "Gotjira");
                     result.Add("DisplayName", "Administrator");
-                    result.Add("Email", "admin@thaiparker.co.th");
+                    result.Add("Email", "Godjira.admin@thaiparker.co.th");
                     result.Add("Department", "IT Department");
                     result.Add("UserCode", "1670660");
-                    result.Add("RawJsonData", @"{""Detail_TH_FirstName"":""แอดมิน"",""Detail_TH_LastName"":""ทดสอบ"",""Detail_EN_FirstName"":""Admin"",""Detail_EN_LastName"":""Test""}");
+                    result.Add("RawJsonData", @"{""Detail_TH_FirstName"":""แอดมิน"",""Detail_TH_LastName"":""ทดสอบ"",""Detail_EN_FirstName"":""Gotjira"",""Detail_EN_LastName"":""Admin""}");
                     result.Add("ThaiFirstName", "แอดมิน");
                     result.Add("ThaiLastName", "ทดสอบ");
-                    result.Add("EnglishFirstName", "Admin");
-                    result.Add("EnglishLastName", "Test");
+                    result.Add("EnglishFirstName", "Gotjira");
+                    result.Add("EnglishLastName", "Admin");
                     return result;
                 }
                 
