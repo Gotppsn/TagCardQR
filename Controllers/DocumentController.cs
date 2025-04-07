@@ -82,28 +82,34 @@ namespace CardTagManager.Controllers
         }
 
         // GET: api/Document/download/5
-        [HttpGet("download/{id}")]
-        public async Task<IActionResult> DownloadDocument(int id)
+[HttpGet("download/{id}")]
+[AllowAnonymous] // Add this attribute
+public async Task<IActionResult> DownloadDocument(int id, string token = null)
+{
+    try
+    {
+        var document = await _context.CardDocuments.FindAsync(id);
+        if (document == null)
         {
-            try
-            {
-                var document = await _context.CardDocuments.FindAsync(id);
-
-                if (document == null)
-                {
-                    return NotFound();
-                }
-
-                // In a real implementation, you would use the document.FilePath to retrieve the file
-                // For demo purposes, we'll just return a 404
-                return NotFound("File download functionality not implemented yet.");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error downloading document {id}");
-                return StatusCode(500, new { error = "An error occurred while downloading the document." });
-            }
+            return NotFound();
         }
+
+        // Check if file path exists and is direct URL
+        if (!string.IsNullOrEmpty(document.FilePath))
+        {
+            // Redirect to direct file URL (bypasses authentication)
+            return Redirect(document.FilePath);
+        }
+        
+        // Fallback if no direct path available
+        return NotFound("Document file not found");
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, $"Error downloading document {id}");
+        return StatusCode(500, "An error occurred while downloading the document.");
+    }
+}
 
         // POST: api/Document
         [HttpPost]

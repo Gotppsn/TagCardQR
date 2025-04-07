@@ -26,12 +26,11 @@
     return;
 }
 
-
 <div class="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 flex flex-col">
     <!-- Header Banner -->
     <div class="bg-gradient-to-r from-primary-600 to-blue-500 text-white shadow-lg">
-        <div class="container mx-auto px-4 py-4">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-3">
+        <div class="container mx-auto px-3 md:px-4 py-3 md:py-4">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-2 md:gap-3">
                 <div class="flex items-center space-x-3">
                     <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-xl shadow-md backdrop-blur-sm">
                         <i class="fas fa-tag"></i>
@@ -54,12 +53,12 @@
     </div>
 
     <!-- Navigation Menu -->
-    <div class="sticky top-0 bg-white z-20 shadow-md">
-        <div class="container mx-auto px-4">
-            <div class="flex overflow-x-auto scrollbar-none py-3 gap-2">
-                <a href="#product-card" class="flex-shrink-0 px-4 py-2 rounded-full bg-primary-600 text-white text-sm font-medium transition-all duration-300 hover:shadow-md flex items-center">
-                    <i class="fas fa-info-circle mr-2"></i> Overview
-                </a>
+<div class="sticky top-0 bg-white z-20 shadow-md">
+    <div class="container mx-auto px-2 md:px-4">
+        <div class="flex overflow-x-auto scrollbar-none py-2 md:py-3 gap-1 md:gap-2">
+            <a href="#product-card" class="flex-shrink-0 px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-primary-600 text-white text-xs md:text-sm font-medium transition-all duration-300 hover:shadow-md flex items-center whitespace-nowrap">
+                <i class="fas fa-info-circle mr-1 md:mr-2"></i> Overview
+            </a>
                 <a href="#product-details" class="flex-shrink-0 px-4 py-2 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 text-sm font-medium transition-all duration-300 hover:shadow-md flex items-center">
                     <i class="fas fa-clipboard-list mr-2"></i> Details
                 </a>
@@ -424,7 +423,7 @@
 
     <!-- Report Issue Modal -->
 <div id="report-issue-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden backdrop-blur-sm">
-    <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0 max-h-[90vh] flex flex-col" id="modal-content">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 transform transition-all duration-300 scale-95 opacity-0 max-h-[90vh] flex flex-col overflow-hidden" id="modal-content">
         <div class="flex justify-between items-center p-5 border-b bg-gradient-to-r from-blue-500 to-primary-500 rounded-t-lg flex-shrink-0">
             <h3 class="text-lg font-semibold text-white flex items-center">
                 <i class="fas fa-exclamation-circle mr-2"></i> Report an Issue
@@ -551,29 +550,29 @@
     </div>
 
     <!-- Document Preview Modal -->
-    <div id="document-preview-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden backdrop-blur-sm">
-        <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 transform transition-all duration-300 flex flex-col h-3/4 scale-95 opacity-0" id="document-modal-content">
-            <div class="flex justify-between items-center p-5 border-b bg-gradient-to-r from-blue-500 to-primary-500 rounded-t-lg">
-                <h3 class="text-lg font-semibold text-white" id="document-preview-title">Document Preview</h3>
-                <button id="close-doc-preview-modal" class="text-white hover:text-blue-100 transition-colors bg-white/10 hover:bg-white/20 rounded-full w-8 h-8 flex items-center justify-center">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="p-5 flex-grow overflow-auto bg-gray-50" id="document-preview-content">
-                <div class="flex justify-center items-center h-full">
-                    <i class="fas fa-spinner fa-spin text-3xl text-primary-500"></i>
-                </div>
-            </div>
-            <div class="p-5 border-t flex justify-between bg-gray-50">
-                <button id="download-document-btn" class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-all flex items-center">
-                    <i class="fas fa-download mr-2"></i> Download
-                </button>
-                <button id="close-preview-btn" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-all flex items-center">
-                    <i class="fas fa-times mr-2"></i> Close
-                </button>
+<div id="document-preview-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden backdrop-blur-sm">
+    <div class="bg-white rounded-lg shadow-xl w-full mx-4 max-w-4xl transform transition-all duration-300 flex flex-col h-[85vh] md:h-3/4 scale-95 opacity-0" id="document-modal-content">
+        <div class="flex justify-between items-center p-3 md:p-5 border-b bg-gradient-to-r from-blue-500 to-primary-500 rounded-t-lg">
+            <h3 class="text-base md:text-lg font-semibold text-white" id="document-preview-title">Document Preview</h3>
+            <button id="close-doc-preview-modal" class="text-white hover:text-blue-100 transition-colors bg-white/10 hover:bg-white/20 rounded-full w-8 h-8 flex items-center justify-center">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="p-3 md:p-5 flex-grow overflow-auto bg-gray-50" id="document-preview-content">
+            <div class="flex justify-center items-center h-full">
+                <i class="fas fa-spinner fa-spin text-3xl text-primary-500"></i>
             </div>
         </div>
+        <div class="p-3 md:p-5 border-t flex justify-between bg-gray-50">
+            <button id="download-document-btn" class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-all flex items-center">
+                <i class="fas fa-download mr-2"></i> Download
+            </button>
+            <button id="close-preview-btn" class="bg-gray-100 text-gray-700 px-3 py-2 md:px-4 md:py-2 rounded-lg hover:bg-gray-200 transition-all flex items-center text-sm md:text-base">
+                <i class="fas fa-times mr-2"></i> Close
+            </button>
+        </div>
     </div>
+</div>
 
     <!-- Toast Notification -->
     <div id="toast-notification" class="fixed bottom-4 right-4 bg-white rounded-lg shadow-lg border border-gray-100 p-4 max-w-sm transform translate-y-20 opacity-0 transition-all duration-300 z-50 hidden">
@@ -2135,12 +2134,13 @@ function loadDocuments() {
                                     ${isValidDate ? `<span><i class="far fa-clock mr-1"></i> ${formatDate(fileDate)}</span>` : ''}
                                 </div>
                             </div>
-                            <div class="flex-shrink-0 ml-4 flex flex-col space-y-2">
+                                <div class="flex-shrink-0 ml-4 flex flex-col space-y-2">
                                 <button class="document-preview-btn p-2 bg-blue-50 text-blue-500 rounded hover:bg-blue-100 transition-colors"
                                         data-id="${doc.id}" data-title="${doc.title || 'Document Preview'}" data-path="${doc.filePath || ''}">
                                     <i class="far fa-eye"></i>
                                 </button>
-                                <a href="/api/Document/download/${doc.id}" class="p-2 bg-green-50 text-green-500 rounded hover:bg-green-100 transition-colors" download>
+                                <a href="#" class="download-document-link p-2 bg-green-50 text-green-500 rounded hover:bg-green-100 transition-colors" 
+                                data-id="${doc.id}" data-path="${doc.filePath || ''}" onclick="event.preventDefault(); downloadDocument(${doc.id}, '${doc.filePath || ''}')">
                                     <i class="fas fa-download"></i>
                                 </a>
                             </div>
@@ -2554,11 +2554,34 @@ function initDocumentPreview() {
         if (downloadBtn) {
             downloadBtn.addEventListener('click', function() {
                 const docId = this.getAttribute('data-id');
+                const docPath = this.getAttribute('data-path');
                 if (docId) {
-                    window.open(`/api/Document/download/${docId}`, '_blank');
+                    // Direct file access bypassing authorization checks when available
+                    if (docPath) {
+                        window.open(docPath, '_blank');
+                    } else {
+                        // Fallback to API with authentication token appended
+                        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+                        window.open(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Document/download/${docId}?token=${token || ''}`, '_blank');
+                    }
                 }
             });
         }
+        
+        // Also fix the download links in the document list
+        document.querySelectorAll('a[href^="/api/Document/download/"]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const docPath = this.closest('[data-path]')?.getAttribute('data-path');
+                if (docPath) {
+                    window.open(docPath, '_blank');
+                } else {
+                    const href = this.getAttribute('href');
+                    const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+                    window.open(`${href}?token=${token || ''}`, '_blank');
+                }
+            });
+        });
     } catch (e) {
         console.error("Error in initDocumentPreview:", e);
     }
@@ -2824,5 +2847,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+function downloadDocument(id, path) {
+    if (path) {
+        window.open(path, '_blank');
+    } else {
+        const base = document.querySelector('base')?.getAttribute('href') || '/';
+        window.open(`${base}api/Document/download/${id}`, '_blank');
+    }
+}
 </script>
 }
