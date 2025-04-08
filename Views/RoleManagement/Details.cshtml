@@ -1,0 +1,284 @@
+@model CardTagManager.Models.Role
+@{
+    ViewData["Title"] = "Role Details";
+    var usersInRole = ViewBag.UsersInRole as IEnumerable<CardTagManager.Models.UserProfile>;
+}
+
+<div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800">Role Details</h1>
+            <p class="text-gray-600 mt-1">Viewing details for role: @Model.Name</p>
+        </div>
+        <div class="flex space-x-3">
+            <a asp-action="Index" class="btn-secondary">
+                <i class="fas fa-arrow-left mr-2"></i> Back to Roles
+            </a>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn-primary">
+                <i class="fas fa-edit mr-2"></i> Edit Role
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
+            <div class="bg-gradient-to-r from-blue-500 to-primary-500 px-6 py-4 text-white">
+                <div class="flex items-center">
+                    <div class="h-12 w-12 bg-white text-primary-600 rounded-lg flex items-center justify-center mr-4">
+                        <i class="fas fa-user-shield text-xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold">@Model.Name</h2>
+                        <p class="text-blue-100">Role ID: @Model.Id</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="mb-6">
+                    <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">Description</h3>
+                    <p class="text-gray-800">@(string.IsNullOrEmpty(Model.Description) ? "No description provided" : Model.Description)</p>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-1">Normalized Name</h3>
+                        <p class="text-gray-800">@Model.NormalizedName</p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-1">Created Date</h3>
+                        <p class="text-gray-800">@Model.CreatedAt.ToString("MMMM dd, yyyy")</p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-1">Last Updated</h3>
+                        <p class="text-gray-800">@(Model.UpdatedAt.HasValue ? Model.UpdatedAt.Value.ToString("MMMM dd, yyyy") : "Never updated")</p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-1">User Count</h3>
+                        <p class="text-gray-800">@(usersInRole != null ? usersInRole.Count() : 0) users</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
+            <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                <h3 class="font-semibold text-gray-800">Role Permissions</h3>
+            </div>
+            <div class="p-6">
+                @if (Model.Name == "Admin")
+                {
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <div class="h-5 w-5 rounded-full bg-green-500 flex-shrink-0 mt-1"></div>
+                            <div class="ml-3">
+                                <p class="font-medium text-gray-800">User Management</p>
+                                <p class="text-sm text-gray-600">Create, update, and delete user accounts</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="h-5 w-5 rounded-full bg-green-500 flex-shrink-0 mt-1"></div>
+                            <div class="ml-3">
+                                <p class="font-medium text-gray-800">Role Management</p>
+                                <p class="text-sm text-gray-600">Create, update, and delete roles</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="h-5 w-5 rounded-full bg-green-500 flex-shrink-0 mt-1"></div>
+                            <div class="ml-3">
+                                <p class="font-medium text-gray-800">Card Management</p>
+                                <p class="text-sm text-gray-600">Full access to card creation and management</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="h-5 w-5 rounded-full bg-green-500 flex-shrink-0 mt-1"></div>
+                            <div class="ml-3">
+                                <p class="font-medium text-gray-800">System Configuration</p>
+                                <p class="text-sm text-gray-600">Access to system settings and configuration</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else if (Model.Name == "Manager")
+                {
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <div class="h-5 w-5 rounded-full bg-green-500 flex-shrink-0 mt-1"></div>
+                            <div class="ml-3">
+                                <p class="font-medium text-gray-800">Card Management</p>
+                                <p class="text-sm text-gray-600">Full access to card creation and management</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="h-5 w-5 rounded-full bg-green-500 flex-shrink-0 mt-1"></div>
+                            <div class="ml-3">
+                                <p class="font-medium text-gray-800">Template Management</p>
+                                <p class="text-sm text-gray-600">Create and manage card templates</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="h-5 w-5 rounded-full bg-green-500 flex-shrink-0 mt-1"></div>
+                            <div class="ml-3">
+                                <p class="font-medium text-gray-800">Reports</p>
+                                <p class="text-sm text-gray-600">View and generate system reports</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="h-5 w-5 rounded-full bg-yellow-500 flex-shrink-0 mt-1"></div>
+                            <div class="ml-3">
+                                <p class="font-medium text-gray-800">Limited User Management</p>
+                                <p class="text-sm text-gray-600">View users but cannot modify roles</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <div class="h-5 w-5 rounded-full bg-green-500 flex-shrink-0 mt-1"></div>
+                            <div class="ml-3">
+                                <p class="font-medium text-gray-800">View Cards</p>
+                                <p class="text-sm text-gray-600">View card details and scan QR codes</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="h-5 w-5 rounded-full bg-yellow-500 flex-shrink-0 mt-1"></div>
+                            <div class="ml-3">
+                                <p class="font-medium text-gray-800">Limited Card Management</p>
+                                <p class="text-sm text-gray-600">Create cards with restrictions, limited editing</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="h-5 w-5 rounded-full bg-red-500 flex-shrink-0 mt-1"></div>
+                            <div class="ml-3">
+                                <p class="font-medium text-gray-800">No Administrative Access</p>
+                                <p class="text-sm text-gray-600">Cannot access system settings or user management</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                @if (Model.Name == "Edit")
+                {
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <div class="h-5 w-5 rounded-full bg-green-500 flex-shrink-0 mt-1"></div>
+                            <div class="ml-3">
+                                <p class="font-medium text-gray-800">Access Scan Results</p>
+                                <p class="text-sm text-gray-600">View and analyze scan data</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="h-5 w-5 rounded-full bg-green-500 flex-shrink-0 mt-1"></div>
+                            <div class="ml-3">
+                                <p class="font-medium text-gray-800">Edit Department Data</p>
+                                <p class="text-sm text-gray-600">Edit all data within authorized departments</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="h-5 w-5 rounded-full bg-red-500 flex-shrink-0 mt-1"></div>
+                            <div class="ml-3">
+                                <p class="font-medium text-gray-800">No Department Access Management</p>
+                                <p class="text-sm text-gray-600">Cannot access department access settings</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else if (Model.Name == "View")
+                {
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <div class="h-5 w-5 rounded-full bg-green-500 flex-shrink-0 mt-1"></div>
+                            <div class="ml-3">
+                                <p class="font-medium text-gray-800">View QR Codes</p>
+                                <p class="text-sm text-gray-600">Access to view and scan QR codes</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="h-5 w-5 rounded-full bg-red-500 flex-shrink-0 mt-1"></div>
+                            <div class="ml-3">
+                                <p class="font-medium text-gray-800">Limited Access</p>
+                                <p class="text-sm text-gray-600">Cannot edit or modify data</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="h-5 w-5 rounded-full bg-red-500 flex-shrink-0 mt-1"></div>
+                            <div class="ml-3">
+                                <p class="font-medium text-gray-800">No Administrative Access</p>
+                                <p class="text-sm text-gray-600">Cannot access system settings or management features</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Users with this role -->
+    <div class="mt-8">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Users with this Role</h3>
+        
+        @if (usersInRole != null && usersInRole.Any())
+        {
+            <div class="overflow-x-auto bg-white rounded-lg border border-gray-200 shadow-sm">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Username
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Name
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Department
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Last Login
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        @foreach (var user in usersInRole)
+                        {
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="h-8 w-8 rounded-full bg-primary-500 text-white flex items-center justify-center">
+                                            <span>@(user.Username.Substring(0, 1).ToUpper())</span>
+                                        </div>
+                                        <div class="ml-3">
+                                            <div class="text-sm font-medium text-gray-900">@user.Username</div>
+                                            <div class="text-sm text-gray-500">ID: @user.Id</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">
+                                        @(string.IsNullOrEmpty(user.Detail_EN_FirstName) ? "" : $"{user.Detail_EN_FirstName} {user.Detail_EN_LastName}")
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">@user.Department_Name</div>
+                                    <div class="text-sm text-gray-500">@user.Plant_Name</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    @user.LastLoginAt.ToString("yyyy-MM-dd HH:mm")
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
+                <div class="text-gray-500 mb-2">
+                    <i class="fas fa-users text-3xl opacity-50"></i>
+                </div>
+                <p class="text-gray-600">No users are currently assigned to this role.</p>
+            </div>
+        }
+    </div>
+</div>

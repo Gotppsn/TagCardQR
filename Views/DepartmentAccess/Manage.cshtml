@@ -1,0 +1,155 @@
+@{
+    ViewData["Title"] = "Manage Department Access";
+    var users = ViewBag.Users as List<CardTagManager.Models.UserProfile>;
+    var departments = ViewBag.Departments as List<string>;
+    var accessLevels = ViewBag.AccessLevels as List<string>;
+}
+
+<div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800">Manage Department Access</h1>
+            <p class="text-gray-600 mt-1">Grant access to users from other departments</p>
+        </div>
+        <div>
+            <a asp-action="Index" class="btn-secondary">
+                <i class="fas fa-arrow-left mr-2"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6 flex items-center">
+            <i class="fas fa-check-circle mr-2 text-green-500"></i>
+            <span>@TempData["SuccessMessage"]</span>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6 flex items-center">
+            <i class="fas fa-exclamation-circle mr-2 text-red-500"></i>
+            <span>@TempData["ErrorMessage"]</span>
+        </div>
+    }
+
+    <div class="bg-blue-50 p-6 rounded-lg border border-blue-100 mb-6">
+        <h2 class="text-xl font-semibold text-blue-800 mb-4">Grant Department Access</h2>
+        
+        <form asp-action="Grant" method="post" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">User</label>
+                    <div class="mb-2">
+                        <div class="relative">
+                            <input type="text" id="userSearch" placeholder="Search users..." class="form-input w-full pl-10" autocomplete="off" />
+                            <div class="absolute inset-y-0 left-0 flex items-center pl-3">
+                                <i class="fas fa-search text-gray-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <select name="userId" id="userSelect" class="form-input w-full" required>
+                        <option value="">Select User</option>
+                        @if (users != null)
+                        {
+                            foreach (var user in users)
+                            {
+                                <option value="@user.Id" data-username="@user.Username.ToLower()" data-department="@(user.Department_Name?.ToLower() ?? "")">
+                                    @user.Username (@(string.IsNullOrEmpty(user.Department_Name) ? "No Department" : user.Department_Name))
+                                </option>
+                            }
+                        }
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                    <select name="departmentName" class="form-input w-full" required>
+                        <option value="">Select Department</option>
+                        @if (departments != null)
+                        {
+                            foreach (var department in departments)
+                            {
+                                <option value="@department">@department</option>
+                            }
+                        }
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Access Level</label>
+                    <select name="accessLevel" class="form-input w-full" required>
+                        @if (accessLevels != null)
+                        {
+                            foreach (var level in accessLevels)
+                            {
+                                <option value="@level">@level</option>
+                            }
+                        }
+                        else
+                        {
+                            <option value="View">View</option>
+                            <option value="Edit">Edit</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-key mr-2"></i> Grant Access
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="bg-gray-50 p-6 rounded-lg border border-gray-100">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Access Level Information</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-white p-4 rounded-lg border border-gray-200">
+                <h4 class="font-medium text-gray-900 mb-2"><i class="fas fa-eye mr-2 text-gray-500"></i> View Access</h4>
+                <p class="text-gray-600 text-sm">Users can view cards and scan QR codes for the department, but cannot make changes.</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg border border-gray-200">
+                <h4 class="font-medium text-gray-900 mb-2"><i class="fas fa-edit mr-2 text-gray-500"></i> Edit Access</h4>
+                <p class="text-gray-600 text-sm">Users can view, create, edit, and manage cards for the department.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const userSearch = document.getElementById('userSearch');
+            const userSelect = document.getElementById('userSelect');
+            
+            userSearch.addEventListener('input', function() {
+                const searchText = this.value.toLowerCase().trim();
+                const options = userSelect.options;
+                
+                for (let i = 0; i < options.length; i++) {
+                    if (i === 0) continue; // Skip the placeholder option
+                    
+                    const option = options[i];
+                    const username = option.getAttribute('data-username');
+                    const department = option.getAttribute('data-department');
+                    
+                    // Match against username or department
+                    const matchesSearch = 
+                        username.includes(searchText) || 
+                        department.includes(searchText);
+                    
+                    option.style.display = matchesSearch ? '' : 'none';
+                }
+                
+                // Reset selection only if the search would hide the currently selected option
+                const selectedOption = userSelect.options[userSelect.selectedIndex];
+                if (selectedOption && selectedOption.style.display === 'none') {
+                    userSelect.selectedIndex = 0;
+                }
+            });
+        });
+    </script>
+}

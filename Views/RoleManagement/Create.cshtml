@@ -1,0 +1,80 @@
+@model CardTagManager.Models.Role
+@{
+    ViewData["Title"] = "Create Role";
+}
+
+<div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800">Create New Role</h1>
+            <p class="text-gray-600 mt-1">Define a new role with permissions</p>
+        </div>
+        <div>
+            <a asp-action="Index" class="btn-secondary">
+                <i class="fas fa-arrow-left mr-2"></i> Back to Roles
+            </a>
+        </div>
+    </div>
+
+    <form asp-action="Create" method="post">
+        <div asp-validation-summary="ModelOnly" class="bg-red-50 text-red-700 p-4 rounded-lg mb-6"></div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="form-group">
+                <label asp-for="Name" class="form-label">Role Name</label>
+                <input asp-for="Name" class="form-input" placeholder="Enter role name" required />
+                <span asp-validation-for="Name" class="text-red-600 text-sm"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Description" class="form-label">Description</label>
+                <input asp-for="Description" class="form-input" placeholder="Enter role description" />
+                <span asp-validation-for="Description" class="text-red-600 text-sm"></span>
+            </div>
+        </div>
+
+        <div class="mt-6 p-6 bg-blue-50 rounded-lg border border-blue-100">
+            <h3 class="text-lg font-semibold text-blue-800 mb-4">Role Permissions</h3>
+            <p class="text-blue-700 mb-4">
+                <i class="fas fa-info-circle mr-2"></i>
+                Note: Role permissions are fixed in the application code based on role name. Choose an appropriate name that reflects the intended permissions.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div class="bg-white rounded-lg p-4 border border-blue-200">
+                    <div class="font-medium text-blue-800 mb-2 flex items-center">
+                        <i class="fas fa-user-shield mr-2"></i> Admin
+                    </div>
+                    <p class="text-sm text-blue-700">Full system access including user and role management</p>
+                </div>
+                <div class="bg-white rounded-lg p-4 border border-blue-200">
+                    <div class="font-medium text-blue-800 mb-2 flex items-center">
+                        <i class="fas fa-user-tie mr-2"></i> Manager
+                    </div>
+                    <p class="text-sm text-blue-700">Access to card management and templates, view reports</p>
+                </div>
+                <div class="bg-white rounded-lg p-4 border border-blue-200">
+                    <div class="font-medium text-blue-800 mb-2 flex items-center">
+                        <i class="fas fa-user mr-2"></i> User
+                    </div>
+                    <p class="text-sm text-blue-700">Basic access to view cards and scan QR codes</p>
+                </div>
+            </div>
+
+            <p class="text-sm text-blue-700">
+                Custom role names will default to basic user permissions. Contact an administrator for custom permission setup.
+            </p>
+        </div>
+        
+        <div class="mt-6 flex justify-end space-x-3">
+            <a asp-action="Index" class="btn-secondary">Cancel</a>
+            <button type="submit" class="btn-primary">
+                <i class="fas fa-plus-circle mr-2"></i> Create Role
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

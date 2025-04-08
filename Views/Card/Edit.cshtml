@@ -1,0 +1,3093 @@
+@model CardTagManager.Models.Card
+@using System.IO;
+@{
+    ViewData["Title"] = "Edit Product";
+}
+
+<div class="transition-all duration-300 mb-6 flex items-center">
+    <a asp-action="Index" class="inline-flex items-center bg-white rounded-lg px-3 py-2 text-primary-600 hover:text-primary-700 hover:bg-primary-50 transition-colors group shadow-sm border border-gray-200">
+        <i class="fas fa-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i> Back to Library
+    </a>
+    <h1 class="text-2xl font-bold text-gray-800 ml-4">Edit Product: <span class="text-primary-600">@Model.ProductName</span></h1>
+</div>
+
+<!-- Form Progress Indicator -->
+<div class="form-progress bg-white rounded-xl p-6 shadow-sm border border-gray-200 mb-6">
+    <div class="flex items-center justify-between max-w-2xl mx-auto">
+        <div class="step active flex flex-col items-center" data-step="1">
+            <div class="step-circle bg-primary-600 text-white h-10 w-10 rounded-full flex items-center justify-center shadow-sm">
+                <i class="fas fa-info-circle"></i>
+            </div>
+            <div class="step-label text-sm font-medium mt-2">Basic Info</div>
+        </div>
+        <div class="step-connector h-1 flex-grow bg-gray-200 mx-2 relative">
+            <div class="absolute inset-0 bg-primary-600 step-progress transition-all duration-500" style="width: 0%"></div>
+        </div>
+        <div class="step flex flex-col items-center" data-step="2">
+            <div class="step-circle bg-gray-200 text-gray-600 h-10 w-10 rounded-full flex items-center justify-center shadow-sm">
+                <i class="fas fa-clipboard-list"></i>
+            </div>
+            <div class="step-label text-sm font-medium mt-2">Details</div>
+        </div>
+        <div class="step-connector h-1 flex-grow bg-gray-200 mx-2 relative">
+            <div class="absolute inset-0 bg-primary-600 step-progress transition-all duration-500" style="width: 0%"></div>
+        </div>
+        <div class="step flex flex-col items-center" data-step="3">
+            <div class="step-circle bg-gray-200 text-gray-600 h-10 w-10 rounded-full flex items-center justify-center shadow-sm">
+                <i class="fas fa-palette"></i>
+            </div>
+            <div class="step-label text-sm font-medium mt-2">Appearance</div>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-5 gap-8 fade-in">
+    <!-- Form Section (3 columns) -->
+    <div class="lg:col-span-3">
+        <div class="card shadow-sm border border-gray-200 rounded-xl bg-white overflow-hidden">
+            <div class="card-header bg-gradient-to-r from-blue-50 to-blue-100 border-b border-gray-200 p-5">
+                <h2 class="text-xl font-bold text-gray-800 flex items-center">
+                    <i class="fas fa-edit text-primary-500 mr-2"></i> Edit Product
+                </h2>
+                <p class="text-sm text-gray-600 mt-1">Update the details for your product tag</p>
+            </div>
+            
+            <!-- Template Gallery - Same as Create but with current template highlighted -->
+            <div class="px-6 pt-5 pb-3 bg-white border-b border-gray-100" data-component="template-library">
+    <div class="flex justify-between items-center mb-3">
+        <h3 class="text-md font-semibold text-gray-700 flex items-center">
+            <i class="fas fa-th-large text-primary-500 mr-2"></i> 
+            Template Library
+            <span class="ml-2 px-2 py-0.5 bg-blue-100 text-blue-600 text-xs rounded-full border border-blue-200">Quick Update</span>
+        </h3>
+        <button type="button" id="create-template-btn" class="text-sm inline-flex items-center bg-primary-50 text-primary-600 hover:text-primary-700 px-3 py-1.5 rounded-lg hover:bg-primary-100 transition-all shadow-sm">
+            <i class="fas fa-plus-circle mr-1"></i> New Template
+        </button>
+    </div>
+    
+    <!-- Template Categories Tabs -->
+    <div class="template-tabs flex border-b border-gray-200 mb-4 overflow-x-auto pb-1 scrollbar-hide">
+        <button type="button" class="template-tab active whitespace-nowrap px-4 py-2 text-sm font-medium border-b-2 border-primary-500 text-primary-600" data-category="all">All Templates</button>
+        <!-- Dynamic categories will be inserted here -->
+    </div>
+    
+    <!-- Search Templates -->
+    <div class="mb-4">
+        <div class="relative">
+            <input type="text" id="template-search" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition-colors shadow-sm" placeholder="Search templates...">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i class="fas fa-search text-gray-400"></i>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Templates Container -->
+    <div id="template-container" class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-5 transition-all duration-300">
+        <!-- Templates will be loaded dynamically -->
+    </div>
+    
+    <!-- Expanded Templates Container -->
+    <div id="expanded-template-container" class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-5 hidden"></div>
+    
+    <!-- Load More Button -->
+    <div class="text-center mt-3 mb-4">
+        <button type="button" id="load-more-templates" class="text-sm text-primary-600 hover:text-primary-700 px-4 py-1.5 border border-primary-200 rounded-lg hover:bg-primary-50 transition-all shadow-sm">
+            <span class="load-more-text flex items-center justify-center"><i class="fas fa-chevron-down mr-1"></i> Load More Templates</span>
+            <span class="show-less-text hidden flex items-center justify-center"><i class="fas fa-chevron-up mr-1"></i> Show Less</span>
+        </button>
+    </div>
+    
+    <!-- Recently Used Templates -->
+    <div class="recently-used mt-2 mb-3">
+        <h4 class="text-xs uppercase text-gray-500 font-medium mb-2">Recently Used</h4>
+        <div class="flex flex-wrap gap-2" id="recently-used-templates">
+            <!-- Recently used templates will be loaded dynamically -->
+        </div>
+    </div>
+</div>
+            
+        <form asp-action="Edit" method="post" id="product-form" enctype="multipart/form-data" class="relative">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+            <!-- Add hidden fields for QR colors -->
+           <input type="hidden" asp-for="QrFgColor" id="qrFgColorHidden" value="@(Model.QrFgColor ?? "#000000")" />
+           <input type="hidden" asp-for="QrBgColor" id="qrBgColorHidden" value="@(Model.QrBgColor ?? "#FFFFFF")" />
+            
+            <!-- Add hidden field for custom fields data -->
+            <input type="hidden" asp-for="CustomFieldsData" id="customFieldsDataHidden" value="@Model.CustomFieldsData" />
+                <div class="card-body p-5 bg-white">
+                    <!-- Step 1: Basic Information -->
+                    <div class="form-section" data-step="1">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4 pb-2 border-b flex items-center">
+                            <i class="fas fa-info-circle text-primary-500 mr-2"></i> Basic Information
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-4">
+                                <div class="form-group">
+                                    <label asp-for="ProductName" class="form-label flex items-center">
+                                        Product Name
+                                        <span class="text-red-500 ml-1">*</span>
+                                        <span class="ml-auto text-xs text-gray-400" id="name-counter">@(Model.ProductName?.Length ?? 0)/100</span>
+                                    </label>
+                                    <div class="relative">
+                                        <input asp-for="ProductName" class="form-input pl-9 focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" required placeholder="RustShield Pro 5000" maxlength="100" onkeyup="countChars(this, 'name-counter', 100)">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <i class="fas fa-tag text-gray-400"></i>
+                                        </div>
+                                        <div class="validation-icon absolute inset-y-0 right-3 flex items-center @(string.IsNullOrEmpty(Model.ProductName) ? "hidden" : "")" id="name-valid">
+                                            <i class="fas fa-check-circle text-green-500"></i>
+                                        </div>
+                                    </div>
+                                    <span asp-validation-for="ProductName" class="form-error"></span>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label asp-for="Category" class="form-label">
+                                        Category
+                                        <span class="text-red-500 ml-1">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <input asp-for="Category" class="form-input pl-9 focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" id="Category" required onchange="updateFieldVisibility(this.value)">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <i class="fas fa-folder text-gray-400"></i>
+                                        </div>
+                                    </div>
+                                    <span asp-validation-for="Category" class="form-error"></span>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Product Image</label>
+                                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-5 text-center hover:bg-gray-50 transition-colors cursor-pointer group hover:border-primary-400" id="dropzone">
+                                        <input type="file" class="hidden" id="product-image" name="ImageFile" accept="image/*">
+                                        <div class="flex flex-col items-center justify-center">
+                                            <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-3 group-hover:text-primary-500 transition-colors"></i>
+                                            <p class="text-sm text-gray-600 mb-1">Drag and drop an image here or click to browse</p>
+                                            <p class="text-xs text-gray-400">PNG, JPG up to 5MB</p>
+                                        </div>
+                                    </div>
+                                    <div id="image-preview" class="@(string.IsNullOrEmpty(Model.ImagePath) ? "hidden" : "") mt-3">
+                                        <div class="flex items-center justify-between bg-gray-50 rounded-lg p-3 border border-gray-200">
+                                            <div class="flex items-center">
+                                                <img src="@Model.ImagePath" alt="Preview" class="w-12 h-12 object-cover rounded-lg mr-3 border border-gray-200 shadow-sm">
+                                                <span class="text-sm text-gray-700 truncate max-w-[180px] filename">
+                                                @(string.IsNullOrEmpty(Model.ImagePath) ? "No image uploaded" : System.IO.Path.GetFileName(Model.ImagePath))
+                                                </span>
+                                            </div>
+                                            <button type="button" class="text-red-500 hover:text-red-700 p-1.5 hover:bg-red-50 rounded-full transition-colors" id="remove-image">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-4" id="template-fields-container">
+                                <!-- Template-specific fields will be added here dynamically -->
+                                <div class="p-6 bg-gray-50 rounded-lg text-center relative overflow-hidden border border-gray-200">
+                                    <div class="absolute inset-0 bg-gray-200 opacity-10 pattern-dots"></div>
+                                    <i class="fas fa-arrow-left text-gray-400 text-2xl mb-3"></i>
+                                    <p class="text-gray-600 font-medium">Select a template to see additional fields</p>
+                                    <div class="mt-2 text-sm text-gray-500">
+                                        <p>Templates will pre-fill fields based on product type</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-end mt-8">
+                            <button type="button" class="btn-primary next-step rounded-lg px-5 py-2.5" data-next="2">
+                                Continue to Details <i class="fas fa-arrow-right ml-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 2: Product Details -->
+                    <div class="form-section hidden" data-step="2">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4 pb-2 border-b flex items-center">
+                            <i class="fas fa-clipboard-list text-primary-500 mr-2"></i> Product Details
+                        </h3>
+                        
+                        <div class="space-y-5">
+                            <div class="form-group">
+                                <label asp-for="Location" class="form-label">Location</label>
+                                <div class="relative">
+                                    <input asp-for="Location" class="form-input pl-9 focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" placeholder="Chemical Storage Room A">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-map-marker-alt text-gray-400"></i>
+                                    </div>
+                                </div>
+                                <span asp-validation-for="Location" class="form-error"></span>
+                            </div>
+                            
+                            <!-- Chemical Storage Conditions (Only for chemical products) -->
+                            <div class="form-group field-group chemical-field" style="display: none;">
+                                <label for="StorageConditions" class="form-label flex items-center">
+                                    Storage Conditions
+                                    <span class="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full border border-blue-200">Chemical Only</span>
+                                </label>
+                                <div class="relative">
+                                    <textarea id="StorageConditions" name="custom-StorageConditions" class="form-input h-24 pl-9 focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" 
+                                              placeholder="Store at 10-15°C, away from direct sunlight, in a well-ventilated area"></textarea>
+                                    <div class="absolute top-3 left-0 pl-3 flex items-start pointer-events-none">
+                                        <i class="fas fa-temperature-low text-gray-400"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Design Dimensions (Only for design templates) -->
+                            <div class="form-group field-group design-field" style="display: none;">
+                                <label for="Dimensions" class="form-label flex items-center">
+                                    Dimensions
+                                    <span class="ml-2 px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full border border-red-200">Design Only</span>
+                                </label>
+                                <div class="relative">
+                                    <input type="text" id="Dimensions" name="custom-Dimensions" class="form-input pl-9 focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" 
+                                          placeholder="1920x1080px, 300DPI">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-ruler-combined text-gray-400"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label asp-for="MaintenanceInfo" class="form-label">Maintenance Information</label>
+                                <div class="relative">
+                                    <textarea asp-for="MaintenanceInfo" class="form-input h-24 pl-9 focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" 
+                                              placeholder="Regular maintenance requirements and recommendations"></textarea>
+                                    <div class="absolute top-3 left-0 pl-3 flex items-start pointer-events-none">
+                                        <i class="fas fa-wrench text-gray-400"></i>
+                                    </div>
+                                </div>
+                                <span asp-validation-for="MaintenanceInfo" class="form-error"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <div class="form-group">
+                                <label asp-for="ManufactureDate" class="form-label">
+                                    Manufacture Date
+                                    <span class="text-red-500 ml-1">*</span>
+                                </label>
+                                <div class="relative">
+                                    <input asp-for="ManufactureDate" type="date" class="form-input pl-9 focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" required value="@Model.ManufactureDate.ToString("yyyy-MM-dd")">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-calendar-day text-gray-400"></i>
+                                    </div>
+                                </div>
+                                <span asp-validation-for="ManufactureDate" class="form-error"></span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label asp-for="PurchaseDate" class="form-label">
+                                    Purchase Date
+                                    <span class="text-red-500 ml-1">*</span>
+                                </label>
+                                <div class="relative">
+                                    <input asp-for="PurchaseDate" type="date" class="form-input pl-9 focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" required value="@Model.PurchaseDate.ToString("yyyy-MM-dd")">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-shopping-cart text-gray-400"></i>
+                                    </div>
+                                </div>
+                                <span asp-validation-for="PurchaseDate" class="form-error"></span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label asp-for="WarrantyExpiration" class="form-label warranty-label">
+                                    Warranty Until
+                                    <span class="text-red-500 ml-1">*</span>
+                                </label>
+                                <div class="relative">
+                                    <input asp-for="WarrantyExpiration" type="date" class="form-input pl-9 focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow warranty-input" required value="@Model.WarrantyExpiration.ToString("yyyy-MM-dd")">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-shield-alt text-gray-400"></i>
+                                    </div>
+                                </div>
+                                <span asp-validation-for="WarrantyExpiration" class="form-error"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-between mt-8">
+                            <button type="button" class="btn-secondary prev-step rounded-lg px-5 py-2.5 hover:bg-gray-100" data-prev="1">
+                                <i class="fas fa-arrow-left mr-2"></i> Back to Basic Info
+                            </button>
+                            <button type="button" class="btn-primary next-step rounded-lg px-5 py-2.5" data-next="3">
+                                Continue to Appearance <i class="fas fa-arrow-right ml-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 3: Appearance -->
+                    <div class="form-section hidden" data-step="3">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4 pb-2 border-b flex items-center">
+                            <i class="fas fa-palette text-primary-500 mr-2"></i> Card Appearance
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="form-group">
+                                <label asp-for="BackgroundColor" class="form-label">Background Color</label>
+                                <div class="color-picker-wrapper">
+                                <div class="flex">
+                                    <input asp-for="BackgroundColor" type="color" class="color-input hidden" id="bg-color-picker" value="@Model.BackgroundColor">
+                                    <div class="color-preview w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer hover:scale-105 transition-transform" id="bg-color-preview" style="background-color: @Model.BackgroundColor"></div>
+                                    <input asp-for="BackgroundColor" type="text" class="form-input ml-2 flex-grow focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" placeholder="#ffffff" value="@Model.BackgroundColor">
+                                </div>
+                                    <div class="color-presets mt-3 flex flex-wrap gap-2">
+                                        <span class="color-preset w-8 h-8 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#ffffff" style="background-color: #ffffff;"></span>
+                                        <span class="color-preset w-8 h-8 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#f8fafc" style="background-color: #f8fafc;"></span>
+                                        <span class="color-preset w-8 h-8 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#f0f9ff" style="background-color: #f0f9ff;"></span>
+                                        <span class="color-preset w-8 h-8 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#1e293b" style="background-color: #1e293b;"></span>
+                                    </div>
+                                </div>
+                                <span asp-validation-for="BackgroundColor" class="form-error"></span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label asp-for="TextColor" class="form-label">Text Color</label>
+                                <div class="color-picker-wrapper">
+                                    <div class="flex">
+                                        <input type="color" class="color-input w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer hover:scale-105 transition-transform" id="text-color-picker" value="@Model.TextColor">
+                                        <input asp-for="TextColor" type="text" class="form-input ml-2 flex-grow focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" placeholder="#000000" value="@Model.TextColor">
+                                    </div>
+                                    <div class="color-presets mt-3 flex flex-wrap gap-2">
+                                        <span class="color-preset w-8 h-8 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#000000" style="background-color: #000000;"></span>
+                                        <span class="color-preset w-8 h-8 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#1e293b" style="background-color: #1e293b;"></span>
+                                        <span class="color-preset w-8 h-8 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#ffffff" style="background-color: #ffffff;"></span>
+                                        <span class="color-preset w-8 h-8 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#64748b" style="background-color: #64748b;"></span>
+                                    </div>
+                                </div>
+                                <span asp-validation-for="TextColor" class="form-error"></span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label asp-for="AccentColor" class="form-label">Accent Color</label>
+                                <div class="color-picker-wrapper">
+                                    <div class="flex">
+                                        <input type="color" class="color-input w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer hover:scale-105 transition-transform" id="accent-color-picker" value="@Model.AccentColor">
+                                        <input asp-for="AccentColor" type="text" class="form-input ml-2 flex-grow focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" placeholder="#0284c7" value="@Model.AccentColor">
+                                    </div>
+                                    <div class="color-presets mt-3 flex flex-wrap gap-2">
+                                        <span class="color-preset w-8 h-8 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#0284c7" style="background-color: #0284c7;"></span>
+                                        <span class="color-preset w-8 h-8 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#f97316" style="background-color: #f97316;"></span>
+                                        <span class="color-preset w-8 h-8 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#16a34a" style="background-color: #16a34a;"></span>
+                                        <span class="color-preset w-8 h-8 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#9333ea" style="background-color: #9333ea;"></span>
+                                    </div>
+                                </div>
+                                <span asp-validation-for="AccentColor" class="form-error"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 p-5 bg-gray-50 rounded-lg border border-gray-200 shadow-sm">
+                            <h4 class="text-md font-medium mb-4 flex items-center">
+                                <i class="fas fa-qrcode text-primary-500 mr-2"></i> QR Code Customization
+                            </h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div>
+                                    <label class="text-sm text-gray-600 block mb-2 font-medium">Foreground Color</label>
+                                    <div class="flex">
+                                        <input type="color" class="w-10 h-10 border border-gray-300 rounded-lg cursor-pointer hover:scale-105 transition-transform" value="@(Model.QrFgColor ?? "#000000")" id="qr-fg-color">
+                                        <input type="text" class="form-input ml-2 flex-grow text-sm focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" value="@(Model.QrFgColor ?? "#000000")" id="qr-fg-color-text">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="text-sm text-gray-600 block mb-2 font-medium">Background Color</label>
+                                    <div class="flex">
+                                        <input type="color" class="w-10 h-10 border border-gray-300 rounded-lg cursor-pointer hover:scale-105 transition-transform" value="@(Model.QrBgColor ?? "#FFFFFF")" id="qr-bg-color">
+                                        <input type="text" class="form-input ml-2 flex-grow text-sm focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" value="@(Model.QrBgColor ?? "#FFFFFF")" id="qr-bg-color-text">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-between mt-8">
+                            <button type="button" class="btn-secondary prev-step rounded-lg px-5 py-2.5 hover:bg-gray-100" data-prev="2">
+                                <i class="fas fa-arrow-left mr-2"></i> Back to Details
+                            </button>
+                            <button type="submit" class="btn-primary relative group rounded-lg px-5 py-2.5" id="submit-form-btn">
+                                <span class="flex items-center">
+                                    <i class="fas fa-save mr-2"></i> Update Product
+                                </span>
+                                <span class="absolute inset-0 flex items-center justify-center bg-primary-600 rounded-lg opacity-0 transition-opacity group-hover:opacity-0 group-active:opacity-100">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-footer bg-gray-50 p-4 border-t border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <div class="text-sm text-gray-500 flex items-center">
+                            <i class="fas fa-info-circle mr-1 text-gray-400"></i>
+                            <span class="text-red-500">*</span> Required fields
+                        </div>
+                        <div class="text-sm bg-white px-3 py-1 rounded-full border border-gray-200 text-gray-600 font-medium">
+                            <span class="step-indicator">Step 1 of 3</span>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            
+            <!-- Change History Section - Moved to the bottom -->
+            <div class="px-6 pt-5 pb-3 bg-white border-t border-gray-100">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-md font-semibold text-gray-700 flex items-center">
+                        <i class="fas fa-history text-primary-500 mr-2"></i> 
+                        Change History
+                        <span class="ml-2 px-2 py-0.5 bg-blue-100 text-blue-600 text-xs rounded-full border border-blue-200">Recent Changes</span>
+                    </h3>
+                </div>
+                
+                <!-- History Records -->
+                <div class="bg-gray-50 rounded-lg border border-gray-200 p-4 mb-5 max-h-[300px] overflow-y-auto">
+                    @if (ViewBag.History != null && ViewBag.History.Count > 0)
+                    {
+                        <div class="space-y-3">
+                            @foreach (var item in ViewBag.History)
+                            {
+                                <div class="flex items-start p-3 bg-white rounded-lg border border-gray-100 shadow-sm hover:shadow transition-all">
+                                    <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-blue-100 text-blue-500 mr-3">
+                                        <i class="fas fa-pen"></i>
+                                    </div>
+                                    <div class="flex-grow">
+                                        <div class="flex items-center justify-between">
+                                            <h4 class="font-medium text-gray-800">@item.FieldName</h4>
+                                            <span class="text-xs text-gray-500">@item.ChangedAt.ToString("MMM dd, yyyy HH:mm")</span>
+                                        </div>
+                                        <div class="flex items-center mt-1 text-sm">
+                                            <span class="text-red-500 line-through mr-2">@(string.IsNullOrEmpty(item.OldValue) ? "None" : item.OldValue)</span>
+                                            <i class="fas fa-arrow-right text-gray-400 mx-2"></i>
+                                            <span class="text-green-500">@(string.IsNullOrEmpty(item.NewValue) ? "None" : item.NewValue)</span>
+                                        </div>
+                                        <div class="text-xs text-gray-500 mt-1">
+                                            <span class="flex items-center"><i class="fas fa-user mr-1"></i> @item.ChangedBy</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center p-6 text-gray-500">
+                            <i class="fas fa-info-circle text-blue-400 text-2xl mb-2"></i>
+                            <p>No change history available yet.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Preview Section (2 columns) -->
+    <div class="lg:col-span-2">
+        <div class="sticky top-6 space-y-4">
+            <div class="flex justify-between items-center mb-3 bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+                <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                    <i class="fas fa-eye text-primary-500 mr-2"></i> Live Preview
+                </h3>
+                <div class="preview-controls flex gap-2">
+                    <button type="button" class="text-sm text-gray-600 hover:text-gray-800 flex items-center p-2 hover:bg-gray-100 rounded-lg transition-colors" id="rotate-preview">
+                        <i class="fas fa-sync-alt mr-1"></i> Flip Card
+                    </button>
+                </div>
+            </div>
+            
+    <div class="card shadow-lg transition-all duration-300 rounded-xl border border-gray-200" id="card-preview-container">
+                <div class="card-flip-container">
+                    <!-- Front of card -->
+                    <div class="business-card card-side card-front rounded-xl" id="tag-preview" style="background-color: @Model.BackgroundColor; color: @Model.TextColor">
+                        <div class="p-5 h-full flex flex-col relative">
+                            <!-- Template indicator badge -->
+                            <div class="absolute -top-8 right-0 transform translate-y-12 transition-transform duration-300 opacity-70 hover:opacity-100">
+                                <div class="template-badge px-3 py-1.5 bg-white text-primary-600 text-xs font-medium rounded-t-lg shadow-sm border border-gray-200 border-b-0">
+                                    <i id="preview-template-icon" class="fas fa-flask mr-1"></i>
+                                    <span id="preview-template-name">Current Template</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <span id="preview-category" class="px-3 py-1 text-xs font-semibold rounded-full inline-block" style="background-color: @Model.AccentColor; color: #ffffff">
+                                    @Model.Category
+                                </span>
+                                <h3 id="preview-name" class="text-xl font-bold mt-2" style="color: @Model.AccentColor">@Model.ProductName</h3>
+                            </div>
+                            
+                            <!-- Enhanced custom fields section - now with 2 columns -->
+                            <div class="border-t border-b border-gray-200 py-2 mb-3 overflow-y-auto max-h-32">
+                                <h4 id="preview-fields-title" class="text-sm font-semibold mb-2" style="color: @Model.AccentColor">Product Fields:</h4>
+                                <div id="preview-custom-fields" class="grid grid-cols-2 gap-x-2 gap-y-1 text-xs"></div>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-x-3 gap-y-2 mt-auto text-sm">
+                                <p class="flex items-center text-xs">
+                                    <i class="fas fa-map-marker-alt mr-2" style="color: @Model.AccentColor"></i>
+                                    <span class="font-medium">Location:</span>&nbsp;<span id="preview-location" class="truncate">@(string.IsNullOrEmpty(Model.Location) ? "Not specified" : Model.Location)</span>
+                                </p>
+                                <p class="flex items-center text-xs">
+                                    <i class="fas fa-calendar-day mr-2" style="color: @Model.AccentColor"></i>
+                                    <span class="font-medium">Made:</span>&nbsp;<span id="preview-mfgdate">@Model.ManufactureDate.ToString("MM/dd/yyyy")</span>
+                                </p>
+                                <p class="flex items-center warranty-preview text-xs">
+                                    <i class="fas fa-shield-alt mr-2" style="color: @Model.AccentColor"></i>
+                                    <span class="font-medium">Warranty:</span>&nbsp;<span id="preview-warranty">@Model.WarrantyExpiration.ToString("MM/dd/yyyy")</span>
+                                </p>
+                                <p class="flex items-center text-xs">
+                                    <i class="fas fa-wrench mr-2" style="color: @Model.AccentColor"></i>
+                                    <span class="font-medium">Maintenance:</span>&nbsp;<span id="preview-maintenance" class="truncate">@(string.IsNullOrEmpty(Model.MaintenanceInfo) ? "No info" : (Model.MaintenanceInfo.Length > 15 ? Model.MaintenanceInfo.Substring(0, 15) + "..." : Model.MaintenanceInfo))</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Back of card (QR Code) -->
+                    <div class="business-card card-side card-back rounded-xl" style="background-color: @Model.BackgroundColor;">
+                        <div class="p-6 h-full flex flex-col items-center justify-center">
+                            <div class="qr-preview p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
+                                <div class="w-40 h-40 bg-white flex items-center justify-center rounded-lg shadow-inner" id="card-qr-code-display">
+                                    @if (ViewBag.QrCodeImage != null)
+                                    {
+                                        <img src="@ViewBag.QrCodeImage" alt="QR Code" class="w-full h-full" />
+                                    }
+                                    else
+                                    {
+                                        <i class="fas fa-qrcode text-gray-400 text-4xl"></i>
+                                    }
+                                </div>
+                                <p class="text-center text-sm mt-3 text-gray-700 font-medium" id="qr-product-name">@Model.ProductName</p>
+                                <p class="text-center text-xs mt-1 text-gray-500">Scan for product details</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Download QR Code Button -->
+            <div class="flex justify-center my-4">
+                <a asp-action="DownloadQrCode" asp-route-id="@Model.Id" class="btn-secondary text-primary-600 hover:text-primary-700 hover:bg-primary-50 transition-colors border border-primary-200">
+                    <i class="fas fa-download mr-2"></i> Download QR Code
+                </a>
+            </div>
+            
+            <!-- Edit History Details -->
+            <div class="bg-gradient-to-r from-blue-50 to-blue-100 border-l-4 border-blue-400 p-4 rounded-lg shadow-sm">
+                <div class="flex">
+                    <div class="flex-shrink-0 text-blue-500">
+                        <i class="fas fa-history text-xl"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-md font-medium text-blue-800">Card History</h3>
+                        <p class="mt-1 text-sm text-blue-700">
+                            This card was created on <span class="font-medium">@Model.CreatedAt.ToString("MMM dd, yyyy")</span> by <span class="font-medium">@Model.CreatedBy</span> 
+                            and last updated on <span class="font-medium">@Model.UpdatedAt.ToString("MMM dd, yyyy")</span>.
+                        </p>
+                        <p class="mt-2 text-sm text-blue-700">
+                            Changes are automatically tracked and displayed in the history section above.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Template Modal -->
+<div id="create-template-modal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
+    <div class="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"></div>
+    <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full mx-4 relative z-10 transform transition-all duration-300 opacity-0 scale-95">
+        <div class="p-5 border-b border-gray-200 bg-gradient-to-r from-blue-500 to-primary-500 rounded-t-xl">
+            <div class="flex justify-between items-center">
+                <h3 class="text-lg font-bold text-white" id="template-modal-title">Create New Template</h3>
+                <button type="button" class="text-white hover:text-gray-200 focus:outline-none p-2 hover:bg-white hover:bg-opacity-10 rounded-full transition-colors" id="close-template-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="p-6 max-h-[70vh] overflow-y-auto">
+            <form id="template-form" class="space-y-5">
+                <input type="hidden" id="template-edit-id" value="" />
+                <input type="hidden" name="TemplateType" id="templateTypeHidden" value="" />
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="form-group">
+                        <label class="form-label">Template Name <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <input type="text" id="template-name" class="form-input pl-9 focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" placeholder="E.g., Laboratory Equipment" required>
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-bookmark text-gray-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Category <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <input type="text" id="template-category" class="form-input pl-9 focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" placeholder="E.g., Lab Equipment" required>
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-folder text-gray-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Icon Selection <span class="text-red-500">*</span></label>
+                    <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 mt-2">
+                        <div class="icon-option border rounded-lg p-3 flex items-center justify-center cursor-pointer hover:border-primary-500 hover:shadow-sm transition-all active" data-icon="flask">
+                            <i class="fas fa-flask text-primary-500 text-2xl"></i>
+                        </div>
+                        <div class="icon-option border rounded-lg p-3 flex items-center justify-center cursor-pointer hover:border-primary-500 hover:shadow-sm transition-all" data-icon="microscope">
+                            <i class="fas fa-microscope text-gray-500 text-2xl"></i>
+                        </div>
+                        <div class="icon-option border rounded-lg p-3 flex items-center justify-center cursor-pointer hover:border-primary-500 hover:shadow-sm transition-all" data-icon="vial">
+                            <i class="fas fa-vial text-gray-500 text-2xl"></i>
+                        </div>
+                        <div class="icon-option border rounded-lg p-3 flex items-center justify-center cursor-pointer hover:border-primary-500 hover:shadow-sm transition-all" data-icon="laptop">
+                            <i class="fas fa-laptop text-gray-500 text-2xl"></i>
+                        </div>
+                        <div class="icon-option border rounded-lg p-3 flex items-center justify-center cursor-pointer hover:border-primary-500 hover:shadow-sm transition-all" data-icon="file-alt">
+                            <i class="fas fa-file-alt text-gray-500 text-2xl"></i>
+                        </div>
+                        <div class="icon-option border rounded-lg p-3 flex items-center justify-center cursor-pointer hover:border-primary-500 hover:shadow-sm transition-all" data-icon="shield-alt">
+                            <i class="fas fa-shield-alt text-gray-500 text-2xl"></i>
+                        </div>
+                        <div class="icon-option border rounded-lg p-3 flex items-center justify-center cursor-pointer hover:border-primary-500 hover:shadow-sm transition-all" data-icon="cogs">
+                            <i class="fas fa-cogs text-gray-500 text-2xl"></i>
+                        </div>
+                        <div class="icon-option border rounded-lg p-3 flex items-center justify-center cursor-pointer hover:border-primary-500 hover:shadow-sm transition-all" data-icon="tools">
+                            <i class="fas fa-tools text-gray-500 text-2xl"></i>
+                        </div>
+                        <div class="icon-option border rounded-lg p-3 flex items-center justify-center cursor-pointer hover:border-primary-500 hover:shadow-sm transition-all" data-icon="box">
+                            <i class="fas fa-box text-gray-500 text-2xl"></i>
+                        </div>
+                        <div class="icon-option border rounded-lg p-3 flex items-center justify-center cursor-pointer hover:border-primary-500 hover:shadow-sm transition-all" data-icon="globe">
+                            <i class="fas fa-globe text-gray-500 text-2xl"></i>
+                        </div>
+                        <div class="icon-option border rounded-lg p-3 flex items-center justify-center cursor-pointer hover:border-primary-500 hover:shadow-sm transition-all" data-icon="bolt">
+                            <i class="fas fa-bolt text-gray-500 text-2xl"></i>
+                        </div>
+                        <div class="icon-option border rounded-lg p-3 flex items-center justify-center cursor-pointer hover:border-primary-500 hover:shadow-sm transition-all" data-icon="cube">
+                            <i class="fas fa-cube text-gray-500 text-2xl"></i>
+                        </div>
+                    </div>
+                    <input type="hidden" id="template-icon" value="flask">
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="form-group">
+                        <label class="form-label">Background Color</label>
+                        <div class="color-picker-wrapper">
+                            <div class="flex">
+                                <input type="color" id="template-bg-color" class="w-10 h-10 border border-gray-300 rounded-lg cursor-pointer hover:scale-105 transition-transform" value="#f0f9ff">
+                                <input type="text" id="template-bg-color-text" class="form-input ml-2 flex-grow focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" value="#f0f9ff">
+                            </div>
+                            <div class="color-presets mt-2 flex flex-wrap gap-2">
+                                <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#f0f9ff" style="background-color: #f0f9ff;"></span>
+                                <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#f0fdf4" style="background-color: #f0fdf4;"></span>
+                                <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#fef3c7" style="background-color: #fef3c7;"></span>
+                                <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#fdf2f8" style="background-color: #fdf2f8;"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Icon Color</label>
+                        <div class="color-picker-wrapper">
+                            <div class="flex">
+                                <input type="color" class="color-input w-10 h-10 border border-gray-300 rounded-lg shadow-inner cursor-pointer hover:scale-105 transition-transform" id="template-icon-color-picker" value="#0284c7">
+                                <input type="text" class="form-input ml-2 flex-grow focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" id="template-icon-color-text" value="#0284c7">
+                            </div>
+                            <div class="color-presets mt-2 flex flex-wrap gap-2">
+                                <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#0284c7" style="background-color: #0284c7;"></span>
+                                <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#16a34a" style="background-color: #16a34a;"></span>
+                                <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#dc2626" style="background-color: #dc2626;"></span>
+                                <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#eab308" style="background-color: #eab308;"></span>
+                                <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#8b5cf6" style="background-color: #8b5cf6;"></span>
+                                <span class="color-preset w-6 h-6 rounded-full border border-gray-200 shadow-sm cursor-pointer hover:scale-110 transition-transform" data-color="#6b7280" style="background-color: #6b7280;"></span>
+                            </div>
+                            <input type="hidden" id="template-icon-color" value="#0284c7">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="border-t border-gray-200 pt-4 mt-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <h4 class="text-md font-semibold text-gray-700 flex items-center">
+                            <i class="fas fa-layer-group text-primary-500 mr-2"></i> Custom Fields
+                        </h4>
+                        <button type="button" id="add-field-btn" class="text-sm inline-flex items-center bg-primary-50 text-primary-600 hover:text-primary-700 px-3 py-1.5 rounded-lg hover:bg-primary-100 transition-all shadow-sm">
+                            <i class="fas fa-plus-circle mr-1"></i> Add Field
+                        </button>
+                    </div>
+                    
+                    <div id="custom-fields" class="space-y-4 max-h-[300px] overflow-y-auto pr-2">
+                        <!-- Fields will be added here -->
+                        <div class="custom-field-row flex items-start gap-3 p-4 border border-gray-200 rounded-lg bg-gray-50 hover:bg-white hover:shadow-sm transition-all">
+                            <div class="flex-grow">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div class="form-group mb-2">
+                                        <label class="form-label text-sm">Field Name <span class="text-red-500">*</span></label>
+                                        <input type="text" class="form-input py-2 text-sm field-name focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" placeholder="E.g., Lab ID" required>
+                                    </div>
+                                    <div class="form-group mb-2">
+                                        <label class="form-label text-sm">Field Type <span class="text-red-500">*</span></label>
+                                        <select class="form-input py-2 text-sm field-type focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow">
+                                            <option value="text">Text</option>
+                                            <option value="select">Dropdown</option>
+                                            <option value="number">Number</option>
+                                            <option value="date">Date</option>
+                                            <option value="textarea">Text Area</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group mb-2">
+                                        <label class="form-label text-sm">Icon</label>
+                                        <select class="form-input py-2 text-sm field-icon focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow">
+                                            <option value="tag">Tag</option>
+                                            <option value="info-circle">Info</option>
+                                            <option value="check-circle">Check</option>
+                                            <option value="flag">Flag</option>
+                                            <option value="clipboard">Clipboard</option>
+                                            <option value="calendar">Calendar</option>
+                                            <option value="user">User</option>
+                                            <option value="link">Link</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="field-options hidden mt-3">
+                                    <label class="form-label text-sm">Options (comma separated)</label>
+                                    <input type="text" class="form-input py-2 text-sm field-options-input focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" placeholder="Option 1, Option 2, Option 3">
+                                </div>
+                                <div class="form-group mt-3">
+                                    <label class="form-label text-sm">Placeholder</label>
+                                    <input type="text" class="form-input py-2 text-sm field-placeholder focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" placeholder="Enter placeholder text">
+                                </div>
+                                <div class="form-group mt-2">
+                                    <div class="flex items-center">
+                                        <input type="checkbox" class="field-required mr-2 h-4 w-4 text-primary-600 focus:ring-primary-500 rounded" id="field-required-checkbox" checked>
+                                        <label for="field-required-checkbox" class="text-sm">Required</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex-shrink-0 mt-6">
+                                <button type="button" class="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full transition-colors remove-field-btn">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="p-5 border-t border-gray-200 bg-gray-50 flex justify-end rounded-b-xl">
+            <button type="button" class="btn-secondary mr-2 rounded-lg px-4 py-2 hover:bg-gray-100" id="cancel-template-btn">
+                Cancel
+            </button>
+            <button type="button" class="btn-danger mr-2 rounded-lg px-4 py-2 hidden" id="delete-template-btn">
+                <i class="fas fa-trash mr-2"></i> Delete Template
+            </button>
+            <button type="button" class="btn-primary rounded-lg px-4 py-2" id="save-template-btn">
+                <i class="fas fa-save mr-2"></i> Save Template
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Template Confirmation Modal -->
+<div id="delete-template-modal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
+    <div class="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"></div>
+    <div class="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 relative z-10 transform transition-all duration-300 opacity-0 scale-95">
+        <div class="p-5 border-b border-gray-200 bg-red-50">
+            <div class="flex justify-between items-center">
+                <h3 class="text-lg font-bold text-red-700 flex items-center">
+                    <i class="fas fa-exclamation-triangle text-red-500 mr-2"></i> Delete Template
+                </h3>
+                <button type="button" class="text-gray-400 hover:text-gray-600 focus:outline-none p-2 hover:bg-gray-100 rounded-full transition-colors" id="close-delete-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="p-5">
+            <p class="text-gray-700">Are you sure you want to delete this template? This action cannot be undone.</p>
+            <div class="mt-4 p-4 border border-red-100 rounded-lg bg-red-50">
+                <p class="flex items-center text-red-600 font-medium">
+                    <i class="fas fa-folder mr-2"></i>
+                    <span id="delete-template-name"></span>
+                </p>
+            </div>
+            <input type="hidden" id="delete-template-id" value="" />
+        </div>
+        <div class="p-5 border-t border-gray-200 bg-gray-50 flex justify-end rounded-b-xl">
+            <button type="button" class="btn-secondary mr-2 rounded-lg px-4 py-2 hover:bg-gray-100" id="cancel-delete-btn">
+                Cancel
+            </button>
+            <button type="button" class="btn-danger rounded-lg px-4 py-2" id="confirm-delete-btn">
+                <i class="fas fa-trash mr-2"></i> Delete Template
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Add Category Modal -->
+<div id="add-category-modal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
+    <div class="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"></div>
+    <div class="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 relative z-10 transform transition-all duration-300 opacity-0 scale-95">
+        <div class="p-5 border-b border-gray-200 bg-gradient-to-r from-blue-500 to-primary-500 rounded-t-xl">
+            <div class="flex justify-between items-center">
+                <h3 class="text-lg font-bold text-white">Add New Category</h3>
+                <button type="button" class="text-white hover:text-gray-200 focus:outline-none p-2 hover:bg-white hover:bg-opacity-10 rounded-full transition-colors" id="close-category-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="p-5">
+            <form id="category-form">
+                <div class="form-group">
+                    <label class="form-label">Category Name <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <input type="text" id="new-category-name" class="form-input pl-9 focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" placeholder="E.g., Laboratory Equipment" required>
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-folder text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="p-5 border-t border-gray-200 bg-gray-50 flex justify-end rounded-b-xl">
+            <button type="button" class="btn-secondary mr-2 rounded-lg px-4 py-2 hover:bg-gray-100" id="cancel-category-btn">
+                Cancel
+            </button>
+            <button type="button" class="btn-primary rounded-lg px-4 py-2" id="save-category-btn">
+                <i class="fas fa-save mr-2"></i> Save Category
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Template Applied Toast Notification -->
+<div id="template-toast" class="fixed top-6 right-6 bg-white shadow-lg rounded-lg p-4 transform -translate-y-12 opacity-0 transition-all duration-300 z-50 max-w-sm border border-gray-200 hidden">
+    <div class="flex items-center">
+        <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-green-100 text-green-500 mr-3">
+            <i class="fas fa-check"></i>
+        </div>
+        <div class="flex-grow">
+            <p class="font-medium">Template Applied</p>
+            <p class="text-sm text-gray-500" id="template-toast-message">Template has been applied successfully</p>
+        </div>
+        <button onclick="hideTemplateToast()" class="ml-2 text-gray-400 hover:text-gray-600 h-8 w-8 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+</div>
+
+<!-- Update Success Toast -->
+<div id="update-toast" class="fixed top-6 right-6 bg-white shadow-lg rounded-lg p-4 transform -translate-y-12 opacity-0 transition-all duration-300 z-50 max-w-sm border border-gray-200 hidden">
+    <div class="flex items-center">
+        <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-green-100 text-green-500 mr-3">
+            <i class="fas fa-check"></i>
+        </div>
+        <div class="flex-grow">
+            <p class="font-medium">Update Successful</p>
+            <p class="text-sm text-gray-500">Product has been updated successfully</p>
+        </div>
+        <button onclick="hideUpdateToast()" class="ml-2 text-gray-400 hover:text-gray-600 h-8 w-8 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+</div>
+
+@section Scripts {
+@{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+// Function to process custom fields before form submission
+document.getElementById('product-form').addEventListener('submit', function(e) {
+    // Process custom fields and update hidden input
+    const customFields = {};
+    const customInputs = document.querySelectorAll('[name^="custom-"]');
+    
+    customInputs.forEach(input => {
+        if (input.value) {
+            // Extract the original field name from the input name attribute
+            const fieldName = input.name.replace('custom-', '');
+            customFields[fieldName] = input.value;
+        }
+    });
+    
+    // Update CustomFieldsData hidden input - critical fix here
+    document.getElementById('customFieldsDataHidden').value = JSON.stringify(customFields);
+    
+    // Update QR colors before submission
+    updateQrColors();
+    
+    // Don't prevent default form submission - let it continue naturally
+    console.log('Form submission proceeding with custom fields:', JSON.stringify(customFields));
+});
+
+// Auto-select template based on category on page load
+document.addEventListener('DOMContentLoaded', async function() {
+    // First load templates
+    await initializeTemplates();
+    
+    // Then find template by category
+    const category = document.getElementById('Category').value;
+    if (category) {
+        await findAndSelectTemplateByCategory(category);
+    }
+    
+    // Populate existing custom fields data
+    const customFieldsData = document.getElementById('customFieldsDataHidden').value;
+    if (customFieldsData && customFieldsData !== '{}') {
+        try {
+            const data = JSON.parse(customFieldsData);
+            updateTemplateFieldsFromCustomData(data);
+        } catch (error) {
+            console.error('Error parsing custom fields data:', error);
+        }
+    }
+    
+    console.log('DOM fully loaded');
+    
+    // Force create QRCode if not defined
+    if (typeof QRCode === 'undefined') {
+        console.log('QRCode library not detected, loading dynamically...');
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+        script.onload = function() {
+            console.log('QRCode library loaded successfully');
+            // Generate QR code once the library is loaded
+            setTimeout(generateQRCode, 300);
+        };
+        script.onerror = function() {
+            console.error('Failed to load QRCode library');
+            const qrElement = document.getElementById('card-qr-code-display');
+            if (qrElement) {
+                qrElement.innerHTML = `
+                    <div style="width:160px;height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid #e5e7eb;background:#f8fafc;padding:8px;">
+                        <i class="fas fa-exclamation-circle text-red-500" style="font-size:48px;margin-bottom:8px;"></i>
+                        <div style="font-size:12px;color:#6b7280;text-align:center;">Failed to load QR code library</div>
+                    </div>
+                `;
+            }
+        };
+        document.head.appendChild(script);
+    }
+
+    function initializeTemplateLibraryVisibility() {
+    const templateLibrary = document.querySelector('[data-component="template-library"]');
+    const activeStep = document.querySelector('.form-section:not(.hidden)');
+    
+    if (templateLibrary && activeStep) {
+        const stepNumber = parseInt(activeStep.getAttribute('data-step'));
+        if (stepNumber !== 1) {
+            templateLibrary.classList.add('hidden');
+        } else {
+            templateLibrary.classList.remove('hidden');
+        }
+    }
+}
+
+initializeTemplateLibraryVisibility();
+    
+    // Load all required initialization functions
+    try {
+        console.log('Initializing components...');
+        initializeCategories(); // Load categories first
+        initializeTemplates();
+        initializeSteps();
+        initializeColorPickers();
+        initializeImageUpload();
+        initializeFieldVisibility();
+        initializeTemplateModal();
+        initializeLoadMoreTemplates();
+        
+        // Additional initialization for Edit page
+        populateCustomFieldsFromJson();
+    } catch (e) {
+        console.error('Error during initialization:', e);
+    }
+    
+    // Force preview containers to be visible
+    const previewContainers = [
+        'card-preview-container',
+        'tag-preview',
+        'card-qr-code-display'
+    ];
+    
+    previewContainers.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.style.display = id === 'card-qr-code-display' ? 'flex' : 'block';
+            if (id === 'card-preview-container') {
+                element.style.minHeight = '400px';
+                element.style.height = '400px';
+            }
+            console.log(`Force displayed ${id}`);
+        } else {
+            console.error(`Preview element not found: ${id}`);
+        }
+    });
+    
+    // Initialize preview with default values
+    console.log('Updating preview...');
+    try {
+        updateTagPreview();
+    } catch (e) {
+        console.error('Error updating tag preview:', e);
+    }
+    
+    // Show success message if present in TempData
+    if (TempData && TempData["SuccessMessage"]) {
+        showUpdateSuccessToast(TempData["SuccessMessage"]);
+    }
+    
+    // Generate QR code with delay to ensure rendering
+    setTimeout(function() {
+        try {
+            console.log('Generating QR code...');
+            // If QR code image is already provided by the controller, don't regenerate
+            if (!document.querySelector('#card-qr-code-display img')) {
+                generateQRCode();
+            }
+        } catch (e) {
+            console.error('Error generating QR code:', e);
+            
+            // Fallback QR display if generation fails
+            const qrElement = document.getElementById('card-qr-code-display');
+            if (qrElement && !qrElement.querySelector('img')) {
+                qrElement.innerHTML = `
+                    <div style="text-align:center;">
+                        <i class="fas fa-qrcode text-gray-400" style="font-size:48px;"></i>
+                        <div style="font-size:12px;color:#6b7280;margin-top:8px;">QR Code Preview</div>
+                    </div>
+                `;
+            }
+        }
+    }, 500);
+    
+    // Force preview visibility after everything else
+    setTimeout(function() {
+        const cardFront = document.querySelector('.card-front');
+        if (cardFront) cardFront.style.display = 'block';
+        
+        console.log('Final visibility enforcement complete');
+    }, 800);
+
+    // Add input event listeners for real-time updates with event delegation
+    document.addEventListener('input', function(e) {
+        const target = e.target;
+        if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') {
+            updateTagPreview();
+            
+            // Update QR code if critical fields change
+            if (target.id === 'ProductName' || target.id === 'Category') {
+                setTimeout(generateQRCode, 100);
+            }
+        }
+    });
+    
+    // Add MutationObserver to detect dynamic field changes
+    const templateFieldsContainer = document.getElementById('template-fields-container');
+    if (templateFieldsContainer) {
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                    setTimeout(updateTagPreview, 50);
+                    setTimeout(generateQRCode, 100);
+                }
+            });
+        });
+        
+        observer.observe(templateFieldsContainer, { childList: true, subtree: true });
+    }
+});
+
+// Character counter for name field
+window.countChars = function(input, counterId, maxLength) {
+    const counter = document.getElementById(counterId);
+    const length = input.value.length;
+    counter.textContent = `${length}/${maxLength}`;
+    
+    // Show validation icon when field has a value
+    const validIcon = document.getElementById('name-valid');
+    if (length > 0) {
+        validIcon.classList.remove('hidden');
+    } else {
+        validIcon.classList.add('hidden');
+    }
+    
+    // Update preview and QR code
+    updateTagPreview();
+};
+
+// Find and select template by category
+async function findAndSelectTemplateByCategory(category) {
+    if (!category) return;
+    
+    try {
+        // Get all templates
+        const response = await fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Template`);
+        if (!response.ok) throw new Error('Failed to fetch templates');
+        
+        const templates = await response.json();
+        
+        // Find template with matching category
+        const matchingTemplate = templates.find(t => 
+            t.category && t.category.toLowerCase() === category.toLowerCase()
+        );
+        
+        if (matchingTemplate) {
+            // Apply the template
+            await applyTemplate(matchingTemplate.id);
+            
+            // Set the hidden template type field
+            document.getElementById('templateTypeHidden').value = matchingTemplate.id;
+            
+            // Mark this template as selected in the UI
+            document.querySelectorAll('.template-card').forEach(card => {
+                card.classList.remove('border-primary-500');
+                if (card.getAttribute('data-template') === String(matchingTemplate.id)) {
+                    card.classList.add('border-primary-500');
+                }
+            });
+            
+            console.log(`Auto-selected template: ${matchingTemplate.name}`);
+        } else {
+            console.log(`No matching template found for category: ${category}`);
+        }
+    } catch (error) {
+        console.error('Error finding template by category:', error);
+    }
+}
+
+// Update template fields with existing custom data
+function updateTemplateFieldsFromCustomData(data) {
+    for (const [key, value] of Object.entries(data)) {
+        // Look for matching template field
+        const input = document.querySelector(`[name="custom-${key}"]`);
+        if (input) {
+            input.value = value;
+        }
+    }
+}
+
+// On page load, populate custom fields from existing data
+function populateCustomFieldsFromJson() {
+    try {
+        const customFieldsData = document.getElementById('customFieldsDataHidden').value;
+        
+        if (customFieldsData && customFieldsData !== '{}') {
+            const data = JSON.parse(customFieldsData);
+            
+            for (const [key, value] of Object.entries(data)) {
+                // Check if a field with this name already exists
+                let input = document.querySelector(`[name="custom-${key}"]`);
+                
+                // If not, create one
+                if (!input) {
+                    const customFieldsContainer = document.getElementById('custom-fields-container');
+                    
+                    if (customFieldsContainer) {
+                        // Create header if not already there
+                        if (!customFieldsContainer.querySelector('h4')) {
+                            customFieldsContainer.innerHTML = `
+                                <h4 class="text-md font-semibold text-primary-600 mb-3 flex items-center">
+                                    <i class="fas fa-clipboard-list mr-2"></i> Custom Fields
+                                </h4>
+                            `;
+                        }
+                        
+                        // Create the new field
+                        const fieldDiv = document.createElement('div');
+                        fieldDiv.className = 'form-group mb-4';
+                        fieldDiv.innerHTML = `
+                            <label class="form-label">${key}</label>
+                            <div class="relative">
+                                <input type="text" name="custom-${key}" class="form-input pl-9 focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" value="${value}">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-tag text-gray-400"></i>
+                                </div>
+                            </div>
+                        `;
+                        
+                        customFieldsContainer.appendChild(fieldDiv);
+                        input = fieldDiv.querySelector('input');
+                    }
+                }
+                
+                // Set the value
+                if (input) {
+                    input.value = value;
+                }
+            }
+            
+            // Update preview after populating fields
+            updateTagPreview();
+        }
+    } catch (error) {
+        console.error('Error populating custom fields:', error);
+    }
+}
+
+// Function to update QR color values to hidden fields
+function updateQrColors() {
+    const fgColor = document.getElementById('qr-fg-color').value || '#000000';
+    const bgColor = document.getElementById('qr-bg-color').value || '#FFFFFF';
+    
+    document.getElementById('QrFgColor').value = fgColor;
+    document.getElementById('QrBgColor').value = bgColor;
+    
+    console.log("Updated QR colors:", fgColor, bgColor);
+}
+
+// QR code color change event listeners - updated to match field IDs
+document.getElementById('qr-fg-color').addEventListener('input', function() {
+    document.getElementById('qr-fg-color-text').value = this.value;
+    updateQrColors();
+    generateQRCode();
+});
+
+// Modified updateFieldVisibility function to auto-select template
+async function updateFieldVisibility(category) {
+    // Check if category is a numeric template ID
+    const isNumeric = !isNaN(parseInt(category));
+    
+    // Hide all category-specific field groups
+    const fieldGroups = document.querySelectorAll('.field-group');
+    fieldGroups.forEach(field => {
+        field.style.display = 'none';
+    });
+    
+    // Get template fields container
+    const templateFieldsContainer = document.getElementById('template-fields-container');
+    
+    // Auto-select matching template when category changes
+    if (category && !isNumeric) {
+        await findAndSelectTemplateByCategory(category);
+    }
+    
+    // Handle template ID vs category name
+    if (isNumeric) {
+        try {
+            const response = await fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Template/${category}`);
+            if (!response.ok) throw new Error('Failed to fetch template');
+            const template = await response.json();
+            
+            // Display template fields without clearing if already populated from template selection
+            if (document.getElementById('templateTypeHidden').value === category) {
+                // Template already selected - don't clear fields
+            } else {
+                // Different template - update fields
+                displayCustomTemplateFields(template, templateFieldsContainer);
+            }
+            
+            // Set the Category field from the template
+            const categoryField = document.getElementById('Category');
+            if (categoryField && template.category) {
+                categoryField.value = template.category;
+            }
+        } catch (error) {
+            console.error('Error fetching template:', error);
+            generateDefaultFields(templateFieldsContainer);
+        }
+    } else {
+        const categoryValue = category.toLowerCase();
+        
+        // Show category-specific fields
+        fieldGroups.forEach(field => {
+            const fieldClass = field.classList[1]; 
+            if (fieldClass && fieldClass.includes(categoryValue)) {
+                field.style.display = 'block';
+            }
+        });
+        
+        // Handle special category cases
+        switch(categoryValue) {
+            case 'chemical':
+            case 'rust coating chemical':
+                document.querySelectorAll('.chemical-field').forEach(el => el.style.display = 'block');
+                break;
+            case 'design':
+            case 'design asset':
+                document.querySelectorAll('.design-field').forEach(el => el.style.display = 'block');
+                document.querySelector('.warranty-label').innerHTML = 'License Expiration <span class="text-red-500 ml-1">*</span>';
+                document.querySelector('.warranty-preview .font-medium').textContent = 'License Until:';
+                break;
+            default:
+                document.querySelector('.warranty-label').innerHTML = 'Warranty Until <span class="text-red-500 ml-1">*</span>';
+                document.querySelector('.warranty-preview .font-medium').textContent = 'Warranty Until:';
+                break;
+        }
+    }
+    
+    // Update preview
+    updateTagPreview();
+}
+
+const rotatePreviewBtn = document.getElementById('rotate-preview');
+const cardFlipContainer = document.querySelector('.card-flip-container');
+
+if (rotatePreviewBtn && cardFlipContainer) {
+    rotatePreviewBtn.addEventListener('click', function() {
+        cardFlipContainer.classList.toggle('flipped');
+    });
+
+    // Also add click functionality to the card itself for easier flipping
+    const cardPreviewContainer = document.getElementById('card-preview-container');
+    if (cardPreviewContainer) {
+        cardPreviewContainer.addEventListener('click', function(e) {
+            // Don't flip if clicking rotate button (to prevent double toggling)
+            if (!e.target.closest('#rotate-preview')) {
+                cardFlipContainer.classList.toggle('flipped');
+            }
+        });
+    }
+}
+
+// Generate QR Code
+function generateQRCode() {
+    const qrElement = document.getElementById('card-qr-code-display');
+    if (!qrElement) {
+        console.error('QR code container not found');
+        return;
+    }
+    
+    // Skip generation if QR code image already exists
+    if (qrElement.querySelector('img[src^="data:image/png;base64"]')) {
+        return;
+    }
+    
+    // Clear any existing QR code
+    qrElement.innerHTML = '';
+    
+    const productName = document.getElementById('ProductName').value || 'Sample Product';
+    const category = document.getElementById('Category').value || 'Sample Category';
+    const qrFgColor = document.getElementById('qr-fg-color').value || '#000000';
+    const qrBgColor = document.getElementById('qr-bg-color').value || '#FFFFFF';
+    
+    // Update QR product name on back of card
+    const qrProductNameElement = document.getElementById('qr-product-name');
+    if (qrProductNameElement) {
+        qrProductNameElement.textContent = productName;
+    }
+    
+    // Enhanced QR code data with product ID for better tracking
+    const productId = @Model.Id;
+    const qrData = `PRODUCT:${productName}:CAT:${category}:ID:${productId}`;
+    
+    try {
+        // Make sure QRCode is defined
+        if (typeof QRCode === 'undefined' || !QRCode) {
+            throw new Error('QRCode library not loaded');
+        }
+        
+        // Create new QR Code
+        new QRCode(qrElement, {
+            text: qrData,
+            width: 160,
+            height: 160,
+            colorDark: qrFgColor,
+            colorLight: qrBgColor,
+            correctLevel: QRCode.CorrectLevel.H
+        });
+        
+        console.log('QR code generated successfully');
+        
+        // Force element to be visible
+        qrElement.style.display = 'block';
+    } catch (error) {
+        console.error('Error generating QR code:', error);
+        
+        // Create a more visible error/fallback display
+        qrElement.innerHTML = `
+            <div style="width:160px;height:160px;display:flex;flex-direction:column;align-items:center;justify-center;border:1px solid #e5e7eb;background:#f8fafc;padding:8px;">
+                <i class="fas fa-qrcode text-gray-400" style="font-size:48px;margin-bottom:8px;"></i>
+                <div style="font-size:12px;color:#6b7280;text-align:center;">QR Code Preview<br/>for ${productName}</div>
+            </div>
+        `;
+    }
+}
+
+// QR code color change event listeners
+document.getElementById('qr-fg-color').addEventListener('input', function() {
+    document.getElementById('qr-fg-color-text').value = this.value;
+    updateQrColors();
+    generateQRCode();
+});
+
+document.getElementById('qr-fg-color-text').addEventListener('input', function() {
+    document.getElementById('qr-fg-color').value = this.value;
+    updateQrColors();
+    generateQRCode();
+});
+
+document.getElementById('qr-bg-color').addEventListener('input', function() {
+    document.getElementById('qr-bg-color-text').value = this.value;
+    updateQrColors();
+    generateQRCode();
+});
+
+document.getElementById('qr-bg-color-text').addEventListener('input', function() {
+    document.getElementById('qr-bg-color').value = this.value;
+    updateQrColors();
+    generateQRCode();
+});
+
+// Apply template function
+async function applyTemplate(templateId) {
+    document.getElementById('templateTypeHidden').value = templateId;
+    
+    try {
+        const response = await fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Template/${templateId}`);
+        if (!response.ok) throw new Error(`API error: ${response.status}`);
+        
+        const template = await response.json();
+        
+        // Update selected template in UI
+        document.querySelectorAll('.template-card').forEach(card => {
+            card.classList.remove('border-primary-500');
+            if (card.getAttribute('data-template') === String(templateId)) {
+                card.classList.add('border-primary-500');
+            }
+        });
+        
+        // Set category from template
+        if (template.category) {
+            const categoryField = document.getElementById('Category');
+            if (categoryField) {
+                categoryField.value = template.category;
+            }
+        }
+        
+        // Clear and repopulate template fields
+        const templateFieldsContainer = document.getElementById('template-fields-container');
+        templateFieldsContainer.innerHTML = '';
+        displayCustomTemplateFields(template, templateFieldsContainer);
+        
+        // Update category-specific field visibility WITHOUT clearing template fields
+        if (template.category) {
+            const categoryValue = template.category.toLowerCase();
+            document.querySelectorAll('.field-group').forEach(field => {
+                const fieldClass = field.classList[1];
+                field.style.display = (fieldClass && fieldClass.includes(categoryValue)) ? 'block' : 'none';
+            });
+            
+            // Handle special categories
+            if (categoryValue.includes('chemical')) {
+                document.querySelectorAll('.chemical-field').forEach(el => el.style.display = 'block');
+            } else if (categoryValue.includes('design')) {
+                document.querySelectorAll('.design-field').forEach(el => el.style.display = 'block');
+                document.querySelector('.warranty-label').innerHTML = 'License Expiration <span class="text-red-500 ml-1">*</span>';
+                document.querySelector('.warranty-preview .font-medium').textContent = 'License Until:';
+            }
+        }
+        
+        // Update preview elements
+        document.getElementById('preview-template-name').textContent = template.name || 'Template';
+        document.getElementById('preview-template-icon').className = `fas fa-${template.icon || 'flask'}`;
+        
+        // Update preview and QR code - FORCE UPDATE HERE
+        updateTagPreview();
+        setTimeout(generateQRCode, 100);
+        
+        // Show success notification
+        showTemplateToast(template.name || 'Template');
+    } catch (error) {
+        console.error('Template application error:', error);
+    }
+}
+
+// Display custom template fields
+function displayCustomTemplateFields(template, container) {
+    // Clear container completely
+    container.innerHTML = '';
+    
+    let fields = [];
+    
+    // Parse fields with proper error handling
+    try {
+        if (template.fieldsJson && typeof template.fieldsJson === 'string') {
+            fields = JSON.parse(template.fieldsJson);
+        } else if (template.fieldsJson && Array.isArray(template.fieldsJson)) {
+            fields = template.fieldsJson;
+        } else if (template.fields && Array.isArray(template.fields)) {
+            fields = template.fields;
+        }
+    } catch (e) {
+        console.error('JSON parse error:', e);
+    }
+    
+    // Handle case with no fields
+    if (!fields || !fields.length) {
+        container.innerHTML = '<div class="p-4 bg-gray-50 rounded-lg"><p class="text-gray-500">No custom fields available</p></div>';
+        return;
+    }
+    
+    // Create fields with direct HTML injection for better performance
+    fields.forEach(field => {
+        // Ensure field name is properly sanitized but preserve the original name for custom fields
+        const sanitizedName = field.name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+        const fieldId = `custom-${sanitizedName}`;
+        
+        // Check if we already have a value for this field in the custom fields data
+        let existingValue = '';
+        try {
+            const customFieldsData = JSON.parse(document.getElementById('customFieldsDataHidden').value || '{}');
+            existingValue = customFieldsData[field.name] || '';
+        } catch (e) {
+            console.error('Error parsing existing custom fields:', e);
+        }
+        
+        let html = `
+            <div class="form-group mb-4" data-field-name="${field.name}">
+                <label for="${fieldId}" class="form-label text-gray-700 font-medium">
+                    ${field.name}
+                    ${field.required !== false ? '<span class="text-red-500 ml-1">*</span>' : ''}
+                </label>
+                <div class="relative">`;
+        
+        if (field.type === 'textarea') {
+            html += `<textarea id="${fieldId}" name="custom-${field.name}" class="form-input pl-9 h-20 focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" ${field.required !== false ? 'required' : ''}
+                     placeholder="${field.placeholder || ''}">${existingValue}</textarea>`;
+        } else if (field.type === 'select') {
+            html += `<select id="${fieldId}" name="custom-${field.name}" class="form-input pl-9 focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" ${field.required !== false ? 'required' : ''}>
+                    <option value="">Select ${field.name}</option>`;
+            if (field.options && Array.isArray(field.options)) {
+                field.options.forEach(option => {
+                    html += `<option value="${option}" ${existingValue === option ? 'selected' : ''}>${option}</option>`;
+                });
+            }
+            html += `</select>`;
+        } else {
+            html += `<input type="${field.type || 'text'}" id="${fieldId}" name="custom-${field.name}" class="form-input pl-9 focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow"
+                    value="${existingValue}" ${field.required !== false ? 'required' : ''} placeholder="${field.placeholder || ''}">`;
+        }
+        
+        html += `
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-${field.icon || 'tag'} text-gray-400"></i>
+                </div>
+            </div>
+        </div>`;
+        
+        container.innerHTML += html;
+    });
+    
+    // Add a special class to the container to indicate it has template fields
+    container.classList.add('has-template-fields');
+    
+    // Add heading to make fields more organized
+    if (fields.length > 0) {
+        container.insertAdjacentHTML('afterbegin', `
+            <h4 class="text-md font-semibold text-primary-600 mb-3 flex items-center">
+                <i class="fas fa-clipboard-list mr-2"></i>
+                Product Specific Fields
+            </h4>
+        `);
+    }
+    
+    // Attach event listeners to all newly created fields
+    setTimeout(() => {
+        const newInputs = container.querySelectorAll('input, textarea, select');
+        newInputs.forEach(input => {
+            input.addEventListener('input', function() {
+                updateTagPreview();
+            });
+            input.addEventListener('change', function() {
+                updateTagPreview();
+            });
+        });
+        
+        // Trigger preview update immediately
+        updateTagPreview();
+        setTimeout(generateQRCode, 100);
+    }, 50);
+}
+
+// Update tag preview based on form values
+function updateTagPreview() {
+    console.log("Updating preview...");
+    const preview = document.getElementById('tag-preview');
+    const previewName = document.getElementById('preview-name');
+    const previewCategory = document.getElementById('preview-category');
+    const previewLocation = document.getElementById('preview-location');
+    const previewMfgDate = document.getElementById('preview-mfgdate');
+    const previewWarranty = document.getElementById('preview-warranty');
+    const previewMaintenance = document.getElementById('preview-maintenance');
+    const previewCustomFields = document.getElementById('preview-custom-fields');
+    const previewFieldsTitle = document.getElementById('preview-fields-title');
+    
+    if (!preview || !previewName || !previewCategory) {
+        console.error("Preview elements not found");
+        return;
+    }
+    
+    // Update colors
+    const bgColor = document.getElementById('BackgroundColor')?.value || '#ffffff';
+    const textColor = document.getElementById('TextColor')?.value || '#000000';
+    const accentColor = document.getElementById('AccentColor')?.value || '#0284c7';
+    
+    preview.style.backgroundColor = bgColor;
+    preview.style.color = textColor;
+    previewName.style.color = accentColor;
+    previewCategory.style.backgroundColor = accentColor;
+    previewCategory.style.color = '#ffffff'; // Set text color to white for better readability
+    
+    // Update Product Fields title color
+    if (previewFieldsTitle) {
+        previewFieldsTitle.style.color = accentColor;
+    }
+    
+    document.querySelectorAll('#tag-preview i').forEach(icon => {
+        icon.style.color = accentColor;
+    });
+    
+    // Update back of card background
+    const cardBack = document.querySelector('.card-back');
+    if (cardBack) {
+        cardBack.style.backgroundColor = bgColor;
+    }
+    
+    // Update content
+    const productName = document.getElementById('ProductName');
+    if (productName) {
+        const productNameValue = productName.value.trim();
+        previewName.textContent = productNameValue || "Product Name";
+        
+        // Update QR product name
+        const qrProductName = document.getElementById('qr-product-name');
+        if (qrProductName) {
+            qrProductName.textContent = productNameValue || "Product Name";
+        }
+        
+        // Update QR code when product name changes
+        if (productNameValue) {
+            setTimeout(generateQRCode, 100);
+        }
+    }
+    
+    const category = document.getElementById('Category');
+    if (category) {
+        previewCategory.textContent = category.value || "Category";
+    }
+    
+    const location = document.getElementById('Location');
+    if (location) {
+        previewLocation.textContent = location.value || "Not specified";
+    }
+    
+    const mfgDate = document.getElementById('ManufactureDate');
+    if (mfgDate && mfgDate.value) {
+        previewMfgDate.textContent = new Date(mfgDate.value).toLocaleDateString();
+    }
+    
+    const warranty = document.getElementById('WarrantyExpiration');
+    if (warranty && warranty.value) {
+        previewWarranty.textContent = new Date(warranty.value).toLocaleDateString();
+    }
+    
+    const maintenance = document.getElementById('MaintenanceInfo');
+    if (maintenance) {
+        previewMaintenance.textContent = maintenance.value ? 
+            (maintenance.value.length > 15 ? maintenance.value.substring(0, 15) + '...' : maintenance.value) : 
+            "No info";
+    }
+    
+    // Update custom fields - with deduplication and 2-column layout
+    if (previewCustomFields) {
+        previewCustomFields.innerHTML = '';
+        
+        // Track field IDs to prevent duplication
+        const processedFieldIds = new Set();
+        let hasCustomFields = false;
+        
+        // Process template fields first
+        const templateFields = document.querySelectorAll('#template-fields-container .form-group[data-field-name]');
+        templateFields.forEach(field => {
+            const fieldName = field.getAttribute('data-field-name');
+            const input = field.querySelector('input, textarea, select');
+            
+            if (input && input.value && !processedFieldIds.has(input.id)) {
+                processedFieldIds.add(input.id);
+                hasCustomFields = true;
+                
+                let fieldIcon = 'tag';
+                const iconElement = field.querySelector('.fas');
+                if (iconElement) {
+                    const iconClass = iconElement.className.replace('fas fa-', '');
+                    fieldIcon = iconClass.split(' ')[0];
+                }
+                
+                // Updated for more compact 2-column layout
+                const fieldElement = document.createElement('div');
+                fieldElement.className = 'flex items-center py-0.5 border-b border-gray-100 last:border-0 text-xs';
+                fieldElement.innerHTML = `
+                    <i class="fas fa-${fieldIcon} mr-1" style="color: ${accentColor}; width: 12px; font-size: 10px;"></i>
+                    <span class="font-medium mr-1">${fieldName}:</span>
+                    <span class="truncate">${input.value}</span>
+                `;
+                
+                previewCustomFields.appendChild(fieldElement);
+            }
+        });
+        
+        // Process any remaining custom fields
+        const customInputs = document.querySelectorAll('[id^="custom-"]');
+        customInputs.forEach(input => {
+            if (input.value && !processedFieldIds.has(input.id)) {
+                processedFieldIds.add(input.id);
+                hasCustomFields = true;
+                
+                let fieldName = input.id.replace('custom-', '')
+                                .split('-')
+                                .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+                                .join(' ');
+                
+                const formGroup = input.closest('.form-group');
+                let fieldIcon = 'tag';
+                if (formGroup) {
+                    const iconElement = formGroup.querySelector('.fas');
+                    if (iconElement) {
+                        const iconClass = iconElement.className.replace('fas fa-', '');
+                        fieldIcon = iconClass.split(' ')[0];
+                    }
+                }
+                
+                // Updated for more compact 2-column layout
+                const fieldElement = document.createElement('div');
+                fieldElement.className = 'flex items-center py-0.5 border-b border-gray-100 last:border-0 text-xs';
+                fieldElement.innerHTML = `
+                    <i class="fas fa-${fieldIcon} mr-1" style="color: ${accentColor}; width: 12px; font-size: 10px;"></i>
+                    <span class="font-medium mr-1">${fieldName}:</span>
+                    <span class="truncate">${input.value}</span>
+                `;
+                
+                previewCustomFields.appendChild(fieldElement);
+            }
+        });
+        
+        // Hide the field section if no custom fields
+        const fieldSection = previewCustomFields.closest('.border-t.border-b');
+        if (fieldSection) {
+            fieldSection.style.display = hasCustomFields ? 'block' : 'none';
+        }
+    }
+    
+    // Force visibility of preview elements
+    preview.style.display = 'block';
+    if (cardBack) cardBack.style.display = 'block';
+}
+
+// Template toast functions
+window.showTemplateToast = function(templateName) {
+    const toast = document.getElementById('template-toast');
+    const message = document.getElementById('template-toast-message');
+    
+    message.textContent = `Template "${templateName}" has been applied successfully`;
+    
+    toast.classList.remove('hidden', '-translate-y-12', 'opacity-0');
+    toast.classList.add('translate-y-0', 'opacity-100');
+    
+    setTimeout(hideTemplateToast, 3000);
+};
+
+window.hideTemplateToast = function() {
+    const toast = document.getElementById('template-toast');
+    toast.classList.remove('translate-y-0', 'opacity-100');
+    toast.classList.add('-translate-y-12', 'opacity-0');
+    
+    setTimeout(() => {
+        toast.classList.add('hidden');
+    }, 300);
+};
+
+// Validate entire form
+function validateForm() {
+    let isValid = true;
+    let invalidFields = [];
+    
+    try {
+        // Only check required fields in visible sections
+        const activeStep = document.querySelector('.form-section:not(.hidden)');
+        if (!activeStep) return true; // No active step found, allow submission
+        
+        const requiredFields = activeStep.querySelectorAll('[required]');
+        
+        requiredFields.forEach(field => {
+            // Skip hidden fields
+            if (field.closest('.hidden')) return;
+            
+            if (!field.value.trim()) {
+                field.classList.add('border-red-500');
+                isValid = false;
+                invalidFields.push(field.id || field.name);
+            } else {
+                field.classList.remove('border-red-500');
+            }
+        });
+        
+        if (!isValid) {
+            showNotification('Please fill in all required fields', 'error');
+            // Focus the first invalid field
+            if (invalidFields.length > 0) {
+                const firstInvalidField = document.getElementById(invalidFields[0]);
+                if (firstInvalidField) firstInvalidField.focus();
+            }
+        }
+    } catch (error) {
+        console.error('Validation error:', error);
+        return true; // Allow submission if validation throws an error
+    }
+    
+    return isValid;
+}
+
+// Notification system
+window.showNotification = function(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = 'fixed bottom-4 right-4 bg-white shadow-lg rounded-lg p-4 transform translate-y-0 opacity-0 transition-all duration-300 z-50 max-w-sm border border-gray-200';
+    
+    let iconClass, iconColor, bgColor;
+    if (type === 'success') {
+        iconClass = 'fas fa-check';
+        iconColor = 'text-green-500';
+        bgColor = 'bg-green-100';
+    } else if (type === 'error') {
+        iconClass = 'fas fa-times';
+        iconColor = 'text-red-500';
+        bgColor = 'bg-red-100';
+    } else if (type === 'info') {
+        iconClass = 'fas fa-info';
+        iconColor = 'text-blue-500';
+        bgColor = 'bg-blue-100';
+    }
+    
+    toast.innerHTML = `
+        <div class="flex items-center">
+            <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full ${bgColor} ${iconColor} mr-3">
+                <i class="${iconClass}"></i>
+            </div>
+            <div class="flex-grow">
+                <p class="font-medium">${type.charAt(0).toUpperCase() + type.slice(1)}</p>
+                <p class="text-sm text-gray-500">${message}</p>
+            </div>
+            <button onclick="this.parentNode.parentNode.remove()" class="ml-2 text-gray-400 hover:text-gray-600 h-8 w-8 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // Animate in
+    setTimeout(() => {
+        toast.classList.replace('opacity-0', 'opacity-100');
+        toast.classList.replace('translate-y-0', 'translate-y-[-20px]');
+    }, 10);
+    
+    // Automatically remove after 3 seconds
+    setTimeout(() => {
+        toast.classList.replace('opacity-100', 'opacity-0');
+        toast.classList.replace('translate-y-[-20px]', 'translate-y-20');
+        
+        // Remove from DOM after animation
+        setTimeout(() => {
+            toast.remove();
+        }, 300);
+    }, 3000);
+};
+
+// Update success toast functions
+window.showUpdateSuccessToast = function(message) {
+    const toast = document.getElementById('update-toast');
+    const messageElem = toast.querySelector('p.text-sm');
+    
+    if (message) {
+        messageElem.textContent = message;
+    }
+    
+    toast.classList.remove('hidden', '-translate-y-12', 'opacity-0');
+    toast.classList.add('translate-y-0', 'opacity-100');
+    
+    setTimeout(hideUpdateToast, 3000);
+};
+
+window.hideUpdateToast = function() {
+    const toast = document.getElementById('update-toast');
+    toast.classList.remove('translate-y-0', 'opacity-100');
+    toast.classList.add('-translate-y-12', 'opacity-0');
+    
+    setTimeout(() => {
+        toast.classList.add('hidden');
+    }, 300);
+};
+
+// Initialize categories
+async function initializeCategories() {
+    try {
+        // Change from using undefined 'category' variable to the Categories endpoint
+        const response = await fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Template/Categories`);
+        if (!response.ok) throw new Error('Failed to fetch categories');
+        
+        const categories = await response.json();
+        
+        // Update template tabs
+        const templateTabs = document.querySelector('.template-tabs');
+        const firstTab = templateTabs.querySelector('.template-tab'); // Keep the "All" tab
+        
+        // Remove existing category tabs (except the first "All" tab)
+        Array.from(templateTabs.querySelectorAll('.template-tab:not(:first-child)')).forEach(tab => {
+            tab.remove();
+        });
+        
+        // Add category tabs
+        categories.forEach(category => {
+            const tabButton = document.createElement('button');
+            tabButton.type = 'button';
+            tabButton.className = 'template-tab whitespace-nowrap px-4 py-2 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700';
+            const categoryValue = category.toLowerCase().replace(/\s+/g, '-');
+            tabButton.setAttribute('data-category', categoryValue);
+            tabButton.textContent = category;
+            templateTabs.appendChild(tabButton);
+        });
+    } catch (error) {
+        console.error('Error loading categories:', error);
+        showNotification('Error loading categories', 'error');
+    }
+}
+
+// Initialize steps functionality
+function initializeSteps() {
+    const nextButtons = document.querySelectorAll('.next-step');
+    const prevButtons = document.querySelectorAll('.prev-step');
+    const formSections = document.querySelectorAll('.form-section');
+    const stepIndicator = document.querySelector('.step-indicator');
+    const steps = document.querySelectorAll('.step');
+    const progressBars = document.querySelectorAll('.step-progress');
+    const templateLibrary = document.querySelector('[data-component="template-library"]');
+    
+    // Handle next button clicks
+    nextButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const currentStep = parseInt(this.getAttribute('data-next')) - 1;
+            const nextStep = parseInt(this.getAttribute('data-next'));
+            
+            // Validate current step before proceeding
+            if (validateStep(currentStep)) {
+                // Hide current section, show next section
+                formSections.forEach(section => {
+                    section.classList.add('hidden');
+                });
+                
+                document.querySelector(`.form-section[data-step="${nextStep}"]`).classList.remove('hidden');
+                
+                // Hide template library when not on step 1
+                if (nextStep !== 1 && templateLibrary) {
+                    templateLibrary.classList.add('hidden');
+                }
+                
+                // Update step indicator
+                stepIndicator.textContent = `Step ${nextStep} of 3`;
+                
+                // Update step circles
+                steps.forEach(step => {
+                    step.classList.remove('active');
+                });
+                
+                document.querySelector(`.step[data-step="${nextStep}"]`).classList.add('active');
+                
+                // Update progress bars
+                for (let i = 0; i < nextStep - 1; i++) {
+                    progressBars[i].style.width = '100%';
+                }
+                
+                // Update form progress
+                updateFormProgress(nextStep);
+                
+                // If moving to step 3, generate QR code preview
+                if (nextStep === 3) {
+                    generateQRCode();
+                }
+                
+                // Scroll to top
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+    
+    // Handle previous button clicks
+    prevButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const prevStep = parseInt(this.getAttribute('data-prev'));
+            
+            // Hide current section, show previous section
+            formSections.forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            document.querySelector(`.form-section[data-step="${prevStep}"]`).classList.remove('hidden');
+            
+            // Show template library when on step 1
+            if (prevStep === 1 && templateLibrary) {
+                templateLibrary.classList.remove('hidden');
+            }
+            
+            // Update step indicator
+            stepIndicator.textContent = `Step ${prevStep} of 3`;
+            
+            // Update step circles
+            steps.forEach(step => {
+                step.classList.remove('active');
+            });
+            
+            document.querySelector(`.step[data-step="${prevStep}"]`).classList.add('active');
+            
+            // Update form progress
+            updateFormProgress(prevStep);
+            
+            // Scroll to top
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    });
+    
+    // Validate step before proceeding
+    function validateStep(stepNumber) {
+        let isValid = true;
+        const currentSection = document.querySelector(`.form-section[data-step="${stepNumber + 1}"]`);
+        const requiredFields = currentSection.querySelectorAll('[required]');
+        
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                field.classList.add('border-red-500');
+                isValid = false;
+            } else {
+                field.classList.remove('border-red-500');
+            }
+        });
+        
+        if (!isValid) {
+            // Show error notification
+            showNotification('Please fill in all required fields', 'error');
+            
+            // Scroll to first invalid field
+            const firstInvalidField = currentSection.querySelector('.border-red-500');
+            if (firstInvalidField) {
+                firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstInvalidField.focus();
+            }
+        }
+        
+        return isValid;
+    }
+    
+    // Update form progress
+    function updateFormProgress(step) {
+        // Calculate progress percentage
+        const progress = ((step - 1) / 2) * 100;
+        
+        // Update progress bars
+        document.querySelectorAll('.step-progress').forEach((progressBar, index) => {
+            if (index < step - 1) {
+                progressBar.style.width = '100%';
+            } else {
+                progressBar.style.width = '0%';
+            }
+        });
+        
+        // Update step circles
+        document.querySelectorAll('.step').forEach((stepCircle, index) => {
+            const stepNumber = index + 1;
+            
+            if (stepNumber < step) {
+                // Completed step
+                stepCircle.classList.add('active');
+                stepCircle.querySelector('.step-circle').classList.remove('bg-gray-200', 'text-gray-600');
+                stepCircle.querySelector('.step-circle').classList.add('bg-primary-600', 'text-white');
+            } else if (stepNumber === step) {
+                // Current step
+                stepCircle.classList.add('active');
+                stepCircle.querySelector('.step-circle').classList.remove('bg-gray-200', 'text-gray-600');
+                stepCircle.querySelector('.step-circle').classList.add('bg-primary-600', 'text-white');
+            } else {
+                // Upcoming step
+                stepCircle.classList.remove('active');
+                stepCircle.querySelector('.step-circle').classList.remove('bg-primary-600', 'text-white');
+                stepCircle.querySelector('.step-circle').classList.add('bg-gray-200', 'text-gray-600');
+            }
+        });
+    }
+}
+
+// Initialize color pickers
+function initializeColorPickers() {
+    // Background color
+    const bgColorPicker = document.getElementById('bg-color-picker');
+    const bgColorText = document.getElementById('BackgroundColor');
+    const bgColorPreview = document.getElementById('bg-color-preview');
+    
+    // For the color picker that's hidden, we need to handle the preview div click
+    bgColorPreview.addEventListener('click', function() {
+        bgColorPicker.click();
+    });
+    
+    bgColorPicker.addEventListener('input', function() {
+        bgColorText.value = this.value;
+        bgColorPreview.style.backgroundColor = this.value;
+        updateTagPreview();
+    });
+    
+    bgColorText.addEventListener('input', function() {
+        try {
+            bgColorPicker.value = this.value;
+            bgColorPreview.style.backgroundColor = this.value;
+            updateTagPreview();
+        } catch (e) {
+            // Invalid color value, ignore
+        }
+    });
+    
+    // Text color
+    const textColorPicker = document.getElementById('text-color-picker');
+    const textColorText = document.getElementById('TextColor');
+    
+    textColorPicker.addEventListener('input', function() {
+        textColorText.value = this.value;
+        updateTagPreview();
+    });
+    
+    textColorText.addEventListener('input', function() {
+        try {
+            textColorPicker.value = this.value;
+            updateTagPreview();
+        } catch (e) {
+            // Invalid color value, ignore
+        }
+    });
+    
+    // Accent color
+    const accentColorPicker = document.getElementById('accent-color-picker');
+    const accentColorText = document.getElementById('AccentColor');
+    
+    accentColorPicker.addEventListener('input', function() {
+        accentColorText.value = this.value;
+        updateTagPreview();
+    });
+    
+    accentColorText.addEventListener('input', function() {
+        try {
+            accentColorPicker.value = this.value;
+            updateTagPreview();
+        } catch (e) {
+            // Invalid color value, ignore
+        }
+    });
+    
+    // Color presets
+    document.querySelectorAll('.color-preset').forEach(preset => {
+        preset.addEventListener('click', function() {
+            const color = this.getAttribute('data-color');
+            const parent = this.closest('.color-picker-wrapper');
+            
+            if (parent) {
+                const colorInput = parent.querySelector('input[type="color"]');
+                const textInput = parent.querySelector('input[type="text"]');
+                const hiddenInput = parent.querySelector('input[type="hidden"]');
+                const colorPreview = parent.querySelector('.color-preview');
+                
+                if (colorInput && textInput) {
+                    colorInput.value = color;
+                    textInput.value = color;
+                    
+                    // Trigger change event to update preview
+                    colorInput.dispatchEvent(new Event('input'));
+                    
+                    if (colorPreview) {
+                        colorPreview.style.backgroundColor = color;
+                    }
+                    
+                    // Update hidden input if exists
+                    if (hiddenInput) {
+                        hiddenInput.value = color;
+                    }
+                }
+            }
+        });
+    });
+}
+
+// Initialize image upload
+function initializeImageUpload() {
+    const dropzone = document.getElementById('dropzone');
+    const imageInput = document.getElementById('product-image');
+    const imagePreview = document.getElementById('image-preview');
+    const previewImage = imagePreview.querySelector('img');
+    const previewFilename = imagePreview.querySelector('.filename');
+    const removeImageBtn = document.getElementById('remove-image');
+    
+    // Open file dialog when clicking on dropzone
+    dropzone.addEventListener('click', function() {
+        imageInput.click();
+    });
+    
+    // Handle file selection
+    imageInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const file = this.files[0];
+            
+            // Check file type and size
+            if (!file.type.match('image.*')) {
+                showNotification('Please select an image file', 'error');
+                return;
+            }
+            
+            if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                showNotification('Image must be less than 5MB', 'error');
+                return;
+            }
+            
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImage.src = e.target.result;
+                previewFilename.textContent = file.name;
+                imagePreview.classList.remove('hidden');
+                dropzone.classList.add('border-primary-400', 'border-opacity-20', 'bg-primary-50', 'bg-opacity-30');
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+    
+    // Handle drag and drop
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+    });
+    
+    // Highlight dropzone on drag over
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropzone.addEventListener(eventName, function() {
+            this.classList.add('border-primary-400', 'border-opacity-50', 'bg-primary-50');
+        });
+    });
+    
+    // Remove highlight on drag leave
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, function() {
+            this.classList.remove('border-primary-400', 'border-opacity-50', 'bg-primary-50');
+        });
+    });
+    
+    // Handle file drop
+    dropzone.addEventListener('drop', function(e) {
+        const files = e.dataTransfer.files;
+        
+        if (files && files[0]) {
+            const file = files[0];
+            
+            // Check file type and size
+            if (!file.type.match('image.*')) {
+                showNotification('Please select an image file', 'error');
+                return;
+            }
+            
+            if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                showNotification('Image must be less than 5MB', 'error');
+                return;
+            }
+            
+            // Update file input
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            imageInput.files = dataTransfer.files;
+            
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImage.src = e.target.result;
+                previewFilename.textContent = file.name;
+                imagePreview.classList.remove('hidden');
+                dropzone.classList.add('border-primary-400', 'border-opacity-20', 'bg-primary-50', 'bg-opacity-30');
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+    
+    // Remove image
+    removeImageBtn.addEventListener('click', function() {
+        imageInput.value = '';
+        // Don't clear the image preview src for edit mode when there's an existing image
+        if (!previewImage.src.includes('http')) {
+            previewImage.src = '';
+            previewFilename.textContent = '';
+            imagePreview.classList.add('hidden');
+        } else {
+            // Create a hidden input to flag image removal
+            const removeImageFlag = document.createElement('input');
+            removeImageFlag.type = 'hidden';
+            removeImageFlag.name = 'RemoveExistingImage';
+            removeImageFlag.value = 'true';
+            document.getElementById('product-form').appendChild(removeImageFlag);
+            
+            // Update the UI to show the image will be removed
+            previewFilename.textContent = 'Image will be removed';
+            previewImage.style.opacity = '0.5';
+        }
+        dropzone.classList.remove('border-primary-400', 'border-opacity-20', 'bg-primary-50', 'bg-opacity-30');
+    });
+}
+
+// Initialize template modal
+function initializeTemplateModal() {
+    // Modal elements
+    const createBtn = document.getElementById('create-template-btn');
+    const modal = document.getElementById('create-template-modal');
+    const closeBtn = document.getElementById('close-template-modal');
+    const cancelBtn = document.getElementById('cancel-template-btn');
+    const saveBtn = document.getElementById('save-template-btn');
+    const deleteBtn = document.getElementById('delete-template-btn');
+    const addFieldBtn = document.getElementById('add-field-btn');
+    const customFields = document.getElementById('custom-fields');
+    const deleteModal = document.getElementById('delete-template-modal');
+    const closeDeleteBtn = document.getElementById('close-delete-modal');
+    const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+    const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+    
+    // Open template modal
+    createBtn.addEventListener('click', () => openTemplateModal('create'));
+    
+    // Handle edit template button clicks
+    document.addEventListener('click', e => {
+        const btn = e.target.closest('.edit-template-btn');
+        if (btn) {
+            const templateId = btn.getAttribute('data-template');
+            openTemplateModal('edit', templateId);
+        }
+    });
+    
+    // Open template modal function
+    async function openTemplateModal(mode, templateId = null) {
+        // Set modal title based on mode
+        document.getElementById('template-modal-title').textContent = mode === 'create' ? 'Create New Template' : 'Edit Template';
+        
+        // Show/hide delete button
+        deleteBtn.classList.toggle('hidden', mode === 'create');
+        
+        // Reset form
+        document.getElementById('template-form').reset();
+        document.getElementById('template-edit-id').value = '';
+        
+        // Clear custom fields except the first one
+        const fieldRows = customFields.querySelectorAll('.custom-field-row');
+        if (fieldRows.length > 1) {
+            for (let i = 1; i < fieldRows.length; i++) {
+                fieldRows[i].remove();
+            }
+        }
+        
+        // Reset first field row
+        const firstRow = customFields.querySelector('.custom-field-row');
+        if (firstRow) {
+            firstRow.querySelector('.field-name').value = '';
+            firstRow.querySelector('.field-type').value = 'text';
+            firstRow.querySelector('.field-icon').value = 'tag';
+            firstRow.querySelector('.field-placeholder').value = '';
+            firstRow.querySelector('.field-options').classList.add('hidden');
+            
+            if (firstRow.querySelector('.field-options-input')) {
+                firstRow.querySelector('.field-options-input').value = '';
+            }
+            
+            if (firstRow.querySelector('.field-required')) {
+                firstRow.querySelector('.field-required').checked = true;
+            }
+        }
+        
+        // Reset icon selection
+        document.querySelectorAll('.icon-option').forEach(opt => {
+            opt.classList.remove('border-primary-500', 'active');
+            opt.querySelector('i').classList.remove('text-primary-500');
+            opt.querySelector('i').classList.add('text-gray-500');
+        });
+        
+        document.querySelector('.icon-option[data-icon="flask"]').classList.add('border-primary-500', 'active');
+        document.querySelector('.icon-option[data-icon="flask"] i').classList.remove('text-gray-500');
+        document.querySelector('.icon-option[data-icon="flask"] i').classList.add('text-primary-500');
+        document.getElementById('template-icon').value = 'flask';
+        
+        // If editing, populate form with template data
+        if (mode === 'edit' && templateId) {
+            await populateTemplateForm(templateId);
+        }
+        
+        // Show modal
+        modal.classList.remove('hidden');
+        
+        // Animate modal
+        setTimeout(() => {
+            modal.querySelector('.bg-white').classList.remove('opacity-0', 'scale-95');
+            modal.querySelector('.bg-white').classList.add('opacity-100', 'scale-100');
+        }, 10);
+    }
+    
+    // Add custom field row
+    function addCustomField(fieldData = null) {
+        const newField = document.createElement('div');
+        newField.className = 'custom-field-row flex items-start gap-3 p-4 border border-gray-200 rounded-lg bg-gray-50 hover:bg-white hover:shadow-sm transition-all';
+        
+        const fieldId = Date.now();
+        
+        newField.innerHTML = `
+            <div class="flex-grow">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="form-group mb-2">
+                        <label class="form-label text-sm">Field Name <span class="text-red-500">*</span></label>
+                        <input type="text" class="form-input py-2 text-sm field-name focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" placeholder="E.g., Lab ID" required>
+                    </div>
+                    <div class="form-group mb-2">
+                        <label class="form-label text-sm">Field Type <span class="text-red-500">*</span></label>
+                        <select class="form-input py-2 text-sm field-type focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow">
+                            <option value="text">Text</option>
+                            <option value="select">Dropdown</option>
+                            <option value="number">Number</option>
+                            <option value="date">Date</option>
+                            <option value="textarea">Text Area</option>
+                        </select>
+                    </div>
+                    <div class="form-group mb-2">
+                        <label class="form-label text-sm">Icon</label>
+                        <select class="form-input py-2 text-sm field-icon focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow">
+                            <option value="tag">Tag</option>
+                            <option value="info-circle">Info</option>
+                            <option value="check-circle">Check</option>
+                            <option value="flag">Flag</option>
+                            <option value="clipboard">Clipboard</option>
+                            <option value="calendar">Calendar</option>
+                            <option value="user">User</option>
+                            <option value="link">Link</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="field-options hidden mt-3">
+                    <label class="form-label text-sm">Options (comma separated)</label>
+                    <input type="text" class="form-input py-2 text-sm field-options-input focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" placeholder="Option 1, Option 2, Option 3">
+                </div>
+                <div class="form-group mt-3">
+                    <label class="form-label text-sm">Placeholder</label>
+                    <input type="text" class="form-input py-2 text-sm field-placeholder focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" placeholder="Enter placeholder text">
+                </div>
+                <div class="form-group mt-2">
+                    <div class="flex items-center">
+                        <input type="checkbox" class="field-required mr-2 h-4 w-4 text-primary-600 focus:ring-primary-500 rounded" id="field-required-checkbox-${fieldId}" checked>
+                        <label for="field-required-checkbox-${fieldId}" class="text-sm">Required</label>
+                    </div>
+                </div>
+            </div>
+            <div class="flex-shrink-0 mt-6">
+                <button type="button" class="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full transition-colors remove-field-btn">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        `;
+        
+        customFields.appendChild(newField);
+        
+        // Add event listener for field type change
+        const fieldTypeSelect = newField.querySelector('.field-type');
+        fieldTypeSelect.addEventListener('change', function() {
+            const optionsDiv = newField.querySelector('.field-options');
+            optionsDiv.classList.toggle('hidden', this.value !== 'select');
+        });
+        
+        // If field data provided, populate the field
+        if (fieldData) {
+            populateFieldRow(newField, fieldData);
+        }
+        
+        return newField;
+    }
+    
+    // Populate field row with data
+    function populateFieldRow(row, fieldData) {
+        const nameInput = row.querySelector('.field-name');
+        const typeSelect = row.querySelector('.field-type');
+        const iconSelect = row.querySelector('.field-icon');
+        const placeholderInput = row.querySelector('.field-placeholder');
+        const requiredCheckbox = row.querySelector('.field-required');
+        const optionsDiv = row.querySelector('.field-options');
+        const optionsInput = row.querySelector('.field-options-input');
+        
+        nameInput.value = fieldData.name || '';
+        typeSelect.value = fieldData.type || 'text';
+        iconSelect.value = fieldData.icon || 'tag';
+        placeholderInput.value = fieldData.placeholder || '';
+        
+        if (requiredCheckbox) {
+            requiredCheckbox.checked = fieldData.required !== false;
+        }
+        
+        if (fieldData.type === 'select') {
+            optionsDiv.classList.remove('hidden');
+            
+            if (optionsInput && fieldData.options && Array.isArray(fieldData.options)) {
+                optionsInput.value = fieldData.options.join(', ');
+            }
+        }
+    }
+    
+    // Populate template form with data
+    async function populateTemplateForm(templateId) {
+        try {
+            const response = await fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Template/${templateId}`);
+            if (!response.ok) throw new Error('Failed to fetch template');
+            
+            const template = await response.json();
+            
+            // Set template ID and delete ID
+            document.getElementById('template-edit-id').value = template.id;
+            document.getElementById('delete-template-id').value = template.id;
+            document.getElementById('delete-template-name').textContent = template.name;
+            
+            // Populate basic fields
+            document.getElementById('template-name').value = template.name || '';
+            document.getElementById('template-category').value = template.category || '';
+            document.getElementById('template-bg-color').value = template.bgColor || '#f0f9ff';
+            document.getElementById('template-bg-color-text').value = template.bgColor || '#f0f9ff';
+            
+            // Set icon color values
+            document.getElementById('template-icon-color-picker').value = template.iconColor || '#0284c7';
+            document.getElementById('template-icon-color-text').value = template.iconColor || '#0284c7';
+            document.getElementById('template-icon-color').value = template.iconColor || '#0284c7';
+            
+            // Select icon
+            const iconElement = document.querySelector(`.icon-option[data-icon="${template.icon}"]`);
+            if (iconElement) {
+                document.querySelectorAll('.icon-option').forEach(opt => {
+                    opt.classList.remove('border-primary-500', 'active');
+                    opt.querySelector('i').classList.remove('text-primary-500');
+                    opt.querySelector('i').classList.add('text-gray-500');
+                });
+                
+                iconElement.classList.add('border-primary-500', 'active');
+                iconElement.querySelector('i').classList.remove('text-gray-500');
+                iconElement.querySelector('i').style.color = template.iconColor || '#0284c7';
+                document.getElementById('template-icon').value = template.icon;
+            }
+
+            // Parse fields
+            let fields = [];
+            try {
+                if (template.fieldsJson) {
+                    fields = JSON.parse(template.fieldsJson);
+                }
+            } catch (e) {
+                console.error('Error parsing fields JSON:', e);
+            }
+            
+            // Clear existing fields
+            customFields.innerHTML = '';
+            
+            // Add field rows
+            if (fields && fields.length > 0) {
+                fields.forEach(field => addCustomField(field));
+            } else {
+                addCustomField(); // Add an empty field
+            }
+        } catch (error) {
+            console.error('Error populating template form:', error);
+            showNotification('Error loading template', 'error');
+        }
+    }
+    
+    // Close modal functions
+    function closeModal() {
+        modal.querySelector('.bg-white').classList.remove('opacity-100', 'scale-100');
+        modal.querySelector('.bg-white').classList.add('opacity-0', 'scale-95');
+        
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+    }
+    
+    closeBtn.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('click', closeModal);
+    
+    // Close delete modal
+    function closeDeleteModal() {
+        deleteModal.querySelector('.bg-white').classList.remove('opacity-100', 'scale-100');
+        deleteModal.querySelector('.bg-white').classList.add('opacity-0', 'scale-95');
+        
+        setTimeout(() => {
+            deleteModal.classList.add('hidden');
+        }, 300);
+    }
+    
+    closeDeleteBtn.addEventListener('click', closeDeleteModal);
+    cancelDeleteBtn.addEventListener('click', closeDeleteModal);
+    
+    // Icon selection
+    document.querySelectorAll('.icon-option').forEach(option => {
+        option.addEventListener('click', function() {
+            // Remove active class from all options
+            document.querySelectorAll('.icon-option').forEach(opt => {
+                opt.classList.remove('border-primary-500', 'active');
+                opt.querySelector('i').classList.remove('text-primary-500');
+                opt.querySelector('i').classList.add('text-gray-500');
+            });
+            
+            // Add active class to this option
+            this.classList.add('border-primary-500', 'active');
+            const iconElement = this.querySelector('i');
+            iconElement.classList.remove('text-gray-500');
+            
+            // Update hidden input
+            document.getElementById('template-icon').value = this.getAttribute('data-icon');
+            
+            // Apply current icon color
+            const iconColorValue = document.getElementById('template-icon-color').value;
+            iconElement.style.color = iconColorValue;
+        });
+    });
+    
+    // Add field button
+    addFieldBtn.addEventListener('click', function() {
+        addCustomField();
+    });
+    
+    // Remove field button
+    customFields.addEventListener('click', function(e) {
+        const btn = e.target.closest('.remove-field-btn');
+        if (btn) {
+            const fieldRow = btn.closest('.custom-field-row');
+            
+            // Don't remove if it's the last field
+            if (customFields.querySelectorAll('.custom-field-row').length > 1) {
+                fieldRow.remove();
+            } else {
+                showNotification('You must have at least one custom field', 'error');
+            }
+        }
+    });
+    
+    // Delete template button
+    deleteBtn.addEventListener('click', function() {
+        const templateId = document.getElementById('template-edit-id').value;
+        const templateName = document.getElementById('template-name').value;
+        
+        if (!templateId) return;
+        
+        // Update confirmation modal
+        document.getElementById('delete-template-name').textContent = templateName;
+        document.getElementById('delete-template-id').value = templateId;
+        
+        // Hide template modal
+        closeModal();
+        
+        // Show delete confirmation modal
+        deleteModal.classList.remove('hidden');
+        
+        setTimeout(() => {
+            deleteModal.querySelector('.bg-white').classList.remove('opacity-0', 'scale-95');
+            deleteModal.querySelector('.bg-white').classList.add('opacity-100', 'scale-100');
+        }, 10);
+    });
+    
+    // Confirm delete button
+    confirmDeleteBtn.addEventListener('click', async function() {
+        const templateId = document.getElementById('delete-template-id').value;
+        
+        if (!templateId) return;
+        
+        // Delete template from API
+        const success = await deleteTemplate(templateId);
+        
+        if (success) {
+            // Get template name for notification
+            const templateName = document.getElementById('delete-template-name').textContent;
+            
+            // Remove template card from UI
+            const templateCard = document.querySelector(`.template-card[data-template="${templateId}"]`);
+            if (templateCard) {
+                templateCard.remove();
+            }
+            
+            // Close modal
+            closeDeleteModal();
+            
+            // Refresh template list
+            initializeTemplates();
+            
+            // Show success notification
+            showNotification(`Template "${templateName}" deleted successfully`, 'success');
+        }
+    });
+    
+    // Save template button
+    saveBtn.addEventListener('click', async function() {
+        // Validate form
+        const form = document.getElementById('template-form');
+        const requiredInputs = form.querySelectorAll('[required]');
+        let isValid = true;
+        
+        requiredInputs.forEach(input => {
+            if (!input.value.trim()) {
+                input.classList.add('border-red-500');
+                isValid = false;
+            } else {
+                input.classList.remove('border-red-500');
+            }
+        });
+        
+        if (!isValid) {
+            showNotification('Please fill in all required fields', 'error');
+            return;
+        }
+        
+        // Collect template data
+        const templateId = document.getElementById('template-edit-id').value;
+        const templateName = document.getElementById('template-name').value;
+        const templateCategory = document.getElementById('template-category').value;
+        const templateIcon = document.getElementById('template-icon').value;
+        const templateBgColor = document.getElementById('template-bg-color').value;
+        const templateIconColor = document.getElementById('template-icon-color').value || '#0284c7';
+        
+        // Collect fields data
+        const fields = [];
+        const fieldRows = document.querySelectorAll('.custom-field-row');
+        
+        fieldRows.forEach(row => {
+            const fieldName = row.querySelector('.field-name').value;
+            const fieldType = row.querySelector('.field-type').value;
+            const fieldIcon = row.querySelector('.field-icon').value;
+            const fieldPlaceholder = row.querySelector('.field-placeholder').value;
+            const fieldRequired = row.querySelector('.field-required')?.checked ?? true;
+            
+            let options = [];
+            if (fieldType === 'select') {
+                const optionsInput = row.querySelector('.field-options-input');
+                if (optionsInput && optionsInput.value) {
+                    options = optionsInput.value.split(',').map(opt => opt.trim());
+                }
+            }
+            
+            fields.push({
+                name: fieldName,
+                type: fieldType,
+                icon: fieldIcon,
+                placeholder: fieldPlaceholder,
+                options: options,
+                required: fieldRequired
+            });
+        });
+        
+        // Create template object
+        const template = {
+            id: templateId ? parseInt(templateId) : 0,
+            name: templateName,
+            category: templateCategory,
+            icon: templateIcon,
+            bgColor: templateBgColor,
+            iconColor: templateIconColor,
+            fieldsJson: JSON.stringify(fields)
+        };
+        
+        try {
+            // Save template
+            const savedTemplate = await saveTemplate(template);
+            
+            // Close modal
+            closeModal();
+            
+            // Refresh templates
+            await initializeTemplates();
+            
+            // Show success notification
+            showNotification(`Template "${templateName}" ${templateId ? 'updated' : 'created'} successfully`, 'success');
+        } catch (error) {
+            showNotification('Error saving template: ' + error.message, 'error');
+        }
+    });
+}
+
+// Save template to API
+async function saveTemplate(template) {
+    try {
+        const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
+        const method = template.id > 0 ? 'PUT' : 'POST';
+        const url = template.id > 0 ? `/api/Template/${template.id}` : '/api/Template';
+        
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': token
+            },
+            body: JSON.stringify(template)
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Failed to save template - Status: ${response.status}`);
+        }
+        
+        // For successful POST responses, parse the JSON response
+        if (method === 'POST' && response.status !== 204) {
+            return await response.json();
+        } else {
+            return template; // For PUT, just return the original object
+        }
+    } catch (error) {
+        console.error('Error saving template:', error);
+        showNotification('Error saving template: ' + error.message, 'error');
+        throw error;
+    }
+}
+
+// Delete template from API
+async function deleteTemplate(templateId) {
+    try {
+        const token = document.querySelector('meta[name="RequestVerificationToken"]').content;
+        const response = await fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Template/${templateId}`, {
+            method: 'DELETE',
+            headers: {
+                'RequestVerificationToken': token
+            }
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to delete template');
+        }
+        
+        return true;
+    } catch (error) {
+        console.error('Error deleting template:', error);
+        showNotification('Error deleting template: ' + error.message, 'error');
+        return false;
+    }
+}
+
+// Initialize Load More Templates button
+function initializeLoadMoreTemplates() {
+    const loadMoreBtn = document.getElementById('load-more-templates');
+    const expandedContainer = document.getElementById('expanded-template-container');
+    const loadMoreText = document.querySelector('.load-more-text');
+    const showLessText = document.querySelector('.show-less-text');
+    
+    loadMoreBtn.addEventListener('click', function() {
+        const isExpanded = !expandedContainer.classList.contains('hidden');
+        
+        if (isExpanded) {
+            // Hide expanded templates
+            expandedContainer.classList.add('hidden');
+            loadMoreText.classList.remove('hidden');
+            showLessText.classList.add('hidden');
+        } else {
+            // Show expanded templates
+            expandedContainer.classList.remove('hidden');
+            loadMoreText.classList.add('hidden');
+            showLessText.classList.remove('hidden');
+        }
+    });
+}
+
+// Generate default template fields
+function generateDefaultFields(container) {
+    container.innerHTML = `
+        <div class="form-group">
+            <label for="Manufacturer" class="form-label">
+                Manufacturer
+                <span class="text-red-500 ml-1">*</span>
+            </label>
+            <div class="relative">
+                <input id="Manufacturer" name="Manufacturer" class="form-input pl-9 focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50 rounded-lg transition-shadow" required placeholder="Manufacturer Name">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-industry text-gray-400"></i>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Initialize templates
+async function initializeTemplates() {
+    // Clear existing template containers
+    const templateContainer = document.getElementById('template-container');
+    const expandedContainer = document.getElementById('expanded-template-container');
+    templateContainer.innerHTML = '';
+    expandedContainer.innerHTML = '';
+    
+    // Load templates from API
+    const templates = await getTemplates();
+    
+    // If templates were loaded, add them to containers
+    if (templates && templates.length > 0) {
+        // Sort templates by name
+        templates.sort((a, b) => a.name.localeCompare(b.name));
+        
+        // Add first 6 templates to main container, rest to expanded container
+        templates.forEach((template, index) => {
+            if (index < 6) {
+                templateContainer.appendChild(createTemplateCard(template));
+            } else {
+                expandedContainer.appendChild(createTemplateCard(template));
+            }
+        });
+    }
+    
+    // Also add frequently used templates to recently used section
+    const recentContainer = document.getElementById('recently-used-templates');
+    recentContainer.innerHTML = '';
+    
+    // Get recently used templates (in a real app, this would be from user history)
+    const recentTemplates = templates.slice(0, 3); // Just use the first 3 for demo
+    
+    recentTemplates.forEach(template => {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'template-chip px-3 py-1.5 text-xs bg-gray-100 text-gray-700 rounded-full hover:bg-primary-50 hover:text-primary-600 transition-colors shadow-sm';
+        chip.setAttribute('data-template', template.id);
+        
+        chip.innerHTML = `<i class="fas fa-${template.icon} mr-1"></i> ${template.name}`;
+        
+        chip.addEventListener('click', () => applyTemplate(template.id));
+        recentContainer.appendChild(chip);
+    });
+    
+    // Template card click handler
+    document.addEventListener('click', function(e) {
+        const card = e.target.closest('.template-card');
+        if (card && !e.target.closest('.edit-template-btn')) {
+            const templateId = card.getAttribute('data-template');
+            applyTemplate(templateId);
+        }
+    });
+    
+    // Initialize template tabs after templates are loaded
+    initializeTemplateTabs();
+    
+    return templates;
+}
+
+// Get templates from API
+async function getTemplates() {
+    try {
+        const response = await fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Template`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch templates');
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching templates:', error);
+        showNotification('Error loading templates', 'error');
+        return [];
+    }
+}
+
+// Create a template card element
+function createTemplateCard(template) {
+    const card = document.createElement('div');
+    card.className = 'template-card cursor-pointer border rounded-lg overflow-hidden hover:border-primary-500 hover:shadow transition-all relative group';
+    card.setAttribute('data-template', template.id);
+    card.setAttribute('data-category', template.category.toLowerCase().replace(/\s+/g, '-'));
+    
+    // Use actual background color instead of trying to map to class
+    const bgColorStyle = template.bgColor || '#f0f9ff';
+    
+    // Get icon color directly from template
+    let iconColor = template.iconColor || '#0284c7';
+    
+    card.innerHTML = `
+        <div class="absolute top-1 right-1 flex template-actions opacity-0 group-hover:opacity-100 z-10">
+            <button type="button" class="edit-template-btn p-1 text-gray-500 hover:text-primary-600 bg-white rounded-full shadow-sm" data-template="${template.id}">
+                <i class="fas fa-edit"></i>
+            </button>
+        </div>
+        <div class="h-24 flex items-center justify-center" style="background-color: ${bgColorStyle}">
+            <i class="fas fa-${template.icon}" style="color: ${iconColor}; font-size: 1.75rem;"></i>
+        </div>
+        <div class="p-3 bg-white border-t border-gray-100">
+            <h4 class="font-medium text-sm text-gray-800">${template.name}</h4>
+            <p class="text-xs text-gray-500 mt-0.5">${template.category}</p>
+        </div>
+        <div class="absolute inset-0 bg-primary-500 bg-opacity-0 hover:bg-opacity-10 transition-all flex items-center justify-center">
+            <span class="bg-white text-primary-600 px-3 py-1.5 rounded-lg text-xs font-medium opacity-0 group-hover:opacity-100 transform scale-0 group-hover:scale-100 transition-all shadow-sm">
+                Select Template
+            </span>
+        </div>
+    `;
+    
+    return card;
+}
+
+// Initialize template tabs
+function initializeTemplateTabs() {
+    const templateTabsContainer = document.querySelector('.template-tabs');
+    
+    // Use event delegation for template tabs
+    templateTabsContainer.addEventListener('click', function(e) {
+        const clickedTab = e.target.closest('.template-tab');
+        if (!clickedTab) return; // Not a tab click
+        
+        // Remove active class from all tabs
+        const allTabs = this.querySelectorAll('.template-tab');
+        allTabs.forEach(t => {
+            t.classList.remove('active', 'border-primary-500', 'text-primary-600');
+            t.classList.add('border-transparent', 'text-gray-500');
+        });
+        
+        // Add active class to clicked tab
+        clickedTab.classList.add('active', 'border-primary-500', 'text-primary-600');
+        clickedTab.classList.remove('border-transparent', 'text-gray-500');
+        
+        // Show/hide cards based on category
+        const category = clickedTab.getAttribute('data-category');
+        
+        document.querySelectorAll('.template-card').forEach(card => {
+            if (category === 'all' || card.getAttribute('data-category') === category) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+    
+    // Template search functionality with direct DOM querying
+    const templateSearch = document.getElementById('template-search');
+    if (templateSearch) {
+        templateSearch.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            
+            document.querySelectorAll('.template-card').forEach(card => {
+                const cardText = card.textContent.toLowerCase();
+                
+                if (cardText.includes(searchTerm)) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    }
+}
+
+// Initialize field visibility based on category
+function initializeFieldVisibility() {
+    // Get current category value
+    const category = document.getElementById('Category').value;
+    if (category) {
+        // Call updateFieldVisibility to set the initial state
+        updateFieldVisibility(category);
+    } else {
+        // Hide all category-specific field groups
+        document.querySelectorAll('.field-group').forEach(field => {
+            field.style.display = 'none';
+        });
+    }
+}
+</script>
+}

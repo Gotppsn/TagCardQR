@@ -1,0 +1,2891 @@
+@model CardTagManager.Models.Card
+@{
+    ViewData["Title"] = Model.ProductName;
+    Layout = "_Layout"; // Assuming you have a special layout for scanned views
+    bool privateMode = ViewBag.PrivateMode ?? false;
+    bool isAuthenticated = User.Identity?.IsAuthenticated ?? false;
+    bool previewMode = ViewBag.PreviewMode ?? false;
+}
+
+@if (privateMode && !isAuthenticated && !previewMode)
+{
+    <!-- This shouldn't happen because we redirect in controller, but just in case -->
+    <div class="flex flex-col items-center justify-center h-screen bg-gray-100 p-4">
+        <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full text-center">
+            <div class="mb-6 text-red-600">
+                <i class="fas fa-lock text-5xl"></i>
+            </div>
+            <h1 class="text-2xl font-bold mb-4">Private Content</h1>
+            <p class="text-gray-600 mb-6">This product information requires authentication to view.</p>
+            <a href="@Url.Action("Login", "Account", new { returnUrl = Context.Request.Path })" 
+               class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 inline-block">
+                <i class="fas fa-sign-in-alt mr-2"></i> Login to View
+            </a>
+        </div>
+    </div>
+    return;
+}
+
+<div class="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 flex flex-col">
+    <!-- Header Banner -->
+    <div class="bg-gradient-to-r from-primary-600 to-blue-500 text-white shadow-lg">
+        <div class="container mx-auto px-3 md:px-4 py-3 md:py-4">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-2 md:gap-3">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-xl shadow-md backdrop-blur-sm">
+                        <i class="fas fa-tag"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold tracking-wider">Product Information</h1>
+                        <p class="text-blue-100 flex items-center"><i class="fas fa-fingerprint mr-2 text-xs"></i>ID: #@Model.Id</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button id="share-btn" class="p-3 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 hover:scale-105 flex items-center justify-center">
+                        <i class="fas fa-share-alt"></i>
+                    </button>
+                    <a href="@Url.Action("Print", new { id = Model.Id })" target="_blank" class="p-3 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 hover:scale-105 flex items-center justify-center">
+                        <i class="fas fa-print"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Menu -->
+<div class="sticky top-0 bg-white z-20 shadow-md">
+    <div class="container mx-auto px-2 md:px-4">
+        <div class="flex overflow-x-auto scrollbar-none py-2 md:py-3 gap-1 md:gap-2">
+            <a href="#product-card" class="flex-shrink-0 px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-primary-600 text-white text-xs md:text-sm font-medium transition-all duration-300 hover:shadow-md flex items-center whitespace-nowrap">
+                <i class="fas fa-info-circle mr-1 md:mr-2"></i> Overview
+            </a>
+                <a href="#product-details" class="flex-shrink-0 px-4 py-2 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 text-sm font-medium transition-all duration-300 hover:shadow-md flex items-center">
+                    <i class="fas fa-clipboard-list mr-2"></i> Details
+                </a>
+                <a href="#maintenance" class="flex-shrink-0 px-4 py-2 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 text-sm font-medium transition-all duration-300 hover:shadow-md flex items-center">
+                    <i class="fas fa-wrench mr-2"></i> Maintenance
+                </a>
+                <a href="#documentation" class="flex-shrink-0 px-4 py-2 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 text-sm font-medium transition-all duration-300 hover:shadow-md flex items-center">
+                    <i class="fas fa-file-alt mr-2"></i> Documents
+                </a>
+                <a href="#contact" class="flex-shrink-0 px-4 py-2 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 text-sm font-medium transition-all duration-300 hover:shadow-md flex items-center">
+                    <i class="fas fa-headset mr-2"></i> Contact
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-6 flex-grow">
+        <!-- Product Card -->
+        <div id="product-card" class="bg-white rounded-xl shadow-lg overflow-hidden mb-6 transform transition-all duration-300 hover:shadow-xl">
+            <!-- Product Status Indicator -->
+            @if (Model.WarrantyExpiration < DateTime.Now)
+            {
+                <div id="warranty-status" class="bg-gradient-to-r from-red-500 to-red-600 text-white text-sm py-2 px-4 text-center font-medium flex justify-center items-center space-x-2">
+                    <i class="fas fa-exclamation-triangle animate-pulse"></i>
+                    <span>Warranty Expired on @Model.WarrantyExpiration.ToString("MMM d, yyyy")</span>
+                </div>
+            }
+            else if (Model.WarrantyExpiration < DateTime.Now.AddMonths(3))
+            {
+                <div id="warranty-status" class="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white text-sm py-2 px-4 text-center font-medium flex justify-center items-center space-x-2">
+                    <i class="fas fa-clock"></i>
+                    <span>Warranty Expiring Soon: @((Model.WarrantyExpiration - DateTime.Now).Days) days remaining</span>
+                </div>
+            }
+            else
+            {
+                <div id="warranty-status" class="bg-gradient-to-r from-green-500 to-green-600 text-white text-sm py-2 px-4 text-center font-medium flex justify-center items-center space-x-2">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>In Warranty until @Model.WarrantyExpiration.ToString("MMM d, yyyy")</span>
+                </div>
+            }
+
+            <!-- Product Header -->
+            <div class="p-6" style="background-color: @Model.BackgroundColor; color: @Model.TextColor;">
+                <div class="flex flex-col md:flex-row justify-between items-start gap-4">
+                    <div>
+                        <span id="category-section" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium transform transition-all duration-300 hover:scale-105 shadow-sm" 
+                              style="background-color: @Model.AccentColor; color: @Model.BackgroundColor">
+                            <i class="fas fa-tag mr-1"></i> @Model.Category
+                        </span>
+                        <h2 class="text-2xl md:text-3xl font-bold mt-3 mb-2" style="color: @Model.AccentColor">@Model.ProductName</h2>
+                        
+                        @{
+                            // Parse CustomFieldsData to get Manufacturer if available
+                            string manufacturer = "";
+                            try {
+                                if (!string.IsNullOrEmpty(Model.CustomFieldsData) && Model.CustomFieldsData != "{}")
+                                {
+                                    var customFields = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(Model.CustomFieldsData);
+                                    if (customFields.ContainsKey("Manufacturer")) {
+                                        manufacturer = customFields["Manufacturer"];
+                                    }
+                                }
+                            } catch {}
+                        }
+                        @if (!string.IsNullOrEmpty(manufacturer))
+                        {
+                            <p class="text-lg flex items-center gap-2" data-custom-field="Manufacturer">
+                                <i class="fas fa-industry text-sm" style="color: @Model.AccentColor"></i>
+                                @manufacturer
+                            </p>
+                        }
+                    </div>
+                    <div class="bg-white/20 p-3 rounded-lg shadow-md transform transition-all duration-300 hover:scale-105 backdrop-blur-sm">
+                        @if (!string.IsNullOrEmpty(Model.ImagePath))
+                        {
+                            <img id="product-image" src="@(Model.ImagePath.StartsWith("http") ? Model.ImagePath : Url.Content(Model.ImagePath))" 
+                                alt="Product image" class="rounded w-24 h-24 object-cover shadow-sm" 
+                                onerror="this.onerror=null; this.src=''; this.classList.add('hidden'); document.getElementById('product-image-placeholder')?.classList.remove('hidden');" />
+                            <div id="product-image-placeholder" class="w-24 h-24 rounded flex items-center justify-center hidden" 
+                                style="background-color: @Model.AccentColor; color: @Model.BackgroundColor">
+                                <i class="fas fa-box text-3xl"></i>
+                            </div>
+                        }
+                        else
+                        {
+                            <div id="product-image-placeholder" class="w-24 h-24 rounded flex items-center justify-center" 
+                                style="background-color: @Model.AccentColor; color: @Model.BackgroundColor">
+                                <i class="fas fa-box text-3xl"></i>
+                            </div>
+                        }
+                    </div>
+                </div>
+                
+                <div class="mt-5 space-y-3">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div id="location-section" class="bg-white/10 p-3 rounded-lg backdrop-blur-sm hover:bg-white/20 transition-all duration-300">
+                            <p class="text-sm opacity-80">Location</p>
+                            <p class="font-medium flex items-center mt-1">
+                                <i class="fas fa-map-marker-alt mr-2" style="color: @Model.AccentColor"></i>
+                                @(string.IsNullOrEmpty(Model.Location) ? "Not specified" : Model.Location)
+                            </p>
+                        </div>
+                        
+                        @{
+                            // Parse CustomFieldsData to extract serialNumber if available
+                            string serialNumber = "";
+                            try {
+                                if (!string.IsNullOrEmpty(Model.CustomFieldsData) && Model.CustomFieldsData != "{}")
+                                {
+                                    var customFields = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(Model.CustomFieldsData);
+                                    if (customFields.ContainsKey("SerialNumber")) {
+                                        serialNumber = customFields["SerialNumber"];
+                                    }
+                                }
+                            } catch {}
+                        }
+                        
+                        @if (!string.IsNullOrEmpty(serialNumber))
+                        {
+                            <div class="bg-white/10 p-3 rounded-lg backdrop-blur-sm hover:bg-white/20 transition-all duration-300">
+                                <p class="text-sm opacity-80">Serial Number</p>
+                                <p class="font-medium flex items-center mt-1">
+                                    <i class="fas fa-barcode mr-2" style="color: @Model.AccentColor"></i>
+                                    @serialNumber
+                                </p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Warranty Timeline -->
+            <div id="warranty-section" class="px-5 py-4 border-b border-gray-100 bg-white">
+                <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                    <i class="fas fa-calendar-alt mr-2 text-primary-500"></i> Warranty Timeline
+                </h3>
+                
+                <!-- Progress Bar -->
+                <div class="relative h-2 bg-gray-200 rounded-full overflow-hidden mb-3">
+                    @{
+                        var totalDays = (Model.WarrantyExpiration - Model.PurchaseDate).TotalDays;
+                        var elapsedDays = (DateTime.Now - Model.PurchaseDate).TotalDays;
+                        var elapsedPercent = Math.Min(100, Math.Max(0, (elapsedDays / totalDays) * 100));
+                        string progressClass = elapsedPercent < 70 ? "bg-green-500" : (elapsedPercent < 90 ? "bg-yellow-500" : "bg-red-500");
+                    }
+                    <div class="absolute left-0 top-0 h-2 @progressClass rounded-full" style="width: @elapsedPercent%"></div>
+                </div>
+                
+                <!-- Timeline Points - Fixed Layout -->
+                <div class="grid grid-cols-3 w-full gap-2">
+                    <!-- Purchase Date -->
+                    <div class="text-left">
+                        <div class="text-xs text-gray-500 mb-1">Purchase</div>
+                        <div class="text-xs font-medium text-gray-700 bg-white px-2 py-1 rounded shadow-sm inline-block truncate max-w-full">
+                            @Model.PurchaseDate.ToString("MMM d, yyyy")
+                        </div>
+                    </div>
+                    
+                    <!-- Today -->
+                    <div class="text-center">
+                        <div class="text-xs text-gray-500 mb-1">Today</div>
+                        <div class="text-xs font-medium text-primary-600 bg-primary-50 px-2 py-1 rounded shadow-sm inline-block truncate max-w-full mx-auto">
+                            @DateTime.Now.ToString("MMM d, yyyy")
+                        </div>
+                    </div>
+                    
+                    <!-- Warranty End -->
+                    <div class="text-right">
+                        <div class="text-xs text-gray-500 mb-1">Warranty End</div>
+                        <div class="text-xs font-medium @(Model.WarrantyExpiration < DateTime.Now ? "text-red-600 bg-red-50" : "text-green-600 bg-green-50") px-2 py-1 rounded shadow-sm inline-block truncate max-w-full float-right">
+                            @Model.WarrantyExpiration.ToString("MMM d, yyyy")
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Details Section -->
+            <div id="product-details" class="px-6 py-5 border-b border-gray-100 bg-white">
+                <h3 class="font-bold text-gray-700 flex items-center mb-4">
+                    <i class="fas fa-info-circle text-primary-500 mr-2"></i> Product Details
+                </h3>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-6">
+                    <div id="manufacture-date-section" class="bg-gray-50 p-3 rounded-lg transition-all duration-300 hover:bg-gray-100 hover:shadow-md">
+                        <p class="text-sm text-gray-500">Manufacture Date</p>
+                        <p class="font-medium text-gray-800 mt-1 flex items-center">
+                            <i class="fas fa-calendar-plus mr-2 text-primary-500 opacity-70"></i>
+                            @Model.ManufactureDate.ToString("MMM d, yyyy")
+                        </p>
+                    </div>
+                    <div id="purchase-date-section" class="bg-gray-50 p-3 rounded-lg transition-all duration-300 hover:bg-gray-100 hover:shadow-md">
+                        <p class="text-sm text-gray-500">Purchase Date</p>
+                        <p class="font-medium text-gray-800 mt-1 flex items-center">
+                            <i class="fas fa-shopping-cart mr-2 text-primary-500 opacity-70"></i>
+                            @Model.PurchaseDate.ToString("MMM d, yyyy")
+                        </p>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-lg transition-all duration-300 hover:bg-gray-100 hover:shadow-md">
+                        <p class="text-sm text-gray-500">Warranty Until</p>
+                        <p class="font-medium text-gray-800 mt-1 @(Model.WarrantyExpiration < DateTime.Now ? "text-red-600" : "") flex items-center">
+                            <i class="fas fa-shield-alt mr-2 @(Model.WarrantyExpiration < DateTime.Now ? "text-red-500" : "text-primary-500") opacity-70"></i>
+                            @Model.WarrantyExpiration.ToString("MMM d, yyyy")
+                            @if (Model.WarrantyExpiration > DateTime.Now)
+                            {
+                                <span class="text-xs text-green-500 ml-1 px-1.5 py-0.5 bg-green-50 rounded-full">(@((Model.WarrantyExpiration - DateTime.Now).Days) days left)</span>
+                            }
+                            else
+                            {
+                                <span class="text-xs text-red-500 ml-1 px-1.5 py-0.5 bg-red-50 rounded-full">(Expired @Math.Abs((Model.WarrantyExpiration - DateTime.Now).Days) days ago)</span>
+                            }
+                        </p>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-lg transition-all duration-300 hover:bg-gray-100 hover:shadow-md">
+                        <p class="text-sm text-gray-500">Last Updated</p>
+                        <p class="font-medium text-gray-800 mt-1 flex items-center">
+                            <i class="fas fa-history mr-2 text-primary-500 opacity-70"></i>
+                            @Model.UpdatedAt.ToString("MMM d, yyyy")
+                        </p>
+                    </div>
+                    
+                    @if (!string.IsNullOrEmpty(Model.CustomFieldsData) && Model.CustomFieldsData != "{}")
+                    {
+                        try
+                        {
+                            var customFields = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(Model.CustomFieldsData);
+                            if (customFields != null && customFields.Count > 0)
+                            {
+                                foreach (var field in customFields)
+                                {
+                                    if (field.Key != "Manufacturer" && field.Key != "ModelNumber" && field.Key != "SerialNumber")
+                                    {
+                                        <div data-custom-field="@field.Key" class="bg-gray-50 p-3 rounded-lg transition-all duration-300 hover:bg-gray-100 hover:shadow-md">
+                                            <p class="text-sm text-gray-500">@field.Key</p>
+                                            <p class="font-medium text-gray-800 mt-1">@field.Value</p>
+                                        </div>
+                                    }
+                                }
+                            }
+                        }
+                        catch {}
+                    }
+                </div>
+            </div>
+
+            <!-- Maintenance Information -->
+            <div id="maintenance" class="px-6 py-5 bg-blue-50 border-t border-blue-100">
+                <div class="flex flex-col md:flex-row">
+                    <div class="flex-shrink-0 mr-4 mb-4 md:mb-0">
+                        <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center shadow-md">
+                            <i class="fas fa-wrench text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow">
+                        <h4 class="text-lg font-medium text-blue-800">Maintenance Information</h4>
+                        <p class="mt-2 text-blue-700 bg-white/60 p-3 rounded-lg shadow-sm">
+                            @(string.IsNullOrEmpty(Model.MaintenanceInfo) ? "No maintenance information available" : Model.MaintenanceInfo)
+                        </p>
+                        
+                        <div class="mt-4">
+                            <h5 class="text-sm font-medium text-blue-800 flex items-center">
+                                <i class="fas fa-calendar-check mr-2"></i> Next Maintenance:
+                            </h5>
+                            <div id="maintenance-reminders" class="mt-3">
+                                <div class="p-3 bg-white/80 rounded-lg shadow-sm border border-blue-200 animate-pulse">
+                                    <div class="loader-spinner flex items-center justify-center">
+                                        <i class="fas fa-spinner fa-spin text-blue-500 mr-2"></i> Loading maintenance schedule...
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <button id="report-issue-btn" class="flex items-center justify-center bg-white rounded-lg p-4 shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group">
+                <div class="flex items-center justify-center w-10 h-10 rounded-full bg-orange-50 mr-3 group-hover:bg-orange-100 transition-all duration-300">
+                    <i class="fas fa-exclamation-circle text-orange-500"></i>
+                </div>
+                <span class="font-medium text-gray-700 group-hover:text-gray-900 transition-all duration-300">Report Issue</span>
+            </button>
+            <a href="#contact" id="contact-support" class="flex items-center justify-center bg-white rounded-lg p-4 shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group">
+                <div class="flex items-center justify-center w-10 h-10 rounded-full bg-primary-50 mr-3 group-hover:bg-primary-100 transition-all duration-300">
+                    <i class="fas fa-headset text-primary-500"></i>
+                </div>
+                <span class="font-medium text-gray-700 group-hover:text-gray-900 transition-all duration-300">Contact Support</span>
+            </a>
+        </div>
+
+        <!-- Maintenance History -->
+        <div id="maintenance-history" class="bg-white rounded-xl shadow-md overflow-hidden mb-6 transform transition-all duration-300 hover:shadow-lg">
+            <div class="px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="font-semibold text-gray-800 flex items-center">
+                    <i class="fas fa-history text-primary-500 mr-2"></i> Maintenance History
+                </h3>
+                <span class="text-xs text-gray-500 bg-white px-2 py-1 rounded shadow-sm">
+                    <i class="fas fa-info-circle mr-1"></i> Past activities
+                </span>
+            </div>
+            <!-- Sample history items -->
+            <div class="p-5" id="maintenance-history-content">
+                <div class="loader-spinner text-center py-6 bg-gray-50 rounded-lg">
+                    <i class="fas fa-spinner fa-spin text-primary-500 mr-2"></i> Loading maintenance history...
+                </div>
+            </div>
+        </div>
+
+        <!-- Issue Reports -->
+        <div id="issues" class="bg-white rounded-xl shadow-md overflow-hidden mb-6 transform transition-all duration-300 hover:shadow-lg">
+            <div class="px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="font-semibold text-gray-800 flex items-center">
+                    <i class="fas fa-exclamation-triangle text-orange-500 mr-2"></i> Issue Reports
+                </h3>
+                <span class="text-xs text-gray-500 bg-white px-2 py-1 rounded shadow-sm">
+                    <i class="fas fa-flag mr-1"></i> Reported problems
+                </span>
+            </div>
+            <div class="p-5" id="issues-container">
+                <div class="loader-spinner text-center py-6 bg-gray-50 rounded-lg">
+                    <i class="fas fa-spinner fa-spin text-primary-500 mr-2"></i> Loading issues...
+                </div>
+            </div>
+        </div>
+
+        <!-- Documentation & Resources -->
+        <div id="documentation" class="bg-white rounded-xl shadow-md overflow-hidden mb-6 transform transition-all duration-300 hover:shadow-lg">
+            <div class="px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="font-semibold text-gray-800 flex items-center">
+                    <i class="fas fa-file-alt text-blue-500 mr-2"></i> Documentation & Resources
+                </h3>
+                <span class="text-xs text-gray-500 bg-white px-2 py-1 rounded shadow-sm">
+                    <i class="fas fa-book mr-1"></i> Reference materials
+                </span>
+            </div>
+            <div class="p-5" id="documents-container">
+                <div class="loader-spinner text-center py-6 bg-gray-50 rounded-lg">
+                    <i class="fas fa-spinner fa-spin text-primary-500 mr-2"></i> Loading documents...
+                </div>
+            </div>
+        </div>
+        
+<!-- Contact Support Section -->
+<div id="contact" class="bg-white rounded-xl shadow-md overflow-hidden mb-6 transform transition-all duration-300 hover:shadow-xl">
+    <div class="px-6 py-4 bg-gradient-to-r from-blue-500 to-primary-500 text-white">
+        <h3 class="font-semibold flex items-center text-lg">
+            <i class="fas fa-headset mr-2"></i> Product Owner Contact
+        </h3>
+        <p class="text-blue-100 text-sm mt-1">Contact information for this product's owner</p>
+    </div>
+    <div class="p-5">
+        <div id="contact-container" class="bg-gray-50 rounded-lg p-5 border border-gray-200 shadow-sm">
+            <!-- Loading indicator, initially shown -->
+            <div id="contact-loading" class="text-center py-4">
+                <i class="fas fa-spinner fa-spin text-primary-500 text-2xl mb-3"></i>
+                <p class="text-gray-600">Loading contact information...</p>
+            </div>
+            
+            <!-- Contact information grid, initially hidden -->
+            <div id="contact-info-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 hidden">
+                <!-- User info populated by JavaScript -->
+            </div>
+            
+            <!-- No contact message, initially hidden -->
+            <div id="no-contact-info" class="text-center py-6 text-gray-500 hidden">
+                <i class="fas fa-user-slash text-4xl mb-3 text-gray-400"></i>
+                <p>No contact information available for this product.</p>
+                <button class="mt-4 inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all">
+                    <i class="fas fa-plus mr-2"></i> Add Contact Information
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Report Issue Modal -->
+<div id="report-issue-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden backdrop-blur-sm">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 transform transition-all duration-300 scale-95 opacity-0 max-h-[90vh] flex flex-col overflow-hidden" id="modal-content">
+        <div class="flex justify-between items-center p-5 border-b bg-gradient-to-r from-blue-500 to-primary-500 rounded-t-lg flex-shrink-0">
+            <h3 class="text-lg font-semibold text-white flex items-center">
+                <i class="fas fa-exclamation-circle mr-2"></i> Report an Issue
+            </h3>
+            <button id="close-report-modal" class="text-white hover:text-blue-100 transition-colors bg-white/10 hover:bg-white/20 rounded-full w-8 h-8 flex items-center justify-center">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="p-5 overflow-y-auto flex-grow">
+                <!-- Updated form with multipart/form-data for file uploads -->
+                <form id="issue-report-form" action="/api/IssueReport" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="CardId" value="@Model.Id">
+                    @Html.AntiForgeryToken()
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Issue Type</label>
+                        <select name="IssueType" id="issueType" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all" required>
+                            <option value="">Select Issue Type</option>
+                            <option value="Device Malfunction">Device Malfunction</option>
+                            <option value="Maintenance Required">Maintenance Required</option>
+                            <option value="Physical Damage">Physical Damage</option>
+                            <option value="Missing Parts">Missing Parts</option>
+                            <option value="Performance Issues">Performance Issues</option>
+                            <option value="Safety Concern">Safety Concern</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <div class="error-message text-red-500 text-xs mt-1 hidden"></div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+                        <div class="flex flex-wrap gap-4">
+                            <label class="flex items-center bg-gray-50 p-2 rounded-lg cursor-pointer border border-gray-200 hover:bg-gray-100 transition-all">
+                                <input type="radio" name="Priority" value="Low" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300">
+                                <span class="ml-2 text-sm text-gray-700">Low</span>
+                            </label>
+                            <label class="flex items-center bg-gray-50 p-2 rounded-lg cursor-pointer border border-gray-200 hover:bg-gray-100 transition-all">
+                                <input type="radio" name="Priority" value="Medium" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300" checked>
+                                <span class="ml-2 text-sm text-gray-700">Medium</span>
+                            </label>
+                            <label class="flex items-center bg-gray-50 p-2 rounded-lg cursor-pointer border border-gray-200 hover:bg-gray-100 transition-all">
+                                <input type="radio" name="Priority" value="High" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300">
+                                <span class="ml-2 text-sm text-gray-700">High</span>
+                            </label>
+                            <label class="flex items-center bg-red-50 p-2 rounded-lg cursor-pointer border border-red-200 hover:bg-red-100 transition-all">
+                                <input type="radio" name="Priority" value="Critical" class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300">
+                                <span class="ml-2 text-sm text-red-700">Critical</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Issue Description</label>
+                        <textarea name="Description" id="description" rows="4" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all" 
+                                placeholder="Please describe the issue in detail..." required></textarea>
+                        <div class="error-message text-red-500 text-xs mt-1 hidden"></div>
+                    </div>
+                    
+                    <!-- Added Image Upload Field -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Attach an Image (optional)</label>
+                        <div class="mt-1 flex items-center">
+                            <div id="image-preview-container" class="hidden mb-2 w-full">
+                                <img id="issue-image-preview" src="#" alt="Preview" class="max-h-40 max-w-full rounded-lg shadow-sm mx-auto"/>
+                                <button type="button" id="remove-image-btn" class="mt-2 text-xs text-red-600 hover:text-red-800 flex items-center justify-center mx-auto">
+                                    <i class="fas fa-times mr-1"></i> Remove image
+                                </button>
+                            </div>
+                            <label class="w-full flex justify-center items-center px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg text-sm cursor-pointer hover:bg-gray-50 transition-colors">
+                                <i class="fas fa-camera mr-2 text-gray-500"></i>
+                                <span id="upload-text" class="text-gray-500">Click to add a photo</span>
+                                <input type="file" id="imageFile" name="ImageFile" class="hidden" accept="image/*"/>
+                            </label>
+                        </div>
+                        <p class="mt-1 text-xs text-gray-500">Supported formats: JPG, PNG, GIF (max 5MB)</p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">When did you notice this issue?</label>
+                        <input type="date" name="ReportDate" id="reportDate" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all" required>
+                        <div class="error-message text-red-500 text-xs mt-1 hidden"></div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Your Contact Information</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <label class="text-xs text-gray-500">Your Name</label>
+                                <input type="text" name="ReporterName" id="reporterName" class="w-full border-0 bg-transparent focus:outline-none focus:ring-0 font-medium" 
+                                    value="@(User.Identity?.IsAuthenticated == true ? User.FindFirst("FullName")?.Value ?? User.Identity.Name : "")" required placeholder="Your Name">
+                                <div class="error-message text-red-500 text-xs mt-1 hidden"></div>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <label class="text-xs text-gray-500">Your Email</label>
+                                <input type="email" name="ReporterEmail" id="reporterEmail" class="w-full border-0 bg-transparent focus:outline-none focus:ring-0 font-medium" 
+                                    value="@(User.Identity?.IsAuthenticated == true ? User.FindFirst("Email")?.Value ?? "" : "")" required placeholder="Your Email">
+                                <div class="error-message text-red-500 text-xs mt-1 hidden"></div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded-lg mt-3">
+                            <label class="text-xs text-gray-500">Your Phone (optional)</label>
+                            <input type="tel" name="ReporterPhone" id="reporterPhone" class="w-full border-0 bg-transparent focus:outline-none focus:ring-0 font-medium" 
+                                placeholder="Your Phone Number">
+                        </div>
+                    </div>
+                    
+                    <!-- Form Feedback Area -->
+                    <div id="form-feedback" class="mb-4 p-4 rounded-lg hidden">
+                        <p id="feedback-message"></p>
+                    </div>
+                    
+                    <div class="mt-6 flex justify-end gap-3">
+                        <button type="button" id="cancel-report" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-all">
+                            <i class="fas fa-times mr-2"></i> Cancel
+                        </button>
+                        <button type="submit" id="submit-issue" class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-all flex items-center">
+                            <i class="fas fa-paper-plane mr-2"></i> Submit Report
+                            <i class="fas fa-spinner fa-spin ml-2 hidden" id="issue-spinner"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Document Preview Modal -->
+<div id="document-preview-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden backdrop-blur-sm">
+    <div class="bg-white rounded-lg shadow-xl w-full mx-4 max-w-4xl transform transition-all duration-300 flex flex-col h-[85vh] md:h-3/4 scale-95 opacity-0" id="document-modal-content">
+        <div class="flex justify-between items-center p-3 md:p-5 border-b bg-gradient-to-r from-blue-500 to-primary-500 rounded-t-lg">
+            <h3 class="text-base md:text-lg font-semibold text-white" id="document-preview-title">Document Preview</h3>
+            <button id="close-doc-preview-modal" class="text-white hover:text-blue-100 transition-colors bg-white/10 hover:bg-white/20 rounded-full w-8 h-8 flex items-center justify-center">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="p-3 md:p-5 flex-grow overflow-auto bg-gray-50" id="document-preview-content">
+            <div class="flex justify-center items-center h-full">
+                <i class="fas fa-spinner fa-spin text-3xl text-primary-500"></i>
+            </div>
+        </div>
+        <div class="p-3 md:p-5 border-t flex justify-between bg-gray-50">
+            <button id="download-document-btn" class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-all flex items-center">
+                <i class="fas fa-download mr-2"></i> Download
+            </button>
+            <button id="close-preview-btn" class="bg-gray-100 text-gray-700 px-3 py-2 md:px-4 md:py-2 rounded-lg hover:bg-gray-200 transition-all flex items-center text-sm md:text-base">
+                <i class="fas fa-times mr-2"></i> Close
+            </button>
+        </div>
+    </div>
+</div>
+
+    <!-- Toast Notification -->
+    <div id="toast-notification" class="fixed bottom-4 right-4 bg-white rounded-lg shadow-lg border border-gray-100 p-4 max-w-sm transform translate-y-20 opacity-0 transition-all duration-300 z-50 hidden">
+        <div class="flex items-center">
+            <div id="toast-icon" class="flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-green-100">
+                <i id="toast-icon-symbol" class="fas fa-check text-green-500"></i>
+            </div>
+            <div class="ml-3 flex-1">
+                <p id="toast-message" class="text-sm font-medium text-gray-900">Information copied to clipboard</p>
+                <p id="toast-description" class="text-sm text-gray-500">You can now paste it anywhere you need</p>
+            </div>
+            <button id="close-toast" class="ml-auto text-gray-400 hover:text-gray-500 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+// Load user contact information from API
+function loadUserContactInfo() {
+    const contactLoading = document.getElementById('contact-loading');
+    const contactInfoGrid = document.getElementById('contact-info-grid');
+    const noContactInfo = document.getElementById('no-contact-info');
+    
+    if (!contactLoading || !contactInfoGrid || !noContactInfo) return;
+    
+    // Get user code from the card's CreatedByID
+    const userCode = '@Model.CreatedByID';
+    
+    if (!userCode || userCode === '' || userCode === 'string.Empty') {
+        showFallbackContactInfo();
+        return;
+    }
+    
+    // Show loading indicator
+    contactLoading.classList.remove('hidden');
+    contactInfoGrid.classList.add('hidden');
+    noContactInfo.classList.add('hidden');
+    
+    // Make API call to get user info
+    fetch(`https://devsever.thaiparker.co.th/E2E/api/Get/GetUser?userCode=${encodeURIComponent(userCode)}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(userData => {
+            // Hide loading indicator
+            contactLoading.classList.add('hidden');
+            
+            // Log the entire response for debugging
+            console.log("Full API Response:", JSON.stringify(userData));
+            
+            if (userData) {
+                // Deep parse the complex nested structure and extract user data
+                const extractedData = extractUserData(userData);
+                
+                // Log the extracted data for debugging
+                console.log("Extracted data:", extractedData);
+                
+                // If we have at least one piece of data, show it
+                if (extractedData.hasData) {
+                    // Create and display HTML with extracted data
+                    contactInfoGrid.innerHTML = createContactInfoHTML(extractedData);
+                    contactInfoGrid.classList.remove('hidden');
+                    
+                    // Initialize copy to clipboard for the newly created elements
+                    initCopyToClipboard();
+                } else {
+                    // If no data could be extracted, fall back to stored information
+                    showFallbackContactInfo();
+                }
+            } else {
+                // If API returned no data, fall back to stored information
+                showFallbackContactInfo();
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching user data:', error);
+            // Show fallback contact info on error
+            showFallbackContactInfo();
+        });
+}
+
+// Function to deeply extract user data from potentially nested structures
+function extractUserData(userData) {
+    // Initialize result object with default empty values
+    const result = {
+        fullName: '',
+        email: '',
+        department: '',
+        plant: '',
+        phone: '',
+        hasData: false
+    };
+    
+    try {
+        // Direct extraction from root level
+        if (userData.Detail_EN_FirstName && userData.Detail_EN_LastName) {
+            result.fullName = `${userData.Detail_EN_FirstName} ${userData.Detail_EN_LastName}`;
+            result.hasData = true;
+        } else if (userData.Detail_TH_FirstName && userData.Detail_TH_LastName) {
+            result.fullName = `${userData.Detail_TH_FirstName} ${userData.Detail_TH_LastName}`;
+            result.hasData = true;
+        }
+        
+        if (userData.User_Email) {
+            result.email = userData.User_Email;
+            result.hasData = true;
+        }
+        
+        // First examine the complete structure to understand what we're dealing with
+        console.log("Exploring userData structure...");
+        
+        // Check if Users object exists (commonly holds user information)
+        if (userData.Users) {
+            console.log("Found Users object");
+            
+            // Extract email from Users
+            if (userData.Users.User_Email) {
+                result.email = userData.Users.User_Email;
+                result.hasData = true;
+            }
+            
+            // Handle nested department structure
+            const departmentPath = getNestedProperty(userData, 'Users.Master_Processes.Master_Sections.Master_Departments.Department_Name');
+            if (departmentPath) {
+                result.department = departmentPath;
+                result.hasData = true;
+            }
+            
+            // Handle nested plant structure
+            const plantPath = getNestedProperty(userData, 'Users.Master_Plants.Plant_Name');
+            if (plantPath) {
+                result.plant = plantPath;
+                result.hasData = true;
+            }
+            
+            // Try to find user code info
+            if (userData.Users.User_Code) {
+                // Usually this is used for internal ID
+                console.log("Found User_Code:", userData.Users.User_Code);
+            }
+        }
+        
+        // Try alternative direct extractions based on the example data
+        if (!result.fullName && userData.System_Prefix_EN && userData.Detail_EN_FirstName && userData.Detail_EN_LastName) {
+            result.fullName = `${userData.System_Prefix_EN.Prefix_EN_Name || ''} ${userData.Detail_EN_FirstName} ${userData.Detail_EN_LastName}`.trim();
+            result.hasData = true;
+        }
+        
+        // Try to find name in unusual locations
+        if (!result.fullName) {
+            // Check other common paths for names
+            const possibleNames = [
+                getNestedProperty(userData, 'UserFullName'),
+                getNestedProperty(userData, 'Users.User_Name'),
+                getNestedProperty(userData, 'Username')
+            ];
+            
+            for (const name of possibleNames) {
+                if (name) {
+                    result.fullName = name;
+                    result.hasData = true;
+                    break;
+                }
+            }
+        }
+        
+        // Look for department name in alternative locations
+        if (!result.department) {
+            const possibleDepts = [
+                getNestedProperty(userData, 'Department_Name'),
+                getNestedProperty(userData, 'Users.Department_Name'),
+                getNestedProperty(userData, 'Department'),
+                getNestedProperty(userData, 'Users.Department')
+            ];
+            
+            for (const dept of possibleDepts) {
+                if (dept) {
+                    result.department = dept;
+                    result.hasData = true;
+                    break;
+                }
+            }
+        }
+        
+        // Look for email in alternative locations
+        if (!result.email) {
+            const possibleEmails = [
+                getNestedProperty(userData, 'Email'),
+                getNestedProperty(userData, 'Users.Email'),
+                getNestedProperty(userData, 'User_Email')
+            ];
+            
+            for (const email of possibleEmails) {
+                if (email) {
+                    result.email = email;
+                    result.hasData = true;
+                    break;
+                }
+            }
+        }
+        
+        // Look for plant in alternative locations
+        if (!result.plant) {
+            const possiblePlants = [
+                getNestedProperty(userData, 'Plant_Name'),
+                getNestedProperty(userData, 'Users.Plant_Name'),
+                getNestedProperty(userData, 'PlantName')
+            ];
+            
+            for (const plant of possiblePlants) {
+                if (plant) {
+                    result.plant = plant;
+                    result.hasData = true;
+                    break;
+                }
+            }
+        }
+        
+        // Special handling for the JSON example structure in document #12
+        const dataFromExample = extractFromExampleStructure(userData);
+        if (dataFromExample) {
+            // Merge data, prioritizing already found items
+            result.fullName = result.fullName || dataFromExample.fullName;
+            result.email = result.email || dataFromExample.email;
+            result.department = result.department || dataFromExample.department;
+            result.plant = result.plant || dataFromExample.plant;
+            
+            if (dataFromExample.hasData) {
+                result.hasData = true;
+            }
+        }
+    } catch (error) {
+        console.error("Error extracting user data:", error);
+    }
+    
+    return result;
+}
+
+// Helper function to safely get nested properties
+function getNestedProperty(obj, path) {
+    if (!obj || !path) return null;
+    
+    const properties = path.split('.');
+    let current = obj;
+    
+    for (const prop of properties) {
+        if (current === null || current === undefined || typeof current !== 'object') {
+            return null;
+        }
+        
+        current = current[prop];
+    }
+    
+    return current;
+}
+
+// Special parser for the specific example JSON structure in document #12
+function extractFromExampleStructure(data) {
+    try {
+        // Check if this is a string that needs parsing
+        let jsonData = data;
+        if (typeof data === 'string') {
+            try {
+                jsonData = JSON.parse(data);
+            } catch (e) {
+                // Not JSON, keep as is
+            }
+        }
+        
+        const result = {
+            fullName: '',
+            email: '',
+            department: '',
+            plant: '',
+            hasData: false
+        };
+        
+        // This specifically targets the structure in document #12
+        if (jsonData.Users) {
+            // Email
+            if (jsonData.Users.User_Email) {
+                result.email = jsonData.Users.User_Email;
+                result.hasData = true;
+            }
+            
+            // Department name via multiple nestings
+            if (jsonData.Users.Master_Processes?.Master_Sections?.Master_Departments?.Department_Name) {
+                result.department = jsonData.Users.Master_Processes.Master_Sections.Master_Departments.Department_Name;
+                result.hasData = true;
+            }
+            
+            // Plant
+            if (jsonData.Users.Master_Plants?.Plant_Name) {
+                result.plant = jsonData.Users.Master_Plants.Plant_Name;
+                result.hasData = true;
+            }
+        }
+        
+        // Try to construct full name from prefix and first/last name
+        if (jsonData.System_Prefix_EN?.Prefix_EN_Name && jsonData.Detail_EN_FirstName && jsonData.Detail_EN_LastName) {
+            result.fullName = `${jsonData.System_Prefix_EN.Prefix_EN_Name} ${jsonData.Detail_EN_FirstName} ${jsonData.Detail_EN_LastName}`;
+            result.hasData = true;
+        } else if (jsonData.Detail_EN_FirstName && jsonData.Detail_EN_LastName) {
+            result.fullName = `${jsonData.Detail_EN_FirstName} ${jsonData.Detail_EN_LastName}`;
+            result.hasData = true;
+        }
+        
+        return result;
+    } catch (e) {
+        console.error("Error extracting from example structure:", e);
+        return null;
+    }
+}
+
+// Create HTML for the contact info grid
+function createContactInfoHTML(userData) {
+    let html = '';
+    
+    // Full name
+    if (userData.fullName) {
+        html += `
+            <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-user-field="FullName">
+                <div class="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-user text-primary-600"></i>
+                </div>
+                <div class="ml-3">
+                    <div class="text-sm text-gray-500">Contact Person</div>
+                    <div class="font-medium text-gray-800">${userData.fullName}</div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Email
+    if (userData.email) {
+        html += `
+            <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-user-field="Email">
+                <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-envelope text-blue-600"></i>
+                </div>
+                <div class="ml-3">
+                    <div class="text-sm text-gray-500">Email Address</div>
+                    <div class="font-medium">
+                        <a href="mailto:${userData.email}" class="text-blue-600 hover:underline">${userData.email}</a>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Department
+    if (userData.department) {
+        html += `
+            <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-user-field="Department">
+                <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-building text-yellow-600"></i>
+                </div>
+                <div class="ml-3">
+                    <div class="text-sm text-gray-500">Department</div>
+                    <div class="font-medium text-gray-800">${userData.department}</div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Plant
+    if (userData.plant) {
+        html += `
+            <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-user-field="Plant">
+                <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-industry text-purple-600"></i>
+                </div>
+                <div class="ml-3">
+                    <div class="text-sm text-gray-500">Plant/Location</div>
+                    <div class="font-medium text-gray-800">${userData.plant}</div>
+                </div>
+            </div>
+        `;
+    }
+    
+    return html || createNoContactInfoHTML();
+}
+
+// Fall back to the stored contact information
+function showFallbackContactInfo() {
+    const contactLoading = document.getElementById('contact-loading');
+    const contactInfoGrid = document.getElementById('contact-info-grid');
+    const noContactInfo = document.getElementById('no-contact-info');
+    
+    if (!contactLoading || !contactInfoGrid || !noContactInfo) return;
+    
+    // Hide loading indicator
+    contactLoading.classList.add('hidden');
+    
+    @{
+        // Extract card owner details - prioritize card's CustomFieldsData
+        string ownerFullName = string.Empty;
+        string ownerEmail = string.Empty;
+        string ownerDepartment = string.Empty;
+        string ownerPlantName = string.Empty;
+        string ownerPhoneNumber = string.Empty;
+        
+        // First try to get data from card's CustomFieldsData
+        try {
+            if (!string.IsNullOrEmpty(Model.CustomFieldsData) && Model.CustomFieldsData != "{}")
+            {
+                var customFields = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(Model.CustomFieldsData);
+                
+                if (customFields.ContainsKey("UserFullName")) 
+                    ownerFullName = customFields["UserFullName"];
+                    
+                if (customFields.ContainsKey("Email")) 
+                    ownerEmail = customFields["Email"];
+                    
+                if (customFields.ContainsKey("Department")) 
+                    ownerDepartment = customFields["Department"];
+                    
+                if (customFields.ContainsKey("PlantName")) 
+                    ownerPlantName = customFields["PlantName"];
+                    
+                if (customFields.ContainsKey("PhoneNumber")) 
+                    ownerPhoneNumber = customFields["PhoneNumber"];
+            }
+        } catch {}
+        
+        // Fall back to CreatedBy field for owner name if not found in CustomFieldsData
+        if (string.IsNullOrEmpty(ownerFullName) && !string.IsNullOrEmpty(Model.CreatedBy)) {
+            ownerFullName = Model.CreatedBy;
+        }
+    }
+    
+    const hasStoredContactInfo = @((!string.IsNullOrEmpty(ownerFullName) || 
+                                  !string.IsNullOrEmpty(ownerEmail) || 
+                                  !string.IsNullOrEmpty(ownerDepartment) || 
+                                  !string.IsNullOrEmpty(ownerPlantName) || 
+                                  !string.IsNullOrEmpty(ownerPhoneNumber)).ToString().ToLower());
+    
+    if (hasStoredContactInfo) {
+        let html = '';
+        
+        @if (!string.IsNullOrEmpty(ownerFullName))
+        {
+            <text>
+            html += `
+                <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-custom-field="UserFullName">
+                    <div class="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-user text-primary-600"></i>
+                    </div>
+                    <div class="ml-3">
+                        <div class="text-sm text-gray-500">Contact Person</div>
+                        <div class="font-medium text-gray-800">@ownerFullName</div>
+                    </div>
+                </div>
+            `;
+            </text>
+        }
+        
+        @if (!string.IsNullOrEmpty(ownerEmail))
+        {
+            <text>
+            html += `
+                <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-custom-field="Email">
+                    <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-envelope text-blue-600"></i>
+                    </div>
+                    <div class="ml-3">
+                        <div class="text-sm text-gray-500">Email Address</div>
+                        <div class="font-medium">
+                            <a href="mailto:@ownerEmail" class="text-blue-600 hover:underline">@ownerEmail</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            </text>
+        }
+        
+        @if (!string.IsNullOrEmpty(ownerPhoneNumber))
+        {
+            <text>
+            html += `
+                <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-custom-field="PhoneNumber">
+                    <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-phone text-green-600"></i>
+                    </div>
+                    <div class="ml-3">
+                        <div class="text-sm text-gray-500">Phone Number</div>
+                        <div class="font-medium">
+                            <a href="tel:@ownerPhoneNumber" class="text-green-600 hover:underline">@ownerPhoneNumber</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            </text>
+        }
+        
+        @if (!string.IsNullOrEmpty(ownerDepartment))
+        {
+            <text>
+            html += `
+                <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-custom-field="Department">
+                    <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-building text-yellow-600"></i>
+                    </div>
+                    <div class="ml-3">
+                        <div class="text-sm text-gray-500">Department</div>
+                        <div class="font-medium text-gray-800">@ownerDepartment</div>
+                    </div>
+                </div>
+            `;
+            </text>
+        }
+        
+        @if (!string.IsNullOrEmpty(ownerPlantName))
+        {
+            <text>
+            html += `
+                <div class="flex items-center bg-white p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md" data-custom-field="PlantName">
+                    <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-industry text-purple-600"></i>
+                    </div>
+                    <div class="ml-3">
+                        <div class="text-sm text-gray-500">Plant/Location</div>
+                        <div class="font-medium text-gray-800">@ownerPlantName</div>
+                    </div>
+                </div>
+            `;
+            </text>
+        }
+        
+        if (html) {
+            contactInfoGrid.innerHTML = html;
+            contactInfoGrid.classList.remove('hidden');
+            initCopyToClipboard();
+        } else {
+            noContactInfo.classList.remove('hidden');
+        }
+    } else {
+        noContactInfo.classList.remove('hidden');
+    }
+}
+
+// Create HTML for no contact info
+function createNoContactInfoHTML() {
+    return `
+        <div class="text-center py-6 text-gray-500 col-span-2">
+            <i class="fas fa-user-slash text-4xl mb-3 text-gray-400"></i>
+            <p>No contact information available for this product.</p>
+            <button class="mt-4 inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all">
+                <i class="fas fa-plus mr-2"></i> Add Contact Information
+            </button>
+        </div>
+    `;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    try {
+        // Apply scan settings if they exist in URL parameters
+        applyScanSettings();
+        
+        // Navigation functionality
+        initNavigation();
+        
+        // Show/hide report issue modal
+        initReportIssueModal();
+        
+        // Handle issue form submission
+        initIssueFormSubmission();
+        
+        // Load documents
+        loadDocuments();
+        
+        // Load maintenance reminders and history
+        loadMaintenanceData();
+        
+        // Initialize document preview modal
+        initDocumentPreview();
+        
+        // Initialize copy to clipboard functionality
+        initCopyToClipboard();
+        
+        // Toast notification system
+        initToastNotifications();
+
+        // Load issue data
+        loadIssueData();
+        
+        // Initialize image preview
+        initImagePreview();
+
+        // Call the function to load user contact information
+        loadUserContactInfo();
+    } catch (e) {
+        console.error("Error in initialization:", e);
+    }
+});
+    
+// Function to apply scan settings from URL parameters
+function applyScanSettings() {
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        let fields = urlParams.getAll('field');
+        let uiElements = urlParams.getAll('ui');
+        let isPrivate = urlParams.has('private');
+        const isPreview = urlParams.has('preview');
+        
+        // If no settings in URL, try to load from database
+        if (fields.length === 0 && uiElements.length === 0 && !isPrivate) {
+            const cardId = @Model.Id;
+            
+            // Fetch settings from database via public endpoint
+            fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/ScanSettings/public/card/${cardId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Settings not found in database');
+                    }
+                    return response.json();
+                })
+                .then(dbSettings => {
+                    try {
+                        // Parse JSON arrays from the database
+                        fields = JSON.parse(dbSettings.fields || '[]');
+                        uiElements = JSON.parse(dbSettings.uiElements || '[]');
+                        isPrivate = dbSettings.privateMode || false;
+                        
+                        console.log("DB settings loaded:", { fields, uiElements, isPrivate });
+                        applySettingsToUI(fields, uiElements, isPrivate, isPreview);
+                    } catch (parseError) {
+                        console.error("Error parsing settings:", parseError);
+                    }
+                })
+                .catch(error => {
+                    console.log('Error loading settings from database:', error);
+                    // If no settings in database, apply defaults
+                    applySettingsToUI(fields, uiElements, isPrivate, isPreview);
+                });
+        } else {
+            // Apply settings directly from URL
+            applySettingsToUI(fields, uiElements, isPrivate, isPreview);
+        }
+    } catch (e) {
+        console.error("Error in applyScanSettings:", e);
+    }
+}
+
+// Extract the settings application logic to a separate function
+function applySettingsToUI(fields, uiElements, isPrivate, isPreview) {
+    try {
+        // Add preview indicator if in preview mode
+        if (isPreview) {
+            const previewIndicator = document.createElement('div');
+            previewIndicator.className = 'fixed top-2 right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full z-50';
+            previewIndicator.textContent = 'Preview Mode';
+            document.body.appendChild(previewIndicator);
+        }
+        
+        // Debug log the settings being applied
+        console.log("Applying settings:", { 
+            fields, 
+            uiElements, 
+            isPrivate, 
+            isPreview 
+        });
+        
+        // Handle private mode (show login prompt if applicable)
+        if (isPrivate && !isLoggedIn() && !isPreview) {
+            redirectToLogin();
+            return;
+        }
+        
+        // Hide elements not in the fields list
+        if (fields.length > 0) {
+            // Always show product name (required)
+            fields.push('product_name');
+            
+            // Enhanced element mapping with multiple selector options
+            const elementMap = {
+                'category': ['#category-section', '.category-data', '[data-field="category"]'],
+                'location': ['#location-section', '.location-data', '[data-field="location"]'],
+                'image': ['#product-image', '#product-image-placeholder', '.product-image-container'],
+                'manufacture_date': ['#manufacture-date-section', '.manufacture-date-data', '[data-field="manufacture_date"]'],
+                'purchase_date': ['#purchase-date-section', '.purchase-date-data', '[data-field="purchase_date"]'],
+                'warranty': ['#warranty-section', '#warranty-status', '.warranty-data', '[data-field="warranty"]'],
+                'maintenance': ['#maintenance', '.maintenance-section', '[data-section="maintenance"]'],
+                'documents': ['#documentation', '.documents-section', '[data-section="documents"]'],
+                'issues': ['#issues', '.issues-section', '[data-section="issues"]']
+            };
+            
+            // Process standard fields with enhanced robustness
+            Object.entries(elementMap).forEach(([field, selectors]) => {
+                if (!fields.includes(field)) {
+                    console.log(`Hiding field: ${field}`);
+                    if (Array.isArray(selectors)) {
+                        // Try each selector until one works
+                        let hidden = false;
+                        for (const selector of selectors) {
+                            if (hideElement(selector)) {
+                                hidden = true;
+                                console.log(`  ✓ Hidden using selector: ${selector}`);
+                                break;
+                            }
+                        }
+                        if (!hidden) {
+                            console.warn(`  ✗ Could not hide any elements for field: ${field}`);
+                        }
+                    } else {
+                        const success = hideElement(selectors);
+                        console.log(`  ${success ? '✓' : '✗'} Hiding with selector: ${selectors}`);
+                    }
+                }
+            });
+            
+            // Handle custom fields with better attribute matching
+            const customFieldElements = document.querySelectorAll('[data-custom-field]');
+            if (customFieldElements) {
+                customFieldElements.forEach(el => {
+                    const fieldName = el.getAttribute('data-custom-field');
+                    if (fieldName && !fields.includes(`custom_${fieldName}`)) {
+                        console.log(`Hiding custom field: ${fieldName}`);
+                        el.style.display = 'none';
+                    }
+                });
+            }
+        }
+        
+        // Enhanced UI element map with multiple selector options
+        const uiElementMap = {
+            'hide_report_issue': ['#report-issue-btn', '.report-issue-button', '[data-action="report-issue"]'],
+            'hide_contact_support': ['#contact', 'a[href="#contact"]', '.contact-section', '[data-section="contact"]'],
+            'hide_product_details': ['#product-details', '.product-details-section', '[data-section="product-details"]'],
+            'hide_contact': ['#contact-support', '.contact-support-button', '[data-action="contact-support"]'],
+            'hide_maintenance_history': ['#maintenance-history', '.maintenance-history-section', '[data-section="maintenance-history"]'],
+            'hide_maintenance_info': ['#maintenance', '.maintenance-info-section', '[data-section="maintenance"]']
+        };
+        
+        // Handle UI element visibility with improved robustness
+        Object.entries(uiElementMap).forEach(([element, selectors]) => {
+            if (uiElements.includes(element)) {
+                console.log(`Hiding UI element: ${element}`);
+                if (Array.isArray(selectors)) {
+                    // Try each selector until one works
+                    let hidden = false;
+                    for (const selector of selectors) {
+                        if (hideElement(selector)) {
+                            hidden = true;
+                            console.log(`  ✓ Hidden using selector: ${selector}`);
+                            break;
+                        }
+                    }
+                    if (!hidden) {
+                        console.warn(`  ✗ Could not hide any elements for UI element: ${element}`);
+                        // Last resort method - try finding by text content
+                        hideElementsByText(element.replace('hide_', '').replace('_', ' '));
+                    }
+                } else {
+                    const success = hideElement(selectors);
+                    console.log(`  ${success ? '✓' : '✗'} Hiding with selector: ${selectors}`);
+                    if (!success) {
+                        // Try text-based matching as fallback
+                        hideElementsByText(element.replace('hide_', '').replace('_', ' '));
+                    }
+                }
+            }
+        });
+    } catch (e) {
+        console.error("Error in applySettingsToUI:", e);
+    }
+}
+
+// Helper function to hide an element by selector
+function hideElement(selector) {
+    try {
+        const elements = document.querySelectorAll(selector);
+        if (elements && elements.length > 0) {
+            elements.forEach(el => {
+                // Apply more forceful hiding
+                el.style.display = 'none';
+                el.style.visibility = 'hidden';
+                el.classList.add('hidden');
+            });
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.error(`Error hiding element ${selector}:`, error);
+        return false;
+    }
+}
+
+function hideElementsByText(searchText) {
+    try {
+        console.log(`Attempting to hide elements containing text: "${searchText}"`);
+        let found = false;
+        
+        // Find elements that might contain the target text
+        const allHeadings = document.querySelectorAll('h1, h2, h3, h4, h5, h6, button, a');
+        allHeadings.forEach(element => {
+            if (element.textContent.toLowerCase().includes(searchText.toLowerCase())) {
+                console.log(`  Found text match in:`, element);
+                
+                // Try to find a parent container to hide
+                let parent = element;
+                for (let i = 0; i < 3; i++) { // Look up to 3 levels up
+                    parent = parent.parentElement;
+                    if (!parent) break;
+                    
+                    if (parent.tagName === 'SECTION' || 
+                        parent.tagName === 'DIV' && parent.className.includes('section') ||
+                        parent.id && parent.id.includes(searchText.replace(' ', '-').toLowerCase())) {
+                        console.log(`  ✓ Found parent container to hide:`, parent);
+                        parent.style.display = 'none';
+                        parent.style.visibility = 'hidden';
+                        parent.classList.add('hidden');
+                        found = true;
+                        break;
+                    }
+                }
+                
+                // If no good parent was found, hide this element at least
+                if (!found) {
+                    element.style.display = 'none';
+                    element.style.visibility = 'hidden';
+                    element.classList.add('hidden');
+                    found = true;
+                }
+            }
+        });
+        
+        return found;
+    } catch (error) {
+        console.error(`Error in hideElementsByText:`, error);
+        return false;
+    }
+}
+
+// Check if user is logged in
+function isLoggedIn() {
+    return @(User.Identity?.IsAuthenticated.ToString().ToLower() ?? "false");
+}
+
+// Redirect to login page
+function redirectToLogin() {
+    try {
+        const currentUrl = window.location.href;
+        window.location.href = `/Account/Login?ReturnUrl=${encodeURIComponent(currentUrl)}`;
+    } catch (e) {
+        console.error("Error in redirectToLogin:", e);
+    }
+}
+    
+// Navigation functionality
+function initNavigation() {
+    try {
+        const menuLinks = document.querySelectorAll('.sticky a');
+        const sections = document.querySelectorAll('[id]');
+        
+        if (!menuLinks || !sections) return;
+        
+        window.addEventListener('scroll', function() {
+            let current = '';
+            sections.forEach(section => {
+                if (!section) return;
+                
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if(pageYOffset >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            menuLinks.forEach(link => {
+                if (!link) return;
+                
+                link.classList.remove('bg-primary-600', 'text-white');
+                link.classList.add('bg-gray-100', 'text-gray-700');
+                if(link.getAttribute('href') === '#' + current) {
+                    link.classList.remove('bg-gray-100', 'text-gray-700');
+                    link.classList.add('bg-primary-600', 'text-white');
+                }
+            });
+        });
+        
+        // Smooth scrolling for anchor links
+        menuLinks.forEach(link => {
+            if (!link) return;
+            
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if (!targetId) return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 100,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    } catch (e) {
+        console.error("Error in initNavigation:", e);
+    }
+}
+    
+// Report Issue Modal functionality
+function initReportIssueModal() {
+    try {
+        const reportIssueBtn = document.getElementById('report-issue-btn');
+        const reportIssueModal = document.getElementById('report-issue-modal');
+        const modalContent = document.getElementById('modal-content');
+        const closeReportModal = document.getElementById('close-report-modal');
+        const cancelReport = document.getElementById('cancel-report');
+        
+        // Set default date to today
+        const reportDateField = document.querySelector('input[name="ReportDate"]');
+        if (reportDateField) {
+            const today = new Date();
+            reportDateField.value = today.toISOString().split('T')[0];
+        }
+        
+        if (reportIssueBtn && reportIssueModal && modalContent) {
+            reportIssueBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                reportIssueModal.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+                
+                // Animation
+                setTimeout(() => {
+                    modalContent.classList.remove('scale-95', 'opacity-0');
+                    modalContent.classList.add('scale-100', 'opacity-100');
+                }, 10);
+            });
+        }
+        
+        function closeModal() {
+            if (!modalContent || !reportIssueModal) return;
+            
+            // Animation
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            
+            setTimeout(() => {
+                reportIssueModal.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            }, 300);
+        }
+        
+        if (closeReportModal) {
+            closeReportModal.addEventListener('click', closeModal);
+        }
+        
+        if (cancelReport) {
+            cancelReport.addEventListener('click', closeModal);
+        }
+        
+        // Close modal when clicking outside
+        if (reportIssueModal) {
+            reportIssueModal.addEventListener('click', function(e) {
+                if (e.target === reportIssueModal) {
+                    closeModal();
+                }
+            });
+        }
+    } catch (e) {
+        console.error("Error in initReportIssueModal:", e);
+    }
+}
+
+
+function initIssueFormSubmission() {
+    try {
+        const issueForm = document.getElementById('issue-report-form');
+        
+        if (!issueForm) return;
+        
+        issueForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Reset previous errors
+            resetFormErrors();
+            
+            // Validate form
+            if (!validateIssueForm()) {
+                return false;
+            }
+            
+            // Show loading state
+            const spinner = document.getElementById('issue-spinner');
+            const submitBtn = document.getElementById('submit-issue');
+            
+            if (spinner) spinner.classList.remove('hidden');
+            if (submitBtn) submitBtn.setAttribute('disabled', 'disabled');
+            
+            try {
+                // Get form data
+                const formData = new FormData(issueForm);
+                
+                // Get anti-forgery token from meta tag or form
+                const metaToken = document.querySelector('meta[name="RequestVerificationToken"]');
+                const formToken = document.querySelector('form input[name="__RequestVerificationToken"]');
+                const token = formToken ? formToken.value : 
+                             metaToken ? metaToken.getAttribute('content') : null;
+                
+                if (!token) {
+                    console.error("Anti-forgery token not found");
+                    showFormFeedback("Security token missing. Please refresh the page and try again.", 'error');
+                    resetSubmitButton();
+                    return;
+                }
+                
+                console.log("Using token:", token.substring(0, 10) + "...");
+                
+                // Submit data using fetch API with FormData to handle file uploads
+                const response = await fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/IssueReport`, {
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': token
+                    },
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error(`Server response: ${response.status} ${response.statusText}`, errorText);
+                    
+                    let errorMessage = `Error: ${response.status} ${response.statusText}`;
+                    try {
+                        const errorJson = JSON.parse(errorText);
+                        if (errorJson.error) errorMessage = errorJson.error;
+                        if (errorJson.errors) errorMessage = Array.isArray(errorJson.errors) 
+                            ? errorJson.errors.join(', ') 
+                            : Object.values(errorJson.errors).flat().join(', ');
+                    } catch (e) {}
+                    
+                    showFormFeedback(errorMessage, 'error');
+                    resetSubmitButton();
+                    return;
+                }
+                
+                const data = await response.json();
+                
+                // Show success message
+                showToast('Issue reported successfully', 'Your issue has been submitted', 'success');
+                
+                // Close modal and reset form
+                resetIssueModal();
+                
+                // Reload issues after a delay
+                setTimeout(() => {
+                    loadIssueData();
+                }, 1000);
+            } catch (error) {
+                console.error('Form submission error:', error);
+                showFormFeedback(`Error: ${error.message}`, 'error');
+                resetSubmitButton();
+            }
+        });
+        
+        function resetSubmitButton() {
+            const spinner = document.getElementById('issue-spinner');
+            const submitBtn = document.getElementById('submit-issue');
+            
+            if (spinner) spinner.classList.add('hidden');
+            if (submitBtn) submitBtn.removeAttribute('disabled');
+        }
+        
+        function validateIssueForm() {
+            let isValid = true;
+            
+            // Check required fields
+            const requiredFields = {
+                'issueType': 'Issue Type is required',
+                'description': 'Description is required',
+                'reportDate': 'Report Date is required',
+                'reporterName': 'Your Name is required',
+                'reporterEmail': 'Your Email is required'
+            };
+            
+            for (const [fieldId, errorMessage] of Object.entries(requiredFields)) {
+                const field = document.getElementById(fieldId);
+                if (!field || !field.value.trim()) {
+                    showFieldError(field, errorMessage);
+                    isValid = false;
+                }
+            }
+            
+            // Validate email format
+            const emailField = document.getElementById('reporterEmail');
+            if (emailField && emailField.value.trim() && !isValidEmail(emailField.value.trim())) {
+                showFieldError(emailField, 'Please enter a valid email address');
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+    } catch (error) {
+        console.error('Issue form initialization error:', error);
+    }
+}
+
+// Initialize image preview functionality
+function initImagePreview() {
+    try {
+        const imageInput = document.getElementById('imageFile');
+        const previewContainer = document.getElementById('image-preview-container');
+        const imagePreview = document.getElementById('issue-image-preview');
+        const uploadText = document.getElementById('upload-text');
+        const removeImageBtn = document.getElementById('remove-image-btn');
+        
+        if (imageInput && previewContainer && imagePreview && uploadText) {
+            imageInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    // Check file size (max 5MB)
+                    if (this.files[0].size > 5 * 1024 * 1024) {
+                        showToast('File too large', 'Maximum file size is 5MB', 'error');
+                        this.value = '';
+                        return;
+                    }
+                    
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        imagePreview.src = e.target.result;
+                        previewContainer.classList.remove('hidden');
+                        uploadText.textContent = 'Change photo';
+                    };
+                    
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+            
+            if (removeImageBtn) {
+                removeImageBtn.addEventListener('click', function() {
+                    imageInput.value = '';
+                    previewContainer.classList.add('hidden');
+                    uploadText.textContent = 'Click to add a photo';
+                });
+            }
+        }
+    } catch (e) {
+        console.error("Error in initImagePreview:", e);
+    }
+}
+
+// Helper function to show form feedback
+function showFormFeedback(message, type = 'error') {
+    const feedbackArea = document.getElementById('form-feedback');
+    const feedbackMessage = document.getElementById('feedback-message');
+    
+    if (!feedbackArea || !feedbackMessage) return;
+    
+    // Set appropriate styles based on message type
+    if (type === 'error') {
+        feedbackArea.className = 'mb-4 p-4 rounded-lg bg-red-50 text-red-700 border border-red-200';
+    } else if (type === 'success') {
+        feedbackArea.className = 'mb-4 p-4 rounded-lg bg-green-50 text-green-700 border border-green-200';
+    } else {
+        feedbackArea.className = 'mb-4 p-4 rounded-lg bg-blue-50 text-blue-700 border border-blue-200';
+    }
+    
+    feedbackMessage.innerHTML = message;
+    feedbackArea.classList.remove('hidden');
+}
+
+// Helper function to show field-specific errors
+function showFieldError(field, message) {
+    if (!field) return;
+    
+    field.classList.add('border-red-500');
+    
+    const errorElement = field.parentElement.querySelector('.error-message');
+    if (errorElement) {
+        errorElement.textContent = message;
+        errorElement.classList.remove('hidden');
+    }
+}
+
+// Helper function to reset form errors
+function resetFormErrors() {
+    const form = document.getElementById('issue-report-form');
+    if (!form) return;
+    
+    // Hide the feedback area
+    const feedbackArea = document.getElementById('form-feedback');
+    if (feedbackArea) {
+        feedbackArea.classList.add('hidden');
+    }
+    
+    // Reset all input fields' error states
+    const fields = form.querySelectorAll('input, select, textarea');
+    fields.forEach(field => {
+        field.classList.remove('border-red-500');
+        
+        const errorElement = field.parentElement.querySelector('.error-message');
+        if (errorElement) {
+            errorElement.classList.add('hidden');
+            errorElement.textContent = '';
+        }
+    });
+}
+
+// Add this helper function to reset the modal
+function resetIssueModal() {
+    try {
+        const issueForm = document.getElementById('issue-report-form');
+        const reportIssueModal = document.getElementById('report-issue-modal');
+        const modalContent = document.getElementById('modal-content');
+        
+        if (issueForm) issueForm.reset();
+        
+        // Reset image preview
+        const imagePreview = document.getElementById('image-preview-container');
+        const uploadText = document.getElementById('upload-text');
+        if (imagePreview) imagePreview.classList.add('hidden');
+        if (uploadText) uploadText.textContent = 'Click to add a photo';
+        
+        // Set default date to today
+        const reportDateField = document.querySelector('input[name="ReportDate"]');
+        if (reportDateField) {
+            const today = new Date();
+            reportDateField.value = today.toISOString().split('T')[0];
+        }
+        
+        // Reset form errors
+        resetFormErrors();
+        
+        if (modalContent && reportIssueModal) {
+            // Animation
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            
+            setTimeout(() => {
+                reportIssueModal.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            }, 300);
+        }
+    } catch (e) {
+        console.error("Error resetting issue modal:", e);
+    }
+}
+
+// Helper function for email validation
+function isValidEmail(email) {
+    try {
+        if (!email) return false;
+        const re = /^(([^<>()\[\]\\.,;:\s@@"]+(\.[^<>()\[\]\\.,;:\s@@"]+)*)|(".+"))@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(String(email).toLowerCase());
+    } catch (e) {
+        console.error("Error in isValidEmail:", e);
+        return false;
+    }
+}
+
+// Load issue data function
+function loadIssueData() {
+    try {
+        const issuesContainer = document.getElementById('issues-container');
+        if (!issuesContainer) {
+            console.error("Issues container not found");
+            return;
+        }
+        
+        const productId = @Model.Id;
+        
+        // Show loading state explicitly
+        issuesContainer.innerHTML = `
+            <div class="text-center py-6 bg-gray-50 rounded-lg animate-pulse">
+                <i class="fas fa-spinner fa-spin text-primary-500 mr-2"></i> Loading issues...
+            </div>
+        `;
+        
+        fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/IssueReport/card/${productId}`)
+            .then(response => {
+                // Check for auth error
+                if (response.status === 401) {
+                    // Handle auth required case
+                    return response.json().then(authError => {
+                        if (authError.requiresAuth) {
+                            throw new Error('Authentication required to view this content');
+                        }
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    });
+                }
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(issues => {
+                if (!issuesContainer) return; // Re-check if container exists
+                
+                if (issues && Array.isArray(issues) && issues.length > 0) {
+                    // Clear loading spinner
+                    issuesContainer.innerHTML = '';
+                    
+                    // Create issues list
+                    const issueList = document.createElement('div');
+                    issueList.className = 'space-y-4';
+                    
+                    issues.forEach(issue => {
+                        if (!issue) return;
+                        
+                        // IMPORTANT FIX: Ensure we're dealing with a proper date object
+                        const reportDate = new Date(issue.reportDate);
+                        // Avoid displaying if date is invalid
+                        if (isNaN(reportDate.getTime())) return;
+                        
+                        // Determine status color and icon
+                        let statusColor = 'bg-blue-100 text-blue-800';
+                        let statusIcon = 'fa-info-circle';
+                        
+                        if (issue.status === 'Open') {
+                            statusColor = 'bg-yellow-100 text-yellow-800';
+                            statusIcon = 'fa-exclamation-circle';
+                        } else if (issue.status === 'In Progress') {
+                            statusColor = 'bg-blue-100 text-blue-800';
+                            statusIcon = 'fa-spinner';
+                        } else if (issue.status === 'Resolved') {
+                            statusColor = 'bg-green-100 text-green-800';
+                            statusIcon = 'fa-check-circle';
+                        } else if (issue.status === 'Closed') {
+                            statusColor = 'bg-gray-100 text-gray-800';
+                            statusIcon = 'fa-check';
+                        }
+                        
+                        // Determine priority badge
+                        let priorityColor = 'bg-gray-100 text-gray-700';
+                        if (issue.priority === 'Low') {
+                            priorityColor = 'bg-blue-100 text-blue-800';
+                        } else if (issue.priority === 'Medium') {
+                            priorityColor = 'bg-yellow-100 text-yellow-800';
+                        } else if (issue.priority === 'High') {
+                            priorityColor = 'bg-orange-100 text-orange-800';
+                        } else if (issue.priority === 'Critical') {
+                            priorityColor = 'bg-red-100 text-red-800';
+                        }
+                        
+                        // Format time correctly using our fixed function
+                        const timeAgo = formatTimeAgo(reportDate);
+                        
+                        const issueItem = document.createElement('div');
+                        issueItem.className = 'p-4 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1';
+                        issueItem.innerHTML = `
+                            <div class="flex justify-between items-start">
+                                <div class="flex-grow">
+                                    <div class="flex flex-wrap items-center gap-2 mb-2">
+                                        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium flex items-center gap-1 ${statusColor}">
+                                            <i class="fas ${statusIcon}"></i>
+                                            <span>${issue.status || 'Unknown'}</span>
+                                        </span>
+                                        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium flex items-center gap-1 ${priorityColor}">
+                                            ${issue.priority === 'Critical' ? '<i class="fas fa-exclamation-triangle"></i>' : ''}
+                                            ${issue.priority || 'Unknown'}
+                                        </span>
+                                        <span class="text-xs text-gray-500 ml-auto">
+                                            Reported ${timeAgo}
+                                        </span>
+                                    </div>
+                                    <h4 class="text-lg font-medium text-gray-800">${issue.issueType || 'Unknown Issue'}</h4>
+                                    <p class="text-sm text-gray-600 mt-2 bg-gray-50 p-3 rounded-lg">${issue.description || 'No description provided'}</p>
+                                    
+                                    ${issue.imagePath ? `
+                                    <div class="mt-3">
+                                        <img src="${issue.imagePath}" alt="Issue Image" class="max-h-40 rounded-lg shadow-sm cursor-pointer hover:opacity-90 transition-opacity" 
+                                             onclick="showFullImage('${issue.imagePath}', '${issue.issueType || 'Issue Image'}')"/>
+                                    </div>` : ''}
+                                    
+                                    <div class="text-xs text-gray-500 mt-3 flex items-center">
+                                        <i class="fas fa-user mr-1"></i> Reported by ${issue.reporterName || 'Unknown'}
+                                        ${issue.reporterEmail ? `<span class="mx-2">•</span><a href="mailto:${issue.reporterEmail}" class="text-blue-600 hover:underline"><i class="fas fa-envelope mr-1"></i>${issue.reporterEmail}</a>` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                            ${issue.resolution ? `
+                            <div class="mt-4 pt-3 border-t border-gray-100">
+                                <p class="text-sm font-medium text-gray-700 flex items-center">
+                                    <i class="fas fa-comment-dots mr-2 text-green-500"></i> Resolution:
+                                </p>
+                                <p class="text-sm text-gray-600 mt-1 bg-green-50 p-3 rounded-lg">${issue.resolution}</p>
+                            </div>` : ''}
+                        `;
+                        
+                        issueList.appendChild(issueItem);
+                    });
+                    
+                    if (issueList.children.length > 0) {
+                        issuesContainer.appendChild(issueList);
+                    } else {
+                        showNoIssuesMessage(issuesContainer);
+                    }
+                } else {
+                    showNoIssuesMessage(issuesContainer);
+                }
+            })
+            .catch(error => {
+                console.error('Error loading issues:', error);
+                if (!issuesContainer) return;
+                
+                // Check if it's an auth error
+                const isAuthError = error.message.includes('Authentication required');
+                
+                issuesContainer.innerHTML = `
+                    <div class="text-center py-8 ${isAuthError ? 'bg-blue-50' : 'bg-red-50'} rounded-lg">
+                        <div class="w-16 h-16 mx-auto rounded-full ${isAuthError ? 'bg-blue-100' : 'bg-red-100'} flex items-center justify-center ${isAuthError ? 'text-blue-500' : 'text-red-500'} mb-3">
+                            <i class="fas ${isAuthError ? 'fa-lock' : 'fa-exclamation-triangle'} text-2xl"></i>
+                        </div>
+                        <p class="${isAuthError ? 'text-blue-600 font-medium' : 'text-red-600 font-medium'}">${isAuthError ? 'Login required to view issues' : 'Failed to load issues'}</p>
+                        ${!isAuthError ? `<p class="text-sm text-red-500 mt-2">${error.message || 'Please try again later.'}</p>` : ''}
+                        ${isAuthError ? '<a href="/Account/Login" class="mt-3 inline-block text-sm text-blue-600 hover:text-blue-800 font-medium"><i class="fas fa-sign-in-alt mr-1"></i> Login to view</a>' : ''}
+                    </div>
+                `;
+            });
+    } catch (e) {
+        console.error("Error in loadIssueData function:", e);
+        const issuesContainer = document.getElementById('issues-container');
+        if (issuesContainer) {
+            issuesContainer.innerHTML = `
+                <div class="text-center py-8 bg-red-50 rounded-lg">
+                    <div class="w-16 h-16 mx-auto rounded-full bg-red-100 flex items-center justify-center text-red-500 mb-3">
+                        <i class="fas fa-exclamation-triangle text-2xl"></i>
+                    </div>
+                    <p class="text-red-600 font-medium">Error loading issues</p>
+                    <p class="text-sm text-red-500 mt-2">${e.message || 'An unexpected error occurred.'}</p>
+                </div>
+            `;
+        }
+    }
+}
+
+// Function to show full-size image when clicked
+function showFullImage(imagePath, title) {
+    try {
+        const previewModal = document.getElementById('document-preview-modal');
+        const modalContent = document.getElementById('document-modal-content');
+        const previewTitle = document.getElementById('document-preview-title');
+        const previewContent = document.getElementById('document-preview-content');
+        
+        if (!previewModal || !modalContent || !previewTitle || !previewContent) return;
+        
+        // Set modal title
+        previewTitle.textContent = title || 'Image Preview';
+        
+        // Set content with image
+        previewContent.innerHTML = `
+            <div class="flex justify-center items-center h-full bg-gray-50 p-4">
+                <img src="${imagePath}" alt="${title || 'Image Preview'}" class="max-w-full max-h-full mx-auto shadow-lg rounded-lg">
+            </div>
+        `;
+        
+        // Show modal with animation
+        previewModal.classList.remove('hidden');
+        setTimeout(() => {
+            modalContent.classList.remove('scale-95', 'opacity-0');
+            modalContent.classList.add('scale-100', 'opacity-100');
+        }, 10);
+    } catch (e) {
+        console.error("Error in showFullImage:", e);
+    }
+}
+
+// Helper function to show "no issues" message
+function showNoIssuesMessage(container) {
+    if (!container) return;
+    
+    container.innerHTML = `
+        <div class="text-center py-8 bg-gray-50 rounded-lg">
+            <div class="w-16 h-16 mx-auto rounded-full bg-green-100 flex items-center justify-center text-green-500 mb-3">
+                <i class="fas fa-check-circle text-2xl"></i>
+            </div>
+            <p class="text-gray-600 font-medium">No issues reported</p>
+            <p class="text-sm text-gray-500 mt-2">This product appears to be working properly.</p>
+            <button id="report-new-issue" class="mt-4 inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all">
+                <i class="fas fa-plus mr-2"></i> Report a New Issue
+            </button>
+        </div>
+    `;
+    
+    // Add event listener to the "Report a New Issue" button
+    setTimeout(() => {
+        const reportNewIssueBtn = document.getElementById('report-new-issue');
+        if (reportNewIssueBtn) {
+            reportNewIssueBtn.addEventListener('click', function() {
+                const reportIssueBtn = document.getElementById('report-issue-btn');
+                if (reportIssueBtn) {
+                    reportIssueBtn.click();
+                }
+            });
+        }
+    }, 100);
+}
+
+// Function to load documents
+function loadDocuments() {
+    try {
+        const documentsContainer = document.getElementById('documents-container');
+        if (!documentsContainer) return;
+        
+        const productId = @Model.Id;
+        
+        documentsContainer.innerHTML = `
+            <div class="text-center py-6 bg-gray-50 rounded-lg animate-pulse">
+                <i class="fas fa-spinner fa-spin text-primary-500 mr-2"></i> Loading documents...
+            </div>
+        `;
+        
+        fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Document/card/${productId}`)
+            .then(response => {
+                // Check for auth error
+                if (response.status === 401) {
+                    // Handle auth required case
+                    return response.json().then(authError => {
+                        if (authError.requiresAuth) {
+                            throw new Error('Authentication required to view this content');
+                        }
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    });
+                }
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(documents => {
+                if (!documentsContainer) return;
+                
+                if (documents && Array.isArray(documents) && documents.length > 0) {
+                    documentsContainer.innerHTML = '';
+                    const docList = document.createElement('div');
+                    docList.className = 'space-y-3';
+                    
+                    documents.forEach(doc => {
+                        if (!doc) return;
+                        
+                        const fileTypeIcon = getFileIcon(doc.fileType || doc.fileName);
+                        const fileDate = new Date(doc.uploadedAt);
+                        const isValidDate = !isNaN(fileDate.getTime());
+                        
+                        const docItem = document.createElement('div');
+                        docItem.className = 'flex bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1';
+                        docItem.innerHTML = `
+                            <div class="flex-shrink-0 mr-4">
+                                <div class="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center">
+                                    <i class="${fileTypeIcon} text-blue-500 text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h4 class="font-medium text-gray-800 truncate">${doc.title || 'Untitled Document'}</h4>
+                                <p class="text-sm text-gray-500 mt-1">${doc.fileName || ''} ${doc.fileSize ? `(${formatFileSize(doc.fileSize)})` : ''}</p>
+                                <div class="flex items-center mt-2 text-xs text-gray-400">
+                                    ${doc.documentType ? `<span class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded mr-2">${doc.documentType}</span>` : ''}
+                                    ${isValidDate ? `<span><i class="far fa-clock mr-1"></i> ${formatDate(fileDate)}</span>` : ''}
+                                </div>
+                            </div>
+                                <div class="flex-shrink-0 ml-4 flex flex-col space-y-2">
+                                <button class="document-preview-btn p-2 bg-blue-50 text-blue-500 rounded hover:bg-blue-100 transition-colors"
+                                        data-id="${doc.id}" data-title="${doc.title || 'Document Preview'}" data-path="${doc.filePath || ''}">
+                                    <i class="far fa-eye"></i>
+                                </button>
+                                <a href="#" class="download-document-link p-2 bg-green-50 text-green-500 rounded hover:bg-green-100 transition-colors" 
+                                data-id="${doc.id}" data-path="${doc.filePath || ''}" onclick="event.preventDefault(); downloadDocument(${doc.id}, '${doc.filePath || ''}')">
+                                    <i class="fas fa-download"></i>
+                                </a>
+                            </div>
+                        `;
+                        
+                        docList.appendChild(docItem);
+                    });
+                    
+                    documentsContainer.appendChild(docList);
+                } else {
+                    documentsContainer.innerHTML = `
+                        <div class="text-center py-8 bg-gray-50 rounded-lg">
+                            <div class="w-16 h-16 mx-auto rounded-full bg-blue-100 flex items-center justify-center text-blue-400 mb-3">
+                                <i class="fas fa-file-alt text-2xl"></i>
+                            </div>
+                            <p class="text-gray-600 font-medium">No documents available</p>
+                            <p class="text-sm text-gray-500 mt-2">No documentation has been added for this product yet.</p>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error loading documents:', error);
+                if (!documentsContainer) return;
+                
+                // Check if it's an auth error
+                const isAuthError = error.message.includes('Authentication required');
+                
+                documentsContainer.innerHTML = `
+                    <div class="text-center py-8 ${isAuthError ? 'bg-blue-50' : 'bg-red-50'} rounded-lg">
+                        <div class="w-16 h-16 mx-auto rounded-full ${isAuthError ? 'bg-blue-100' : 'bg-red-100'} flex items-center justify-center ${isAuthError ? 'text-blue-500' : 'text-red-500'} mb-3">
+                            <i class="fas ${isAuthError ? 'fa-lock' : 'fa-exclamation-triangle'} text-2xl"></i>
+                        </div>
+                        <p class="${isAuthError ? 'text-blue-600 font-medium' : 'text-red-600 font-medium'}">${isAuthError ? 'Login required to view documents' : 'Failed to load documents'}</p>
+                        ${!isAuthError ? `<p class="text-sm text-red-500 mt-2">${error.message || 'Please try again later.'}</p>` : ''}
+                        ${isAuthError ? '<a href="/Account/Login" class="mt-3 inline-block text-sm text-blue-600 hover:text-blue-800 font-medium"><i class="fas fa-sign-in-alt mr-1"></i> Login to view</a>' : ''}
+                    </div>
+                `;
+            });
+    } catch (e) {
+        console.error("Error in loadDocuments:", e);
+        const documentsContainer = document.getElementById('documents-container');
+        if (documentsContainer) {
+            documentsContainer.innerHTML = `<div class="text-center text-red-500">Error loading documents: ${e.message}</div>`;
+        }
+    }
+}
+
+// Get file icon based on file type
+function getFileIcon(filePathOrType) {
+    try {
+        if (!filePathOrType) return 'fas fa-file';
+        
+        const lowerPath = filePathOrType.toLowerCase();
+        
+        if (lowerPath.match(/\.(pdf)$/i)) return 'fas fa-file-pdf';
+        if (lowerPath.match(/\.(doc|docx)$/i)) return 'fas fa-file-word';
+        if (lowerPath.match(/\.(xls|xlsx|csv)$/i)) return 'fas fa-file-excel';
+        if (lowerPath.match(/\.(ppt|pptx)$/i)) return 'fas fa-file-powerpoint';
+        if (lowerPath.match(/\.(zip|rar|tar|gz)$/i)) return 'fas fa-file-archive';
+        if (lowerPath.match(/\.(jpg|jpeg|png|gif|bmp|svg)$/i)) return 'fas fa-file-image';
+        if (lowerPath.match(/\.(mp4|mov|avi|wmv)$/i)) return 'fas fa-file-video';
+        if (lowerPath.match(/\.(mp3|wav|ogg)$/i)) return 'fas fa-file-audio';
+        if (lowerPath.match(/\.(txt|rtf)$/i)) return 'fas fa-file-alt';
+        if (lowerPath.match(/\.(html|htm|xml|json)$/i)) return 'fas fa-file-code';
+        
+        // Check for MIME types
+        if (lowerPath.includes('pdf')) return 'fas fa-file-pdf';
+        if (lowerPath.includes('word') || lowerPath.includes('document')) return 'fas fa-file-word';
+        if (lowerPath.includes('excel') || lowerPath.includes('spreadsheet')) return 'fas fa-file-excel';
+        if (lowerPath.includes('powerpoint') || lowerPath.includes('presentation')) return 'fas fa-file-powerpoint';
+        if (lowerPath.includes('image')) return 'fas fa-file-image';
+        if (lowerPath.includes('video')) return 'fas fa-file-video';
+        if (lowerPath.includes('audio')) return 'fas fa-file-audio';
+        if (lowerPath.includes('text')) return 'fas fa-file-alt';
+        
+        // Default
+        return 'fas fa-file';
+    } catch (e) {
+        console.error("Error in getFileIcon:", e);
+        return 'fas fa-file';
+    }
+}
+
+// Load maintenance data
+function loadMaintenanceData() {
+    try {
+        const remindersContainer = document.getElementById('maintenance-reminders');
+        const historyContainer = document.getElementById('maintenance-history-content');
+        if (!remindersContainer || !historyContainer) return;
+        
+        const productId = @Model.Id;
+        
+        // Fetch reminders
+        fetch(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Reminder/card/${productId}`)
+            .then(response => {
+                // Check for auth error
+                if (response.status === 401) {
+                    // Handle auth required case
+                    return response.json().then(authError => {
+                        if (authError.requiresAuth) {
+                            throw new Error('Authentication required to view this content');
+                        }
+                        throw new Error(`HTTP error: ${response.status}`);
+                    });
+                }
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(reminders => {
+                if (!remindersContainer || !historyContainer) return;
+                
+                if (reminders && Array.isArray(reminders) && reminders.length > 0) {
+                    // Sort by due date (closest first)
+                    reminders.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+                    
+                    // Display next reminder
+                    const nextReminder = reminders[0];
+                    if (!nextReminder) {
+                        showNoMaintenanceData(remindersContainer);
+                        showNoMaintenanceHistory(historyContainer);
+                        return;
+                    }
+                    
+                    const dueDate = new Date(nextReminder.dueDate);
+                    if (isNaN(dueDate.getTime())) {
+                        showNoMaintenanceData(remindersContainer);
+                        showNoMaintenanceHistory(historyContainer);
+                        return;
+                    }
+                    
+                    const isPastDue = dueDate < new Date();
+                    
+                    remindersContainer.innerHTML = `
+                        <div class="p-4 ${isPastDue ? 'bg-red-50 border-red-200' : 'bg-white border-blue-200'} rounded-lg border shadow-sm transform transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 w-10 h-10 rounded-full ${isPastDue ? 'bg-red-100 text-red-500' : 'bg-blue-100 text-blue-500'} flex items-center justify-center">
+                                    <i class="fas ${isPastDue ? 'fa-exclamation-circle' : 'fa-calendar-check'} text-lg"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="font-medium ${isPastDue ? 'text-red-800' : 'text-blue-800'}">${nextReminder.title || 'Maintenance Task'}</p>
+                                    <p class="text-sm ${isPastDue ? 'text-red-700' : 'text-blue-600'} mt-1">
+                                        ${isPastDue ? 'Overdue: ' : 'Due: '}
+                                        <span class="font-medium">${formatDate(dueDate)}</span>
+                                        <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${isPastDue ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}">
+${isPastDue ? `${getDaysDiff(dueDate, new Date())} days overdue` : `${getDaysDiff(new Date(), dueDate)} days remaining`}
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                            ${nextReminder.notes ? `<div class="mt-3 pt-3 border-t ${isPastDue ? 'border-red-100' : 'border-blue-100'} text-sm ${isPastDue ? 'text-red-600' : 'text-blue-600'}">${nextReminder.notes}</div>` : ''}
+                        </div>
+                    `;
+                    
+                    // Add link to view all
+                    if (reminders.length > 1) {
+                        remindersContainer.innerHTML += `
+                            <div class="mt-3 text-right">
+                                <a href="#" id="view-all-reminders" class="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 font-medium">
+                                    View all ${reminders.length} reminders
+                                    <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                </a>
+                            </div>
+                        `;
+                    }
+                    
+                    // Populate maintenance history (show last 3 reminders)
+                    const historyItems = reminders.slice(0, 3);
+                    
+                    if (historyItems.length > 0) {
+                        historyContainer.innerHTML = `
+                            <div class="space-y-4">
+                                ${historyItems.map((item, index) => {
+                                    if (!item) return '';
+                                    
+                                    const itemDate = new Date(item.dueDate);
+                                    if (isNaN(itemDate.getTime())) return '';
+                                    
+                                    const isCompleted = itemDate < new Date();
+                                    
+                                    return `
+                                        <div class="flex bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
+                                            <div class="flex-shrink-0 mr-4">
+                                                <div class="w-10 h-10 rounded-full ${isCompleted ? 'bg-green-100' : 'bg-blue-100'} flex items-center justify-center">
+                                                    <i class="fas ${isCompleted ? 'fa-check' : 'fa-clock'} ${isCompleted ? 'text-green-600' : 'text-blue-600'}"></i>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <h4 class="font-medium text-gray-800">${item.title || 'Maintenance Task'}</h4>
+                                                <p class="text-sm text-gray-500 mt-1">
+                                                    ${isCompleted ? 'Was scheduled for: ' : 'Scheduled for: '}
+                                                    <span class="font-medium ${isCompleted ? 'text-red-600' : 'text-blue-600'}">${formatDate(itemDate)}</span>
+                                                    ${isCompleted ? 
+                                                        `<span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                            ${getDaysDiff(itemDate, new Date())} days overdue
+                                                        </span>` : 
+                                                        `<span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                            ${getDaysDiff(new Date(), itemDate)} days remaining
+                                                        </span>`
+                                                    }
+                                                </p>
+                                                ${item.notes ? `<p class="text-sm text-gray-600 mt-2 bg-gray-50 p-2 rounded">${item.notes}</p>` : ''}
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        `;
+                    } else {
+                        showNoMaintenanceHistory(historyContainer);
+                    }
+                } else {
+                    // No reminders found
+                    showNoMaintenanceData(remindersContainer);
+                    showNoMaintenanceHistory(historyContainer);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching maintenance data:', error);
+                if (!remindersContainer || !historyContainer) return;
+                
+                // Show appropriate message for auth errors
+                const isAuthError = error.message.includes('Authentication required');
+                
+                remindersContainer.innerHTML = `
+                    <div class="p-4 ${isAuthError ? 'bg-blue-50 border-blue-200' : 'bg-red-50 border-red-200'} rounded-lg border shadow-sm">
+                        <div class="text-center">
+                            <div class="w-12 h-12 mx-auto rounded-full ${isAuthError ? 'bg-blue-100 text-blue-400' : 'bg-red-100 text-red-400'} flex items-center justify-center mb-2">
+                                <i class="fas ${isAuthError ? 'fa-lock' : 'fa-exclamation-triangle'} text-xl"></i>
+                            </div>
+                            <p class="${isAuthError ? 'text-blue-600' : 'text-red-600'}">${isAuthError ? 'Login required to view maintenance data' : 'Failed to load maintenance data'}</p>
+                            ${!isAuthError ? '<p class="text-sm text-red-500 mt-1">Please try refreshing the page.</p>' : ''}
+                            ${isAuthError ? '<a href="/Account/Login" class="mt-2 inline-block text-sm text-blue-600 hover:text-blue-800 font-medium"><i class="fas fa-sign-in-alt mr-1"></i> Login to view</a>' : ''}
+                        </div>
+                    </div>
+                `;
+                
+                historyContainer.innerHTML = `
+                    <div class="text-center py-6 ${isAuthError ? 'bg-blue-50' : 'bg-red-50'} rounded-lg">
+                        <div class="w-12 h-12 mx-auto rounded-full ${isAuthError ? 'bg-blue-100 text-blue-400' : 'bg-red-100 text-red-400'} flex items-center justify-center mb-2">
+                            <i class="fas ${isAuthError ? 'fa-lock' : 'fa-exclamation-triangle'} text-xl"></i>
+                        </div>
+                        <p class="${isAuthError ? 'text-blue-600' : 'text-red-600'}">${isAuthError ? 'Login required to view maintenance history' : 'Failed to load maintenance history'}</p>
+                        ${!isAuthError ? '<p class="text-sm text-red-500 mt-1">Please try refreshing the page.</p>' : ''}
+                    </div>
+                `;
+            });
+    } catch (e) {
+        console.error("Error in loadMaintenanceData:", e);
+        const remindersContainer = document.getElementById('maintenance-reminders');
+        const historyContainer = document.getElementById('maintenance-history-content');
+        
+        if (remindersContainer) {
+            remindersContainer.innerHTML = `<div class="text-center text-red-500">Error loading maintenance data: ${e.message}</div>`;
+        }
+        
+        if (historyContainer) {
+            historyContainer.innerHTML = `<div class="text-center text-red-500">Error loading maintenance history: ${e.message}</div>`;
+        }
+    }
+}
+
+// Helper functions for maintenance display
+function showNoMaintenanceData(container) {
+    if (!container) return;
+    
+    container.innerHTML = `
+        <div class="p-4 bg-white border-blue-200 rounded-lg border shadow-sm">
+            <div class="text-center">
+                <div class="w-12 h-12 mx-auto rounded-full bg-blue-100 flex items-center justify-center text-blue-400 mb-2">
+                    <i class="fas fa-calendar-check text-xl"></i>
+                </div>
+                <p class="text-gray-600">No scheduled maintenance</p>
+                <p class="text-sm text-gray-500 mt-1">This product doesn't have any upcoming maintenance tasks.</p>
+            </div>
+        </div>
+    `;
+}
+
+function showNoMaintenanceHistory(container) {
+    if (!container) return;
+    
+    container.innerHTML = `
+        <div class="text-center py-6 bg-gray-50 rounded-lg">
+            <div class="w-12 h-12 mx-auto rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-2">
+                <i class="fas fa-clipboard-list text-xl"></i>
+            </div>
+            <p class="text-gray-600">No maintenance history available</p>
+            <p class="text-sm text-gray-500 mt-1">Data will appear here once available.</p>
+        </div>
+    `;
+}
+
+// Initialize document preview modal
+function initDocumentPreview() {
+    try {
+        const previewModal = document.getElementById('document-preview-modal');
+        const modalContent = document.getElementById('document-modal-content');
+        const closePreviewBtn = document.getElementById('close-doc-preview-modal');
+        const closePreviewBtn2 = document.getElementById('close-preview-btn');
+        const downloadBtn = document.getElementById('download-document-btn');
+        const previewTitle = document.getElementById('document-preview-title');
+        const previewContent = document.getElementById('document-preview-content');
+        
+        if (!previewModal || !modalContent || !previewTitle || !previewContent) return;
+        
+        // Event delegation for document preview buttons
+        document.addEventListener('click', function(e) {
+            const previewBtn = e.target.closest('.document-preview-btn');
+            
+            if (previewBtn) {
+                const docId = previewBtn.getAttribute('data-id');
+                const docTitle = previewBtn.getAttribute('data-title');
+                const docPath = previewBtn.getAttribute('data-path');
+                
+                if (!docId) return;
+                
+                // Set modal title
+                if (previewTitle) previewTitle.textContent = docTitle || 'Document Preview';
+                
+                // Show loading state
+                if (previewContent) {
+                    previewContent.innerHTML = `
+                        <div class="flex justify-center items-center h-full">
+                            <i class="fas fa-spinner fa-spin text-3xl text-primary-500"></i>
+                        </div>
+                    `;
+                }
+                
+                // Set download button link
+                if (downloadBtn) downloadBtn.setAttribute('data-id', docId);
+                
+                // Show modal with animation
+                previewModal.classList.remove('hidden');
+                setTimeout(() => {
+                    modalContent.classList.remove('scale-95', 'opacity-0');
+                    modalContent.classList.add('scale-100', 'opacity-100');
+                }, 10);
+                
+                // Attempt to display the file
+                if (previewContent && docPath) {
+    if (docPath.toLowerCase().endsWith('.pdf')) {
+        // Use object tag instead of iframe for better PDF compatibility
+        previewContent.innerHTML = `
+            <object data="${docPath}" type="application/pdf" width="100%" height="100%" class="w-full h-full">
+                <div class="flex flex-col items-center justify-center h-full bg-gray-50 p-6">
+                    <div class="text-6xl text-red-400 mb-4">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <p class="text-lg font-medium text-gray-700 mb-2">PDF cannot be displayed directly</p>
+                    <p class="text-gray-500 mb-6">Your browser may not support embedded PDFs.</p>
+                    <a href="${docPath}" class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-all" target="_blank">
+                        <i class="fas fa-external-link-alt mr-2"></i> Open PDF in new tab
+                    </a>
+                </div>
+            </object>
+        `;
+    } else {
+                        previewContent.innerHTML = `
+                            <div class="flex flex-col items-center justify-center h-full">
+                                <div class="text-6xl text-gray-400 mb-4">
+                                    <i class="fas fa-file-alt"></i>
+                                </div>
+                                <p class="text-lg font-medium text-gray-700">Preview not available</p>
+                                <p class="text-gray-500 mb-6">This document type cannot be previewed directly.</p>
+                                <a href="/api/Document/download/${docId}" class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-all" download>
+                                    <i class="fas fa-download mr-2"></i> Download to view
+                                </a>
+                            </div>
+                        `;
+                    }
+                } else if (previewContent) {
+                    previewContent.innerHTML = `
+                        <div class="flex flex-col items-center justify-center h-full">
+                            <div class="text-6xl text-red-400 mb-4">
+                                <i class="fas fa-exclamation-circle"></i>
+                            </div>
+                            <p class="text-lg font-medium text-gray-700">File not found</p>
+                            <p class="text-gray-500">The document could not be loaded.</p>
+                        </div>
+                    `;
+                }
+            }
+        });
+        
+        // Close modal events
+        function closeDocModal() {
+            if (!modalContent || !previewModal) return;
+            
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            
+            setTimeout(() => {
+                previewModal.classList.add('hidden');
+            }, 300);
+        }
+        
+        if (closePreviewBtn) {
+            closePreviewBtn.addEventListener('click', closeDocModal);
+        }
+        
+        if (closePreviewBtn2) {
+            closePreviewBtn2.addEventListener('click', closeDocModal);
+        }
+        
+        // Close modal when clicking outside
+        if (previewModal) {
+            previewModal.addEventListener('click', function(e) {
+                if (e.target === previewModal) {
+                    closeDocModal();
+                }
+            });
+        }
+        
+        // Download button action
+        if (downloadBtn) {
+            downloadBtn.addEventListener('click', function() {
+                const docId = this.getAttribute('data-id');
+                const docPath = this.getAttribute('data-path');
+                if (docId) {
+                    // Direct file access bypassing authorization checks when available
+                    if (docPath) {
+                        window.open(docPath, '_blank');
+                    } else {
+                        // Fallback to API with authentication token appended
+                        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+                        window.open(`${document.querySelector('base')?.getAttribute('href') || '/'}api/Document/download/${docId}?token=${token || ''}`, '_blank');
+                    }
+                }
+            });
+        }
+        
+        // Also fix the download links in the document list
+        document.querySelectorAll('a[href^="/api/Document/download/"]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const docPath = this.closest('[data-path]')?.getAttribute('data-path');
+                if (docPath) {
+                    window.open(docPath, '_blank');
+                } else {
+                    const href = this.getAttribute('href');
+                    const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+                    window.open(`${href}?token=${token || ''}`, '_blank');
+                }
+            });
+        });
+    } catch (e) {
+        console.error("Error in initDocumentPreview:", e);
+    }
+}
+
+// Initialize copy to clipboard functionality
+function initCopyToClipboard() {
+    try {
+        const infoItems = document.querySelectorAll('.font-medium:not(button):not(h3):not(h4)');
+        if (!infoItems || infoItems.length === 0) return;
+        
+        infoItems.forEach(item => {
+            if (!item || !item.textContent || !item.textContent.trim()) return;
+            
+            item.classList.add('cursor-pointer', 'hover:text-primary-600', 'transition-colors');
+            item.title = "Click to copy";
+            
+            item.addEventListener('click', function() {
+                const text = this.innerText;
+                if (!text) return;
+                
+                copyToClipboard(text);
+                showToast('Copied to clipboard', text, 'success');
+            });
+        });
+    } catch (e) {
+        console.error("Error in initCopyToClipboard:", e);
+    }
+}
+
+function copyToClipboard(text) {
+    try {
+        if (!text) return false;
+        
+        const tempElement = document.createElement('textarea');
+        tempElement.value = text;
+        document.body.appendChild(tempElement);
+        tempElement.select();
+        const success = document.execCommand('copy');
+        document.body.removeChild(tempElement);
+        return success;
+    } catch (e) {
+        console.error("Error in copyToClipboard:", e);
+        return false;
+    }
+}
+
+// Toast notification system
+function initToastNotifications() {
+    try {
+        const toast = document.getElementById('toast-notification');
+        const closeToast = document.getElementById('close-toast');
+        
+        if (!toast || !closeToast) return;
+        
+        closeToast.addEventListener('click', function() {
+            hideToast();
+        });
+    } catch (e) {
+        console.error("Error in initToastNotifications:", e);
+    }
+}
+
+function showToast(message, description = '', type = 'success') {
+    try {
+        const toast = document.getElementById('toast-notification');
+        const toastMessage = document.getElementById('toast-message');
+        const toastDescription = document.getElementById('toast-description');
+        const toastIcon = document.getElementById('toast-icon');
+        const toastIconSymbol = document.getElementById('toast-icon-symbol');
+        
+        if (!toast || !toastMessage || !toastDescription || !toastIcon || !toastIconSymbol) return;
+        
+        // Set content
+        toastMessage.textContent = message || 'Notification';
+        toastDescription.textContent = description || '';
+        
+        // Set icon and colors based on type
+        const iconConfigs = {
+            'success': { bgClass: 'bg-green-100', iconClass: 'fas fa-check text-green-500' },
+            'error': { bgClass: 'bg-red-100', iconClass: 'fas fa-times text-red-500' },
+            'warning': { bgClass: 'bg-yellow-100', iconClass: 'fas fa-exclamation text-yellow-500' },
+            'info': { bgClass: 'bg-blue-100', iconClass: 'fas fa-info text-blue-500' }
+        };
+        
+        const config = iconConfigs[type] || iconConfigs.success;
+        toastIcon.className = `flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center ${config.bgClass}`;
+        toastIconSymbol.className = config.iconClass;
+        
+        // Show toast with animation
+        toast.classList.remove('hidden');
+        setTimeout(() => {
+            toast.classList.remove('translate-y-20', 'opacity-0');
+        }, 10);
+        
+        // Auto hide after 5 seconds
+        setTimeout(() => {
+            hideToast();
+        }, 5000);
+    } catch (e) {
+        console.error("Error in showToast:", e);
+    }
+}
+
+function hideToast() {
+    try {
+        const toast = document.getElementById('toast-notification');
+        if (!toast) return;
+        
+        toast.classList.add('translate-y-20', 'opacity-0');
+        setTimeout(() => {
+            toast.classList.add('hidden');
+        }, 300);
+    } catch (e) {
+        console.error("Error in hideToast:", e);
+    }
+}
+
+// Helper functions
+function formatDate(date) {
+    try {
+        if (!(date instanceof Date) || isNaN(date.getTime())) {
+            return 'Invalid date';
+        }
+        const options = { year: 'numeric', month: 'short', day: 'numeric' };
+        return date.toLocaleDateString('en-US', options);
+    } catch (e) {
+        console.error("Error in formatDate:", e);
+        return 'Invalid date';
+    }
+}
+
+function formatTimeAgo(dateStr) {
+    try {
+        // Parse the date string - handle different formats
+        const date = new Date(dateStr);
+        
+        // Check if date is valid
+        if (isNaN(date.getTime())) {
+            console.error("Invalid date format:", dateStr);
+            return "at unknown time";
+        }
+        
+        // Get current time and calculate difference in seconds
+        const now = new Date();
+        const diffMs = now - date;
+        const diffSeconds = Math.floor(diffMs / 1000);
+        
+        // Debug logging to help troubleshoot
+        console.log("Date:", date.toISOString());
+        console.log("Now:", now.toISOString());
+        console.log("Diff (seconds):", diffSeconds);
+        
+        // For future dates
+        if (diffSeconds < 0) {
+            return "in the future";
+        }
+        
+        // Less than a minute
+        if (diffSeconds < 60) {
+            return "just now";
+        }
+        
+        // Less than an hour
+        if (diffSeconds < 3600) {
+            const minutes = Math.floor(diffSeconds / 60);
+            return `${minutes} ${minutes === 1 ? 'minute' : 'minutes'} ago`;
+        }
+        
+        // Less than a day
+        if (diffSeconds < 86400) {
+            const hours = Math.floor(diffSeconds / 3600);
+            return `${hours} ${hours === 1 ? 'hour' : 'hours'} ago`;
+        }
+        
+        // Less than a week
+        if (diffSeconds < 604800) {
+            const days = Math.floor(diffSeconds / 86400);
+            return `${days} ${days === 1 ? 'day' : 'days'} ago`;
+        }
+        
+        // Less than a month
+        if (diffSeconds < 2592000) {
+            const weeks = Math.floor(diffSeconds / 604800);
+            return `${weeks} ${weeks === 1 ? 'week' : 'weeks'} ago`;
+        }
+        
+        // Less than a year
+        if (diffSeconds < 31536000) {
+            const months = Math.floor(diffSeconds / 2592000);
+            return `${months} ${months === 1 ? 'month' : 'months'} ago`;
+        }
+        
+        // More than a year
+        const years = Math.floor(diffSeconds / 31536000);
+        return `${years} ${years === 1 ? 'year' : 'years'} ago`;
+        
+    } catch (error) {
+        console.error("Error in formatTimeAgo:", error);
+        return "some time ago";
+    }
+}
+
+function formatFileSize(bytes) {
+    try {
+        if (!bytes || bytes === 0) return '0 Bytes';
+        
+        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(1024));
+        
+        return parseFloat((bytes / Math.pow(1024, i)).toFixed(2)) + ' ' + sizes[i];
+    } catch (e) {
+        console.error("Error in formatFileSize:", e);
+        return 'Unknown size';
+    }
+}
+
+function getDaysDiff(startDate, endDate) {
+    try {
+        if (!(startDate instanceof Date) || !(endDate instanceof Date) || 
+            isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+            return 0;
+        }
+        return Math.ceil(Math.abs((endDate - startDate) / (1000 * 60 * 60 * 24)));
+    } catch (e) {
+        console.error("Error in getDaysDiff:", e);
+        return 0;
+    }
+}
+
+// Share functionality for the share button
+document.addEventListener('DOMContentLoaded', function() {
+    const shareBtn = document.getElementById('share-btn');
+    if (shareBtn) {
+        shareBtn.addEventListener('click', function() {
+            try {
+                // Create share data
+                const shareData = {
+                    title: '@Model.ProductName',
+                    text: 'View product information',
+                    url: window.location.href
+                };
+                
+                // Use the Web Share API if available
+                if (navigator.share) {
+                    navigator.share(shareData)
+                        .then(() => showToast('Shared successfully', '', 'success'))
+                        .catch(error => {
+                            console.error('Error sharing:', error);
+                            copyToClipboard(window.location.href);
+                            showToast('Link copied to clipboard', 'Share this link with others', 'info');
+                        });
+                } else {
+                    // Fallback to copy to clipboard
+                    copyToClipboard(window.location.href);
+                    showToast('Link copied to clipboard', 'Share this link with others', 'info');
+                }
+            } catch (e) {
+                console.error("Error in share button handler:", e);
+                copyToClipboard(window.location.href);
+                showToast('Link copied to clipboard', 'Share this link with others', 'info');
+            }
+        });
+    }
+});
+
+function downloadDocument(id, path) {
+    try {
+        if (path) {
+            // Prefer direct path when available
+            window.open(path, '_blank');
+        } else {
+            // Add preview parameter to identify preview requests
+            const base = document.querySelector('base')?.getAttribute('href') || '/';
+            window.open(`${base}api/Document/download/${id}?preview=true`, '_blank');
+        }
+    } catch (error) {
+        console.error("Error downloading document:", error);
+        showToast('Download failed', 'Could not download the document', 'error');
+    }
+}
+</script>
+}

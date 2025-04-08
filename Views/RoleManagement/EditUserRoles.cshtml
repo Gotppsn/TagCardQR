@@ -1,0 +1,103 @@
+@model CardTagManager.Models.UserProfile
+@{
+    ViewData["Title"] = "Edit User Roles";
+    var allRoles = ViewBag.AllRoles as List<CardTagManager.Models.Role>;
+    var userRoles = ViewBag.UserRoles as List<CardTagManager.Models.Role>;
+}
+
+<div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800">Edit User Roles</h1>
+            <p class="text-gray-600 mt-1">Manage roles for @Model.Username</p>
+        </div>
+        <div>
+            <a asp-action="Users" class="btn-secondary">
+                <i class="fas fa-arrow-left mr-2"></i> Back to Users
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div class="bg-gray-50 p-5 rounded-lg border border-gray-100">
+            <div class="flex items-center">
+                <div class="h-12 w-12 rounded-full bg-primary-500 text-white flex items-center justify-center mr-3">
+                    <span class="text-lg font-bold">@(Model.Username.Substring(0, 1).ToUpper())</span>
+                </div>
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-800">@Model.Username</h2>
+                    <p class="text-gray-600">@(!string.IsNullOrEmpty(Model.Detail_EN_FirstName) ? $"{Model.Detail_EN_FirstName} {Model.Detail_EN_LastName}" : "")</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-blue-50 p-5 rounded-lg border border-blue-100">
+            <h3 class="font-medium text-blue-800">Contact Details</h3>
+            <div class="mt-2 text-blue-700">
+                <p><i class="fas fa-envelope mr-2"></i> @(string.IsNullOrEmpty(Model.User_Email) ? "No email provided" : Model.User_Email)</p>
+                <p><i class="fas fa-id-card mr-2"></i> @(string.IsNullOrEmpty(Model.User_Code) ? "No user code" : Model.User_Code)</p>
+            </div>
+        </div>
+        <div class="bg-green-50 p-5 rounded-lg border border-green-100">
+            <h3 class="font-medium text-green-800">Department</h3>
+            <div class="mt-2 text-green-700">
+                <p><i class="fas fa-building mr-2"></i> @(string.IsNullOrEmpty(Model.Department_Name) ? "No department" : Model.Department_Name)</p>
+                <p><i class="fas fa-map-marker-alt mr-2"></i> @(string.IsNullOrEmpty(Model.Plant_Name) ? "No plant assigned" : Model.Plant_Name)</p>
+            </div>
+        </div>
+    </div>
+
+    <form asp-action="UpdateUserRoles" method="post" class="bg-white rounded-lg border border-gray-200 p-6">
+        <input type="hidden" name="userId" value="@Model.Id" />
+        
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Role Assignments</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            @foreach (var role in allRoles)
+            {
+                bool isChecked = userRoles != null && userRoles.Any(r => r.Id == role.Id);
+                string cardClass = isChecked ? "border-primary-400 bg-primary-50" : "border-gray-200";
+                
+                <div class="border rounded-lg p-4 @cardClass transition-all duration-200 hover:shadow-md">
+                    <label class="flex items-start cursor-pointer">
+                        <input type="checkbox" name="selectedRoles" value="@role.Id" class="form-checkbox h-5 w-5 text-primary-600 mt-1" @(isChecked ? "checked" : "") />
+                        <div class="ml-3">
+                            <span class="block font-medium text-gray-800">@role.Name</span>
+                            <span class="text-sm text-gray-600">@role.Description</span>
+                        </div>
+                    </label>
+                </div>
+            }
+        </div>
+        
+        <div class="mt-6 flex justify-end">
+            <a asp-action="Users" class="btn-secondary mr-3">
+                Cancel
+            </a>
+            <button type="submit" class="btn-primary">
+                <i class="fas fa-save mr-2"></i> Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add animation to checkboxes
+            const roleCards = document.querySelectorAll('.border.rounded-lg');
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            
+            checkboxes.forEach((checkbox, index) => {
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        roleCards[index].classList.add('border-primary-400', 'bg-primary-50');
+                        roleCards[index].classList.remove('border-gray-200');
+                    } else {
+                        roleCards[index].classList.remove('border-primary-400', 'bg-primary-50');
+                        roleCards[index].classList.add('border-gray-200');
+                    }
+                });
+            });
+        });
+    </script>
+}
