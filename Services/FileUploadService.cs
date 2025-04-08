@@ -26,7 +26,7 @@ namespace CardTagManager.Services
 
         private string GetApiUrl()
         {
-            return _configuration["FileUpload:ApiUrl"] ?? "https://tp-prodext.thaiparker.co.th/tp_service_test/";
+            return _configuration["FileUpload:ApiUrl"] ?? "https://devsever.thaiparker.co.th/tp_service/";
         }
 
         private string GetToken()
